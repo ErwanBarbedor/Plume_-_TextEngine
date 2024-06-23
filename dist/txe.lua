@@ -1,5 +1,5 @@
 --[[
-TextEngine 1.0.0-dev1
+TextEngine 1.0.0-dev2
 Copyright (C) 2024 Erwan Barbedor
 
 Check #GITHUB#
@@ -581,7 +581,7 @@ function txe.error (token, message)
     txe.last_error = err
 
     -- And throw it
-    error(err)
+    error(err, -1)
 end
 
 txe.macros = {}
@@ -868,24 +868,13 @@ function txe.render (code, filename)
     -- filename may be any string used to track the code
     -- Return result, nil in case of sucess,
     -- And nil, error in case of error
-    local err, tokens
+    local tokens, result
     
-    local sucess, result = pcall(function()return txe.parse(txe.tokenize(code, filename)) end)
-    if sucess then
-        tokens = result
-    else
-        err = result
-        return false, txe.last_error or err
-    end
+    tokens = txe.tokenize(code, filename)
+    tokens = txe.parse(tokens)
+    result = tokens:render()
     
-    local sucess, result = pcall(tokens.render, tokens)
-    if sucess then
-        err = ""
-    else
-        err = result
-        result = nil
-    end
-    return result, txe.last_error or err
+    return result
 end
 
 function txe.renderFile(filename)
@@ -893,10 +882,7 @@ function txe.renderFile(filename)
     -- Return (result, nil) in case of sucess,
     -- And (nil, error) in case of error
     local file = io.open(filename, "r")
-
-    if not file then
-        return nil, "File " .. filename .. " doesn't exist or cannot be read."
-    end
+    assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
     
     local content = file:read("*all")
     file:close()

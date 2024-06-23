@@ -44,16 +44,17 @@ local function runTests(tests)
 
     for _, test in ipairs(tests) do
         local kind, versions = test.outputInfos:match('(%S*)(.*)')
-        -- print(test.name, versions, ">>>", _VERSION, ">>>", versions:match(_VERSION))
+
         if #versions==0 or versions:match(_VERSION) then
             testNumber = testNumber + 1
 
             for k, _ in pairs(package.loaded) do package.loaded[k] = nil end
             local txe = require "txe"
 
-            local result, err = txe.render(test.input)
-            if err then
-                err = err:gsub('\t', '    ')
+            local sucess, result = pcall (txe.render, test.input)
+            local err
+            if not sucess then
+                err = result:gsub('\t', '    ')
             end
             if kind == "Error" then
                 if not err then

@@ -105,5 +105,5 @@ function txe.error (token, message)
     txe.last_error = err
 
     -- And throw it
-    error(err)
+    error(err, -1)
 end
