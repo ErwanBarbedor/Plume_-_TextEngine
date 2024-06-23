@@ -105,9 +105,19 @@ end
 function txe.lua_env_set_local (key, value)
     txe.env[#txe.env][key] = value
 end
--- function txe.lua
 
 -- Save all lua standard functions to be available from "eval" macros
-for k, v in pairs(_G) do
-    txe.lua_env[k] = v
+local lua_std
+if _VERSION == "Lua 5.1" then
+    if jit then
+        lua_std = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
+    else
+        lua_std = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutineselect gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
+    end
+else -- Assume version is 5.4
+    lua_std = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
+end
+
+for name in lua_std:gmatch('%S+') do
+    txe.lua_env[name] = _G[name]
 end

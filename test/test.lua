@@ -40,6 +40,7 @@ end
 local function runTests(tests)
     local testNumber = 0
     local testFailed = 0
+    local _VERSION = _VERSION
     if jit then _VERSION = "Lua jit" end
 
     for _, test in ipairs(tests) do
