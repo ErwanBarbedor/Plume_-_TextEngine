@@ -663,19 +663,20 @@ end
 txe.register_macro("require", {"path"}, {}, function(args)
     -- Execute a lua file in the current context
 
-    -- Todo: check if file exist, check for errors...
-    local path = args.path:render ()
-    local f = txe.call_lua_chunck (args.path, " function ()" .. io.open(path .. ".lua"):read("*a") .. " end")
+    local path = args.path:render () .. ".lua"
+    local file = io.open(path)
+    if not file then
+        txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
+    end
+
+    local f = txe.call_lua_chunck (args.path, " function ()" .. file:read("*a") .. " end")
 
     return f()
 end)
 
 txe.register_macro("include", {"path"}, {}, function(args)
     -- Execute the given txe file and return the output
-
-    -- Todo: check if file exist, check for errors...
     local path = args.path:render () .. ".txe"
-    
     return txe.renderFile(path)
 end)
 

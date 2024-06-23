@@ -5,8 +5,30 @@
 27
 // End
 
+// Test 'require (file does not exit)'
+\require foo
+// Error
+File 'string', line 1 : File 'foo.lua' doesn't exist or cannot be read.
+    \require foo
+             ^^^
+Traceback :
+    File 'string', line 1 : \require foo
+                            ^^^^^^^^
+// End
+
 // Test 'include'
 \include test/lib
 // Result
 foo
+// End
+
+// Test 'include error'
+\include test/lib_error
+// Error
+File 'test/lib_error.txe', line 1 : Unknow macro 'foo'
+    \foo
+    ^^^^
+Traceback :
+    File 'string', line 1 : \include test/lib_error
+                            ^^^^^^^^
 // End
