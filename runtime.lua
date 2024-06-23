@@ -15,6 +15,19 @@ You should have received a copy of the GNU General Public License along with Tex
 txe.lua_cache      = {}
 txe.chunck_count = 0
 
+-- Define 'load' function for Lua 5.1 compatibility
+if _VERSION == "Lua 5.1" or jit then
+    function txe.load_lua_chunck (code, _, _, env)
+        local f, err = loadstring(code)
+        if f then
+            setfenv(f, env)
+        end
+        return f, err
+    end
+else
+    txe.load_lua_chunck = load
+end
+
 function txe.call_lua_chunck(token, code)
     -- Load, cache and execute code
     -- find in the given token or string
@@ -30,7 +43,7 @@ function txe.call_lua_chunck(token, code)
         code = "--token" .. txe.chunck_count .. '\nreturn ' ..code
         
         local loaded_func, load_err
-        loaded_func, load_err = load(code, nil, "bt", txe.lua_env)
+        loaded_func, load_err = txe.load_lua_chunck(code, nil, "bt", txe.lua_env)
 
         if not loaded_func then
             load_err = load_err:gsub('^.-%]:[0-9]+:', '')

@@ -18,17 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
--- Define 'load' function for Lua 5.1 compatibility
-if _VERSION == "Lua 5.1" or jit then
-    function load (code, _, _, env)
-        local f, err = loadstring(code)
-        if f then
-            setfenv(f, env)
-        end
-        return f, err
-    end
-end
-
 txe = {}
 txe._VERSION = "#VERSION#"
 
