@@ -61,6 +61,17 @@ function txe.token (kind, value, line, pos, file, code)
     }, {})
 end
 
+local function tokens2number(x, y)
+    -- Convert any number of tokens into number
+    if x.render then
+        x = tonumber(x:render())
+    end
+    if y.render then
+        y = tonumber(y:render())
+    end
+    return x, y
+end
+
 function txe.tokenlist (x)
     local kind = "block"
     local t = {}
@@ -198,7 +209,32 @@ function txe.tokenlist (x)
             end
             return table.concat(result)
         end
-    }, {})
+    }, {
+        -- Some metamethods, for convenience :
+        -- Argument of macros are passed as tokenlist without rendered it.
+        -- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersone.
+        -- With metamethods, it became \def add[x y] #{x+y}
+        __add = function(self, y)
+            x, y = tokens2number (self, y)
+            return x+y
+        end,
+        __sub = function(self, y)
+            x, y = tokens2number (self, y)
+            return x-y
+        end,
+        __mul = function(self, y)
+            x, y = tokens2number (self, y)
+            return x*y
+        end,
+        __div = function(self, y)
+            x, y = tokens2number (self, y)
+            return x/y
+        end,
+        __concat = function(self, y)
+            if y.render then y = y:render () end
+            return x:render () .. y
+        end
+    })
 
     for k, v in ipairs(t) do
         tokenlist[k] = v
