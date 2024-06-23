@@ -85,12 +85,7 @@ txe.lua_env = setmetatable({}, {
         for i=#txe.env, 1, -1 do
             local value = txe.env[i][key]
             if value or i==1 then
-                if type(value) == 'table' and value.render then
-
-                    return value:render()
-                else
-                    return value
-                end
+                return value
             end
         end
     end

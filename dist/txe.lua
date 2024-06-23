@@ -644,8 +644,14 @@ end)
 
 txe.register_macro("#", {"expr"}, {}, function(args)
     --Eval lua chunck and return the result
-    --Todo : check for syntax error
-    return txe.call_lua_chunck(args.expr)
+    local result = txe.call_lua_chunck(args.expr)
+
+    --if result is a token, render it
+    if type(result) == "table" and result.render then
+        result = result:render ()
+    end
+    
+    return result
 end)
 
 local function lua_package (path)
@@ -841,12 +847,7 @@ txe.lua_env = setmetatable({}, {
         for i=#txe.env, 1, -1 do
             local value = txe.env[i][key]
             if value or i==1 then
-                if type(value) == 'table' and value.render then
-
-                    return value:render()
-                else
-                    return value
-                end
+                return value
             end
         end
     end
