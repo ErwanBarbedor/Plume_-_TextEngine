@@ -30,6 +30,7 @@ if _VERSION == "Lua 5.1" or jit then
 end
 
 txe = {}
+txe._VERSION = "#VERSION#"
 
 require "config"
 require "syntax"
@@ -67,8 +68,6 @@ end
 function txe.render (code, filename)
     -- Tokenize, parse and render a string
     -- filename may be any string used to track the code
-    -- Return result, nil in case of sucess,
-    -- And nil, error in case of error
     local tokens, result
     
     tokens = txe.tokenize(code, filename)
@@ -80,15 +79,14 @@ end
 
 function txe.renderFile(filename)
     -- Read the content of a file and render it.
-    -- Return (result, nil) in case of sucess,
-    -- And (nil, error) in case of error
     local file = io.open(filename, "r")
     assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
-    
     local content = file:read("*all")
     file:close()
     
     return txe.render(content, filename)
 end
+
+require "cli"
 
 return txe

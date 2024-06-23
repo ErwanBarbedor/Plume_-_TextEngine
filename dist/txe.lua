@@ -1,5 +1,5 @@
 --[[
-TextEngine 1.0.0-dev2
+TextEngine 1.0.0-dev3
 Copyright (C) 2024 Erwan Barbedor
 
 Check #GITHUB#
@@ -30,6 +30,7 @@ if _VERSION == "Lua 5.1" or jit then
 end
 
 local txe = {}
+txe._VERSION = "TextEngine 1.0.0-dev3"
 
 
 txe.max_callstack_size          = 1000
@@ -866,8 +867,6 @@ end
 function txe.render (code, filename)
     -- Tokenize, parse and render a string
     -- filename may be any string used to track the code
-    -- Return result, nil in case of sucess,
-    -- And nil, error in case of error
     local tokens, result
     
     tokens = txe.tokenize(code, filename)
@@ -879,15 +878,93 @@ end
 
 function txe.renderFile(filename)
     -- Read the content of a file and render it.
-    -- Return (result, nil) in case of sucess,
-    -- And (nil, error) in case of error
     local file = io.open(filename, "r")
     assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
-    
     local content = file:read("*all")
     file:close()
     
     return txe.render(content, filename)
+end
+
+
+local cli_help = [[
+Usage:
+    txe INPUT_FILE
+    txe --output OUTPUT_FILE INPUT_FILE
+    txe --version
+    txe --help
+
+TextEngine is a command interpreter that generates text files from predefined or user-defined macros.
+
+Options:
+  -h, --help          Show this help message and exit.
+  -v, --version       Show the version of txe and exit.
+  -o, --output FILE   Write the output to FILE instead of displaying it.
+
+Examples:
+  txe --help
+    Display this message.
+
+  txe --version
+    Display the version of TextEngine.
+
+  txe input.txe
+    Process 'input.txt' and display the result.
+
+  txe --output output.txt input.txe
+    Process 'input.txt' and save the result to 'output.txt'.
+
+For more information, visit #GITHUB#.
+]]
+
+txe.cli = {
+  defaut = {
+
+  }
+}
+
+-- Assume that, if the first arg is "txe.lua" or "txe", we are
+-- directly called from the command line
+local first_arg_name = arg[0]:match('[^/\\]*$')
+if first_arg_name == 'txe.lua' or first_arg_name == 'txe' then
+    -- Minimal cli parser
+    if arg[1] == "-v" or arg[1] == "--version" then
+        print(txe._VERSION)
+        return
+    elseif arg[1] == "-h" or arg[1] == "--help" then
+        print(cli_help)
+        return
+    end
+
+    local output, input
+    if arg[1] == "-o" or arg[2] == "--output" then
+        output = arg[2]
+        if not input then
+            print ("No output file provided.")
+            return
+        end
+
+        input  = arg[3]
+    elseif arg[1]:match('^%-') then
+        print("Unknow option '" .. arg[1] .. "'")
+    else
+        input  = arg[1]
+    end
+
+    if not input then
+        print ("No input file provided.")
+        return
+    end
+
+    sucess, result = pcall(txe.renderFile, input)
+
+    if sucess then
+        print(result)
+    else
+        print("Error:")
+        print(result)
+    end
+
 end
 
 return txe
