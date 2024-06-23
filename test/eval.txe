@@ -74,6 +74,12 @@ table
 11
 // End
 
+// Test 'Eval table'
+#{ ({1, 2})[1] }
+// Result
+1
+// End
+
 // Test 'Eval syntax error'
 \set a #{a+}
 // Error Lua 5.1 Lua jit

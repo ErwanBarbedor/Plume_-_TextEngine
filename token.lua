@@ -34,10 +34,14 @@ function txe.tokenlist (x)
             for _, token in ipairs(self) do
                 if token.kind == "block" then
                     table.insert(result, txe.syntax.block_begin)
+                elseif token.kind == "opt_block" then
+                    table.insert(result, txe.syntax.opt_block_begin)
                 end
                 table.insert(result, token:source())
                 if token.kind == "block" then
                     table.insert(result, txe.syntax.block_end)
+                elseif token.kind == "opt_block" then
+                    table.insert(result, txe.syntax.opt_block_end)
                 end
             end
 

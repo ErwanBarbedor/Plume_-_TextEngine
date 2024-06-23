@@ -23,7 +23,6 @@ function txe.call_lua_chunck(token, code)
 
     code = code or token:source ()
 
-    -- print(code)
     if not txe.lua_cache[code] then
         --put chunck ref in the code, to retrieve it
         --in case of error
