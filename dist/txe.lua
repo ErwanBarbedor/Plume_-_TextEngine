@@ -956,7 +956,18 @@ function txe.cli_main ()
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        print(result)
+        if output then
+            local file = io.open(output, "w")
+            if not file then
+                print("Cannot write the file '" .. output .. "'.")
+                return
+            end
+            file:write(result)
+            file:close ()
+            print("Done")
+        else
+            print(result)
+        end
     else
         print("Error:")
         print(result)
