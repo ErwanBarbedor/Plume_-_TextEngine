@@ -1,0 +1,31 @@
+// Test 'Wrong brace 1'
+}
+// Error
+File 'string', line 1 : This brace close nothing.
+    }
+    ^
+// End
+
+// Test 'Wrong brace 2'
+{}}
+// Error
+File 'string', line 1 : This brace close nothing.
+    {}}
+      ^
+// End
+
+// Test 'Wrong brace 3'
+{
+// Error
+File 'string', line 1 : This brace was never closed
+    {
+    ^
+// End
+
+// Test 'Wrong brace 4'
+[}
+// Error
+File 'string', line 1 : This brace doesn't matching the opening brace, which was '['.
+    [}
+     ^
+// End

@@ -1,0 +1,12 @@
+// Test 'require'
+\require test/lib//
+#a
+// Result
+27
+// End
+
+// Test 'include'
+\include test/lib
+// Result
+foo
+// End

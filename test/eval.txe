@@ -1,0 +1,119 @@
+// Test 'simple eval'
+#{1+1}
+// Result
+2
+// End
+
+// Test 'empty var'
+#a
+// Result
+
+// End
+
+// Test 'eval and set'
+\set a #{1+1}#a
+// Result
+2
+// End
+
+// Test 'var'
+\set a 4 #a
+// Result
+ 4
+// End
+
+// Test 'type 1'
+\set a {\{\}}#{type(a)}
+// Result
+string
+// End
+
+// Test 'type 2'
+\set a 2#{type(a)}
+// Result
+number
+// End
+
+// Test 'type 3'
+\set a #{2}
+#{type(a)}
+// Result
+
+number
+// End
+
+// Test 'type 4'
+\set a #{\{\}}#{type(a)}
+// Result
+table
+// End
+
+// Test 'type 5'
+\set a #{{}}#{type(a)}
+// Result
+table
+// End
+
+// Test 'type 6'
+\set a #{function (x) return 2*x end}
+#{a(5)}
+// Result
+
+10
+// End
+
+// Test 'Capture 1'
+\set a #{10}#a+1
+// Result
+10+1
+// End
+
+// Test 'Capture 2'
+\set a #{10}#{a+1}
+// Result
+11
+// End
+
+// Test 'Eval syntax error'
+\set a #{a+}
+// Error Lua 5.1 Lua jit
+File 'string', line 1 : (Lua syntax error) unexpected symbol near '<eof>'
+    \set a #{a+}
+            ^^^^
+Traceback :
+    File 'string', line 1 : \set a #{a+}
+                            ^^^^
+// End
+
+// Test 'Eval syntax error 54'
+\set a #{a+}
+// Error Lua 5.4
+File 'string', line 1 : (Lua syntax error) unexpected symbol near <eof>
+    \set a #{a+}
+            ^^^^
+Traceback :
+    File 'string', line 1 : \set a #{a+}
+                            ^^^^
+// End
+
+// Test 'Eval lua error'
+\set a #{""+1}
+// Error Lua 5.1 Lua jit
+File 'string', line 1 : (Lua error) attempt to perform arithmetic on a string value
+    \set a #{""+1}
+            ^^^^^^
+Traceback :
+    File 'string', line 1 : \set a #{""+1}
+                            ^^^^
+// End
+
+// Test 'Eval lua error'
+\set a #{""+1}
+// Error Lua 5.4
+File 'string', line 1 : (Lua error) attempt to add a 'string' with a 'number'
+    \set a #{""+1}
+            ^^^^^^
+Traceback :
+    File 'string', line 1 : \set a #{""+1}
+                            ^^^^
+// End

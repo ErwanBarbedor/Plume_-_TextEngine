@@ -1,0 +1,100 @@
+// Test 'Unknow macro'
+\foo
+// Error
+File 'string', line 1 : Unknow macro 'foo'
+    \foo
+    ^^^^
+// End
+
+// Test 'Unknow macro (multilines)'
+Hello!
+
+\foo
+// Error
+File 'string', line 3 : Unknow macro 'foo'
+    \foo
+    ^^^^
+// End
+
+// Test 'No enough arguments'
+\def x
+// Error
+File 'string', line 1 : End of block reached, not enough arguments for macro '\def'. 1 instead of 2.
+    \def x
+    ^^^^
+// End
+
+// Test 'To many optional blocks'
+\def[x][x] foo bar
+// Error
+File 'string', line 1 : To many optional blocks given for macro '\def'
+    \def[x][x] foo bar
+           ^^^
+// End
+
+// Test 'Wrong parameter name'
+\def foo [{a}=5] {}
+// Error
+File 'string', line 1 : Optional parameters names must be raw text.
+    \def foo [{a}=5] {}
+              ^^^
+// End
+
+// Test 'Early ='
+\def foo [=a] {}
+// Error
+File 'string', line 1 : Expected parameter name, not '='.
+    \def foo [=a] {}
+              ^
+// End
+
+// Test 'To many ='
+\def foo [a==5] {}
+// Error
+File 'string', line 1 : Expected parameter value, not '='.
+    \def foo [a==5] {}
+                ^
+// End
+
+// Test 'Invalid command name'
+\def foo! bar
+// Error
+File 'string', line 1 : 'foo!' is an invalid name for a macro.
+    \def foo! bar
+         ^^^^
+Traceback :
+    File 'string', line 1 : \def foo! bar
+                            ^^^^
+// End
+
+// Test 'To many macro call'
+\def foo {\foo}\foo
+// Error
+File 'string', line 1 : To many intricate macro call (over the configurated limit of 1000).
+    \def foo {\foo}\foo
+              ^^^^
+Traceback :
+    File 'string', line 1 : \def foo {\foo}\foo
+                                      ^^^^
+    File 'string', line 1 : \def foo {\foo}\foo
+                                      ^^^^
+    (same line again 998 times)
+    File 'string', line 1 : \def foo {\foo}\foo
+                                           ^^^^
+// End
+
+// Test 'Macro already exist'
+\def foo bar \def foo barbar
+// Error
+File 'string', line 1 : The macro 'foo' already exist. Use '\redef' to erease it.
+    \def foo bar \def foo barbar
+                      ^^^
+Traceback :
+    File 'string', line 1 : \def foo bar \def foo barbar
+                                         ^^^^
+// End
+
+// Test 'Macro already exist, but no error'
+\def foo bar \redef foo barbar
+// Result
+// End
