@@ -917,16 +917,7 @@ Examples:
 For more information, visit #GITHUB#.
 ]]
 
-txe.cli = {
-  defaut = {
-
-  }
-}
-
--- Assume that, if the first arg is "txe.lua" or "txe", we are
--- directly called from the command line
-local first_arg_name = arg[0]:match('[^/\\]*$')
-if first_arg_name == 'txe.lua' or first_arg_name == 'txe' then
+function txe.cli_main ()
     -- Minimal cli parser
     if arg[1] == "-v" or arg[1] == "--version" then
         print(txe._VERSION)
@@ -964,7 +955,11 @@ if first_arg_name == 'txe.lua' or first_arg_name == 'txe' then
         print("Error:")
         print(result)
     end
+end
 
+-- Trick to test if we are called from the command line
+if debug.getinfo(3, "S")==nil then
+    txe.cli_main ()
 end
 
 return txe
