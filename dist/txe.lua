@@ -1,8 +1,8 @@
 --[[
-TextEngine 1.0.0-dev5
+TextEngine 1.0.0 (dev)
 Copyright (C) 2024 Erwan Barbedor
 
-Check #GITHUB#
+Check https://github.com/ErwanBarbedor/TextEngine
 for documentation, tutorial or to report issues.
 
 This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local txe = {}
-txe._VERSION = "TextEngine 1.0.0-dev5"
+txe._VERSION = "TextEngine 1.0.0 (dev)"
 
 
 txe.max_callstack_size          = 1000
@@ -910,7 +910,7 @@ Usage:
     txe --version
     txe --help
 
-TextEngine is a command interpreter that generates text files from predefined or user-defined macros.
+TextEngine is a templating langage with advanced scripting features.
 
 Options:
   -h, --help          Show this help message and exit.
@@ -930,7 +930,7 @@ Examples:
   txe --output output.txt input.txe
     Process 'input.txt' and save the result to 'output.txt'.
 
-For more information, visit #GITHUB#.
+For more information, visit https://github.com/ErwanBarbedor/TextEngine.
 ]]
 
 function txe.cli_main ()

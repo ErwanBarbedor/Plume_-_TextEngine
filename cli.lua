@@ -19,7 +19,7 @@ Usage:
     txe --version
     txe --help
 
-TextEngine is a command interpreter that generates text files from predefined or user-defined macros.
+TextEngine is a templating langage with advanced scripting features.
 
 Options:
   -h, --help          Show this help message and exit.
