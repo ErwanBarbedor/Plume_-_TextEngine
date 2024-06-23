@@ -12,7 +12,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local version = "TextEngine 1.0.0-dev4"
+local version = "TextEngine 1.0.0-dev5"
 local code = io.open("txe.lua"):read "*a"
 
 code = code:gsub('#VERSION#', version)

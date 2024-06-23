@@ -1,5 +1,5 @@
 --[[
-TextEngine 1.0.0-dev4
+TextEngine 1.0.0-dev5
 Copyright (C) 2024 Erwan Barbedor
 
 Check #GITHUB#
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local txe = {}
-txe._VERSION = "TextEngine 1.0.0-dev4"
+txe._VERSION = "TextEngine 1.0.0-dev5"
 
 
 txe.max_callstack_size          = 1000
@@ -944,9 +944,9 @@ function txe.cli_main ()
     end
 
     local output, input
-    if arg[1] == "-o" or arg[2] == "--output" then
+    if arg[1] == "-o" or arg[1] == "--output" then
         output = arg[2]
-        if not input then
+        if not output then
             print ("No output file provided.")
             return
         end

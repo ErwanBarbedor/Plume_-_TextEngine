@@ -53,9 +53,9 @@ function txe.cli_main ()
     end
 
     local output, input
-    if arg[1] == "-o" or arg[2] == "--output" then
+    if arg[1] == "-o" or arg[1] == "--output" then
         output = arg[2]
-        if not input then
+        if not output then
             print ("No output file provided.")
             return
         end
