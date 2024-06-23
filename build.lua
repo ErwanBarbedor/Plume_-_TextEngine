@@ -12,16 +12,17 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local version = "TextEngine 1.0.0-dev5"
+local version = "TextEngine 1.0.0 (dev)"
 local code = io.open("txe.lua"):read "*a"
 
-code = code:gsub('#VERSION#', version)
--- code = code:gsub('#GITHUB#', 'github_url')
+
 code = code:gsub('(txe = {}[\r\n]+)', 'local %1')
 code = code:gsub('require "(.-)"', function (m)
     return "\n" .. io.open(m..".lua"):read "*a":gsub('%-%-%[%[.-%]%][\r\n]+', '', 1)
 end)
 code = code:gsub('%-%- <DEV>.-%-%- </DEV>', '')
+code = code:gsub('#VERSION#', version)
+code = code:gsub('#GITHUB#', 'https://github.com/ErwanBarbedor/TextEngine')
 
 io.open('dist/txe.lua', 'w'):write(code)
 
