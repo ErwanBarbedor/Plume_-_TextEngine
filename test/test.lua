@@ -52,7 +52,7 @@ local function runTests(tests)
             local txe = require "txe"
 
             local sucess, result = pcall (txe.render, test.input)
-            local err
+            local err = ""
             if not sucess then
                 err = result:gsub('\t', '    ')
             end

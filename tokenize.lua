@@ -108,7 +108,7 @@ function txe.tokenize (code, file)
                     pos = pos + 1
                     next = code:sub(pos, pos)
                     table.insert(acc, next)
-                until pos == #code or next == "\n"
+                until pos >= #code or next == "\n"
                 if next == "\n" then
                     noline = noline + 1
                     linepos = pos+1

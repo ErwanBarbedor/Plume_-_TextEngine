@@ -72,6 +72,7 @@ function txe.render (code, filename)
     
     tokens = txe.tokenize(code, filename)
     tokens = txe.parse(tokens)
+    -- print_tokens(tokens)
     result = tokens:render()
     
     return result
