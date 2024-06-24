@@ -95,7 +95,7 @@ txe.register_macro("require", {"path"}, {}, function(args)
         txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
     end
 
-    local f = txe.call_lua_chunck (args.path, " function ()" .. file:read("*a") .. " end")
+    local f = txe.call_lua_chunck (args.path, " function ()" .. file:read("*a") .. "\n end")
 
     return f()
 end)
