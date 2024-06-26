@@ -141,7 +141,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         end
     elseif iterator and var then
         local variables_list = {}
-        for name in var:gmatch('[^%s,]') do
+        for name in var:gmatch('[^%s,]+') do
             table.insert(variables_list, name)
         end
 
@@ -152,6 +152,10 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         end
 
         local values_list = { iter(state, key) }
+
+        if #values_list == 0 then
+            return ""
+        end
 
         if #values_list ~= #variables_list then
             txe.error(args.iterator, "Wrong number of variables, " .. #variables_list .. " instead of " .. #values_list .. "." )
