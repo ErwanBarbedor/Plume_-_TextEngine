@@ -125,7 +125,7 @@ end)
 -- Controle structures
 txe.register_macro("for", {"iterator", "body"}, {}, function(args)
     local result = {}
-    local iterator = args.iterator:render ()
+    local iterator = args.iterator:source ()
     local var, var1, var2, first, last
 
     var, first, last = iterator:match('%s*(.-)%s*=%s*([0-9]-)%s*,%s*([0-9]-)$')
@@ -146,6 +146,12 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         end
 
         local iter, state, key = txe.call_lua_chunck (args.iterator, iterator)
+
+        -- Check if iter is callable.
+        -- For now, table will raise an error, even if has a __call field.
+        if type(iter) ~= "function" then
+            txe.error(args.iterator, "iterator cannot be '" .. type(iter) .. "'")
+        end
         
         if not iter then
             return ""

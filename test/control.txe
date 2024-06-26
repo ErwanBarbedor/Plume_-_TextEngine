@@ -53,7 +53,7 @@ Traceback :
 // End
 
 // Test 'for - empty'
-\for {i in {}} {}
+\for {i in pairs({})} {}
 // Result
 
 // End
