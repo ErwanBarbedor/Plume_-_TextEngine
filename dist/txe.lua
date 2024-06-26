@@ -1,5 +1,5 @@
 --[[
-TextEngine 1.0.0 (dev)
+TextEngine 0.1.0 (dev)
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local txe = {}
-txe._VERSION = "TextEngine 1.0.0 (dev)"
+txe._VERSION = "TextEngine 0.1.0 (dev)"
 
 
 txe.max_callstack_size          = 1000
