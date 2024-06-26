@@ -116,3 +116,6 @@ end
 for name in lua_std:gmatch('%S+') do
     txe.lua_env[name] = _G[name]
 end
+
+-- Add a self-reference
+txe.lua_env._G = txe.lua_env

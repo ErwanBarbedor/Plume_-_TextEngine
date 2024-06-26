@@ -726,7 +726,6 @@ end)
 txe.register_macro("set", {"key", "value"}, {["local"]=false}, function(args)
     -- A macro to set variable to a value
 
-    --to do : check if sket
     local key = args.key:render()
     if not txe.is_identifier(key) then
         txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
@@ -909,6 +908,9 @@ end
 for name in lua_std:gmatch('%S+') do
     txe.lua_env[name] = _G[name]
 end
+
+-- Add a self-reference
+txe.lua_env._G = txe.lua_env
 
 
 

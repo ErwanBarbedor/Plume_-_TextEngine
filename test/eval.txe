@@ -74,6 +74,13 @@ table
 1
 // End
 
+// Test 'Access _G'
+\set a 1 //
+#{_G.a}
+// Result
+ 1
+// End
+
 // Test 'Eval syntax error'
 \set a {a+}
 // Error Lua 5.1 Lua jit
