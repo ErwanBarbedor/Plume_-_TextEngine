@@ -146,6 +146,11 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         end
 
         local iter, state, key = txe.call_lua_chunck (args.iterator, iterator)
+        
+        if not iter then
+            return ""
+        end
+
         local values_list = { iter(state, key) }
 
         if #values_list ~= #variables_list then

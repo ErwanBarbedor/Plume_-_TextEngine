@@ -52,6 +52,12 @@ Traceback :
 
 // End
 
+// Test 'for - empty'
+\for {i in {}} {}
+// Result
+
+// End
+
 // Test 'for - unknow iterator'
 \for {j} foo
 // Error
