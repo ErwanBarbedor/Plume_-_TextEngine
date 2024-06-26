@@ -61,6 +61,7 @@ function txe.cli_main ()
         end
 
         input  = arg[3]
+    elseif not arg[1] then
     elseif arg[1]:match('^%-') then
         print("Unknow option '" .. arg[1] .. "'")
     else
