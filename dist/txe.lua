@@ -728,16 +728,11 @@ txe.register_macro("set", {"key", "value"}, {["local"]=false}, function(args)
 
     --to do : check if sket
     local key = args.key:render()
-    
-    local value
-    --If value is a lua chunck, call it there to avoid conversion to string
-    if #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "#" then
-        value = txe.call_lua_chunck(args.value[2])
-    else
-        value = args.value:render ()
+    if not txe.is_identifier(key) then
+        txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
     end
-
-    -- Convert to number if possible
+    
+    local value  = txe.call_lua_chunck(args.value)
     value = tonumber(value) or value
 
     txe.lua_env[key] = value
