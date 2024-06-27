@@ -28,6 +28,13 @@ else
     txe.load_lua_chunck = load
 end
 
+function txe.eval_lua_expression (token, code)
+    code = code or token:source ()
+    code = 'return ' .. code
+
+    return txe.call_lua_chunck (token, code)
+end
+
 function txe.call_lua_chunck(token, code)
     -- Load, cache and execute code
     -- find in the given token or string
@@ -40,7 +47,7 @@ function txe.call_lua_chunck(token, code)
         --put chunck ref in the code, to retrieve it
         --in case of error
         txe.chunck_count = txe.chunck_count + 1
-        code = "--token" .. txe.chunck_count .. '\nreturn ' ..code
+        code = "--token" .. txe.chunck_count .. "\n" .. code
         
         local loaded_func, load_err
         loaded_func, load_err = txe.load_lua_chunck(code, nil, "bt", txe.lua_env)

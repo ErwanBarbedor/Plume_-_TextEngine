@@ -7,7 +7,7 @@ else
     print_error_detail = true
 end
 
-local files = {"text", "eval", "commands_error", "commands", "syntax_error", "control", "extern"}
+local files = {"text", "eval", "commands_error", "commands", "syntax_error", "control", "extern", "script"}
 
 local function readFile(filename)
     local file = io.open("test/"..filename..".txe", "r")

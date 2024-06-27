@@ -1,0 +1,27 @@
+// Test 'script 1'
+\script{
+    a = 5
+    b = 3
+}
+// Result
+
+// End
+
+// Test 'script 2'
+\script{
+    a = 5
+    b = 3
+}#a
+// Result
+5
+// End
+
+// Test 'script 3'
+\script{
+    a = 5
+    b = 3
+    return b
+}
+// Result
+3
+// End

@@ -63,8 +63,20 @@ txe.register_macro("redef", {"name", "body"}, {}, function(def_args)
 end)
 
 txe.register_macro("#", {"expr"}, {}, function(args)
-    --Eval lua chunck and return the result
-    local result = txe.call_lua_chunck(args.expr)
+    --Eval lua expression and return the result
+    local result = txe.eval_lua_expression(args.expr)
+
+    --if result is a token, render it
+    if type(result) == "table" and result.render then
+        result = result:render ()
+    end
+    
+    return result
+end)
+
+txe.register_macro("script", {"body"}, {}, function(args)
+    --Execute a lua chunck and return the result if any
+    local result = txe.call_lua_chunck(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -95,7 +107,7 @@ txe.register_macro("require", {"path"}, {}, function(args)
         txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
     end
 
-    local f = txe.call_lua_chunck (args.path, " function ()" .. file:read("*a") .. "\n end")
+    local f = txe.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
 
     return f()
 end)
@@ -118,7 +130,9 @@ txe.register_macro("set", {"key", "value"}, {["local"]=false}, function(args)
     local value
     --If value is a lua chunck, call it there to avoid conversion to string
     if #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "#" then
-        value = txe.call_lua_chunck(args.value[2])
+        value = txe.eval_lua_expression(args.value[2])
+    elseif #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "script" then
+        value = txe.eval_lua_expression(args.value[2])
     else
         value = args.value:render ()
     end
@@ -152,7 +166,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
             table.insert(variables_list, name)
         end
 
-        local iter, state, key = txe.call_lua_chunck (args.iterator, iterator)
+        local iter, state, key = txe.eval_lua_expression (args.iterator, iterator)
 
         -- Check if iter is callable.
         -- For now, table will raise an error, even if has a __call field.
@@ -191,7 +205,7 @@ end)
 txe.register_macro("while", {"condition", "body"}, {}, function(args)
     local result = {}
     local i = 0
-    while txe.call_lua_chunck (args.condition) do
+    while txe.eval_lua_expression (args.condition) do
         table.insert(result, args.body:render())
         i = i + 1
         if i > txe.max_loop_size then
@@ -203,7 +217,7 @@ txe.register_macro("while", {"condition", "body"}, {}, function(args)
 end)
 
 txe.register_macro("if", {"condition", "body"}, {}, function(args)
-    local condition = txe.call_lua_chunck(args.condition)
+    local condition = txe.eval_lua_expression(args.condition)
     if condition then
         return args.body:render()
     end
