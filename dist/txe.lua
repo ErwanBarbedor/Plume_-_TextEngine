@@ -907,18 +907,18 @@ function txe.call_lua_chunck(token, code)
     return (table.unpack or unpack)(result)
 end
 
-txe.env = {{}}
+local env = {{}}
 txe.lua_env = setmetatable({}, {
     __newindex = function (self, key, value)
-        for i=#txe.env, 1, -1 do
-            if txe.env[i][key] or i==1 then
-                txe.env[i][key] = value
+        for i=#env, 1, -1 do
+            if env[i][key] or i==1 then
+                env[i][key] = value
             end
         end
     end,
     __index = function (self, key)
-        for i=#txe.env, 1, -1 do
-            local value = txe.env[i][key]
+        for i=#env, 1, -1 do
+            local value = env[i][key]
             if value or i==1 then
                 return value
             end
@@ -927,13 +927,18 @@ txe.lua_env = setmetatable({}, {
 })
 
 function txe.push_env ()
-    table.insert(txe.env, {})
+    table.insert(env, {})
 end
 function txe.pop_env ()
-    table.remove(txe.env)
+    table.remove(env)
 end
 function txe.lua_env_set_local (key, value)
-    txe.env[#txe.env][key] = value
+    env[#env][key] = value
+end
+function txe.purge_env ()
+    while env[1] do
+        table.remove(env)
+    end
 end
 
 -- Save all lua standard functions to be available from "eval" macros
