@@ -223,3 +223,9 @@ txe.register_macro("if", {"condition", "body"}, {}, function(args)
     end
     return ""
 end)
+
+-- Save predifined macro to permit reset of txe
+txe.std_macros = {}
+for k, v in pairs(txe.macros) do
+    txe.std_macros[k] = v
+end

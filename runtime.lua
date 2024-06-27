@@ -108,26 +108,45 @@ function txe.lua_env_set_local (key, value)
     env[#env][key] = value
 end
 function txe.purge_env ()
-    while env[1] do
-        table.remove(env)
-    end
+    env = {{}}
 end
 
 -- Save all lua standard functions to be available from "eval" macros
-local lua_std
+local lua_std_functions
 if _VERSION == "Lua 5.1" then
     if jit then
-        lua_std = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
+        lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
     else
-        lua_std = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutineselect gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
+        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutineselect gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
     end
 else -- Assume version is 5.4
-    lua_std = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
+    lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
 end
 
-for name in lua_std:gmatch('%S+') do
-    txe.lua_env[name] = _G[name]
+txe.lua_std = {}
+for name in lua_std_functions:gmatch('%S+') do
+    txe.lua_std[name] = _G[name]
 end
 
--- Add a self-reference
-txe.lua_env._G = txe.lua_env
+function txe.init_lua ()
+    for k, v in pairs(txe.lua_std) do
+        txe.lua_env[k] = v
+    end
+
+    -- Add a self-reference
+    txe.lua_env._G = txe.lua_env
+end
+txe.init_lua ()
+
+function txe.reset ()
+    -- Remove all session specific data
+    txe.purge_env ()
+    txe.macros = {}
+    for k, v in pairs(txe.std_macros) do
+        txe.macros[k] = v
+    end
+    txe.init_lua ()
+
+    txe.last_error = nil
+    txe.traceback = {}
+end

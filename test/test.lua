@@ -1,12 +1,12 @@
 
-local txe, print_error_detail
+local print_error_detail
 if arg[1] == "dist" then
     package.path = package.path .. ";../dist/?.lua"
 else
     package.path = package.path .. ";../?.lua"
     print_error_detail = true
 end
-
+local txe = require "txe"
 local files = {"text", "eval", "commands_error", "commands", "syntax_error", "control", "extern", "script"}
 
 local function readFile(filename)
@@ -27,7 +27,6 @@ local function parseTestsFromContent(tests, content)
             input = input,
             expectedOutput = expectedOutput,
             outputInfos = outputInfos
-            -- isError = outputInfos == "Error"
         })
     end
     return tests
@@ -48,9 +47,8 @@ local function runTests(tests)
 
         if #versions==0 or versions:match(_VERSION) then
             testNumber = testNumber + 1
-
-            for k, _ in pairs(package.loaded) do package.loaded[k] = nil end
-            local txe = require "txe"
+            
+            txe.reset ()
 
             local sucess, result = pcall (txe.render, test.input)
             local err = ""
