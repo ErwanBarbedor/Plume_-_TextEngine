@@ -241,7 +241,35 @@ txe.register_macro("if", {"condition", "body"}, {}, function(args)
     if condition then
         return args.body:render()
     end
+    return "", not condition
+end)
+
+txe.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
+    if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
+        txe.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
+    end
+
+    if chain_message then
+        return args.body:render()
+    end
     return ""
+end)
+
+txe.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
+    if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
+        txe.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
+    end
+
+    local condition
+    if chain_message then
+        condition = txe.eval_lua_expression(args.condition)
+        if condition then
+            return args.body:render()
+        end
+    else
+        condition = true
+    end
+    return "", not condition
 end)
 
 -- Save predifined macro to permit reset of txe
