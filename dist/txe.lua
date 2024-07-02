@@ -731,7 +731,11 @@ end)
 txe.register_macro("include", {"path"}, {}, function(args)
     -- Execute the given txe file and return the output
     local path = args.path:render () .. ".txe"
-    return txe.renderFile(path)
+    local file = io.open(path)
+    if not file then
+        txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
+    end
+    return txe.render(file:read("*a"), path)
 end)
 
 
