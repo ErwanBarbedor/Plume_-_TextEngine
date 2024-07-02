@@ -1,0 +1,7 @@
+// Test 'simple commande 1'
+\def foo bar//
+\alias foo baz//
+\baz
+// Result
+bar
+// End

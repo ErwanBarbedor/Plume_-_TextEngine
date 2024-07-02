@@ -286,6 +286,15 @@ txe.register_macro("elseif", {"condition", "body"}, {}, function(args, self_toke
     return "", not condition
 end)
 
+txe.register_macro("alias", {"name1", "name2"}, {}, function(args)
+    -- Copie macro "name1" to name2
+    local name1 = args.name1:render()
+    local name2 = args.name2:render()
+
+    txe.macros[name2] = txe.macros[name1]
+    return "", not condition
+end)
+
 -- Save predifined macro to permit reset of txe
 txe.std_macros = {}
 for k, v in pairs(txe.macros) do
