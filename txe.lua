@@ -23,6 +23,7 @@ txe._VERSION = "#VERSION#"
 
 require "config"
 require "syntax"
+require "render"
 require "token"
 require "tokenize"
 require "parse"
