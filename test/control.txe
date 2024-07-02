@@ -4,10 +4,28 @@
 
 // End
 
+// Test 'if false else'
+\if {1==2} foo \else bar
+// Result
+ bar
+// End
+
 // Test 'if true'
 \if {1==1} foo
 // Result
 foo
+// End
+
+// Test 'if true else'
+\if {1==1} foo \else bar
+// Result
+foo 
+// End
+
+// Test 'if elseif'
+\if {1==2} foo \elseif {1==1} bar \else baz
+// Result
+ bar 
 // End
 
 // Test 'Simple while'
@@ -79,4 +97,15 @@ File 'string', line 2 : Wrong number of variables, 3 instead of 2.
 Traceback :
     File 'string', line 2 : \for {i, j, k in pairs(t)} foo
                             ^^^^
+// End
+
+// Test 'else without if'
+\else foo
+// Error
+File 'string', line 1 : 'else' macro must be preceded by 'if' or 'elseif'.
+    \else foo
+    ^^^^^
+Traceback :
+    File 'string', line 1 : \else foo
+                            ^^^^^
 // End

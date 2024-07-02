@@ -108,8 +108,19 @@ function txe.tokenlist (x)
             -- Main TextEngine function, who build the output.
             local pos = 1
             local result = {}
+
+            -- Chain of info passed to adjacent macro
+            -- Used to achive \if \else behavior
+            local chain_sender, chain_message
+
             while pos <= #self do
                 local token = self[pos]
+
+                -- Break the chain if encounter non macro non space token
+                if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" then
+                    chain_sender  = nil
+                    chain_message = nil
+                end
 
                 if token.kind == "block_text" then
                     table.insert(result, token:render())
@@ -147,7 +158,7 @@ function txe.tokenlist (x)
 
                     local function push_macro (token)
                         -- Check if macro exist, then add it to the stack
-                        local name    = token.value:gsub("^"..txe.syntax.escape , "")
+                        local name  = token.value:gsub("^"..txe.syntax.escape , "")
                         local macro = txe.get_macro (name)
                         if not macro then
                             txe.error(token, "Unknow macro '" .. name .. "'")
@@ -199,7 +210,18 @@ function txe.tokenlist (x)
 
                                 -- Update traceback, call the macro and add is result
                                 table.insert(txe.traceback, token)
-                                table.insert(result, tostring(top.macro.macro(args) or ""))
+
+                                local call_result
+                                call_result, chain_message = top.macro.macro(
+                                    args,
+                                    top.token,--send self token to throw error
+                                    chain_sender,
+                                    chain_message
+                                )
+
+                                chain_sender = top.token.value
+
+                                table.insert(result, tostring(call_result or ""))
                                 table.remove(txe.traceback)
                             end
                         end
@@ -857,7 +879,35 @@ txe.register_macro("if", {"condition", "body"}, {}, function(args)
     if condition then
         return args.body:render()
     end
+    return "", not condition
+end)
+
+txe.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
+    if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
+        txe.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
+    end
+
+    if chain_message then
+        return args.body:render()
+    end
     return ""
+end)
+
+txe.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
+    if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
+        txe.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
+    end
+
+    local condition
+    if chain_message then
+        condition = txe.eval_lua_expression(args.condition)
+        if condition then
+            return args.body:render()
+        end
+    else
+        condition = true
+    end
+    return "", not condition
 end)
 
 -- Save predifined macro to permit reset of txe
