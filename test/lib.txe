@@ -1,1 +1,1 @@
-foo
+\def double[x] {#x #x}\double foo

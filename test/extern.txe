@@ -17,18 +17,35 @@ Traceback :
 // End
 
 // Test 'include'
-\include test/lib
+\include test/lib.txe
 // Result
-foo
+foo foo
+// End
+
+// Test 'include extern'
+\include[extern] test/lib.txe
+// Result
+\def double[x] {#x #x}\double foo
 // End
 
 // Test 'include error'
-\include test/lib_error
+\include test/lib_error.txe
 // Error
 File 'test/lib_error.txe', line 1 : Unknow macro 'foo'
     \foo
     ^^^^
 Traceback :
-    File 'string', line 1 : \include test/lib_error
+    File 'string', line 1 : \include test/lib_error.txe
+                            ^^^^^^^^
+// End
+
+// Test 'include unknow arg'
+\include[hello] test/lib.txe
+// Error
+File 'string', line 1 : Unknow argument 'hello' for macro include.
+    \include[hello] test/lib.txe
+             ^^^^^
+Traceback :
+    File 'string', line 1 : \include[hello] test/lib.txe
                             ^^^^^^^^
 // End

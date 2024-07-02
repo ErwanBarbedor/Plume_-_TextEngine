@@ -729,13 +729,29 @@ txe.register_macro("require", {"path"}, {}, function(args)
 end)
 
 txe.register_macro("include", {"path"}, {}, function(args)
-    -- Execute the given txe file and return the output
-    local path = args.path:render () .. ".txe"
+    -- \include{file} Execute the given file and return the output
+    -- \include[extern]{file} Include current file without execute it
+    local is_extern = false
+    for _, arg in pairs(args['...']) do
+        local arg_value = arg:render()
+        if arg_value == "extern" then
+            is_extern = true
+        else
+            txe.error(arg, "Unknow argument '" .. arg_value .. "' for macro include.")
+        end
+    end
+
+    local path = args.path:render ()
     local file = io.open(path)
     if not file then
         txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
     end
-    return txe.render(file:read("*a"), path)
+
+    if is_extern then
+        return file:read("*a")
+    else
+        return txe.render(file:read("*a"), path)
+    end
 end)
 
 
