@@ -1,3 +1,17 @@
+--[[This file is part of TextEngine.
+
+TextEngine is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+TextEngine is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with TextEngine. If not, see <https://www.gnu.org/licenses/>.
+]]
+
 function txe.token (kind, value, line, pos, file, code)
     -- Token represente a small chunck of code :
     -- a macro, a newline, a word...
@@ -58,7 +72,7 @@ function txe.tokenlist (x)
 
             return table.concat(result, "")
         end,
-        render = txe.renderToken
+        render = txe.renderTokeng
     }, {
         -- Some metamethods, for convenience :
         -- Argument of macros are passed as tokenlist without rendered it.

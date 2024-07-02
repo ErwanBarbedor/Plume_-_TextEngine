@@ -232,7 +232,7 @@ function txe.tokenlist (x)
 
             return table.concat(result, "")
         end,
-        render = txe.renderToken
+        render = txe.renderTokeng
     }, {
         -- Some metamethods, for convenience :
         -- Argument of macros are passed as tokenlist without rendered it.
