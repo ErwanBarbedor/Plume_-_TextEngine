@@ -44,6 +44,64 @@ function txe.is_identifier(s)
     return s:match('^' .. txe.syntax.identifier_begin .. txe.syntax.identifier..'*$')
 end
 
+function txe.parse_opt_args (macro, args, optargs)
+    -- Check for value or key=value in optargs, and add it to args
+    local key, eq
+    local t = {}
+    for _, token in ipairs(optargs) do
+        if key then
+            if token.kind == "space" then
+                table.insert(t, key)
+                key = nil
+            elseif eq then
+                if token.kind == "opt_assign" then
+                    txe.error(token, "Expected parameter value, not '" .. token.value .. "'.")
+                elseif key.kind ~= "block_text" then
+                    txe.error(key, "Optional parameters names must be raw text.")
+                end
+                key = key:render ()
+                -- check if "key" is a valid identifier
+                -- to do...
+                t[key] = token
+                eq = false
+                key = nil
+            elseif token.kind == "opt_assign" then
+                eq = true
+            end
+        elseif token.kind == "opt_assign" then
+            txe.error(token, "Expected parameter name, not '" .. token.value .. "'.")
+        elseif token.kind ~= "space" then
+            key = token
+        end
+    end
+    if key then
+        table.insert(t, key)
+    end
+
+    -- print "---------"
+    for k, v in pairs(t) do
+        if type(k) ~= "number" then
+            args[k] = v
+        end
+    end
+
+    -- If parameter alone, without key, try to
+    -- find a name.
+    local i = 1
+    for _, name in ipairs(macro.defaut_optargs) do
+        --to do...
+    end
+
+    -- Put all remaining tokens in the field "..."
+    args['...'] = {}
+    for j=i, #t do
+        table.insert(args['...'], t[j])
+    end
+
+    -- set defaut value if provided by the macros
+    -- to do...
+end
+
 function txe.renderToken (self)
     -- Main TextEngine function, who build the output.
     local pos = 1
@@ -265,64 +323,6 @@ function txe.tokenlist (x)
     end
     
     return tokenlist
-end
-
-function txe.parse_opt_args (macro, args, optargs)
-    -- Check for value or key=value in optargs, and add it to args
-    local key, eq
-    local t = {}
-    for _, token in ipairs(optargs) do
-        if key then
-            if token.kind == "space" then
-                table.insert(t, key)
-                key = nil
-            elseif eq then
-                if token.kind == "opt_assign" then
-                    txe.error(token, "Expected parameter value, not '" .. token.value .. "'.")
-                elseif key.kind ~= "block_text" then
-                    txe.error(key, "Optional parameters names must be raw text.")
-                end
-                key = key:render ()
-                -- check if "key" is a valid identifier
-                -- to do...
-                t[key] = token
-                eq = false
-                key = nil
-            elseif token.kind == "opt_assign" then
-                eq = true
-            end
-        elseif token.kind == "opt_assign" then
-            txe.error(token, "Expected parameter name, not '" .. token.value .. "'.")
-        elseif token.kind ~= "space" then
-            key = token
-        end
-    end
-    if key then
-        table.insert(t, key)
-    end
-
-    -- print "---------"
-    for k, v in pairs(t) do
-        if type(k) ~= "number" then
-            args[k] = v
-        end
-    end
-
-    -- If parameter alone, without key, try to
-    -- find a name.
-    local i = 1
-    for _, name in ipairs(macro.defaut_optargs) do
-        --to do...
-    end
-
-    -- Put all remaining tokens in the field "..."
-    args['...'] = {}
-    for j=i, #t do
-        table.insert(args['...'], t[j])
-    end
-
-    -- set defaut value if provided by the macros
-    -- to do...
 end
 
 function txe.tokenize (code, file)
