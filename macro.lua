@@ -27,10 +27,10 @@ function txe.get_macro(name)
     return txe.macros[name]
 end
 
-require("macros/controls")
-require("macros/utils")
-require("macros/extern")
-require("macros/script")
+require "macros/controls" 
+require "macros/utils" 
+require "macros/extern" 
+require "macros/script" 
 
 -- Save predifined macro to permit reset of txe
 txe.std_macros = {}
