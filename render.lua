@@ -111,8 +111,7 @@ function txe.renderToken (self)
         
         elseif token.kind == "macro" then
             -- Capture required number of block after the macro.
-            -- Manage chained macro like \double \double x, that
-            -- must be treated as \double{\double{x}}
+            
 
             -- If more than txe.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
@@ -132,34 +131,76 @@ function txe.renderToken (self)
 
                 table.insert(stack, {token=token, macro=macro, args={}})
             end
+
+            local function manage_optargs(top, token)
+                if top.optargs then
+                    txe.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
+                end
+                top.optargs = token
+            end
+
             
             push_macro (token)
+            -- Manage chained macro like \double \double x, that
+            -- must be treated as \double{\double{x}}
             while #stack > 0 do
                 
+                -- Capture the right number of arguments for the macro
                 local top = stack[#stack]
                 while #top.args < #top.macro.args do
                     pos = pos+1
                     if not self[pos] then
+                        -- End reached, but not enough arguments
                         txe.error(token, "End of block reached, not enough arguments for macro '" .. stack[1].token.value.."'. " .. #top.args.." instead of " .. #top.macro.args .. ".")
+                    
                     elseif self[pos].kind == "macro" then
+                        -- A new macro. Push it to the stack to catpures
+                        -- it's arguments
                         push_macro(self[pos])
                         top = nil
                         break
-                    elseif self[pos].kind == "opt_block" and #stack == 1 then
-                        if top.optargs then
-                            txe.error(self[pos], "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
-                        end
-                        top.optargs = self[pos]
+                    
+                    elseif self[pos].kind == "opt_block" then
+                        -- An optional argument block
+                        manage_optargs(top, self[pos])
+                    
                     elseif self[pos].kind ~= "space" then
+                        -- If it is not a space, add the current block
+                        -- to the argument list
                         table.insert(top.args, self[pos])
                     end
                 end
+
+                --Check if there are an optional block after the arguments
+                local finded_optional = false
+                local oldpos          = pos
+                while self[pos+1] do
+                    pos = pos + 1
+                    if self[pos].kind ~= "space" then
+                        finded_optional = self[pos].kind == "opt_block"
+                    end
+                end
+
+                if finded_optional then
+                    manage_optargs(top, self[pos])
+                else
+                    pos = oldpos
+                end
+
+                -- top if nil only when capturing a new macro
                 if top then
                     top = table.remove(stack)
                     if #stack > 0 then
                         local subtop = stack[#stack]
-                        table.insert(top.args, 1, top.token)
-                        table.insert(subtop.args, txe.tokenlist(top.args))
+                        local arg_list = txe.tokenlist(top.args)
+
+                        -- rebuild the captured macro hand it's argument
+                        if top.optargs then
+                            table.insert(arg_list, 1, top.optargs)
+                        end
+                        
+                        table.insert(arg_list, 1, top.token)
+                        table.insert(subtop.args, arg_list)
                     else
                         local args = {}
                         for k, v in ipairs(top.args) do
