@@ -17,9 +17,13 @@ local code = io.open("txe.lua"):read "*a"
 
 
 code = code:gsub('(txe = {}[\r\n]+)', 'local %1')
-code = code:gsub('require "(.-)"', function (m)
-    return "\n" .. io.open(m..".lua"):read "*a":gsub('%-%-%[%[.-%]%][\r\n]+', '', 1)
-end)
+
+for i=1, 2 do
+    code = code:gsub('require "(.-)"', function (m)
+        return "\n-- ## " .. m .. ".lua ##\n" .. io.open(m..".lua"):read "*a":gsub('%-%-%[%[.-%]%][\r\n]+', '', 1)
+    end)
+end
+
 code = code:gsub('%-%- <DEV>.-%-%- </DEV>', '')
 code = code:gsub('#VERSION#', version)
 code = code:gsub('#GITHUB#', 'https://github.com/ErwanBarbedor/TextEngine')
