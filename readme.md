@@ -1,4 +1,4 @@
-# TextEngine
+![Plume - TextEngine](logo.png)
 
 ## Introduction
 
