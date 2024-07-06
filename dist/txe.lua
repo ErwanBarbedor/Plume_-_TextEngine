@@ -1262,7 +1262,8 @@ function txe.cli_main ()
 end
 
 -- Trick to test if we are called from the command line
-if debug.getinfo(3, "S")==nil then
+-- Handle the specific case where arg is nil (when used in fegari for exemple)
+if arg and debug.getinfo(3, "S")==nil then
     txe.cli_main ()
 end
 
