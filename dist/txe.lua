@@ -294,12 +294,18 @@ end
 
 local function tokens2number(x, y)
     -- Convert any number of tokens into number
-    if x.render then
+    if type(x) == "table" and x.render then
         x = tonumber(x:render())
+    else
+        x = tonumber (x)
     end
-    if y.render then
+    if type(y) == "table" and y.render then
         y = tonumber(y:render())
+    else
+        y = tonumber (y)
     end
+
+    -- todo : error when x or y is nil
     return x, y
 end
 
