@@ -59,3 +59,11 @@ File 'string', line 1 : Expected parameter name, not '='.
     \def foo [=a] {}
               ^
 // End
+
+// Test 'Bad argument name'
+\def foo [@=foo] {}
+// Error
+File 'string', line 1 : '@' is an invalid name for an argument name.
+    \def foo [@=foo] {}
+              ^
+// End

@@ -49,27 +49,31 @@ end
 -- ## render.lua ##
 function txe.parse_opt_args (macro, args, optargs)
     -- Check for value or key=value in optargs, and add it to args
-    local key, eq
+    local key, eq, space
     local t = {}
     for _, token in ipairs(optargs) do
         if key then
             if token.kind == "space" then
-                table.insert(t, key)
-                key = nil
             elseif eq then
                 if token.kind == "opt_assign" then
                     txe.error(token, "Expected parameter value, not '" .. token.value .. "'.")
                 elseif key.kind ~= "block_text" then
                     txe.error(key, "Optional parameters names must be raw text.")
                 end
-                key = key:render ()
-                -- check if "key" is a valid identifier
-                -- to do...
-                t[key] = token
+                local name = key:render ()
+                
+                if not txe.is_identifier(name) then
+                    txe.error(key, "'" .. name .. "' is an invalid name for an argument name.")
+                end
+
+                t[name] = token
                 eq = false
                 key = nil
             elseif token.kind == "opt_assign" then
                 eq = true
+            else
+                table.insert(t, key)
+                key = token
             end
         elseif token.kind == "opt_assign" then
             txe.error(token, "Expected parameter name, not '" .. token.value .. "'.")
