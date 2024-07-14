@@ -46,7 +46,6 @@ function txe.parse_opt_args (macro, args, optargs)
         table.insert(t, key)
     end
 
-    -- print "---------"
     for k, v in pairs(t) do
         if type(k) ~= "number" then
             args[k] = v
@@ -55,19 +54,35 @@ function txe.parse_opt_args (macro, args, optargs)
 
     -- If parameter alone, without key, try to
     -- find a name.
-    local i = 1
-    for _, name in ipairs(macro.defaut_optargs) do
-        --to do...
-    end
+    local last_index = 1
+    -- Not implemented : at the moment, cannot known
+    -- argument order
+
+    -- for _, arg_value in ipairs(t) do
+    --     for i=last_index, #macro.defaut_optargs do
+    --         local infos = macro.defaut_optargs[i]
+
+    --         -- Check if this name isn't already used
+    --         if not args[infos.name] then
+    --             args[infos.name] = arg_value
+    --             last_index = last_index + 1
+    --             break
+    --         end
+    --     end
+    -- end
 
     -- Put all remaining tokens in the field "..."
     args['...'] = {}
-    for j=i, #t do
+    for j=last_index, #t do
         table.insert(args['...'], t[j])
     end
 
     -- set defaut value if provided by the macros
-    -- to do...
+    for i, optarg in ipairs(macro.defaut_optargs) do
+        if not args[optarg.name] then
+            args[optarg.name] = optarg.value
+        end
+    end
 end
 
 function txe.renderToken (self)

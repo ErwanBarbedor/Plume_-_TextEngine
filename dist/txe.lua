@@ -81,7 +81,6 @@ function txe.parse_opt_args (macro, args, optargs)
         table.insert(t, key)
     end
 
-    -- print "---------"
     for k, v in pairs(t) do
         if type(k) ~= "number" then
             args[k] = v
@@ -90,19 +89,35 @@ function txe.parse_opt_args (macro, args, optargs)
 
     -- If parameter alone, without key, try to
     -- find a name.
-    local i = 1
-    for _, name in ipairs(macro.defaut_optargs) do
-        --to do...
-    end
+    local last_index = 1
+    -- Not implemented : at the moment, cannot known
+    -- argument order
+
+    -- for _, arg_value in ipairs(t) do
+    --     for i=last_index, #macro.defaut_optargs do
+    --         local infos = macro.defaut_optargs[i]
+
+    --         -- Check if this name isn't already used
+    --         if not args[infos.name] then
+    --             args[infos.name] = arg_value
+    --             last_index = last_index + 1
+    --             break
+    --         end
+    --     end
+    -- end
 
     -- Put all remaining tokens in the field "..."
     args['...'] = {}
-    for j=i, #t do
+    for j=last_index, #t do
         table.insert(args['...'], t[j])
     end
 
     -- set defaut value if provided by the macros
-    -- to do...
+    for i, optarg in ipairs(macro.defaut_optargs) do
+        if not args[optarg.name] then
+            args[optarg.name] = optarg.value
+        end
+    end
 end
 
 function txe.renderToken (self)
@@ -213,6 +228,7 @@ function txe.renderToken (self)
                     pos = pos + 1
                     if self[pos].kind ~= "space" then
                         finded_optional = self[pos].kind == "opt_block"
+                        break
                     end
                 end
 
@@ -860,15 +876,24 @@ end)
 local function def (def_args, redef)
     -- Main way to define new macro from Plume - TextEngine
 
-    local name = def_args.name:render()
+    local name = def_args["$name"]:render()
     -- Test if name is a valid identifier
     if not txe.is_identifier(name) then
-        txe.error(def_args.name, "'" .. name .. "' is an invalid name for a macro.")
+        txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
     -- Test if this macro already exists
     if txe.macros[name] and not redef then
-        txe.error(def_args.name, "The macro '" .. name .. "' already exist. Use '\\redef' to erease it.")
+        txe.error(def_args["$name"], "The macro '" .. name .. "' already exist. Use '\\redef' to erease it.")
+    end
+
+    -- All args (except $name, $body and ...) are optional args
+    -- with defaut values
+    local opt_args = {}
+    for k, v in pairs(def_args) do
+        if k:sub(1, 1) ~= "$" and k ~= "..." then
+            table.insert(opt_args, {name=k, value=v})
+        end
     end
 
     -- Remaining args are the macro args names
@@ -876,7 +901,7 @@ local function def (def_args, redef)
         def_args['...'][k] = v:render()
     end
     
-    txe.register_macro(name, def_args['...'], {}, function(args)
+    txe.register_macro(name, def_args['...'], opt_args, function(args)
         -- argument are variable local to the macro
         txe.push_env ()
 
@@ -887,7 +912,7 @@ local function def (def_args, redef)
             end
         end
 
-        local result = def_args.body:render()
+        local result = def_args["$body"]:render()
 
         --exit macro scope
         txe.pop_env ()
@@ -896,12 +921,13 @@ local function def (def_args, redef)
     end)
 end
 
-txe.register_macro("def", {"name", "body"}, {}, function(def_args)
+txe.register_macro("def", {"$name", "$body"}, {}, function(def_args)
+    -- '$' in arg name, so they cannot be erased by user
     def (def_args)
     return ""
 end)
 
-txe.register_macro("redef", {"name", "body"}, {}, function(def_args)
+txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args)
     def (def_args, true)
     return ""
 end)

@@ -17,15 +17,24 @@ You should have received a copy of the GNU General Public License along with Plu
 local function def (def_args, redef)
     -- Main way to define new macro from Plume - TextEngine
 
-    local name = def_args.name:render()
+    local name = def_args["$name"]:render()
     -- Test if name is a valid identifier
     if not txe.is_identifier(name) then
-        txe.error(def_args.name, "'" .. name .. "' is an invalid name for a macro.")
+        txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
     -- Test if this macro already exists
     if txe.macros[name] and not redef then
-        txe.error(def_args.name, "The macro '" .. name .. "' already exist. Use '\\redef' to erease it.")
+        txe.error(def_args["$name"], "The macro '" .. name .. "' already exist. Use '\\redef' to erease it.")
+    end
+
+    -- All args (except $name, $body and ...) are optional args
+    -- with defaut values
+    local opt_args = {}
+    for k, v in pairs(def_args) do
+        if k:sub(1, 1) ~= "$" and k ~= "..." then
+            table.insert(opt_args, {name=k, value=v})
+        end
     end
 
     -- Remaining args are the macro args names
@@ -33,7 +42,7 @@ local function def (def_args, redef)
         def_args['...'][k] = v:render()
     end
     
-    txe.register_macro(name, def_args['...'], {}, function(args)
+    txe.register_macro(name, def_args['...'], opt_args, function(args)
         -- argument are variable local to the macro
         txe.push_env ()
 
@@ -44,7 +53,7 @@ local function def (def_args, redef)
             end
         end
 
-        local result = def_args.body:render()
+        local result = def_args["$body"]:render()
 
         --exit macro scope
         txe.pop_env ()
@@ -53,12 +62,13 @@ local function def (def_args, redef)
     end)
 end
 
-txe.register_macro("def", {"name", "body"}, {}, function(def_args)
+txe.register_macro("def", {"$name", "$body"}, {}, function(def_args)
+    -- '$' in arg name, so they cannot be erased by user
     def (def_args)
     return ""
 end)
 
-txe.register_macro("redef", {"name", "body"}, {}, function(def_args)
+txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args)
     def (def_args, true)
     return ""
 end)

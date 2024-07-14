@@ -24,38 +24,6 @@ File 'string', line 1 : End of block reached, not enough arguments for macro '\d
     ^^^^
 // End
 
-// Test 'To many optional blocks'
-\def[x][x] foo bar
-// Error
-File 'string', line 1 : To many optional blocks given for macro '\def'
-    \def[x][x] foo bar
-           ^^^
-// End
-
-// Test 'Wrong parameter name'
-\def foo [{a}=5] {}
-// Error
-File 'string', line 1 : Optional parameters names must be raw text.
-    \def foo [{a}=5] {}
-              ^^^
-// End
-
-// Test 'Early ='
-\def foo [=a] {}
-// Error
-File 'string', line 1 : Expected parameter name, not '='.
-    \def foo [=a] {}
-              ^
-// End
-
-// Test 'To many ='
-\def foo [a==5] {}
-// Error
-File 'string', line 1 : Expected parameter value, not '='.
-    \def foo [a==5] {}
-                ^
-// End
-
 // Test 'Invalid command name'
 \def foo! bar
 // Error

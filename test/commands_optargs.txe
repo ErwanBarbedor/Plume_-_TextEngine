@@ -1,0 +1,61 @@
+// Test 'Optional arg (defaut)'
+\def foo [x=foo] {#x}\foo
+// Result
+foo
+// End
+
+// Test 'Optional arg (provided)'
+\def foo [x=foo] {#x}\foo[x=bar]
+// Result
+bar
+// End
+
+// Test 'Optional arg (mixed 1)'
+\def foo [x=foo y=bar] {#x-#y}\foo
+// Result
+foo-bar
+// End
+
+// Test 'Optional arg (mixed 2)'
+\def foo [x=foo y=bar] {#x-#y}\foo[x=bar]
+// Result
+bar-bar
+// End
+
+// Test 'Optional arg (mixed 3)'
+\def foo [x=foo y=bar] {#x-#y}\foo[y=foo]
+// Result
+foo-foo
+// End
+
+// Test 'To many optional blocks'
+\def[x][x] foo bar
+// Error
+File 'string', line 1 : To many optional blocks given for macro '\def'
+    \def[x][x] foo bar
+           ^^^
+// End
+
+// Test 'To many "="in optional block'
+\def foo [a==5] {}
+// Error
+File 'string', line 1 : Expected parameter value, not '='.
+    \def foo [a==5] {}
+                ^
+// End
+
+// Test 'Wrong parameter name'
+\def foo [{a}=5] {}
+// Error
+File 'string', line 1 : Optional parameters names must be raw text.
+    \def foo [{a}=5] {}
+              ^^^
+// End
+
+// Test 'Early ='
+\def foo [=a] {}
+// Error
+File 'string', line 1 : Expected parameter name, not '='.
+    \def foo [=a] {}
+              ^
+// End
