@@ -1,7 +1,16 @@
-// Test 'simple commande 1'
+// Test 'alias 1'
 \def foo bar//
 \alias foo baz//
 \baz
 // Result
 bar
+// End
+
+// Test 'alias 2'
+\def foo bar//
+\alias foo baz//
+\redef foo foo//
+\baz \foo
+// Result
+bar foo
 // End
