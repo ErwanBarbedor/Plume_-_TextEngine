@@ -178,6 +178,7 @@ function txe.renderToken (self)
                     pos = pos + 1
                     if self[pos].kind ~= "space" then
                         finded_optional = self[pos].kind == "opt_block"
+                        break
                     end
                 end
 
