@@ -438,7 +438,7 @@ function txe.tokenize (code, file)
         local c = code:sub(pos, pos)
 
         if c == "\n" then
-            write (nil, -1)
+            write (nil, 0)
             newtoken ("newline", "\n")
             noline = noline + 1
             linepos = pos+1
