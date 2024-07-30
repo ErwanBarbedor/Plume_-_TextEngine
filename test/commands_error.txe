@@ -55,7 +55,7 @@ Traceback :
 \def foo bar \def foo barbar
 // Error
 File 'string', line 1 : The macro 'foo' already exist (defined in file 'string', line 1).
-Use '\redef' to erease it.
+Use '\redef foo' to erase it.
     \def foo bar \def foo barbar
                       ^^^
 Traceback :
@@ -65,5 +65,38 @@ Traceback :
 
 // Test 'Macro already exist, but no error'
 \def foo bar \redef foo barbar
+\foo
 // Result
+ 
+barbar
+// End
+
+// Test 'Macro already exist as standard'
+\def for bar
+// Error
+File 'string', line 1 : The macro 'for' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\redef_forced for'.
+    \def for bar
+         ^^^
+Traceback :
+    File 'string', line 1 : \def for bar
+                            ^^^^
+// End
+
+// Test 'Macro already exist as standard, but no error'
+\redef_forced for bar
+\for
+// Result
+
+bar
+// End
+
+// Test 'Redef that doesn't exist'
+\redef foo {}
+// Error
+File 'string', line 1 : The macro 'foo' doesn't exist, so you can't erase it. Use '\def foo' instead.
+    \redef foo {}
+           ^^^
+Traceback :
+    File 'string', line 1 : \redef foo {}
+                            ^^^^^^
 // End

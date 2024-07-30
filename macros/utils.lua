@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define some useful macro like def, set, alias.
 
-local function def (def_args, redef, calling_token)
+local function def (def_args, redef, redef_forced, calling_token)
     -- Main way to define new macro from Plume - TextEngine
 
     -- Get the provided macro name
@@ -25,22 +25,33 @@ local function def (def_args, redef, calling_token)
         txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
-    -- Test if this macro already exists
-    if txe.macros[name] and not redef then
-        local msg = "The macro '" .. name .. "' already exist"
-        local first_definition = txe.macros[name].token
-
-        if first_definition then
-            msg = msg
-                .. " (defined in file '"
-                .. first_definition.file
-                .. "', line "
-                .. first_definition.line .. ").\n"
-        else
-            msg = msg .. ". "
+    -- Test if the name is taken by standard macro
+    if txe.std_macros[name] then
+        if not redef_forced then
+            local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
+            txe.error(def_args["$name"], msg)
         end
+    -- Test if this macro already exists
+    elseif txe.macros[name] then
+        if not redef then
+            local msg = "The macro '" .. name .. "' already exist"
+            local first_definition = txe.macros[name].token
 
-        msg = msg .. "Use '\\redef' to erease it."
+            if first_definition then
+                msg = msg
+                    .. " (defined in file '"
+                    .. first_definition.file
+                    .. "', line "
+                    .. first_definition.line .. ").\n"
+            else
+                msg = msg .. ". "
+            end
+
+            msg = msg .. "Use '\\redef "..name.."' to erase it."
+            txe.error(def_args["$name"], msg)
+        end
+    elseif redef then
+        local msg = "The macro '" .. name .. "' doesn't exist, so you can't erase it. Use '\\def "..name.."' instead."
         txe.error(def_args["$name"], msg)
     end
 
@@ -83,12 +94,17 @@ end
 
 txe.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_args, false, calling_token)
+    def (def_args, false, false, calling_token)
     return ""
 end)
 
 txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
-    def (def_args, true, calling_token)
+    def (def_args, true, false, calling_token)
+    return ""
+end)
+
+txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
+    def (def_args, true, true, calling_token)
     return ""
 end)
 
