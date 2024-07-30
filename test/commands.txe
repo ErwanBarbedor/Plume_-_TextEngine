@@ -39,3 +39,11 @@ This is x:0
 This is x:5
 This is x:0
 // End
+
+// Test 'commande with useless space'
+\def foo[
+
+]{bar}
+// Result
+
+// End

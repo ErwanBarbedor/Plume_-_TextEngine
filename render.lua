@@ -13,12 +13,13 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 function txe.parse_opt_args (macro, args, optargs)
-    -- Check for value or key=value in optargs, and add it to args
+    -- Capture "value" or "key=value" 
+    -- in optionnals arguments when calling a macro.
     local key, eq, space
-    local t = {}
+    local captured_args = {}
     for _, token in ipairs(optargs) do
         if key then
-            if token.kind == "space" then
+            if token.kind == "space" or token.kind == "newline" then
             elseif eq then
                 if token.kind == "opt_assign" then
                     txe.error(token, "Expected parameter value, not '" .. token.value .. "'.")
@@ -31,26 +32,27 @@ function txe.parse_opt_args (macro, args, optargs)
                     txe.error(key, "'" .. name .. "' is an invalid name for an argument name.")
                 end
 
-                t[name] = token
+                captured_args[name] = token
                 eq = false
                 key = nil
             elseif token.kind == "opt_assign" then
                 eq = true
             else
-                table.insert(t, key)
+                table.insert(captured_args, key)
                 key = token
             end
         elseif token.kind == "opt_assign" then
             txe.error(token, "Expected parameter name, not '" .. token.value .. "'.")
-        elseif token.kind ~= "space" then
+        elseif token.kind ~= "space" and token.kind ~= "newline"then
             key = token
         end
     end
     if key then
-        table.insert(t, key)
+        table.insert(captured_args, key)
     end
 
-    for k, v in pairs(t) do
+    -- Add all named arguments to the table args
+    for k, v in pairs(captured_args) do
         if type(k) ~= "number" then
             args[k] = v
         end
@@ -75,13 +77,13 @@ function txe.parse_opt_args (macro, args, optargs)
     --     end
     -- end
 
-    -- Put all remaining tokens in the field "..."
+    -- Put all remaining args in the field "..."
     args['...'] = {}
-    for j=last_index, #t do
-        table.insert(args['...'], t[j])
+    for j=last_index, #captured_args do
+        table.insert(args['...'], captured_args[j])
     end
 
-    -- set defaut value if provided by the macros
+    -- set defaut value if not in args but provided by the macro
     for i, optarg in ipairs(macro.defaut_optargs) do
         if not args[optarg.name] then
             args[optarg.name] = optarg.value
@@ -131,7 +133,6 @@ function txe.renderToken (self)
         elseif token.kind == "macro" then
             -- Capture required number of block after the macro.
             
-
             -- If more than txe.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
             if #txe.traceback > txe.max_loop_size then
@@ -157,8 +158,7 @@ function txe.renderToken (self)
                 end
                 top.optargs = token
             end
-
-            
+ 
             push_macro (token)
             -- Manage chained macro like \double \double x, that
             -- must be treated as \double{\double{x}}
