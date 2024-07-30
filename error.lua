@@ -77,6 +77,13 @@ function txe.error (token, message)
 
     local file, noline, line, beginpos, endpos = token_info (token)
     local err = "File '" .. file .."', line " .. noline .. " : " .. message .. "\n"
+
+    -- Remove space in front of line, for lisibility
+    local leading_space = line:match "^%s*"
+    line = line:sub(#leading_space+1, -1)
+    beginpos = beginpos - #leading_space
+    endpos   = endpos   - #leading_space
+
     err = err .. "\t"..line .. "\n"
 
     -- Add '^^^' under the fautive token

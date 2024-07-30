@@ -29,3 +29,12 @@ File 'string', line 1 : This brace doesn't matching the opening brace, which was
     [}
      ^
 // End
+// ]]
+
+// Test 'No space in error message'
+        }
+// Error
+File 'string', line 1 : This brace close nothing.
+    }
+    ^
+// End
