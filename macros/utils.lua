@@ -48,7 +48,7 @@ local function def (def_args, redef, calling_token)
     -- with defaut values
     local opt_args = {}
     for k, v in pairs(def_args) do
-        if k:sub(1, 1) ~= "$" and k ~= "..." then
+        if k:sub(1, 1) ~= "$" then
             table.insert(opt_args, {name=k, value=v})
         end
     end
@@ -69,9 +69,7 @@ local function def (def_args, redef, calling_token)
 
         --add all args in the current scope
         for k, v in pairs(args) do
-            if v.render then-- "$args" field it is'nt a tokenlist
-                txe.scope_set_local(k, v)
-            end
+            txe.scope_set_local(k, v)
         end
 
         local result = def_args["$body"]:render()
