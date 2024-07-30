@@ -54,7 +54,8 @@ Traceback :
 // Test 'Macro already exist'
 \def foo bar \def foo barbar
 // Error
-File 'string', line 1 : The macro 'foo' already exist. Use '\redef' to erease it.
+File 'string', line 1 : The macro 'foo' already exist (defined in file 'string', line 1).
+Use '\redef' to erease it.
     \def foo bar \def foo barbar
                       ^^^
 Traceback :

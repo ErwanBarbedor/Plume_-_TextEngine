@@ -13,14 +13,16 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 txe.macros = {}
-function txe.register_macro (name, args, defaut_optargs, macro)
+function txe.register_macro (name, args, defaut_optargs, macro, token)
     -- args: table contain the name of macro arguments
     -- defaut_optargs: table contain key and defaut value for optionnals args
     -- macro: the function to call
+    -- token (optionnal): token where the macro was declared
     txe.macros[name] = {
         args           = args,
         defaut_optargs = defaut_optargs,
-        macro          = macro
+        macro          = macro,
+        token          = token
     }
 end
 function txe.get_macro(name)

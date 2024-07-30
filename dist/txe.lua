@@ -731,14 +731,16 @@ end
 
 -- ## macro.lua ##
 txe.macros = {}
-function txe.register_macro (name, args, defaut_optargs, macro)
+function txe.register_macro (name, args, defaut_optargs, macro, token)
     -- args: table contain the name of macro arguments
     -- defaut_optargs: table contain key and defaut value for optionnals args
     -- macro: the function to call
+    -- token (optionnal): token where the macro was declared
     txe.macros[name] = {
         args           = args,
         defaut_optargs = defaut_optargs,
-        macro          = macro
+        macro          = macro,
+        token          = token
     }
 end
 function txe.get_macro(name)
@@ -894,7 +896,7 @@ end)
 -- ## macros/utils.lua ##
 -- Define some useful macro like def, set, alias.
 
-local function def (def_args, redef)
+local function def (def_args, redef, calling_token)
     -- Main way to define new macro from Plume - TextEngine
 
     -- Get the provided macro name
@@ -907,7 +909,21 @@ local function def (def_args, redef)
 
     -- Test if this macro already exists
     if txe.macros[name] and not redef then
-        txe.error(def_args["$name"], "The macro '" .. name .. "' already exist. Use '\\redef' to erease it.")
+        local msg = "The macro '" .. name .. "' already exist"
+        local first_definition = txe.macros[name].token
+
+        if first_definition then
+            msg = msg
+                .. " (defined in file '"
+                .. first_definition.file
+                .. "', line "
+                .. first_definition.line .. ").\n"
+        else
+            msg = msg .. ". "
+        end
+
+        msg = msg .. "Use '\\redef' to erease it."
+        txe.error(def_args["$name"], msg)
     end
 
     -- All args (except $name, $body and ...) are optional args
@@ -946,17 +962,17 @@ local function def (def_args, redef)
         txe.pop_scope ()
 
         return result
-    end)
+    end, calling_token)
 end
 
-txe.register_macro("def", {"$name", "$body"}, {}, function(def_args)
+txe.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_args)
+    def (def_args, false, calling_token)
     return ""
 end)
 
-txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args)
-    def (def_args, true)
+txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
+    def (def_args, true, calling_token)
     return ""
 end)
 
