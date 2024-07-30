@@ -61,10 +61,10 @@ function txe.tokenlist (x)
         __type = "tokenlist",-- used for debugging
         kind   = kind,
         
-        freeze_lua_env = function (self, env)
-            -- Each token keep a reference to given lua env
+        freeze_scope = function (self, scope)
+            -- Each token keep a reference to given scope
             for _, token in ipairs(self) do
-                token.frozen_env = env
+                token.frozen_scope = scope
             end
         end,
     

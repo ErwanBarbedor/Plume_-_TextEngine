@@ -48,7 +48,7 @@ local function runTests(tests)
         if #versions==0 or versions:match(_VERSION) then
             testNumber = testNumber + 1
             
-            txe.reset ()
+            txe.init ()
 
             local sucess, result = pcall (txe.render, test.input)
             local err = ""

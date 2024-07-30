@@ -46,24 +46,24 @@ local function def (def_args, redef)
     
     txe.register_macro(name, def_args['...'], opt_args, function(args)
         
-        -- Give each arg a reference to current lua env
+        -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
-        txe.freeze_lua_env (args)
+        txe.freeze_scope (args)
 
         -- argument are variable local to the macro
-        txe.push_env ()
+        txe.push_scope ()
 
-        --add all args in the lua_env table
+        --add all args in the current scope
         for k, v in pairs(args) do
             if v.render then-- '...' field it is'nt a tokenlist
-                txe.lua_env_set_local(k, v)
+                txe.scope_set_local(k, v)
             end
         end
 
         local result = def_args["$body"]:render()
 
         --exit macro scope
-        txe.pop_env ()
+        txe.pop_scope ()
 
         return result
     end)
@@ -100,7 +100,7 @@ txe.register_macro("set", {"key", "value"}, {["local"]=false}, function(args)
 
     value = tonumber(value) or value
 
-    txe.lua_env_set_local (key, value)
+    txe.scope_set_local (key, value)
     return ""
 end)
 

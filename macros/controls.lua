@@ -37,7 +37,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
             
             -- Add counter to the local scope, to 
             -- be used by user
-            txe.lua_env_set_local(var, i)
+            txe.scope_set_local(var, i)
             
             table.insert(result, args.body:render())
         end
@@ -75,7 +75,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         while values_list[1] do
             -- Add all returned variables to the local scope
             for i=1, #variables_list do
-                txe.lua_env_set_local (variables_list[i], values_list[i])
+                txe.scope_set_local (variables_list[i], values_list[i])
             end
 
             table.insert(result, args.body:render())

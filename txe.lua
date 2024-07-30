@@ -30,6 +30,7 @@ require "parse"
 require "error"
 require "macro"
 require "runtime"
+require "init"
 
 -- <DEV>
 local function print_tokens(t, indent)
