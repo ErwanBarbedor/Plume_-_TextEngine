@@ -112,10 +112,10 @@ function txe.parse_opt_args (macro, args, optargs)
     --     end
     -- end
 
-    -- Put all remaining args in the field "$args"
-    args["$args"] = {}
+    -- Put all remaining args in the field "__args"
+    args.__args = {}
     for j=last_index, #captured_args do
-        table.insert(args["$args"], captured_args[j])
+        table.insert(args.__args, captured_args[j])
     end
 
     -- set defaut value if not in args but provided by the macro
@@ -936,11 +936,11 @@ local function def (def_args, redef, calling_token)
     end
 
     -- Remaining args are the macro args names
-    for k, v in ipairs(def_args["$args"]) do
-        def_args["$args"][k] = v:render()
+    for k, v in ipairs(def_args.__args) do
+        def_args.__args[k] = v:render()
     end
     
-    txe.register_macro(name, def_args["$args"], opt_args, function(args)
+    txe.register_macro(name, def_args.__args, opt_args, function(args)
         
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
@@ -978,7 +978,7 @@ txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     -- A macro to set variable to a value
 
     local global = false
-    for _, tokenlist in ipairs(args['$args']) do
+    for _, tokenlist in ipairs(args.__args) do
         if tokenlist:render () == 'global' then
             global = true
             break
@@ -1044,7 +1044,7 @@ txe.register_macro("include", {"path"}, {}, function(args)
     -- \include{file} Execute the given file and return the output
     -- \include[extern]{file} Include current file without execute it
     local is_extern = false
-    for _, arg in pairs(args["$args"]) do
+    for _, arg in pairs(args.__args) do
         local arg_value = arg:render()
         if arg_value == "extern" then
             is_extern = true
@@ -1181,11 +1181,11 @@ function txe.freeze_scope (args)
 
     local last_scope = txe.current_scope ()
     for k, v in pairs(args) do
-        if k ~= "$args" then
+        if k ~= "__args" then
             v:freeze_scope (last_scope)
         end
     end
-    for k, v in pairs(args["$args"]) do
+    for k, v in pairs(args.__args) do
         v:freeze_scope (last_scope)
     end
 end

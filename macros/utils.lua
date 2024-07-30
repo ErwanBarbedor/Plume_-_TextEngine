@@ -54,11 +54,11 @@ local function def (def_args, redef, calling_token)
     end
 
     -- Remaining args are the macro args names
-    for k, v in ipairs(def_args["$args"]) do
-        def_args["$args"][k] = v:render()
+    for k, v in ipairs(def_args.__args) do
+        def_args.__args[k] = v:render()
     end
     
-    txe.register_macro(name, def_args["$args"], opt_args, function(args)
+    txe.register_macro(name, def_args.__args, opt_args, function(args)
         
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
@@ -96,7 +96,7 @@ txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     -- A macro to set variable to a value
 
     local global = false
-    for _, tokenlist in ipairs(args['$args']) do
+    for _, tokenlist in ipairs(args.__args) do
         if tokenlist:render () == 'global' then
             global = true
             break

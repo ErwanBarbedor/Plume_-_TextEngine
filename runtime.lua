@@ -93,11 +93,11 @@ function txe.freeze_scope (args)
 
     local last_scope = txe.current_scope ()
     for k, v in pairs(args) do
-        if k ~= "$args" then
+        if k ~= "__args" then
             v:freeze_scope (last_scope)
         end
     end
-    for k, v in pairs(args["$args"]) do
+    for k, v in pairs(args.__args) do
         v:freeze_scope (last_scope)
     end
 end

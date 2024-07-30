@@ -50,7 +50,7 @@ This is x:0
 
 // Test 'variable args number'
 \def multiargs {//
-    \for {i, args in ipairs(__scope["$args"])} {//
+    \for {i, args in ipairs(__args)} {//
         Argument #i : #args
     }//
 }//
