@@ -17,12 +17,13 @@ function txe.token (kind, value, line, pos, file, code)
     -- a macro, a newline, a word...
     -- Each token track his position in the source code
     return setmetatable({
-        kind  = kind,
-        value = value,
-        line  = line,
-        pos   = pos,
-        file  = file,
-        code  = code,
+        __type = "token",-- used for debugging
+        kind   = kind,
+        value  = value,
+        line   = line,
+        pos    = pos,
+        file   = file,
+        code   = code,
         source = function (self)
             return self.value
         end
@@ -57,7 +58,8 @@ function txe.tokenlist (x)
     end
 
     local tokenlist = setmetatable({
-        kind=kind,
+        __type = "tokenlist",-- used for debugging
+        kind   = kind,
         source = function (self)
             -- "detokenize" the tokens, to retrieve the
             -- original code.
