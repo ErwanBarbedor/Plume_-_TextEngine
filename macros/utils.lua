@@ -93,7 +93,7 @@ txe.register_macro("set", {"key", "value"}, {["local"]=false}, function(args)
 
     value = tonumber(value) or value
 
-    txe.lua_env[key] = value
+    txe.lua_env_set_local (key, value)
     return ""
 end)
 

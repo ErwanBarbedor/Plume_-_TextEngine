@@ -60,6 +60,11 @@ function txe.tokenlist (x)
     local tokenlist = setmetatable({
         __type = "tokenlist",-- used for debugging
         kind   = kind,
+        
+        freeze_lua_env = function (self, env)
+            -- Each token keep a reference to given lua env
+        end,
+    
         source = function (self)
             -- "detokenize" the tokens, to retrieve the
             -- original code.

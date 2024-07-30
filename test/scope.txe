@@ -1,0 +1,15 @@
+// Test 'Variable block scope 1'
+\def double[x] {#x #x}//
+\def foo[x] {\double #x}//
+\foo 1
+// Result
+1 1
+// End
+
+// Test 'Variable block scope 2'
+\def bar[x] {\set y 1 #x}//
+\def foo[x] {\bar #y}//
+\foo 5
+// Result
+ 5
+// End

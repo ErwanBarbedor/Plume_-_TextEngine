@@ -12,7 +12,22 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-txe.lua_cache      = {}
+-- A table that contain
+-- all local environnements.
+txe.lua_envs = {}
+
+-- Keep reference of any
+-- environnement there are in env
+local alive_env = {}
+
+-- Cache lua code to not
+-- call "load" multiple times
+-- for the same chunck
+txe.lua_cache    = {}
+
+-- Track number of chunck,
+-- To assign a number of each
+-- of them.
 txe.chunck_count = 0
 
 -- Define 'load' function for Lua 5.1 compatibility
@@ -37,9 +52,9 @@ end
 
 function txe.call_lua_chunck(token, code)
     -- Load, cache and execute code
-    -- find in the given token or string
+    -- find in the given token or string.
     -- If the string is given, token is use only
-    -- to throw error
+    -- to throw error.
 
     code = code or token:source ()
 
@@ -50,7 +65,7 @@ function txe.call_lua_chunck(token, code)
         code = "--token" .. txe.chunck_count .. "\n" .. code
         
         local loaded_func, load_err
-        loaded_func, load_err = txe.load_lua_chunck(code, nil, "bt", txe.lua_env)
+        loaded_func, load_err = txe.load_lua_chunck(code, nil, "bt", txe.lua_envs[#txe.lua_envs])
 
         if not loaded_func then
             load_err = load_err:gsub('^.-%]:[0-9]+:', '')
@@ -59,8 +74,7 @@ function txe.call_lua_chunck(token, code)
         
         txe.lua_cache[code] = setmetatable({
             token=token,
-            chunck_count=chunck_count
-            
+            chunck_count=chunck_count 
         },{
             __call = function ()
                 return loaded_func()
@@ -75,40 +89,79 @@ function txe.call_lua_chunck(token, code)
         err = result[1]:gsub('^.-%]:[0-9]+:', '')
         txe.error(token, "(Lua error)" .. err)
     end
-    -- print(code, ">", sucess, ">", result)
+
     return (table.unpack or unpack)(result)
 end
 
-local env = {{}}
-txe.lua_env = setmetatable({}, {
-    __newindex = function (self, key, value)
-        for i=#env, 1, -1 do
-            if env[i][key] or i==1 then
-                env[i][key] = value
-            end
-        end
-    end,
-    __index = function (self, key)
-        for i=#env, 1, -1 do
-            local value = env[i][key]
-            if value or i==1 then
-                return value
-            end
+function txe.freeze_lua_env (args)
+    -- Each arg keep a reference to current lua env
+
+    local env = txe.freezed_env()
+    for k, v in pairs(args) do
+        if k ~= "..." then
+            v:freeze_lua_env (env)
         end
     end
-})
+    for k, v in pairs(args["..."]) do
+        v:freeze_lua_env (env)
+    end
+end
+
+function txe.new_env (parent)
+    return setmetatable({}, {
+        __index = function (self, key)
+            -- Return registered value.
+            -- If value is nil, recursively
+            -- call parent
+            local value = rawget(self, key)
+            if value then
+                return value
+            elseif parent then
+                return parent[key]
+            end
+        end,
+        __newindex = function (self, key, value)
+            -- Register new value
+            -- Only if no parent has it
+            if (parent and not parent[key]) or not parent then
+                rawset(self, key, value)
+            elseif parent then
+                parent[key] = value
+            end
+        end,
+    })
+end
 
 function txe.push_env ()
-    table.insert(env, {})
+    -- Create a new environment with the 
+    -- penultimate environment as parent.
+    -- Keep a reference of it inside alive_env
+    local last_env = txe.lua_envs[#txe.lua_envs]
+    local new_env = txe.new_env (last_env)
+    alive_env[new_env] = true
+
+    table.insert(txe.lua_envs, new_env)
 end
+
 function txe.pop_env ()
-    table.remove(env)
+    -- Remove last create environnement
+    -- Remove it also from alive_env
+    local old_env = table.remove(txe.lua_envs)
+    alive_env[old_env] = nil
 end
+
 function txe.lua_env_set_local (key, value)
-    env[#env][key] = value
+    rawset (txe.lua_envs[#txe.lua_envs], key, value)
 end
+
 function txe.purge_env ()
-    env = {{}}
+    txe.lua_envs = {}
+    alive_envs = {}
+    txe.push_env ()
+end
+txe.push_env ()
+
+function txe.freezed_env ()
 end
 
 -- Save all lua standard functions to be available from "eval" macros
@@ -130,11 +183,8 @@ end
 
 function txe.init_lua ()
     for k, v in pairs(txe.lua_std) do
-        txe.lua_env[k] = v
+        txe.lua_envs[1][k] = v
     end
-
-    -- Add a self-reference
-    txe.lua_env._G = txe.lua_env
 end
 txe.init_lua ()
 
