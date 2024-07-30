@@ -21,7 +21,7 @@
 10
 // End
 
-// Future Test '__scope 2'
+// Test '__scope 2'
 \set x 10//
 \def foo {\set x 5}//
 \foo//
@@ -36,4 +36,22 @@
 \foo//
 // Result
  5
+// End
+
+// Test 'global 1'
+\def foo {\set x 0}//
+\set x 1//
+\foo//
+#x//
+// Result
+1
+// End
+
+// Test 'global 2'
+\def foo {\set[global] x 0}//
+\set x 1//
+\foo//
+#x//
+// Result
+0
 // End
