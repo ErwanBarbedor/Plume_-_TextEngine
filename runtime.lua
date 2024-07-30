@@ -16,10 +16,6 @@ You should have received a copy of the GNU General Public License along with Plu
 -- all local environnements.
 txe.lua_envs = {}
 
--- Keep reference of any
--- environnement there are in env
-local alive_env = {}
-
 -- Cache lua code to not
 -- call "load" multiple times
 -- for the same chunck
@@ -58,6 +54,8 @@ function txe.call_lua_chunck(token, code)
 
     code = code or token:source ()
 
+    -- print(token, token.frozen_env)
+
     if not txe.lua_cache[code] then
         --put chunck ref in the code, to retrieve it
         --in case of error
@@ -65,7 +63,9 @@ function txe.call_lua_chunck(token, code)
         code = "--token" .. txe.chunck_count .. "\n" .. code
         
         local loaded_func, load_err
-        loaded_func, load_err = txe.load_lua_chunck(code, nil, "bt", txe.lua_envs[#txe.lua_envs])
+        local chunck_env = token.frozen_env or txe.lua_envs[#txe.lua_envs]
+        -- local chunck_env = txe.lua_envs[#txe.lua_envs]
+        loaded_func, load_err = txe.load_lua_chunck(code, nil, "bt", chunck_env)
 
         if not loaded_func then
             load_err = load_err:gsub('^.-%]:[0-9]+:', '')
@@ -96,14 +96,14 @@ end
 function txe.freeze_lua_env (args)
     -- Each arg keep a reference to current lua env
 
-    local env = txe.freezed_env()
+    local last_env = txe.lua_envs[#txe.lua_envs] 
     for k, v in pairs(args) do
         if k ~= "..." then
-            v:freeze_lua_env (env)
+            v:freeze_lua_env (last_env)
         end
     end
     for k, v in pairs(args["..."]) do
-        v:freeze_lua_env (env)
+        v:freeze_lua_env (last_env)
     end
 end
 
@@ -138,7 +138,6 @@ function txe.push_env ()
     -- Keep a reference of it inside alive_env
     local last_env = txe.lua_envs[#txe.lua_envs]
     local new_env = txe.new_env (last_env)
-    alive_env[new_env] = true
 
     table.insert(txe.lua_envs, new_env)
 end
@@ -146,12 +145,14 @@ end
 function txe.pop_env ()
     -- Remove last create environnement
     -- Remove it also from alive_env
-    local old_env = table.remove(txe.lua_envs)
-    alive_env[old_env] = nil
+    table.remove(txe.lua_envs)
 end
 
-function txe.lua_env_set_local (key, value)
-    rawset (txe.lua_envs[#txe.lua_envs], key, value)
+function txe.lua_env_set_local (key, value, env)
+    -- Register a variable locally
+    -- If not provided, "env" is the last created.
+    local env = env or txe.lua_envs[#txe.lua_envs] 
+    rawset (env, key, value)
 end
 
 function txe.purge_env ()
@@ -160,9 +161,6 @@ function txe.purge_env ()
     txe.push_env ()
 end
 txe.push_env ()
-
-function txe.freezed_env ()
-end
 
 -- Save all lua standard functions to be available from "eval" macros
 local lua_std_functions

@@ -8,8 +8,8 @@
 
 // Test 'Variable block scope 2'
 \def bar[x] {\set y 1 #x}//
-\def foo[x] {\bar #y}//
-\foo 5
+\def foo {\bar #y}//
+\foo
 // Result
- 5
+ 
 // End

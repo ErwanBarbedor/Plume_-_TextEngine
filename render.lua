@@ -235,10 +235,6 @@ function txe.renderToken (self)
                         -- Parse optionnal args
                         txe.parse_opt_args(top.macro, args, top.optargs or {})
 
-                        -- Give each arg a reference to current lua env
-                        -- (affect only scripts and evals tokens)
-                        txe.freeze_lua_env (args)
-
                         -- Update traceback, call the macro and add is result
                         table.insert(txe.traceback, token)
 

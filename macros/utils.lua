@@ -17,7 +17,9 @@ You should have received a copy of the GNU General Public License along with Plu
 local function def (def_args, redef)
     -- Main way to define new macro from Plume - TextEngine
 
+    -- Get the provided macro name
     local name = def_args["$name"]:render()
+
     -- Test if name is a valid identifier
     if not txe.is_identifier(name) then
         txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
@@ -43,6 +45,11 @@ local function def (def_args, redef)
     end
     
     txe.register_macro(name, def_args['...'], opt_args, function(args)
+        
+        -- Give each arg a reference to current lua env
+        -- (affect only scripts and evals tokens)
+        txe.freeze_lua_env (args)
+
         -- argument are variable local to the macro
         txe.push_env ()
 

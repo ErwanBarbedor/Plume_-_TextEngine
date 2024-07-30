@@ -63,6 +63,9 @@ function txe.tokenlist (x)
         
         freeze_lua_env = function (self, env)
             -- Each token keep a reference to given lua env
+            for _, token in ipairs(self) do
+                token.frozen_env = env
+            end
         end,
     
         source = function (self)
