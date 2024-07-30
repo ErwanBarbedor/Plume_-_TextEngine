@@ -13,3 +13,27 @@
 // Result
  
 // End
+
+// Test '__scope 1'
+\set x 10//
+#{__scope.x}
+// Result
+10
+// End
+
+// Future Test '__scope 2'
+\set x 10//
+\def foo {\set x 5}//
+\foo//
+#{__scope.x}
+// Result
+10
+// End
+
+// Test '__scope 3'
+\def foo {\set x 5 #{__scope.x}}//
+\set x 10//
+\foo//
+// Result
+ 5
+// End

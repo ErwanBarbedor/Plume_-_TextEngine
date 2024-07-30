@@ -103,7 +103,11 @@ function txe.freeze_scope (args)
 end
 
 function txe.create_scope (parent)
-    return setmetatable({}, {
+    local scope = {}
+    -- Add a self-reference
+    scope.__scope = scope
+
+    return setmetatable(scope, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
