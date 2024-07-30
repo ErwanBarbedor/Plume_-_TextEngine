@@ -54,11 +54,11 @@ local function def (def_args, redef, calling_token)
     end
 
     -- Remaining args are the macro args names
-    for k, v in ipairs(def_args['...']) do
-        def_args['...'][k] = v:render()
+    for k, v in ipairs(def_args["$args"]) do
+        def_args["$args"][k] = v:render()
     end
     
-    txe.register_macro(name, def_args['...'], opt_args, function(args)
+    txe.register_macro(name, def_args["$args"], opt_args, function(args)
         
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
@@ -69,7 +69,7 @@ local function def (def_args, redef, calling_token)
 
         --add all args in the current scope
         for k, v in pairs(args) do
-            if v.render then-- '...' field it is'nt a tokenlist
+            if v.render then-- "$args" field it is'nt a tokenlist
                 txe.scope_set_local(k, v)
             end
         end

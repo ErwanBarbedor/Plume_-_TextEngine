@@ -77,10 +77,10 @@ function txe.parse_opt_args (macro, args, optargs)
     --     end
     -- end
 
-    -- Put all remaining args in the field "..."
-    args['...'] = {}
+    -- Put all remaining args in the field "$args"
+    args["$args"] = {}
     for j=last_index, #captured_args do
-        table.insert(args['...'], captured_args[j])
+        table.insert(args["$args"], captured_args[j])
     end
 
     -- set defaut value if not in args but provided by the macro
