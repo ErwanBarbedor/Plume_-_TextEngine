@@ -70,7 +70,7 @@ end
 
 local function lua_error_info (message, lua_source)
     -- Extract informations from error
-    -- message heading
+    -- message heading=
     local file, noline, message = message:match("^%[(.-)%]:([0-9]+): (.*)")
     noline = tonumber(noline)
 
@@ -139,6 +139,28 @@ function txe.error (token, message, is_lua_error, lua_source)
     -- Add traceback
     if #txe.traceback > 0 then
         err = err .. "\nTraceback :"
+    end
+
+    -- Print all part of lua traceback that
+    -- leads to txe chuncks.
+    if is_lua_error then
+        local traceback = (txe.lua_traceback or ""):gsub('^stack traceback:', '\n'):gsub('\n%s+', '\n')
+
+        for line in traceback:gmatch('[^\n]+') do
+            if line:match('^%[string "%-%-chunck[0-9]+%.%.%."%]') then
+                local message, lua_file, lua_noline, line = lua_error_info (line)
+                local line_info = "\n\tFile '" .. file .."', line " .. noline .. " : "
+                local indicator = (" "):rep(#line_info-2) .. ("^"):rep(#line)
+
+                err = err .. line_info .. line .. "\n"
+                err = err .. '\t' .. indicator
+
+                -- last line
+                if line:match('^[string "%-%-chunck[0-9]+..."]:[0-9]+: in function <[string "--chunck[0-9]+..."]') then
+                    break
+                end
+            end
+        end
     end
 
     local last_line_info

@@ -109,6 +109,8 @@ File 'string', line 1 : attempt to perform arithmetic on a string value
     ""+1
     ^^^^
 Traceback :
+    File 'string', line 1 : ""+1
+                            ^^^^
     File 'string', line 1 : \set a #{""+1}
                             ^^^^
 // End
@@ -120,6 +122,8 @@ File 'string', line 1 : attempt to add a 'string' with a 'number'
     ""+1
     ^^^^
 Traceback :
+    File 'string', line 1 : ""+1
+                            ^^^^
     File 'string', line 1 : \set a #{""+1}
                             ^^^^
 // End

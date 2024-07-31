@@ -47,7 +47,12 @@ function txe.call_lua_chunck(token, code)
 
     if not txe.lua_cache[code] then
         -- Put the chunck number in the code,
-        -- to retrieve it in case of error
+        -- to retrieve it in case of error.
+        -- A bit messy, but each chunk executes
+        -- in its own environment, even if they
+        -- share the same code. A more elegant
+        -- solution certainly exists,
+        -- but this does the trick for now.
         txe.chunck_count = txe.chunck_count + 1
         code = "--chunck" .. txe.chunck_count .. "\n" .. code
         
