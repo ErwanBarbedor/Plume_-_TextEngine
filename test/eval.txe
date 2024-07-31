@@ -105,9 +105,9 @@ Traceback :
 // Test 'Eval lua error'
 \set a #{""+1}
 // Error Lua 5.1 Lua jit
-File 'string', line 1 : (Lua error) attempt to perform arithmetic on a string value
-    \set a #{""+1}
-            ^^^^^^
+File 'string', line 1 : attempt to perform arithmetic on a string value
+    ""+1
+    ^^^^
 Traceback :
     File 'string', line 1 : \set a #{""+1}
                             ^^^^
@@ -116,9 +116,9 @@ Traceback :
 // Test 'Eval lua error'
 \set a #{""+1}
 // Error Lua 5.4
-File 'string', line 1 : (Lua error) attempt to add a 'string' with a 'number'
-    \set a #{""+1}
-            ^^^^^^
+File 'string', line 1 : attempt to add a 'string' with a 'number'
+    ""+1
+    ^^^^
 Traceback :
     File 'string', line 1 : \set a #{""+1}
                             ^^^^

@@ -703,14 +703,31 @@ end
 -- end
 
 local function lua_error_info (message, lua_source)
+    -- Extract informations from error
+    -- message heading
     local file, noline, message = message:match("^%[(.-)%]:([0-9]+): (.*)")
     noline = tonumber(noline)
+
+    -- If not lua_source, retrieve it
+    local chunck_id = tonumber(file:match('^string "%-%-chunck([0-9]-)%.%.%."'))
+
+    if not lua_source and chunck_id then
+        noline = noline - 1
+        for _, chunck in pairs(txe.lua_cache) do
+            if chunck.chunck_count == chunck_id then
+                lua_source = chunck.token:source ()
+                break
+            end
+        end
+    end
+
     local line = get_line (lua_source, noline):gsub('^%s*', ''):gsub('%s*$', '')
 
     if file:match('^string "%-%-chunck.*"') then
         file = nil
     end
 
+    noline = noline + noline - 2
     return message, file, noline, line, 0, #line
 end
 
@@ -720,7 +737,7 @@ function txe.error_handler (msg)
     return msg
 end
 
-function txe.error (token, message, lua_source)
+function txe.error (token, message, is_lua_error, lua_source)
     -- Enhance errors messages by adding
     -- information about the token that
     -- caused it.
@@ -733,12 +750,11 @@ function txe.error (token, message, lua_source)
     local file, noline, line, beginpos, endpos = token_info (token)
 
     -- In case of lua error, get the line of the error
-    -- instead of pointing the block contaning the script
-    if lua_source then
-        local lua_file, lua_noline
+    -- instead of pointing the block contaning the script.
+    local lua_file, lua_noline
+    if is_lua_error then
         message, lua_file, lua_noline, line, beginpos, endpos = lua_error_info (message, lua_source)
         file = lua_file or file
-        noline = noline + lua_noline - 2
     end
 
     local err = "File '" .. file .."', line " .. noline .. " : " .. message .. "\n"
@@ -1228,13 +1244,12 @@ function txe.call_lua_chunck(token, code)
         -- If loading the chunck failling, remove file
         -- information from the message and throw the error.
         if not loaded_function then
-            -- load_err = load_err:gsub('^.-%]:[0-9]+:', '')
-            txe.error(token, load_err, code)
+            txe.error(token, load_err, true, code)
         end
 
         txe.lua_cache[code] = setmetatable({
             token=token,
-            chunck_count=chunck_count 
+            chunck_count=txe.chunck_count
         },{
             __call = function ()
                 return { xpcall (loaded_function, txe.error_handler) }
@@ -1246,11 +1261,8 @@ function txe.call_lua_chunck(token, code)
     local sucess = result[1]
     table.remove(result, 1)
 
-    -- Like loading, if fail remove file
-    -- information from the message and throw the error.
     if not sucess then
-        err = result[1]:gsub('^.-%]:[0-9]+:', '')
-        txe.error(token, "(Lua error)" .. err)
+        txe.error(token, result[1], true)
     end
 
     -- Lua 5.1 compatibility

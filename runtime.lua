@@ -60,13 +60,12 @@ function txe.call_lua_chunck(token, code)
         -- If loading the chunck failling, remove file
         -- information from the message and throw the error.
         if not loaded_function then
-            -- load_err = load_err:gsub('^.-%]:[0-9]+:', '')
-            txe.error(token, load_err, code)
+            txe.error(token, load_err, true, code)
         end
 
         txe.lua_cache[code] = setmetatable({
             token=token,
-            chunck_count=chunck_count 
+            chunck_count=txe.chunck_count
         },{
             __call = function ()
                 return { xpcall (loaded_function, txe.error_handler) }
@@ -78,11 +77,8 @@ function txe.call_lua_chunck(token, code)
     local sucess = result[1]
     table.remove(result, 1)
 
-    -- Like loading, if fail remove file
-    -- information from the message and throw the error.
     if not sucess then
-        err = result[1]:gsub('^.-%]:[0-9]+:', '')
-        txe.error(token, "(Lua error)" .. err)
+        txe.error(token, result[1], true)
     end
 
     -- Lua 5.1 compatibility
