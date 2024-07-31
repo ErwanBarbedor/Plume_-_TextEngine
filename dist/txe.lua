@@ -1100,6 +1100,16 @@ end)
 
 txe.register_macro("eval", {"expr"}, {}, function(args)
     --Eval lua expression and return the result
+    -- \eval{1+1} or #{1+1}
+    -- Can format the result : #{1/3}[.2f]
+    -- (use lua format without leading '%')
+
+    -- Get format if provided
+    local format
+    if args.__args[1] then
+        format = args.__args[1]:render ()
+    end
+
     local result = txe.eval_lua_expression(args.expr)
 
     --if result is a token, render it
@@ -1107,6 +1117,10 @@ txe.register_macro("eval", {"expr"}, {}, function(args)
         result = result:render ()
     end
     
+    if format then
+        result = string.format("%"..format, result)
+    end
+
     return result
 end) 
 

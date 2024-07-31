@@ -74,6 +74,12 @@ table
 1
 // End
 
+// Test 'Format eval'
+#{1/3}[.2f]
+// Result
+0.33
+// End
+
 // Test 'Eval syntax error'
 \set a #{a+}
 // Error Lua 5.1 Lua jit
