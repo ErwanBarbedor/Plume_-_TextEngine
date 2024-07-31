@@ -12,6 +12,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+-- Manage scopes and runtime lua executions
+
 -- Define a 'load' function for Lua 5.1 compatibility
 if _VERSION == "Lua 5.1" or jit then
     function txe.load_lua_chunck (code, _, _, env)
@@ -47,7 +49,7 @@ function txe.call_lua_chunck(token, code)
         -- Put the chunck number in the code,
         -- to retrieve it in case of error
         txe.chunck_count = txe.chunck_count + 1
-        code = "--token" .. txe.chunck_count .. "\n" .. code
+        code = "--chunck" .. txe.chunck_count .. "\n" .. code
         
         -- If the token is locked in a specific
         -- scope, execute inside it.
@@ -58,8 +60,8 @@ function txe.call_lua_chunck(token, code)
         -- If loading the chunck failling, remove file
         -- information from the message and throw the error.
         if not loaded_function then
-            load_err = load_err:gsub('^.-%]:[0-9]+:', '')
-            txe.error(token, "(Lua syntax error)" .. load_err)
+            -- load_err = load_err:gsub('^.-%]:[0-9]+:', '')
+            txe.error(token, load_err, code)
         end
 
         txe.lua_cache[code] = setmetatable({

@@ -631,6 +631,17 @@ end
 txe.last_error = nil
 txe.traceback = {}
 
+local function get_line(source, noline)
+    -- Retrieve line by line number in the source code
+    local current_line = 1
+    for line in (source.."\n"):gmatch("(.-)\n") do
+        if noline == current_line then
+            return line
+        end
+        current_line = current_line + 1
+    end
+end
+
 local function token_info (token)
     -- Return:
     -- Name of the file containing the token
@@ -668,20 +679,42 @@ local function token_info (token)
         endpos = token.pos+#token.value
     end
 
-    -- Retrieve the line in the source code
-    local noline = 1
-    for line in (code.."\n"):gmatch("(.-)\n") do
-        if noline == token_noline then
-            token_line = line
-            break
-        end
-        noline = noline + 1
-    end
+    token_line = get_line (code, token_noline)
 
     return file, token_noline, token_line, beginpos, endpos
 end
 
-function txe.error (token, message)
+-- local function lua_error_info (message)
+--     local chunck_number = message:match('^%[string "%-%-chunck(.-)%.%.%."')
+
+--     if chunck_number then
+--         local token
+        
+--         chunck_number = tonumber(chunck_number)
+--         print("!")
+--         for code, chunck in pairs(txe.lua_cache) do
+--             print("!", chunck.chunck_count, chunck_number)
+--             if chunck.chunck_count == chunck_number then
+--                 print "!"
+--                 token = chunck.token
+--             end
+--         end
+--     end
+-- end
+
+local function lua_error_info (message, lua_source)
+    local file, noline, message = message:match("^%[(.-)%]:([0-9]+): (.*)")
+    noline = tonumber(noline)
+    local line = get_line (lua_source, noline):gsub('^%s*', ''):gsub('%s*$', '')
+
+    if file:match('^string "%-%-chunck.*"') then
+        file = nil
+    end
+
+    return message, file, noline, line, 0, #line
+end
+
+function txe.error (token, message, lua_source)
     -- Enhance errors messages by adding
     -- information about the token that
     -- caused it.
@@ -692,6 +725,16 @@ function txe.error (token, message)
     end
 
     local file, noline, line, beginpos, endpos = token_info (token)
+
+    -- In case of lua error, get the line of the error
+    -- instead of pointing the block contaning the script
+    if lua_source then
+        local lua_file, lua_noline
+        message, lua_file, lua_noline, line, beginpos, endpos = lua_error_info (message, lua_source)
+        file = lua_file or file
+        noline = noline + lua_noline - 2
+    end
+
     local err = "File '" .. file .."', line " .. noline .. " : " .. message .. "\n"
 
     -- Remove space in front of line, for lisibility
@@ -1131,6 +1174,8 @@ for k, v in pairs(txe.macros) do
 end
 
 -- ## runtime.lua ##
+-- Manage scopes and runtime lua executions
+
 -- Define a 'load' function for Lua 5.1 compatibility
 if _VERSION == "Lua 5.1" or jit then
     function txe.load_lua_chunck (code, _, _, env)
@@ -1166,7 +1211,7 @@ function txe.call_lua_chunck(token, code)
         -- Put the chunck number in the code,
         -- to retrieve it in case of error
         txe.chunck_count = txe.chunck_count + 1
-        code = "--token" .. txe.chunck_count .. "\n" .. code
+        code = "--chunck" .. txe.chunck_count .. "\n" .. code
         
         -- If the token is locked in a specific
         -- scope, execute inside it.
@@ -1177,8 +1222,8 @@ function txe.call_lua_chunck(token, code)
         -- If loading the chunck failling, remove file
         -- information from the message and throw the error.
         if not loaded_function then
-            load_err = load_err:gsub('^.-%]:[0-9]+:', '')
-            txe.error(token, "(Lua syntax error)" .. load_err)
+            -- load_err = load_err:gsub('^.-%]:[0-9]+:', '')
+            txe.error(token, load_err, code)
         end
 
         txe.lua_cache[code] = setmetatable({

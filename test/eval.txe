@@ -83,9 +83,9 @@ table
 // Test 'Eval syntax error'
 \set a #{a+}
 // Error Lua 5.1 Lua jit
-File 'string', line 1 : (Lua syntax error) unexpected symbol near '<eof>'
-    \set a #{a+}
-            ^^^^
+File 'string', line 1 : unexpected symbol near '<eof>'
+    return a+
+    ^^^^^^^^^
 Traceback :
     File 'string', line 1 : \set a #{a+}
                             ^^^^
@@ -94,9 +94,9 @@ Traceback :
 // Test 'Eval syntax error 54'
 \set a #{a+}
 // Error Lua 5.4
-File 'string', line 1 : (Lua syntax error) unexpected symbol near <eof>
-    \set a #{a+}
-            ^^^^
+File 'string', line 1 : unexpected symbol near <eof>
+    return a+
+    ^^^^^^^^^
 Traceback :
     File 'string', line 1 : \set a #{a+}
                             ^^^^
