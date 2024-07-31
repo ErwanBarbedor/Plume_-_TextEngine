@@ -55,7 +55,7 @@ local function def (def_args, redef, redef_forced, calling_token)
         txe.error(def_args["$name"], msg)
     end
 
-    -- All args (except $name, $body and ...) are optional args
+    -- All args (except $name, $body and __args) are optional args
     -- with defaut values
     local opt_args = {}
     for k, v in pairs(def_args) do
@@ -78,7 +78,7 @@ local function def (def_args, redef, redef_forced, calling_token)
         -- argument are variable local to the macro
         txe.push_scope ()
 
-        --add all args in the current scope
+        -- add all args in the current scope
         for k, v in pairs(args) do
             txe.scope_set_local(k, v)
         end
@@ -108,16 +108,9 @@ txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, ca
     return ""
 end)
 
-txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
+txe.register_macro("set", {"key", "value"}, {global=false}, function(args, calling_token)
     -- A macro to set variable to a value
-
-    local global = false
-    for _, tokenlist in ipairs(args.__args) do
-        if tokenlist:render () == 'global' then
-            global = true
-            break
-        end
-    end
+    local global = args.__args.global
 
     local key = args.key:render()
     if not txe.is_identifier(key) then

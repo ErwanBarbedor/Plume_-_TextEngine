@@ -118,6 +118,13 @@ function txe.parse_opt_args (macro, args, optargs)
         table.insert(args.__args, captured_args[j])
     end
 
+    -- Add __args elements as a key, to simply check for
+    -- the presence of a specific word in optional arguments.
+    -- Use of :source to avoid calling :render in a hidden way.
+    for _, token in ipairs(args.__args) do
+        args.__args[token:source()] = true
+    end
+
     -- set defaut value if not in args but provided by the macro
     for i, optarg in ipairs(macro.defaut_optargs) do
         if not args[optarg.name] then
@@ -946,7 +953,7 @@ local function def (def_args, redef, redef_forced, calling_token)
         txe.error(def_args["$name"], msg)
     end
 
-    -- All args (except $name, $body and ...) are optional args
+    -- All args (except $name, $body and __args) are optional args
     -- with defaut values
     local opt_args = {}
     for k, v in pairs(def_args) do
@@ -969,7 +976,7 @@ local function def (def_args, redef, redef_forced, calling_token)
         -- argument are variable local to the macro
         txe.push_scope ()
 
-        --add all args in the current scope
+        -- add all args in the current scope
         for k, v in pairs(args) do
             txe.scope_set_local(k, v)
         end
@@ -999,16 +1006,9 @@ txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, ca
     return ""
 end)
 
-txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
+txe.register_macro("set", {"key", "value"}, {global=false}, function(args, calling_token)
     -- A macro to set variable to a value
-
-    local global = false
-    for _, tokenlist in ipairs(args.__args) do
-        if tokenlist:render () == 'global' then
-            global = true
-            break
-        end
-    end
+    local global = args.__args.global
 
     local key = args.key:render()
     if not txe.is_identifier(key) then
@@ -1068,15 +1068,7 @@ end)
 txe.register_macro("include", {"path"}, {}, function(args)
     -- \include{file} Execute the given file and return the output
     -- \include[extern]{file} Include current file without execute it
-    local is_extern = false
-    for _, arg in pairs(args.__args) do
-        local arg_value = arg:render()
-        if arg_value == "extern" then
-            is_extern = true
-        else
-            txe.error(arg, "Unknow argument '" .. arg_value .. "' for macro include.")
-        end
-    end
+    local is_extern = args.__args.extern
 
     local path = args.path:render ()
     local file = io.open(path)
@@ -1210,7 +1202,7 @@ function txe.freeze_scope (args)
             v:freeze_scope (last_scope)
         end
     end
-    for k, v in pairs(args.__args) do
+    for k, v in ipairs(args.__args) do
         v:freeze_scope (last_scope)
     end
 end

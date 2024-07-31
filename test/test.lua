@@ -82,7 +82,7 @@ local function runTests(tests)
                     print("\tTest '" .. test.name .. "' failed.")
                     testFailed = testFailed + 1
                     if print_error_detail then
-                        print("\tExpected Output\n\t\t" .. test.expectedOutput:gsub('\r', '\n'):gsub('\n', '\n\t\t') .. "\n\tObtained Output: \n\t\t" .. result:gsub('\r', '\n'):gsub('\n', '\n\t\t'))
+                        print("\tExpected Output\n\t\t" .. test.expectedOutput:gsub('\r', '\n'):gsub('\n', '\n\t\t'):gsub(' ', '_') .. "\n\tObtained Output: \n\t\t" .. result:gsub('\r', '\n'):gsub('\n', '\n\t\t'):gsub(' ', '_'))
                     end
 
                     

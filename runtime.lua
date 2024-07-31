@@ -97,7 +97,7 @@ function txe.freeze_scope (args)
             v:freeze_scope (last_scope)
         end
     end
-    for k, v in pairs(args.__args) do
+    for k, v in ipairs(args.__args) do
         v:freeze_scope (last_scope)
     end
 end

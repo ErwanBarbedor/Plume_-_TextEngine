@@ -31,15 +31,7 @@ end)
 txe.register_macro("include", {"path"}, {}, function(args)
     -- \include{file} Execute the given file and return the output
     -- \include[extern]{file} Include current file without execute it
-    local is_extern = false
-    for _, arg in pairs(args.__args) do
-        local arg_value = arg:render()
-        if arg_value == "extern" then
-            is_extern = true
-        else
-            txe.error(arg, "Unknow argument '" .. arg_value .. "' for macro include.")
-        end
-    end
+    local is_extern = args.__args.extern
 
     local path = args.path:render ()
     local file = io.open(path)

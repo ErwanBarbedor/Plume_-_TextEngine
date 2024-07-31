@@ -28,6 +28,15 @@ bar-bar
 foo-foo
 // End
 
+// Test 'Optional arg (by name)'
+\def foo {\if __args.bar {Provided args!} \else {not Provided arg.}}//
+\foo
+\foo[bar]
+// Result
+ not Provided arg.
+Provided args! 
+// End
+
 // Test 'To many optional blocks'
 \def[x][x] foo bar
 // Error
