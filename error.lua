@@ -98,6 +98,12 @@ local function lua_error_info (message, lua_source)
     return message, file, noline, line, 0, #line
 end
 
+function txe.error_handler (msg)
+    -- Capture debug.traceback
+    txe.lua_traceback = debug.traceback
+    return msg
+end
+
 function txe.error (token, message, lua_source)
     -- Enhance errors messages by adding
     -- information about the token that

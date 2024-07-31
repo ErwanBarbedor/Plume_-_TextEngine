@@ -714,6 +714,12 @@ local function lua_error_info (message, lua_source)
     return message, file, noline, line, 0, #line
 end
 
+function txe.error_handler (msg)
+    -- Capture debug.traceback
+    txe.lua_traceback = debug.traceback
+    return msg
+end
+
 function txe.error (token, message, lua_source)
     -- Enhance errors messages by adding
     -- information about the token that
@@ -1231,12 +1237,12 @@ function txe.call_lua_chunck(token, code)
             chunck_count=chunck_count 
         },{
             __call = function ()
-                return loaded_function()
+                return { xpcall (loaded_function, txe.error_handler) }
             end
         })
     end
 
-    local result = { pcall(txe.lua_cache[code]) }
+    local result = txe.lua_cache[code] ()
     local sucess = result[1]
     table.remove(result, 1)
 
