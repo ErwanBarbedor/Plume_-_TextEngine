@@ -144,6 +144,15 @@ function txe.renderToken (self)
             local function push_macro (token)
                 -- Check if macro exist, then add it to the stack
                 local name  = token.value:gsub("^"..txe.syntax.escape , "")
+
+                if name == txe.syntax.eval then
+                    name = "eval"
+                end
+
+                if not txe.is_identifier(name) then
+                    txe.error(token, "'" .. name .. "' is an invalid name for a macro.")
+                end
+
                 local macro = txe.get_macro (name)
                 if not macro then
                     txe.error(token, "Unknow macro '" .. name .. "'")

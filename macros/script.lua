@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Define script-related macro
 
 txe.register_macro("script", {"body"}, {}, function(args)
-    --Execute a lua chunck and return the result if any
+    --Execute a lua chunck and return the result, if any
     local result = txe.call_lua_chunck(args.body)
 
     --if result is a token, render it
@@ -26,7 +26,7 @@ txe.register_macro("script", {"body"}, {}, function(args)
     return result
 end)
 
-txe.register_macro("#", {"expr"}, {}, function(args)
+txe.register_macro("eval", {"expr"}, {}, function(args)
     --Eval lua expression and return the result
     local result = txe.eval_lua_expression(args.expr)
 

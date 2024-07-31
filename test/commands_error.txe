@@ -6,6 +6,14 @@ File 'string', line 1 : Unknow macro 'foo'
     ^^^^
 // End
 
+// Test 'Invalid macro name'
+\foo/
+// Error
+File 'string', line 1 : 'foo/' is an invalid name for a macro.
+    \foo/
+    ^^^^^
+// End
+
 // Test 'Unknow macro (multilines)'
 Hello!
 

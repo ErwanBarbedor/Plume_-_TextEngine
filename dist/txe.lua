@@ -179,6 +179,15 @@ function txe.renderToken (self)
             local function push_macro (token)
                 -- Check if macro exist, then add it to the stack
                 local name  = token.value:gsub("^"..txe.syntax.escape , "")
+
+                if name == txe.syntax.eval then
+                    name = "eval"
+                end
+
+                if not txe.is_identifier(name) then
+                    txe.error(token, "'" .. name .. "' is an invalid name for a macro.")
+                end
+
                 local macro = txe.get_macro (name)
                 if not macro then
                     txe.error(token, "Unknow macro '" .. name .. "'")
@@ -1086,7 +1095,7 @@ end)
 -- Define script-related macro
 
 txe.register_macro("script", {"body"}, {}, function(args)
-    --Execute a lua chunck and return the result if any
+    --Execute a lua chunck and return the result, if any
     local result = txe.call_lua_chunck(args.body)
 
     --if result is a token, render it
@@ -1097,7 +1106,7 @@ txe.register_macro("script", {"body"}, {}, function(args)
     return result
 end)
 
-txe.register_macro("#", {"expr"}, {}, function(args)
+txe.register_macro("eval", {"expr"}, {}, function(args)
     --Eval lua expression and return the result
     local result = txe.eval_lua_expression(args.expr)
 
