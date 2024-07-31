@@ -68,24 +68,6 @@ local function token_info (token)
     return file, token_noline, token_line, beginpos, endpos
 end
 
--- local function lua_error_info (message)
---     local chunck_number = message:match('^%[string "%-%-chunck(.-)%.%.%."')
-
---     if chunck_number then
---         local token
-        
---         chunck_number = tonumber(chunck_number)
---         print("!")
---         for code, chunck in pairs(txe.lua_cache) do
---             print("!", chunck.chunck_count, chunck_number)
---             if chunck.chunck_count == chunck_number then
---                 print "!"
---                 token = chunck.token
---             end
---         end
---     end
--- end
-
 local function lua_error_info (message, lua_source)
     -- Extract informations from error
     -- message heading
@@ -117,7 +99,7 @@ end
 
 function txe.error_handler (msg)
     -- Capture debug.traceback
-    txe.lua_traceback = debug.traceback
+    txe.lua_traceback = debug.traceback ()
     return msg
 end
 
