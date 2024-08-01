@@ -30,6 +30,7 @@ require "parse"
 require "error"
 require "macro"
 require "runtime"
+require "api"
 require "init"
 
 -- <DEV>

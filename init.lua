@@ -46,6 +46,9 @@ function txe.init ()
     -- (indeed, the global one)
     txe.push_scope ()
 
+    -- Init methods that are visible from user
+    txe.init_api ()
+
     -- Cache lua code to not
     -- call "load" multiple times
     -- for the same chunck

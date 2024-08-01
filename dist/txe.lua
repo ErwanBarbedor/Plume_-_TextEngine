@@ -1432,6 +1432,34 @@ function txe.current_scope ()
     return txe.scopes[#txe.scopes]
 end
 
+-- ## api.lua ##
+-- Manage methods that are visible from user
+local api = {}
+
+function api.output (filename, result)
+    if filename then
+        local file = io.open(filename, "w")
+        if not file then
+            error("Cannot write the file '" .. filename .. "'.", -1)
+            return
+        end
+        file:write(result)
+        file:close ()
+        print("File '" .. filename .. "' created.")
+    else
+        print(result)
+    end
+end
+
+function txe.init_api ()
+    local scope = txe.current_scope ()
+    scope.txe = {}
+
+    for k, v in pairs(api) do
+        scope.txe[k] = v
+    end
+end
+
 -- ## init.lua ##
 -- Initialisation of Plume - TextEngine
 
@@ -1466,6 +1494,9 @@ function txe.init ()
     -- Create the first local scope
     -- (indeed, the global one)
     txe.push_scope ()
+
+    -- Init methods that are visible from user
+    txe.init_api ()
 
     -- Cache lua code to not
     -- call "load" multiple times
@@ -1587,18 +1618,8 @@ function txe.cli_main ()
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        if output then
-            local file = io.open(output, "w")
-            if not file then
-                print("Cannot write the file '" .. output .. "'.")
-                return
-            end
-            file:write(result)
-            file:close ()
-            print("Done")
-        else
-            print(result)
-        end
+        txe.current_scope().txe.output (output, result)
+        
     else
         print("Error:")
         print(result)
