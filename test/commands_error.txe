@@ -54,6 +54,7 @@ Traceback :
                                       ^^^^
     File 'string', line 1 : \def foo {\foo}\foo
                                       ^^^^
+    ...
     (same line again 998 times)
     File 'string', line 1 : \def foo {\foo}\foo
                                            ^^^^

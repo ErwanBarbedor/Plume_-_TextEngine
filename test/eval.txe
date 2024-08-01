@@ -80,50 +80,103 @@ table
 0.33
 // End
 
-// Test 'Eval syntax error'
+// Test 'Eval syntax error 5.1 and jit'
 \set a #{a+}
 // Error Lua 5.1 Lua jit
 File 'string', line 1 : unexpected symbol near '<eof>'
-    return a+
-    ^^^^^^^^^
+    a+
+    ^^
 Traceback :
+    File 'string', line 1 : \set a #{a+}
+                                    ^^^^
     File 'string', line 1 : \set a #{a+}
                             ^^^^
 // End
 
-// Test 'Eval syntax error 54'
+// Test 'Eval syntax error 5.4'
 \set a #{a+}
 // Error Lua 5.4
 File 'string', line 1 : unexpected symbol near <eof>
-    return a+
-    ^^^^^^^^^
+    a+
+    ^^
 Traceback :
+    File 'string', line 1 : \set a #{a+}
+                                    ^^^^
     File 'string', line 1 : \set a #{a+}
                             ^^^^
 // End
 
-// Test 'Eval lua error'
+// Test 'Eval lua error 5.1 and jit'
 \set a #{""+1}
 // Error Lua 5.1 Lua jit
 File 'string', line 1 : attempt to perform arithmetic on a string value
     ""+1
     ^^^^
 Traceback :
-    File 'string', line 1 : ""+1
-                            ^^^^
+    File 'string', line 1 : \set a #{""+1}
+                                    ^^^^^^
     File 'string', line 1 : \set a #{""+1}
                             ^^^^
 // End
 
-// Test 'Eval lua error'
+// Test 'Eval lua error 5.4'
 \set a #{""+1}
 // Error Lua 5.4
 File 'string', line 1 : attempt to add a 'string' with a 'number'
     ""+1
     ^^^^
 Traceback :
-    File 'string', line 1 : ""+1
-                            ^^^^
+    File 'string', line 1 : \set a #{""+1}
+                                    ^^^^^^
     File 'string', line 1 : \set a #{""+1}
                             ^^^^
+// End
+
+
+// Test 'Chain errors (eval) 5.1 and jit'
+\script{
+    function foo()
+        bar()
+    end
+    function bar ()
+        baz ()
+    end
+}
+
+#{foo()}
+// Error Lua 5.1 Lua jit
+File 'string', line 6 : attempt to call global 'baz' (a nil value)
+    baz ()
+    ^^^^^^
+Traceback :
+    File 'string', line 3 : bar()
+                            ^^^^^
+    File 'string', line 10 : #{foo()}
+                              ^^^^^^^
+    File 'string', line 10 : #{foo()}
+                             ^
+// End
+
+// Test 'Chain errors (eval) 5.4'
+\script{
+    function foo()
+        bar()
+    end
+    function bar ()
+        baz ()
+    end
+}
+
+#{foo()}
+// Error Lua 5.4
+File 'string', line 6 : attempt to call a nil value (global 'baz')
+    baz ()
+    ^^^^^^
+Traceback :
+    File 'string', line 3 : bar()
+                            ^^^^^
+    File 'string', line 10 : #{foo()}
+                              ^^^^^^^
+    File 'string', line 10 : #{foo()}
+                             ^
 // End

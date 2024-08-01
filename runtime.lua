@@ -62,10 +62,12 @@ function txe.call_lua_chunck(token, code)
         local chunck_scope = token.frozen_scope or txe.current_scope ()
         local loaded_function, load_err = txe.load_lua_chunck(code, nil, "bt", chunck_scope)
 
-        -- If loading the chunck failling, remove file
-        -- information from the message and throw the error.
+        -- If loading chunck failed
         if not loaded_function then
-            txe.error(token, load_err, true, code)
+            -- save it in the cache anyway, so
+            -- that the error handler can find it 
+            txe.lua_cache[code] = {token=token, chunck_count=txe.chunck_count}
+            txe.error(token, load_err, true)
         end
 
         txe.lua_cache[code] = setmetatable({

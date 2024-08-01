@@ -19,11 +19,11 @@ local function readFile(filename)
     return content
 end
 
-local function parseTestsFromContent(tests, content)
+local function parseTestsFromContent(tests, filename, content)
     content = content:gsub('\r', '')
     for testName, input, outputInfos, expectedOutput in content:gmatch("\n*// Test '(.-)'\n(.-)\n// (.-)\n(.-)\n// End") do 
         table.insert(tests, {
-            name = testName,
+            name = filename .. "/" .. testName,
             input = input,
             expectedOutput = expectedOutput,
             outputInfos = outputInfos
@@ -97,7 +97,7 @@ end
 local function main()
     local tests = {}
     for _, file in ipairs(files) do
-        parseTestsFromContent(tests, readFile(file))
+        parseTestsFromContent(tests, file, readFile(file))
     end
     runTests(tests)
 end

@@ -647,8 +647,6 @@ local function token_info (token)
     -- Name of the file containing the token
     -- The and number of the content of the line containing the token, 
     -- The begin and end position of the token.
-    
-    -- print(debug.traceback())
 
     local file, token_noline, token_line, code, beginpos, endpos
 
@@ -679,38 +677,59 @@ local function token_info (token)
         endpos = token.pos+#token.value
     end
 
-    token_line = get_line (code, token_noline)
-
-    return file, token_noline, token_line, beginpos, endpos
+    return {
+        file     = file,
+        noline   = token_noline,
+        line     = get_line (code, token_noline),
+        beginpos = beginpos,
+        endpos   = endpos
+    }
 end
 
-local function lua_error_info (message, lua_source)
+local function lua_info (message)
     -- Extract informations from error
     -- message heading=
-    local file, noline, message = message:match("^%[(.-)%]:([0-9]+): (.*)")
+    local file, noline, message = message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
+    if not file then
+        file, noline, message = message:match("^%s*(.-):([0-9]+): (.*)")
+    end
+
     noline = tonumber(noline)
 
-    -- If not lua_source, retrieve it
+    -- Get chunck id
     local chunck_id = tonumber(file:match('^string "%-%-chunck([0-9]-)%.%.%."'))
 
-    if not lua_source and chunck_id then
-        noline = noline - 1
-        for _, chunck in pairs(txe.lua_cache) do
-            if chunck.chunck_count == chunck_id then
-                lua_source = chunck.token:source ()
-                break
-            end
+    noline = noline - 1
+    local token
+    for _, chunck in pairs(txe.lua_cache) do
+        if chunck.chunck_count == chunck_id then
+            token = chunck.token
+            break
         end
     end
 
-    local line = get_line (lua_source, noline):gsub('^%s*', ''):gsub('%s*$', '')
-
-    if file:match('^string "%-%-chunck.*"') then
-        file = nil
+    -- Error handling from other lua files is
+    -- not supported, so placeholder.
+    if not token then
+        return {
+            file     = file,
+            noline   = noline,
+            line     = "",
+            beginpos = 0,
+            endpos   = -1
+        }
     end
 
-    noline = noline + noline - 2
-    return message, file, noline, line, 0, #line
+    local line = get_line (token:source (), noline)
+
+    return {
+        file     = token.first.file,
+        noline   = noline,
+        line     = line,
+        beginpos = #line:match('^%s*'),
+        endpos   = #line,
+        token    = token
+    }
 end
 
 function txe.error_handler (msg)
@@ -719,7 +738,7 @@ function txe.error_handler (msg)
     return msg
 end
 
-function txe.error (token, message, is_lua_error, lua_source)
+function txe.error (token, error_message, is_lua_error)
     -- Enhance errors messages by adding
     -- information about the token that
     -- caused it.
@@ -729,89 +748,115 @@ function txe.error (token, message, is_lua_error, lua_source)
         error(txe.last_error)
     end
 
-    local file, noline, line, beginpos, endpos = token_info (token)
+    -- Make the list of lines to prompt.
+    local error_lines_infos = {}
 
-    -- In case of lua error, get the line of the error
-    -- instead of pointing the block contaning the script.
-    local lua_file, lua_noline
+    -- In case of lua error, get the precise line
+    -- of the error, then add lua traceback.
+    -- Edit the error message to remove
+    -- file and line info.
     if is_lua_error then
-        message, lua_file, lua_noline, line, beginpos, endpos = lua_error_info (message, lua_source)
-        file = lua_file or file
-    end
+        table.insert(error_lines_infos, lua_info (error_message))
+        error_message = error_message:gsub('^.-:[0-9]+: ', '')
 
-    local err = "File '" .. file .."', line " .. noline .. " : " .. message .. "\n"
-
-    -- Remove space in front of line, for lisibility
-    local leading_space = line:match "^%s*"
-    line = line:sub(#leading_space+1, -1)
-    beginpos = beginpos - #leading_space
-    endpos   = endpos   - #leading_space
-
-    err = err .. "\t"..line .. "\n"
-
-    -- Add '^^^' under the fautive token
-    err = err .. '\t' .. (" "):rep(beginpos) .. ("^"):rep(endpos - beginpos)
-
-    -- Add traceback
-    if #txe.traceback > 0 then
-        err = err .. "\nTraceback :"
-    end
-
-    -- Print all part of lua traceback that
-    -- leads to txe chuncks.
-    if is_lua_error then
-        local traceback = (txe.lua_traceback or ""):gsub('^stack traceback:', '\n'):gsub('\n%s+', '\n')
-
+        local traceback = (txe.lua_traceback or "")
+        local first_line = true
         for line in traceback:gmatch('[^\n]+') do
-            if line:match('^%[string "%-%-chunck[0-9]+%.%.%."%]') then
-                local message, lua_file, lua_noline, line = lua_error_info (line)
-                local line_info = "\n\tFile '" .. file .."', line " .. noline .. " : "
-                local indicator = (" "):rep(#line_info-2) .. ("^"):rep(#line)
+            if line:match('^%s*%[string "%-%-chunck[0-9]+%.%.%."%]') then
+                -- Remove first line, that already
+                -- be added.
+                if first_line then
+                    first_line = false
+                else
+                    local infos = lua_info (line)
 
-                err = err .. line_info .. line .. "\n"
-                err = err .. '\t' .. indicator
-
-                -- last line
-                if line:match('^[string "%-%-chunck[0-9]+..."]:[0-9]+: in function <[string "--chunck[0-9]+..."]') then
-                    break
+                    -- check if we arn't
+                    table.insert(error_lines_infos, lua_info (line))
+                    -- last line
+                    if line:match('^[string "%-%-chunck[0-9]+..."]:[0-9]+: in function <[string "--chunck[0-9]+..."]') then
+                        break
+                    end
                 end
             end
         end
     end
-
-    local last_line_info
-    local same_line_count = 0
+    
+    -- Add the token that caused
+    -- the error.
+    table.insert(error_lines_infos, token_info (token))
+    
+    -- Then add all traceback
     for i=#txe.traceback, 1, -1 do
-        file, noline, line, beginpos, endpos = token_info (txe.traceback[i])
-        local line_info = "\n\tFile '" .. file .."', line " .. noline .. " : "
-        local indicator = (" "):rep(#line_info + beginpos - 2) .. ("^"):rep(endpos - beginpos)
-
-        -- In some case, like stack overflow, we have 1000 times the same line
-        -- So print up to two time the line, them count and print "same line X times"
-        if txe.traceback[i] == txe.traceback[i+1] then
-            same_line_count = same_line_count + 1
-        elseif same_line_count > 1 then
-            err = err .. "\n\t(same line again " .. (same_line_count-1) .. " times)"
-            same_line_count = 0
-        end
-
-        if same_line_count < 2 then
-            last_line_info = line_info
-            
-            err = err .. line_info .. line .. "\n"
-            err = err .. '\t' .. indicator
-        end
+        table.insert(error_lines_infos, token_info (txe.traceback[i]))
     end
 
-    if same_line_count > 0 then
-        err = err .. "\n\t(same line again " .. (same_line_count-1) .. " times)"
+    -- Now, for each line print line info (file, noline, line content)
+    -- For the first line, also print the error message.
+    local error_lines = {}
+    for i, infos in ipairs(error_lines_infos) do
+        -- remove space in front of line
+        local leading_space = infos.line:match('^%s*')
+        local line          = infos.line:gsub('^%s*', '')
+        local beginpos      = infos.beginpos - #leading_space
+        local endpos        = infos.endpos - #leading_space
+
+        local line_info = "File '" .. infos.file .."', line " .. infos.noline .. " : "
+        local indicator
+
+        if i==1 then
+            line_info = line_info .. error_message .. "\n\t"
+            indicator = (" "):rep(beginpos) .. ("^"):rep(endpos - beginpos)
+        else
+            line_info = "\t" .. line_info
+            indicator = (" "):rep(#line_info + beginpos - 1) .. ("^"):rep(endpos - beginpos)
+        end
+
+        if i == 2 then
+            table.insert(error_lines, "Traceback :")
+        end
+
+        table.insert(error_lines, line_info .. line .. "\n\t" .. indicator)
     end
 
+    -- In some case, like stack overflow, we have 1000 times the same line
+    -- So print up to two time the line, them count and print "same line X times"
+
+    -- First search for duplicate lines
+    local line_count = {}
+    local last_line
+    local count = 0
+    for index, line in ipairs(error_lines) do
+        if line == last_line then
+            count = count + 1
+        else
+            if count > 2 then
+                table.insert(line_count, {index, count})
+            end
+            count = 0
+        end
+        last_line = line
+    end
+
+    -- Then remove it and replace it by
+    -- "(same line again X times)"
+    local delta = 0
+    for i=1, #line_count do
+        local index = line_count[i][1]
+        local count = line_count[i][2]
+
+        for k=1, count-1 do
+            table.remove(error_lines, index-count-delta)
+        end
+        table.insert(error_lines, index-count+1, "\t...\n\t(same line again "..(count-1).." times)")
+        delta = delta + count
+    end
+
+    local error_message = table.concat(error_lines, "\n")
     -- Save the error
-    txe.last_error = err
+    txe.last_error = error_message
 
     -- And throw it
-    error(err, -1)
+    error(error_message, -1)
 end
 
 -- ## macro.lua ##
@@ -1250,10 +1295,12 @@ function txe.call_lua_chunck(token, code)
         local chunck_scope = token.frozen_scope or txe.current_scope ()
         local loaded_function, load_err = txe.load_lua_chunck(code, nil, "bt", chunck_scope)
 
-        -- If loading the chunck failling, remove file
-        -- information from the message and throw the error.
+        -- If loading chunck failed
         if not loaded_function then
-            txe.error(token, load_err, true, code)
+            -- save it in the cache anyway, so
+            -- that the error handler can find it 
+            txe.lua_cache[code] = {token=token, chunck_count=txe.chunck_count}
+            txe.error(token, load_err, true)
         end
 
         txe.lua_cache[code] = setmetatable({
