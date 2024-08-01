@@ -58,6 +58,18 @@ Traceback :
 
 // End
 
+// Test 'less simple for'
+\set x 6//
+\for i=1,x,2 {//
+    Ligne #i
+}
+// Result
+    Ligne 1
+    Ligne 3
+    Ligne 5
+
+// End
+
 // Test 'for throught table'
 \set t #{{1, 4, 9}}//
 \for {k, v in ipairs(t)} {//

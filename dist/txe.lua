@@ -883,21 +883,44 @@ end
 
 txe.register_macro("for", {"iterator", "body"}, {}, function(args)
     -- Have the same behavior of the lua for control structure.
-    -- Limitation : limit for "i=1,10" must be constants
+    -- Error management implementation isn't done yet
 
     local result = {}
-    local iterator = args.iterator:source ()
+    local iterator_source = args.iterator:source ()
     local var, var1, var2, first, last
 
-    -- Iterator may be in the form of "i=1, 10"
-    -- Or "i in ...."
-    var, first, last = iterator:match('%s*(.-)%s*=%s*([0-9]-)%s*,%s*([0-9]-)$')
+    -- I'm not going to write a full lua parser to read the iterator.
+    -- Some are relatively simple to handle using load, such as
+    -- "for k, v in pairs(t)". But when writing "for=from, to, step"
+    -- each element is an expression in its own. So it's difficult
+    -- to parse, and lua doesn't provide a simple
+    -- mechanism for emulating this syntax.
+    -- So, in very simple cases, the iterator will be parsed for performance, (WIP)
+    -- otherwise we'll switch to using coroutines.
+
+    local mode = 1
+
+    -- Check i=1, 10 syntax
+    -- var, first, last = iterator_source:match('%s*(.-)%s*=%s*([0-9]-)%s*,%s*([0-9]-)$')
+
+    -- If fail, capture anything after "="
     if not var then
-        var, iterator = iterator:match('%s*(.-)%s*in%s*(.-)$')
+        mode = mode + 1
+    
+        var, iterator = iterator_source:match('%s*([a-zA-Z_][a-zA-Z0-9_]*)%s*=%s*(.-)$')
     end
 
-    -- If it is the form 'i=1, 10'
-    if var and first and last then
+    -- If fail again, capture anythin after 'in'
+    if not var then
+        mode = mode + 1
+        var, iterator = iterator_source:match('%s*(.-)%s*in%s*(.-)$')
+    end
+    
+    if not var then
+        txe.error(args.iterator, "Non valid syntax for iterator.")
+    end
+
+    if mode == 1 then
         for i=first, last do
             -- For some reasons, i is treated as a float...
             i = math.floor(i)
@@ -908,9 +931,28 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
             
             table.insert(result, args.body:render())
         end
+    elseif mode == 2 then
+        local coroutine_code = "for " .. iterator_source .. " do"
+        coroutine_code = coroutine_code .. " coroutine.yield(" .. var .. ")"
+        coroutine_code = coroutine_code .. " end"
 
-    -- If it is the form "i in ..."
-    elseif iterator and var then
+        local iterator_coroutine = txe.load_lua_chunck (coroutine_code, _, _, txe.current_scope ())
+        local co = coroutine.create(iterator_coroutine)
+        while true do
+            local sucess, value = coroutine.resume(co)
+            -- print(co, sucess, value)
+            if not value then
+                break
+            end
+            if not sucess or not co then
+                txe.error(args.iterator, "(iterator error)" .. value)
+            end
+
+            txe.scope_set_local (var, value)
+            table.insert(result, args.body:render())
+        end
+    
+    elseif mode == 3 then
         -- Save all variables name in a table
         local variables_list = {}
         for name in var:gmatch('[^%s,]+') do
@@ -950,10 +992,6 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
             -- Call the iterator one more time
             values_list = { iter(state, values_list[1]),  }
         end
-    
-    -- If it was nor "i=1, 10" nor "i in ..."
-    else
-        txe.error(args.iterator, "Non valid syntax for iterator.")
     end
 
     return table.concat(result, "")
@@ -1403,7 +1441,7 @@ if _VERSION == "Lua 5.1" then
     if jit then
         lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
     else
-        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutineselect gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
+        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
     end
 else -- Assume version is 5.4
     if _VERSION ~= "Lua 5.4" then
