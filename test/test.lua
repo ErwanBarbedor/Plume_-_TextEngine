@@ -49,6 +49,7 @@ local function runTests(tests)
             testNumber = testNumber + 1
             
             txe.init ()
+            table.insert(txe.file_stack, "/")
 
             local sucess, result = pcall (txe.render, test.input)
             local err = ""
