@@ -12,9 +12,11 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+--- Converts a flat list of tokens into a nested structure.
+-- Handles blocks, optional blocks, and text grouping
+-- @param tokenlist table The list of tokens to parse
+-- @return tokenlist The parsed nested structure
 function txe.parse (tokenlist)
-    --Given a list of tokens, put all tokens betweens "{" and "}" into a new "block" token.
-    --same for consecutive "text" or "escaped-text" token
     local stack = {txe.tokenlist("block")}
     local eval_var = 0 -- #a+1 must be seen as \eval{a}+1, not \eval{a+1}
 

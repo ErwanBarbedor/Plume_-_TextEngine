@@ -34,10 +34,8 @@ for name in lua_std_functions:gmatch('%S+') do
     txe.lua_std_functions[name] = _G[name]
 end
 
+--- Resets or initializes all session-specific tables.
 function txe.init ()
-    -- Reset or initialise all
-    -- sessions specifics table
-
     -- A table that contain
     -- all local scopes.
     txe.scopes = {}
@@ -51,13 +49,13 @@ function txe.init ()
 
     -- Cache lua code to not
     -- call "load" multiple times
-    -- for the same chunck
+    -- for the same chunk
     txe.lua_cache    = {}
 
-    -- Track number of chunck,
+    -- Track number of chunks,
     -- To assign a number of each
     -- of them.
-    txe.chunck_count = 0
+    txe.chunk_count = 0
         
     -- Add all std function into
     -- global scope

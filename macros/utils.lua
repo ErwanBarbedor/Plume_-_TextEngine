@@ -14,13 +14,16 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define some useful macro like def, set, alias.
 
+--- Defines a new macro or redefines an existing one.
+-- @param def_args table The arguments for the macro definition
+-- @param redef boolean Whether this is a redefinition
+-- @param redef_forced boolean Whether to force redefinition of standard macros
+-- @param calling_token token The token where the macro is being defined
 local function def (def_args, redef, redef_forced, calling_token)
-    -- Main way to define new macro from Plume - TextEngine
-
     -- Get the provided macro name
     local name = def_args["$name"]:render()
 
-    -- Test if name is a valid identifier
+    -- Check if the name is a valid identifier
     if not txe.is_identifier(name) then
         txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
@@ -118,7 +121,7 @@ txe.register_macro("set", {"key", "value"}, {global=false}, function(args, calli
     end
 
     local value
-    --If value is a lua chunck, call it there to avoid conversion to string
+    --If value is a lua chunk, call it there to avoid conversion to string
     if #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "#" then
         value = txe.eval_lua_expression(args.value[2])
     elseif #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "script" then

@@ -15,8 +15,11 @@ You should have received a copy of the GNU General Public License along with Plu
 txe.last_error = nil
 txe.traceback = {}
 
+--- Retrieves a line by its line number in the source code.
+-- @param source string The source code
+-- @param noline number The line number to retrieve
+-- @return string The line at the specified line number
 local function get_line(source, noline)
-    -- Retrieve line by line number in the source code
     local current_line = 1
     for line in (source.."\n"):gmatch("(.-)\n") do
         if noline == current_line then
@@ -26,11 +29,11 @@ local function get_line(source, noline)
     end
 end
 
+--- Returns information about a token.
+-- @param token table The token to get information about
+-- @return table A table containing file, line number, line content,
+-- and position information
 local function token_info (token)
-    -- Return:
-    -- Name of the file containing the token
-    -- The and number of the content of the line containing the token, 
-    -- The begin and end position of the token.
 
     local file, token_noline, token_line, code, beginpos, endpos
 
@@ -70,9 +73,10 @@ local function token_info (token)
     }
 end
 
+--- Extracts information from a Lua error message.
+-- @param message string The error message
+-- @return table A table containing file, line number, line content, and position information
 local function lua_info (message)
-    -- Extract informations from error
-    -- message heading=
     local file, noline, message = message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
     if not file then
         file, noline, message = message:match("^%s*(.-):([0-9]+): (.*)")
@@ -80,14 +84,14 @@ local function lua_info (message)
 
     noline = tonumber(noline)
 
-    -- Get chunck id
-    local chunck_id = tonumber(file:match('^string "%-%-chunck([0-9]-)%.%.%."'))
+    -- Get chunk id
+    local chunk_id = tonumber(file:match('^string "%-%-chunk([0-9]-)%.%.%."'))
 
     noline = noline - 1
     local token
-    for _, chunck in pairs(txe.lua_cache) do
-        if chunck.chunck_count == chunck_id then
-            token = chunck.token
+    for _, chunk in pairs(txe.lua_cache) do
+        if chunk.chunk_count == chunk_id then
+            token = chunk.token
             break
         end
     end
@@ -116,17 +120,19 @@ local function lua_info (message)
     }
 end
 
+--- Captures debug.traceback for error handling.
+-- @param msg string The error message
+-- @return string The error message
 function txe.error_handler (msg)
-    -- Capture debug.traceback
     txe.lua_traceback = debug.traceback ()
     return msg
 end
 
+--- Enhances error messages by adding information about the token that caused it.
+-- @param token table The token that caused the error
+-- @param error_message string The raised error message
+-- @param is_lua_error boolean Whether the error is due to lua script
 function txe.error (token, error_message, is_lua_error)
-    -- Enhance errors messages by adding
-    -- information about the token that
-    -- caused it.
-
     -- If it is already an error, throw it.
     if txe.last_error then
         error(txe.last_error)
@@ -146,7 +152,7 @@ function txe.error (token, error_message, is_lua_error)
         local traceback = (txe.lua_traceback or "")
         local first_line = true
         for line in traceback:gmatch('[^\n]+') do
-            if line:match('^%s*%[string "%-%-chunck[0-9]+%.%.%."%]') then
+            if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
                 -- Remove first line, that already
                 -- be added.
                 if first_line then
@@ -157,7 +163,7 @@ function txe.error (token, error_message, is_lua_error)
                     -- check if we arn't
                     table.insert(error_lines_infos, lua_info (line))
                     -- last line
-                    if line:match('^[string "%-%-chunck[0-9]+..."]:[0-9]+: in function <[string "--chunck[0-9]+..."]') then
+                    if line:match('^[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
                         break
                     end
                 end

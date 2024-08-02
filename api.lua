@@ -15,6 +15,9 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Manage methods that are visible from user
 local api = {}
 
+--- Outputs the result to a file or prints it to the console.
+-- @param filename string|nil The name of the file to write to, or nil to print to console
+-- @param result string The result to output
 function api.output (filename, result)
     if filename then
         local file = io.open(filename, "w")
@@ -30,6 +33,7 @@ function api.output (filename, result)
     end
 end
 
+--- Initializes the API methods visible to the user.
 function txe.init_api ()
     local scope = txe.current_scope ()
     scope.txe = {}

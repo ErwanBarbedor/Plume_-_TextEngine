@@ -12,6 +12,10 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+--- Tokenizes the given code.
+-- @param code string The code to tokenize
+-- @param file string The name of the file being tokenized, for debuging purpose. May be any string.
+-- @return table A list of tokens
 function txe.tokenize (code, file)
     -- Get the txe code as raw string, and return a list of token.
     local result  = txe.tokenlist("render-block")
@@ -133,9 +137,13 @@ function txe.tokenize (code, file)
     end
     write ()
 
-    for _, token in ipairs(result) do
-        -- print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+    -- <DEV>
+    if txe.show_token then
+        for _, token in ipairs(result) do
+            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+        end
     end
+    -- </DEV>
 
     return result
 end

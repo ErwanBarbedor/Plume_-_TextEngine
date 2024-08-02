@@ -12,12 +12,14 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-function txe.parse_opt_args (macro, args, optargs)
-    -- Capture "value" or "key=value" 
-    -- in optionnals arguments when calling a macro.
+--- Parses optional arguments when calling a macro.
+-- @param macro table The macro being called
+-- @param args table The arguments table to be filled
+-- @param opt_args table The optional arguments to parse
+function txe.parse_opt_args (macro, args, opt_args)
     local key, eq, space
     local captured_args = {}
-    for _, token in ipairs(optargs) do
+    for _, token in ipairs(opt_args) do
         if key then
             if token.kind == "space" or token.kind == "newline" then
             elseif eq then
@@ -61,12 +63,11 @@ function txe.parse_opt_args (macro, args, optargs)
     -- If parameter alone, without key, try to
     -- find a name.
     local last_index = 1
-    -- Not implemented : at the moment, cannot known
-    -- argument order
+    -- Not implemented: currently unable to determine argument order
 
     -- for _, arg_value in ipairs(t) do
-    --     for i=last_index, #macro.defaut_optargs do
-    --         local infos = macro.defaut_optargs[i]
+    --     for i=last_index, #macro.default_opt_args do
+    --         local infos = macro.default_opt_args[i]
 
     --         -- Check if this name isn't already used
     --         if not args[infos.name] then
@@ -91,20 +92,22 @@ function txe.parse_opt_args (macro, args, optargs)
     end
 
     -- set defaut value if not in args but provided by the macro
-    for i, optarg in ipairs(macro.defaut_optargs) do
-        if not args[optarg.name] then
-            args[optarg.name] = optarg.value
+    for i, opt_arg in ipairs(macro.default_opt_args) do
+        if not args[opt_arg.name] then
+            args[opt_arg.name] = opt_arg.value
         end
     end
 end
 
+--- Main Plume - TextEngine function, that builds the output.
+-- @param self tokenlist The token list to render
+-- @return string The rendered output
 function txe.renderToken (self)
-    -- Main Plume - TextEngine function, who build the output.
     local pos = 1
     local result = {}
 
-    -- Chain of info passed to adjacent macro
-    -- Used to achive \if \else behavior
+    -- Chain of information passed to adjacent macros
+    -- Used to achieve \if \else behavior
     local chain_sender, chain_message
 
     while pos <= #self do
@@ -142,8 +145,8 @@ function txe.renderToken (self)
             
             -- If more than txe.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            if #txe.traceback > txe.max_loop_size then
-                txe.error(token, "To many intricate macro call (over the configurated limit of " .. txe.max_loop_size .. ").")
+            if #txe.traceback > txe.max_callstack_size then
+                txe.error(token, "To many intricate macro call (over the configurated limit of " .. txe.max_callstack_size .. ").")
             end
 
             local stack = {}
@@ -168,11 +171,11 @@ function txe.renderToken (self)
                 table.insert(stack, {token=token, macro=macro, args={}})
             end
 
-            local function manage_optargs(top, token)
-                if top.optargs then
+            local function manage_opt_args(top, token)
+                if top.opt_args then
                     txe.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
                 end
-                top.optargs = token
+                top.opt_args = token
             end
  
             push_macro (token)
@@ -197,7 +200,7 @@ function txe.renderToken (self)
                     
                     elseif self[pos].kind == "opt_block" then
                         -- An optional argument block
-                        manage_optargs(top, self[pos])
+                        manage_opt_args(top, self[pos])
                     
                     elseif self[pos].kind ~= "space" then
                         -- If it is not a space, add the current block
@@ -218,7 +221,7 @@ function txe.renderToken (self)
                 end
 
                 if finded_optional then
-                    manage_optargs(top, self[pos])
+                    manage_opt_args(top, self[pos])
                 else
                     pos = oldpos
                 end
@@ -231,8 +234,8 @@ function txe.renderToken (self)
                         local arg_list = txe.tokenlist(top.args)
 
                         -- rebuild the captured macro hand it's argument
-                        if top.optargs then
-                            table.insert(arg_list, 1, top.optargs)
+                        if top.opt_args then
+                            table.insert(arg_list, 1, top.opt_args)
                         end
                         
                         table.insert(arg_list, 1, top.token)
@@ -249,7 +252,7 @@ function txe.renderToken (self)
                         end
 
                         -- Parse optionnal args
-                        txe.parse_opt_args(top.macro, args, top.optargs or {})
+                        txe.parse_opt_args(top.macro, args, top.opt_args or {})
 
                         -- Update traceback, call the macro and add is result
                         table.insert(txe.traceback, token)

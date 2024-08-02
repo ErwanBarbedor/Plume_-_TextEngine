@@ -12,6 +12,9 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+-- Merge all code into a single file.
+-- Quite dirty, but do the job
+
 local version = "Plume - TextEngine 0.1.0 (dev)"
 local code = io.open("txe.lua"):read "*a"
 
@@ -24,7 +27,7 @@ for i=1, 2 do
     end)
 end
 
-code = code:gsub('%-%- <DEV>.-%-%- </DEV>', '')
+code = code:gsub('\n%-%- <DEV>.-%-%- </DEV>\n', '')
 code = code:gsub('#VERSION#', version)
 code = code:gsub('#GITHUB#', 'https://github.com/ErwanBarbedor/Plume_-_TextEngine')
 

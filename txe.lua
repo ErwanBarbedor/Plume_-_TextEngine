@@ -34,6 +34,7 @@ require "api"
 require "init"
 
 -- <DEV>
+txe.show_token = false
 local function print_tokens(t, indent)
     indent = indent or ""
     for _, token in ipairs(t) do
@@ -57,12 +58,14 @@ local function print_tokens(t, indent)
 end
 -- </DEV>
 
-function txe.render (code, filename)
-    -- Tokenize, parse and render a string
-    -- filename may be any string used to track the code
+--- Tokenizes, parses, and renders a string.
+-- @param code string The code to render
+-- @param file string The name used to track the code
+-- @return string The rendered output
+function txe.render (code, file)
     local tokens, result
     
-    tokens = txe.tokenize(code, filename)
+    tokens = txe.tokenize(code, file)
     tokens = txe.parse(tokens)
     -- print_tokens(tokens)
     result = tokens:render()
@@ -70,8 +73,10 @@ function txe.render (code, filename)
     return result
 end
 
+--- Reads the content of a file and renders it.
+-- @param filename string The name of the file to render
+-- @return string The rendered output
 function txe.renderFile(filename)
-    -- Read the content of a file and render it.
     local file = io.open(filename, "r")
     assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
     local content = file:read("*all")

@@ -12,19 +12,28 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+-- Implement macro behavior
+
 txe.macros = {}
-function txe.register_macro (name, args, defaut_optargs, macro, token)
-    -- args: table contain the name of macro arguments
-    -- defaut_optargs: table contain key and defaut value for optionnals args
-    -- macro: the function to call
-    -- token (optionnal): token where the macro was declared
+
+--- Registers a new macro.
+-- @param name string The name of the macro
+-- @param args table The arguments names of the macro
+-- @param default_opt_args table Default names and values for optional arguments
+-- @param macro function The function to call when the macro is used
+-- @param token token The token where the macro was declared (optional). Used for debuging.
+function txe.register_macro (name, args, default_opt_args, macro, token)
     txe.macros[name] = {
-        args           = args,
-        defaut_optargs = defaut_optargs,
-        macro          = macro,
-        token          = token
+        args             = args,
+        default_opt_args = default_opt_args,
+        macro            = macro,
+        token            = token
     }
 end
+
+--- Retrieves a macro by name.
+-- @param name string The name of the macro
+-- @return table The macro object
 function txe.get_macro(name)
     return txe.macros[name]
 end

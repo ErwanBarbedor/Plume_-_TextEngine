@@ -12,5 +12,10 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+-- Configuration settings
+
+-- Maximum number of nested macro
 txe.max_callstack_size          = 1000
+
+-- Maximum of loop iteration for macro "\while"
 txe.max_loop_size               = 1000

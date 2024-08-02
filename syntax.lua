@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 txe.syntax = {
+    -- identifier must be a lua valid identifier
     identifier           = "[a-zA-Z0-9_]",
     identifier_begin     = "[a-zA-Z_]",
 
@@ -27,6 +28,9 @@ txe.syntax = {
     eval                 = "#",
 }
 
+--- Checks if a string is a valid identifier.
+-- @param s string The string to check
+-- @return boolean True if the string is a valid identifier, false otherwise
 function txe.is_identifier(s)
     return s:match('^' .. txe.syntax.identifier_begin .. txe.syntax.identifier..'*$')
 end

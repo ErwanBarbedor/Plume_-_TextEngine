@@ -42,6 +42,7 @@ Examples:
 For more information, visit #GITHUB#.
 ]]
 
+--- Main function for the command-line interface.
 function txe.cli_main ()
     -- Minimal cli parser
     if arg[1] == "-v" or arg[1] == "--version" then

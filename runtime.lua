@@ -14,9 +14,14 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Manage scopes and runtime lua executions
 
--- Define a 'load' function for Lua 5.1 compatibility
+--- Loads a Lua chunk with compatibility for Lua 5.1.
+-- @param code string The Lua code to load
+-- @param _ nil Unused parameter
+-- @param _ nil Unused parameter
+-- @param env table The environment to load the chunk in
+-- @return function|nil, string The loaded function or nil and an error message
 if _VERSION == "Lua 5.1" or jit then
-    function txe.load_lua_chunck (code, _, _, env)
+    function txe.load_lua_chunk (code, _, _, env)
         local f, err = loadstring(code)
         if f then
             setfenv(f, env)
@@ -24,55 +29,56 @@ if _VERSION == "Lua 5.1" or jit then
         return f, err
     end
 else
-    txe.load_lua_chunck = load
+    txe.load_lua_chunk = load
 end
 
+--- Evaluates a Lua expression and returns the result.
+-- @param token table The token containing the expression
+-- @param code string The Lua code to evaluate (optional)
+-- @return any The result of the evaluation
 function txe.eval_lua_expression (token, code)
-    -- Evaluation the given lua code
-    -- and return the result.
-    -- This result is cached.
     code = code or token:source ()
     code = 'return ' .. code
 
-    return txe.call_lua_chunck (token, code)
+    return txe.call_lua_chunk (token, code)
 end
 
-function txe.call_lua_chunck(token, code)
-    -- Load, cache and execute code
-    -- find in the given token or string.
-    -- If the string is given, token is use only
-    -- to throw error.
-
+--- Loads, caches, and executes Lua code.
+-- @param token table The token containing the code
+-- or, if code is given, token used to throw error
+-- @param code string The Lua code to execute (optional)
+-- @return any The result of the execution
+function txe.call_lua_chunk(token, code)
     code = code or token:source ()
 
     if not txe.lua_cache[code] then
-        -- Put the chunck number in the code,
+        -- Put the chunk number in the code,
         -- to retrieve it in case of error.
         -- A bit messy, but each chunk executes
         -- in its own environment, even if they
         -- share the same code. A more elegant
         -- solution certainly exists,
         -- but this does the trick for now.
-        txe.chunck_count = txe.chunck_count + 1
-        code = "--chunck" .. txe.chunck_count .. "\n" .. code
+        txe.chunk_count = txe.chunk_count + 1
+        code = "--chunk" .. txe.chunk_count .. "\n" .. code
         
         -- If the token is locked in a specific
         -- scope, execute inside it.
         -- Else, execute inside current scope.
-        local chunck_scope = token.frozen_scope or txe.current_scope ()
-        local loaded_function, load_err = txe.load_lua_chunck(code, nil, "bt", chunck_scope)
+        local chunk_scope = token.frozen_scope or txe.current_scope ()
+        local loaded_function, load_err = txe.load_lua_chunk(code, nil, "bt", chunk_scope)
 
-        -- If loading chunck failed
+        -- If loading chunk failed
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            txe.lua_cache[code] = {token=token, chunck_count=txe.chunck_count}
+            txe.lua_cache[code] = {token=token, chunk_count=txe.chunk_count}
             txe.error(token, load_err, true)
         end
 
         txe.lua_cache[code] = setmetatable({
             token=token,
-            chunck_count=txe.chunck_count
+            chunk_count=txe.chunk_count
         },{
             __call = function ()
                 return { xpcall (loaded_function, txe.error_handler) }
@@ -92,6 +98,8 @@ function txe.call_lua_chunck(token, code)
     return (table.unpack or unpack)(result)
 end
 
+--- Adds a reference to the current scope in each argument.
+-- @param args table The arguments to freeze
 function txe.freeze_scope (args)
     -- Add a reference to current scope
     -- in each arg.
@@ -107,6 +115,9 @@ function txe.freeze_scope (args)
     end
 end
 
+--- Creates a new scope with the given parent.
+-- @param parent table The parent scope
+-- @return table The new scope
 function txe.create_scope (parent)
     local scope = {}
     -- Add a self-reference
@@ -136,20 +147,24 @@ function txe.create_scope (parent)
     })
 end
 
+--- Creates a new scope with the penultimate scope as parent.
 function txe.push_scope ()
-    -- Create a new scope with the 
-    -- penultimate scope as parent.
     local last_scope = txe.current_scope ()
     local new_scope = txe.create_scope (last_scope)
 
     table.insert(txe.scopes, new_scope)
 end
 
+--- Removes the last created scope.
 function txe.pop_scope ()
-    -- Remove last create scope
     table.remove(txe.scopes)
 end
 
+--- Registers a variable locally in the given scope.
+-- If not given scope, will use the current scope.
+-- @param key string The key to set
+-- @param value any The value to set
+-- @param scope table The scope to set the variable in (optional)
 function txe.scope_set_local (key, value, scope)
     -- Register a variable locally
     -- If not provided, "scope" is the last created.
@@ -157,6 +172,8 @@ function txe.scope_set_local (key, value, scope)
     rawset (scope, key, value)
 end
 
+--- Returns the current scope.
+-- @return table The current scope
 function txe.current_scope ()
     return txe.scopes[#txe.scopes]
 end

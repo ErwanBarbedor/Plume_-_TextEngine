@@ -23,11 +23,17 @@ txe._VERSION = "Plume - TextEngine 0.1.0 (dev)"
 
 
 -- ## config.lua ##
+-- Configuration settings
+
+-- Maximum number of nested macro
 txe.max_callstack_size          = 1000
+
+-- Maximum of loop iteration for macro "\while"
 txe.max_loop_size               = 1000
 
 -- ## syntax.lua ##
 txe.syntax = {
+    -- identifier must be a lua valid identifier
     identifier           = "[a-zA-Z0-9_]",
     identifier_begin     = "[a-zA-Z_]",
 
@@ -42,17 +48,22 @@ txe.syntax = {
     eval                 = "#",
 }
 
+--- Checks if a string is a valid identifier.
+-- @param s string The string to check
+-- @return boolean True if the string is a valid identifier, false otherwise
 function txe.is_identifier(s)
     return s:match('^' .. txe.syntax.identifier_begin .. txe.syntax.identifier..'*$')
 end
 
 -- ## render.lua ##
-function txe.parse_opt_args (macro, args, optargs)
-    -- Capture "value" or "key=value" 
-    -- in optionnals arguments when calling a macro.
+--- Parses optional arguments when calling a macro.
+-- @param macro table The macro being called
+-- @param args table The arguments table to be filled
+-- @param opt_args table The optional arguments to parse
+function txe.parse_opt_args (macro, args, opt_args)
     local key, eq, space
     local captured_args = {}
-    for _, token in ipairs(optargs) do
+    for _, token in ipairs(opt_args) do
         if key then
             if token.kind == "space" or token.kind == "newline" then
             elseif eq then
@@ -96,12 +107,11 @@ function txe.parse_opt_args (macro, args, optargs)
     -- If parameter alone, without key, try to
     -- find a name.
     local last_index = 1
-    -- Not implemented : at the moment, cannot known
-    -- argument order
+    -- Not implemented: currently unable to determine argument order
 
     -- for _, arg_value in ipairs(t) do
-    --     for i=last_index, #macro.defaut_optargs do
-    --         local infos = macro.defaut_optargs[i]
+    --     for i=last_index, #macro.default_opt_args do
+    --         local infos = macro.default_opt_args[i]
 
     --         -- Check if this name isn't already used
     --         if not args[infos.name] then
@@ -126,20 +136,22 @@ function txe.parse_opt_args (macro, args, optargs)
     end
 
     -- set defaut value if not in args but provided by the macro
-    for i, optarg in ipairs(macro.defaut_optargs) do
-        if not args[optarg.name] then
-            args[optarg.name] = optarg.value
+    for i, opt_arg in ipairs(macro.default_opt_args) do
+        if not args[opt_arg.name] then
+            args[opt_arg.name] = opt_arg.value
         end
     end
 end
 
+--- Main Plume - TextEngine function, that builds the output.
+-- @param self tokenlist The token list to render
+-- @return string The rendered output
 function txe.renderToken (self)
-    -- Main Plume - TextEngine function, who build the output.
     local pos = 1
     local result = {}
 
-    -- Chain of info passed to adjacent macro
-    -- Used to achive \if \else behavior
+    -- Chain of information passed to adjacent macros
+    -- Used to achieve \if \else behavior
     local chain_sender, chain_message
 
     while pos <= #self do
@@ -177,8 +189,8 @@ function txe.renderToken (self)
             
             -- If more than txe.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            if #txe.traceback > txe.max_loop_size then
-                txe.error(token, "To many intricate macro call (over the configurated limit of " .. txe.max_loop_size .. ").")
+            if #txe.traceback > txe.max_callstack_size then
+                txe.error(token, "To many intricate macro call (over the configurated limit of " .. txe.max_callstack_size .. ").")
             end
 
             local stack = {}
@@ -203,11 +215,11 @@ function txe.renderToken (self)
                 table.insert(stack, {token=token, macro=macro, args={}})
             end
 
-            local function manage_optargs(top, token)
-                if top.optargs then
+            local function manage_opt_args(top, token)
+                if top.opt_args then
                     txe.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
                 end
-                top.optargs = token
+                top.opt_args = token
             end
  
             push_macro (token)
@@ -232,7 +244,7 @@ function txe.renderToken (self)
                     
                     elseif self[pos].kind == "opt_block" then
                         -- An optional argument block
-                        manage_optargs(top, self[pos])
+                        manage_opt_args(top, self[pos])
                     
                     elseif self[pos].kind ~= "space" then
                         -- If it is not a space, add the current block
@@ -253,7 +265,7 @@ function txe.renderToken (self)
                 end
 
                 if finded_optional then
-                    manage_optargs(top, self[pos])
+                    manage_opt_args(top, self[pos])
                 else
                     pos = oldpos
                 end
@@ -266,8 +278,8 @@ function txe.renderToken (self)
                         local arg_list = txe.tokenlist(top.args)
 
                         -- rebuild the captured macro hand it's argument
-                        if top.optargs then
-                            table.insert(arg_list, 1, top.optargs)
+                        if top.opt_args then
+                            table.insert(arg_list, 1, top.opt_args)
                         end
                         
                         table.insert(arg_list, 1, top.token)
@@ -284,7 +296,7 @@ function txe.renderToken (self)
                         end
 
                         -- Parse optionnal args
-                        txe.parse_opt_args(top.macro, args, top.optargs or {})
+                        txe.parse_opt_args(top.macro, args, top.opt_args or {})
 
                         -- Update traceback, call the macro and add is result
                         table.insert(txe.traceback, token)
@@ -311,12 +323,20 @@ function txe.renderToken (self)
 end
 
 -- ## token.lua ##
+--- Creates a new token.
+-- Token represente a small chunk of code :
+-- a macro, a newline, a word...
+-- Each token track his position in the source code
+-- @param kind string The kind of token (text, escape, ...)
+-- @param value string Informations about token behavior, may be different from code
+-- @param line number The line number where the token appears
+-- @param pos number The position in the line where the token starts
+-- @param file string The file where the token appears
+-- @param code string The full source code
+-- @return token A new token object
 function txe.token (kind, value, line, pos, file, code)
-    -- Token represente a small chunck of code :
-    -- a macro, a newline, a word...
-    -- Each token track his position in the source code
     return setmetatable({
-        __type = "token",-- used for debugging
+        __type = "token",-- used mainly for debugging
         kind   = kind,
         value  = value,
         line   = line,
@@ -329,8 +349,12 @@ function txe.token (kind, value, line, pos, file, code)
     }, {})
 end
 
+--- Convert two elements into number
+-- @param x token|number|string Element to convert
+-- @param y token|number|string Element to convert
+-- @return token, token
 local function tokens2number(x, y)
-    -- Convert any number of tokens into number
+    
     if type(x) == "table" and x.render then
         x = tonumber(x:render())
     else
@@ -346,6 +370,9 @@ local function tokens2number(x, y)
     return x, y
 end
 
+--- Creates a new tokenlist.
+-- @param x string|table Either a kind string or a table of tokens
+-- @return tokenlist A new tokenlist object
 function txe.tokenlist (x)
     local kind = "block"
     local t = {}
@@ -423,6 +450,10 @@ function txe.tokenlist (x)
 end
 
 -- ## tokenize.lua ##
+--- Tokenizes the given code.
+-- @param code string The code to tokenize
+-- @param file string The name of the file being tokenized, for debuging purpose. May be any string.
+-- @return table A list of tokens
 function txe.tokenize (code, file)
     -- Get the txe code as raw string, and return a list of token.
     local result  = txe.tokenlist("render-block")
@@ -544,17 +575,23 @@ function txe.tokenize (code, file)
     end
     write ()
 
-    for _, token in ipairs(result) do
-        -- print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+    -- <DEV>
+    if txe.show_token then
+        for _, token in ipairs(result) do
+            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+        end
     end
+    -- </DEV>
 
     return result
 end
 
 -- ## parse.lua ##
+--- Converts a flat list of tokens into a nested structure.
+-- Handles blocks, optional blocks, and text grouping
+-- @param tokenlist table The list of tokens to parse
+-- @return tokenlist The parsed nested structure
 function txe.parse (tokenlist)
-    --Given a list of tokens, put all tokens betweens "{" and "}" into a new "block" token.
-    --same for consecutive "text" or "escaped-text" token
     local stack = {txe.tokenlist("block")}
     local eval_var = 0 -- #a+1 must be seen as \eval{a}+1, not \eval{a+1}
 
@@ -631,8 +668,11 @@ end
 txe.last_error = nil
 txe.traceback = {}
 
+--- Retrieves a line by its line number in the source code.
+-- @param source string The source code
+-- @param noline number The line number to retrieve
+-- @return string The line at the specified line number
 local function get_line(source, noline)
-    -- Retrieve line by line number in the source code
     local current_line = 1
     for line in (source.."\n"):gmatch("(.-)\n") do
         if noline == current_line then
@@ -642,11 +682,11 @@ local function get_line(source, noline)
     end
 end
 
+--- Returns information about a token.
+-- @param token table The token to get information about
+-- @return table A table containing file, line number, line content,
+-- and position information
 local function token_info (token)
-    -- Return:
-    -- Name of the file containing the token
-    -- The and number of the content of the line containing the token, 
-    -- The begin and end position of the token.
 
     local file, token_noline, token_line, code, beginpos, endpos
 
@@ -686,9 +726,10 @@ local function token_info (token)
     }
 end
 
+--- Extracts information from a Lua error message.
+-- @param message string The error message
+-- @return table A table containing file, line number, line content, and position information
 local function lua_info (message)
-    -- Extract informations from error
-    -- message heading=
     local file, noline, message = message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
     if not file then
         file, noline, message = message:match("^%s*(.-):([0-9]+): (.*)")
@@ -696,14 +737,14 @@ local function lua_info (message)
 
     noline = tonumber(noline)
 
-    -- Get chunck id
-    local chunck_id = tonumber(file:match('^string "%-%-chunck([0-9]-)%.%.%."'))
+    -- Get chunk id
+    local chunk_id = tonumber(file:match('^string "%-%-chunk([0-9]-)%.%.%."'))
 
     noline = noline - 1
     local token
-    for _, chunck in pairs(txe.lua_cache) do
-        if chunck.chunck_count == chunck_id then
-            token = chunck.token
+    for _, chunk in pairs(txe.lua_cache) do
+        if chunk.chunk_count == chunk_id then
+            token = chunk.token
             break
         end
     end
@@ -732,17 +773,19 @@ local function lua_info (message)
     }
 end
 
+--- Captures debug.traceback for error handling.
+-- @param msg string The error message
+-- @return string The error message
 function txe.error_handler (msg)
-    -- Capture debug.traceback
     txe.lua_traceback = debug.traceback ()
     return msg
 end
 
+--- Enhances error messages by adding information about the token that caused it.
+-- @param token table The token that caused the error
+-- @param error_message string The raised error message
+-- @param is_lua_error boolean Whether the error is due to lua script
 function txe.error (token, error_message, is_lua_error)
-    -- Enhance errors messages by adding
-    -- information about the token that
-    -- caused it.
-
     -- If it is already an error, throw it.
     if txe.last_error then
         error(txe.last_error)
@@ -762,7 +805,7 @@ function txe.error (token, error_message, is_lua_error)
         local traceback = (txe.lua_traceback or "")
         local first_line = true
         for line in traceback:gmatch('[^\n]+') do
-            if line:match('^%s*%[string "%-%-chunck[0-9]+%.%.%."%]') then
+            if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
                 -- Remove first line, that already
                 -- be added.
                 if first_line then
@@ -773,7 +816,7 @@ function txe.error (token, error_message, is_lua_error)
                     -- check if we arn't
                     table.insert(error_lines_infos, lua_info (line))
                     -- last line
-                    if line:match('^[string "%-%-chunck[0-9]+..."]:[0-9]+: in function <[string "--chunck[0-9]+..."]') then
+                    if line:match('^[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
                         break
                     end
                 end
@@ -860,19 +903,28 @@ function txe.error (token, error_message, is_lua_error)
 end
 
 -- ## macro.lua ##
+-- Implement macro behavior
+
 txe.macros = {}
-function txe.register_macro (name, args, defaut_optargs, macro, token)
-    -- args: table contain the name of macro arguments
-    -- defaut_optargs: table contain key and defaut value for optionnals args
-    -- macro: the function to call
-    -- token (optionnal): token where the macro was declared
+
+--- Registers a new macro.
+-- @param name string The name of the macro
+-- @param args table The arguments names of the macro
+-- @param default_opt_args table Default names and values for optional arguments
+-- @param macro function The function to call when the macro is used
+-- @param token token The token where the macro was declared (optional). Used for debuging.
+function txe.register_macro (name, args, default_opt_args, macro, token)
     txe.macros[name] = {
-        args           = args,
-        defaut_optargs = defaut_optargs,
-        macro          = macro,
-        token          = token
+        args             = args,
+        default_opt_args = default_opt_args,
+        macro            = macro,
+        token            = token
     }
 end
+
+--- Retrieves a macro by name.
+-- @param name string The name of the macro
+-- @return table The macro object
 function txe.get_macro(name)
     return txe.macros[name]
 end
@@ -936,7 +988,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         coroutine_code = coroutine_code .. " coroutine.yield(" .. var .. ")"
         coroutine_code = coroutine_code .. " end"
 
-        local iterator_coroutine = txe.load_lua_chunck (coroutine_code, _, _, txe.current_scope ())
+        local iterator_coroutine = txe.load_lua_chunk (coroutine_code, _, _, txe.current_scope ())
         local co = coroutine.create(iterator_coroutine)
         while true do
             local sucess, value = coroutine.resume(co)
@@ -1064,13 +1116,16 @@ end)
 -- ## macros/utils.lua ##
 -- Define some useful macro like def, set, alias.
 
+--- Defines a new macro or redefines an existing one.
+-- @param def_args table The arguments for the macro definition
+-- @param redef boolean Whether this is a redefinition
+-- @param redef_forced boolean Whether to force redefinition of standard macros
+-- @param calling_token token The token where the macro is being defined
 local function def (def_args, redef, redef_forced, calling_token)
-    -- Main way to define new macro from Plume - TextEngine
-
     -- Get the provided macro name
     local name = def_args["$name"]:render()
 
-    -- Test if name is a valid identifier
+    -- Check if the name is a valid identifier
     if not txe.is_identifier(name) then
         txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
@@ -1168,7 +1223,7 @@ txe.register_macro("set", {"key", "value"}, {global=false}, function(args, calli
     end
 
     local value
-    --If value is a lua chunck, call it there to avoid conversion to string
+    --If value is a lua chunk, call it there to avoid conversion to string
     if #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "#" then
         value = txe.eval_lua_expression(args.value[2])
     elseif #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "script" then
@@ -1239,8 +1294,8 @@ end)
 -- Define script-related macro
 
 txe.register_macro("script", {"body"}, {}, function(args)
-    --Execute a lua chunck and return the result, if any
-    local result = txe.call_lua_chunck(args.body)
+    --Execute a lua chunk and return the result, if any
+    local result = txe.call_lua_chunk(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -1285,9 +1340,14 @@ end
 -- ## runtime.lua ##
 -- Manage scopes and runtime lua executions
 
--- Define a 'load' function for Lua 5.1 compatibility
+--- Loads a Lua chunk with compatibility for Lua 5.1.
+-- @param code string The Lua code to load
+-- @param _ nil Unused parameter
+-- @param _ nil Unused parameter
+-- @param env table The environment to load the chunk in
+-- @return function|nil, string The loaded function or nil and an error message
 if _VERSION == "Lua 5.1" or jit then
-    function txe.load_lua_chunck (code, _, _, env)
+    function txe.load_lua_chunk (code, _, _, env)
         local f, err = loadstring(code)
         if f then
             setfenv(f, env)
@@ -1295,55 +1355,56 @@ if _VERSION == "Lua 5.1" or jit then
         return f, err
     end
 else
-    txe.load_lua_chunck = load
+    txe.load_lua_chunk = load
 end
 
+--- Evaluates a Lua expression and returns the result.
+-- @param token table The token containing the expression
+-- @param code string The Lua code to evaluate (optional)
+-- @return any The result of the evaluation
 function txe.eval_lua_expression (token, code)
-    -- Evaluation the given lua code
-    -- and return the result.
-    -- This result is cached.
     code = code or token:source ()
     code = 'return ' .. code
 
-    return txe.call_lua_chunck (token, code)
+    return txe.call_lua_chunk (token, code)
 end
 
-function txe.call_lua_chunck(token, code)
-    -- Load, cache and execute code
-    -- find in the given token or string.
-    -- If the string is given, token is use only
-    -- to throw error.
-
+--- Loads, caches, and executes Lua code.
+-- @param token table The token containing the code
+-- or, if code is given, token used to throw error
+-- @param code string The Lua code to execute (optional)
+-- @return any The result of the execution
+function txe.call_lua_chunk(token, code)
     code = code or token:source ()
 
     if not txe.lua_cache[code] then
-        -- Put the chunck number in the code,
+        -- Put the chunk number in the code,
         -- to retrieve it in case of error.
         -- A bit messy, but each chunk executes
         -- in its own environment, even if they
         -- share the same code. A more elegant
         -- solution certainly exists,
         -- but this does the trick for now.
-        txe.chunck_count = txe.chunck_count + 1
-        code = "--chunck" .. txe.chunck_count .. "\n" .. code
+        txe.chunk_count = txe.chunk_count + 1
+        code = "--chunk" .. txe.chunk_count .. "\n" .. code
         
         -- If the token is locked in a specific
         -- scope, execute inside it.
         -- Else, execute inside current scope.
-        local chunck_scope = token.frozen_scope or txe.current_scope ()
-        local loaded_function, load_err = txe.load_lua_chunck(code, nil, "bt", chunck_scope)
+        local chunk_scope = token.frozen_scope or txe.current_scope ()
+        local loaded_function, load_err = txe.load_lua_chunk(code, nil, "bt", chunk_scope)
 
-        -- If loading chunck failed
+        -- If loading chunk failed
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            txe.lua_cache[code] = {token=token, chunck_count=txe.chunck_count}
+            txe.lua_cache[code] = {token=token, chunk_count=txe.chunk_count}
             txe.error(token, load_err, true)
         end
 
         txe.lua_cache[code] = setmetatable({
             token=token,
-            chunck_count=txe.chunck_count
+            chunk_count=txe.chunk_count
         },{
             __call = function ()
                 return { xpcall (loaded_function, txe.error_handler) }
@@ -1363,6 +1424,8 @@ function txe.call_lua_chunck(token, code)
     return (table.unpack or unpack)(result)
 end
 
+--- Adds a reference to the current scope in each argument.
+-- @param args table The arguments to freeze
 function txe.freeze_scope (args)
     -- Add a reference to current scope
     -- in each arg.
@@ -1378,6 +1441,9 @@ function txe.freeze_scope (args)
     end
 end
 
+--- Creates a new scope with the given parent.
+-- @param parent table The parent scope
+-- @return table The new scope
 function txe.create_scope (parent)
     local scope = {}
     -- Add a self-reference
@@ -1407,20 +1473,24 @@ function txe.create_scope (parent)
     })
 end
 
+--- Creates a new scope with the penultimate scope as parent.
 function txe.push_scope ()
-    -- Create a new scope with the 
-    -- penultimate scope as parent.
     local last_scope = txe.current_scope ()
     local new_scope = txe.create_scope (last_scope)
 
     table.insert(txe.scopes, new_scope)
 end
 
+--- Removes the last created scope.
 function txe.pop_scope ()
-    -- Remove last create scope
     table.remove(txe.scopes)
 end
 
+--- Registers a variable locally in the given scope.
+-- If not given scope, will use the current scope.
+-- @param key string The key to set
+-- @param value any The value to set
+-- @param scope table The scope to set the variable in (optional)
 function txe.scope_set_local (key, value, scope)
     -- Register a variable locally
     -- If not provided, "scope" is the last created.
@@ -1428,6 +1498,8 @@ function txe.scope_set_local (key, value, scope)
     rawset (scope, key, value)
 end
 
+--- Returns the current scope.
+-- @return table The current scope
 function txe.current_scope ()
     return txe.scopes[#txe.scopes]
 end
@@ -1436,6 +1508,9 @@ end
 -- Manage methods that are visible from user
 local api = {}
 
+--- Outputs the result to a file or prints it to the console.
+-- @param filename string|nil The name of the file to write to, or nil to print to console
+-- @param result string The result to output
 function api.output (filename, result)
     if filename then
         local file = io.open(filename, "w")
@@ -1451,6 +1526,7 @@ function api.output (filename, result)
     end
 end
 
+--- Initializes the API methods visible to the user.
 function txe.init_api ()
     local scope = txe.current_scope ()
     scope.txe = {}
@@ -1483,10 +1559,8 @@ for name in lua_std_functions:gmatch('%S+') do
     txe.lua_std_functions[name] = _G[name]
 end
 
+--- Resets or initializes all session-specific tables.
 function txe.init ()
-    -- Reset or initialise all
-    -- sessions specifics table
-
     -- A table that contain
     -- all local scopes.
     txe.scopes = {}
@@ -1500,13 +1574,13 @@ function txe.init ()
 
     -- Cache lua code to not
     -- call "load" multiple times
-    -- for the same chunck
+    -- for the same chunk
     txe.lua_cache    = {}
 
-    -- Track number of chunck,
+    -- Track number of chunks,
     -- To assign a number of each
     -- of them.
-    txe.chunck_count = 0
+    txe.chunk_count = 0
         
     -- Add all std function into
     -- global scope
@@ -1526,14 +1600,39 @@ function txe.init ()
     txe.traceback = {}
 end
 
+-- <DEV>
+txe.show_token = false
+local function print_tokens(t, indent)
+    indent = indent or ""
+    for _, token in ipairs(t) do
+        if token.kind == "block" or token.kind == "opt_block" then
+            print(indent..token.kind)
+            print_tokens(token, "\t"..indent)
+        
+        elseif token.kind == "block_text" then
+            local value = ""
+            for _, txt in ipairs(token) do
+                value = value .. txt.value
+            end
+            print(indent..token.kind.."\t"..value:gsub('\n', '\\n'):gsub(' ', '_'))
+        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
+            print(indent..token.kind)
+            print_tokens(token, "\t"..indent)
+        else
+            print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_'))
+        end
+    end
+end
+-- </DEV>
 
-
-function txe.render (code, filename)
-    -- Tokenize, parse and render a string
-    -- filename may be any string used to track the code
+--- Tokenizes, parses, and renders a string.
+-- @param code string The code to render
+-- @param file string The name used to track the code
+-- @return string The rendered output
+function txe.render (code, file)
     local tokens, result
     
-    tokens = txe.tokenize(code, filename)
+    tokens = txe.tokenize(code, file)
     tokens = txe.parse(tokens)
     -- print_tokens(tokens)
     result = tokens:render()
@@ -1541,8 +1640,10 @@ function txe.render (code, filename)
     return result
 end
 
+--- Reads the content of a file and renders it.
+-- @param filename string The name of the file to render
+-- @return string The rendered output
 function txe.renderFile(filename)
-    -- Read the content of a file and render it.
     local file = io.open(filename, "r")
     assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
     local content = file:read("*all")
@@ -1583,6 +1684,7 @@ Examples:
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
 
+--- Main function for the command-line interface.
 function txe.cli_main ()
     -- Minimal cli parser
     if arg[1] == "-v" or arg[1] == "--version" then

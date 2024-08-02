@@ -69,7 +69,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         coroutine_code = coroutine_code .. " coroutine.yield(" .. var .. ")"
         coroutine_code = coroutine_code .. " end"
 
-        local iterator_coroutine = txe.load_lua_chunck (coroutine_code, _, _, txe.current_scope ())
+        local iterator_coroutine = txe.load_lua_chunk (coroutine_code, _, _, txe.current_scope ())
         local co = coroutine.create(iterator_coroutine)
         while true do
             local sucess, value = coroutine.resume(co)

@@ -12,12 +12,20 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+--- Creates a new token.
+-- Token represente a small chunk of code :
+-- a macro, a newline, a word...
+-- Each token track his position in the source code
+-- @param kind string The kind of token (text, escape, ...)
+-- @param value string Informations about token behavior, may be different from code
+-- @param line number The line number where the token appears
+-- @param pos number The position in the line where the token starts
+-- @param file string The file where the token appears
+-- @param code string The full source code
+-- @return token A new token object
 function txe.token (kind, value, line, pos, file, code)
-    -- Token represente a small chunck of code :
-    -- a macro, a newline, a word...
-    -- Each token track his position in the source code
     return setmetatable({
-        __type = "token",-- used for debugging
+        __type = "token",-- used mainly for debugging
         kind   = kind,
         value  = value,
         line   = line,
@@ -30,8 +38,12 @@ function txe.token (kind, value, line, pos, file, code)
     }, {})
 end
 
+--- Convert two elements into number
+-- @param x token|number|string Element to convert
+-- @param y token|number|string Element to convert
+-- @return token, token
 local function tokens2number(x, y)
-    -- Convert any number of tokens into number
+    
     if type(x) == "table" and x.render then
         x = tonumber(x:render())
     else
@@ -47,6 +59,9 @@ local function tokens2number(x, y)
     return x, y
 end
 
+--- Creates a new tokenlist.
+-- @param x string|table Either a kind string or a table of tokens
+-- @return tokenlist A new tokenlist object
 function txe.tokenlist (x)
     local kind = "block"
     local t = {}
