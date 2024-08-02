@@ -56,6 +56,9 @@ function txe.init ()
     -- To assign a number of each
     -- of them.
     txe.chunk_count = 0
+
+    -- Stack of executed files
+    txe.file_stack = {}
         
     -- Add all std function into
     -- global scope

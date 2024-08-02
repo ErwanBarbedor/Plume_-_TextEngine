@@ -28,20 +28,78 @@ txe.register_macro("require", {"path"}, {}, function(args)
     return f()
 end)
 
-txe.register_macro("include", {"path"}, {}, function(args)
+txe.register_macro("include", {"path"}, {}, function(args, calling_token)
     -- \include{file} Execute the given file and return the output
     -- \include[extern]{file} Include current file without execute it
     local is_extern = args.__args.extern
 
     local path = args.path:render ()
-    local file = io.open(path)
+
+    -- Find the path relative to each parent
+        
+    local formats = {}
+    if is_extern or path:match('%..-$') then
+        table.insert(formats, "?")
+    else
+        table.insert(formats, "?/init.txe")
+        table.insert(formats, "?.txe")
+    end
+
+    -- To avoid checking same folder two times
+    local parent
+    local folders     = {}
+    local tried_paths = {}
+
+    local parent_paths = {}
+    for _, parent in ipairs(txe.file_stack) do
+        table.insert(parent_paths, parent)
+    end
+
+    local file
+    local filepath
+
+    for _, parent in ipairs(parent_paths) do
+        local folder = parent:gsub('[^/]*$', ''):gsub('/$', '')
+        if not folders[folder] then
+            folders[folder] = true
+
+            for _, format in ipairs(formats) do
+                filepath = format:gsub('?', path)
+                filepath = (folder .. "/" .. filepath)
+                filepath = filepath:gsub('^/', '')
+
+                file = io.open(filepath)
+                if file then
+                    break
+                else
+                    table.insert(tried_paths, filepath)
+                end
+            end
+        end
+    end
+
     if not file then
-        txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
+        local msg = "File '" .. path .. "' doesn't exist or cannot be read."
+        msg = msg .. "\nTried: "
+        for _, path in ipairs(tried_paths) do
+            msg = msg .. "\n\t" .. path
+        end
+        msg = msg .. "\n"
+        txe.error(args.path, msg)
     end
 
     if is_extern then
         return file:read("*a")
     else
-        return txe.render(file:read("*a"), path)
+        -- Track the file we are currently in
+        table.insert(txe.file_stack, filepath)
+            
+        -- Render file content
+        local result = txe.render(file:read("*a"), filepath)
+
+        -- Remove file from stack
+        table.remove(txe.file_stack)
+
+        return result
     end
 end)

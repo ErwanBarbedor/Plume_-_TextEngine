@@ -78,11 +78,17 @@ end
 -- @return string The rendered output
 function txe.renderFile(filename)
     local file = io.open(filename, "r")
-    assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
-    local content = file:read("*all")
+        assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
+        local content = file:read("*all")
     file:close()
     
-    return txe.render(content, filename)
+    -- Track the file we are currently in
+    table.insert(txe.file_stack, filename)
+    
+    local result = txe.render(content, filename)
+    
+    -- Remove file from stack
+    table.remove(txe.file_stack)
 end
 
 require "cli"

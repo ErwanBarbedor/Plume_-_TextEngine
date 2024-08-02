@@ -74,7 +74,7 @@ function txe.cli_main ()
         return
     end
 
-    txe.init ()
+    txe.init (input)
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
