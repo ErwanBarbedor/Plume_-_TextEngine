@@ -75,11 +75,13 @@ function txe.cli_main ()
     end
 
     txe.init (input)
+    txe.current_scope().txe.input_file = input
+    txe.current_scope().txe.output_file = output
+
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        txe.current_scope().txe.output (output, result)
-        
+        txe.current_scope().txe.output (result)
     else
         print("Error:")
         print(result)

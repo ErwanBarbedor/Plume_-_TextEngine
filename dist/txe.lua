@@ -1570,7 +1570,8 @@ local api = {}
 --- Outputs the result to a file or prints it to the console.
 -- @param filename string|nil The name of the file to write to, or nil to print to console
 -- @param result string The result to output
-function api.output (filename, result)
+function api.output (result)
+    local filename = txe.current_scope ().txe.output_file
     if filename then
         local file = io.open(filename, "w")
         if not file then
@@ -1787,11 +1788,13 @@ function txe.cli_main ()
     end
 
     txe.init (input)
+    txe.current_scope().txe.input_file = input
+    txe.current_scope().txe.output_file = output
+
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        txe.current_scope().txe.output (output, result)
-        
+        txe.current_scope().txe.output (result)
     else
         print("Error:")
         print(result)
