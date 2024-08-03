@@ -1,5 +1,7 @@
 ![Plume - TextEngine](logo.png)
 
+Note: Plume - TextEngine is currently under development.
+
 ## Introduction
 
 Plume - TextEngine is a templating language with advanced scripting features.
