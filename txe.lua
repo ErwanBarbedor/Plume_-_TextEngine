@@ -89,6 +89,8 @@ function txe.renderFile(filename)
     
     -- Remove file from stack
     table.remove(txe.file_stack)
+
+    return result
 end
 
 require "cli"
