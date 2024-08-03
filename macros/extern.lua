@@ -38,7 +38,8 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
     -- Find the path relative to each parent
         
     local formats = {}
-    if is_extern or path:match('%..-$') then
+    
+    if is_extern or path:match('%.[^/][^/]-$') then
         table.insert(formats, "?")
     else
         table.insert(formats, "?/init.txe")
