@@ -81,8 +81,16 @@ function txe.cli_main ()
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        txe.current_scope().txe.output (result)
-    else
+        sucess, result = xpcall (txe.current_scope().txe.output, txe.error_handler, result)
+        if sucess then
+            print("Sucess.")
+        else
+            print("Error during finalization.")
+            result = txe.make_error_message(nil, result, true)
+        end
+    end
+
+    if not sucess then
         print("Error:")
         print(result)
     end

@@ -765,7 +765,7 @@ local function lua_info (message)
 
     return {
         file     = token.first.file,
-        noline   = noline,
+        noline   = token.first.line + noline - 1,
         line     = line,
         beginpos = #line:match('^%s*'),
         endpos   = #line,
@@ -782,15 +782,11 @@ function txe.error_handler (msg)
 end
 
 --- Enhances error messages by adding information about the token that caused it.
--- @param token table The token that caused the error
+-- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function txe.error (token, error_message, is_lua_error)
-    -- If it is already an error, throw it.
-    if txe.last_error then
-        error(txe.last_error)
-    end
-
+function txe.make_error_message (token, error_message, is_lua_error)
+    
     -- Make the list of lines to prompt.
     local error_lines_infos = {}
 
@@ -826,7 +822,9 @@ function txe.error (token, error_message, is_lua_error)
     
     -- Add the token that caused
     -- the error.
-    table.insert(error_lines_infos, token_info (token))
+    if token then
+        table.insert(error_lines_infos, token_info (token))
+    end
     
     -- Then add all traceback
     for i=#txe.traceback, 1, -1 do
@@ -895,6 +893,21 @@ function txe.error (token, error_message, is_lua_error)
     end
 
     local error_message = table.concat(error_lines, "\n")
+    
+    return error_message
+end
+--- Make error message and throw it
+-- @param token table The token that caused the error (optional)
+-- @param error_message string The raised error message
+-- @param is_lua_error boolean Whether the error is due to lua script
+function txe.error (token, error_message, is_lua_error)
+    -- If it is already an error, throw it.
+    if txe.last_error then
+        error(txe.last_error)
+    end
+
+    local error_message = txe.make_error_message (token, error_message, is_lua_error)
+
     -- Save the error
     txe.last_error = error_message
 
@@ -1794,8 +1807,16 @@ function txe.cli_main ()
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        txe.current_scope().txe.output (result)
-    else
+        sucess, result = xpcall (txe.current_scope().txe.output, txe.error_handler, result)
+        if sucess then
+            print("Sucess.")
+        else
+            print("Error during finalization.")
+            result = txe.make_error_message(nil, result, true)
+        end
+    end
+
+    if not sucess then
         print("Error:")
         print(result)
     end
