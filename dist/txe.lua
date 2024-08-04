@@ -128,18 +128,32 @@ function txe.parse_opt_args (macro, args, opt_args)
         table.insert(args.__args, captured_args[j])
     end
 
+    
+
+    -- set defaut value if not in args but provided by the macro
+    -- or provided by the user
+    for i, opt_arg in ipairs(macro.user_opt_args) do
+        if tonumber(opt_arg.name) then
+            if not args.__args[opt_arg.name] then
+                args.__args[opt_arg.name] = opt_arg.value
+            end
+        else
+            if not args[opt_arg.name] then
+                args[opt_arg.name] = opt_arg.value
+            end
+        end
+    end
+    for i, opt_arg in ipairs(macro.default_opt_args) do
+        if not args[opt_arg.name] then
+            args[opt_arg.name] = opt_arg.value
+        end
+    end
+
     -- Add __args elements as a key, to simply check for
     -- the presence of a specific word in optional arguments.
     -- Use of :source to avoid calling :render in a hidden way.
     for _, token in ipairs(args.__args) do
         args.__args[token:source()] = true
-    end
-
-    -- set defaut value if not in args but provided by the macro
-    for i, opt_arg in ipairs(macro.default_opt_args) do
-        if not args[opt_arg.name] then
-            args[opt_arg.name] = opt_arg.value
-        end
     end
 end
 
@@ -930,6 +944,7 @@ function txe.register_macro (name, args, default_opt_args, macro, token)
     txe.macros[name] = {
         args             = args,
         default_opt_args = default_opt_args,
+        user_opt_args    = {},
         macro            = macro,
         token            = token
     }
@@ -1127,7 +1142,7 @@ txe.register_macro("elseif", {"condition", "body"}, {}, function(args, self_toke
 end) 
 
 -- ## macros/utils.lua ##
--- Define some useful macro like def, set, alias.
+-- Define some useful macro like def, set, alias...
 
 --- Defines a new macro or redefines an existing one.
 -- @param def_args table The arguments for the macro definition
@@ -1262,11 +1277,31 @@ txe.register_macro("alias", {"name1", "name2"}, {}, function(args)
     local name2 = args.name2:render()
 
     txe.macros[name2] = txe.macros[name1]
-    return "", not condition
+    return ""
 end)
 
 
- 
+txe.register_macro("default", {"$name"}, {}, function(args)
+    -- Get the provided macro name
+    local name = args["$name"]:render()
+
+    -- Check if this macro exists
+    if not txe.macros[name] then
+        txe.error(args["name"], "Unknow macro '" .. name .. "'")
+    end
+
+    -- Add all arguments (except name) in user_opt_args
+    for k, v in pairs(args) do
+        if k:sub(1, 1) ~= "$" and k ~= "__args" then
+            table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+        end
+    end
+    for k, v in ipairs(args.__args) do
+        print(k, v)
+        table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+    end
+
+end) 
 
 -- ## macros/extern.lua ##
 -- Define macro to manipulate extern files
@@ -1308,7 +1343,7 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
     local folders     = {}
     local tried_paths = {}
 
-    local parent_paths = {}
+    local parent_paths = {calling_token.file}
     for _, parent in ipairs(txe.file_stack) do
         table.insert(parent_paths, parent)
     end
@@ -1332,6 +1367,10 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
                 else
                     table.insert(tried_paths, filepath)
                 end
+            end
+
+            if file then
+                break
             end
         end
     end
@@ -1668,6 +1707,7 @@ function txe.init ()
     -- the macro table
     txe.macros = {}
     for k, v in pairs(txe.std_macros) do
+        v.user_opt_args = {}
         txe.macros[k] = v
     end
 

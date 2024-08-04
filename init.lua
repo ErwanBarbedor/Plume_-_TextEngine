@@ -70,6 +70,7 @@ function txe.init ()
     -- the macro table
     txe.macros = {}
     for k, v in pairs(txe.std_macros) do
+        v.user_opt_args = {}
         txe.macros[k] = v
     end
 

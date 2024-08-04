@@ -37,6 +37,17 @@ foo-foo
 Provided args! 
 // End
 
+// Test 'set default'
+\def foo[x=bar] {#x}//
+\foo
+\default foo[x=baz]//
+\foo//
+// Result
+bar
+baz
+// End
+
+
 // Test 'To many optional blocks'
 \def[x][x] foo bar
 // Error

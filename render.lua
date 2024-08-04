@@ -84,18 +84,32 @@ function txe.parse_opt_args (macro, args, opt_args)
         table.insert(args.__args, captured_args[j])
     end
 
+    
+
+    -- set defaut value if not in args but provided by the macro
+    -- or provided by the user
+    for i, opt_arg in ipairs(macro.user_opt_args) do
+        if tonumber(opt_arg.name) then
+            if not args.__args[opt_arg.name] then
+                args.__args[opt_arg.name] = opt_arg.value
+            end
+        else
+            if not args[opt_arg.name] then
+                args[opt_arg.name] = opt_arg.value
+            end
+        end
+    end
+    for i, opt_arg in ipairs(macro.default_opt_args) do
+        if not args[opt_arg.name] then
+            args[opt_arg.name] = opt_arg.value
+        end
+    end
+
     -- Add __args elements as a key, to simply check for
     -- the presence of a specific word in optional arguments.
     -- Use of :source to avoid calling :render in a hidden way.
     for _, token in ipairs(args.__args) do
         args.__args[token:source()] = true
-    end
-
-    -- set defaut value if not in args but provided by the macro
-    for i, opt_arg in ipairs(macro.default_opt_args) do
-        if not args[opt_arg.name] then
-            args[opt_arg.name] = opt_arg.value
-        end
     end
 end
 

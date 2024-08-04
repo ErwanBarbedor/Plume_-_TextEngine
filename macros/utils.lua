@@ -12,7 +12,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
--- Define some useful macro like def, set, alias.
+-- Define some useful macro like def, set, alias...
 
 --- Defines a new macro or redefines an existing one.
 -- @param def_args table The arguments for the macro definition
@@ -147,7 +147,28 @@ txe.register_macro("alias", {"name1", "name2"}, {}, function(args)
     local name2 = args.name2:render()
 
     txe.macros[name2] = txe.macros[name1]
-    return "", not condition
+    return ""
 end)
 
 
+txe.register_macro("default", {"$name"}, {}, function(args)
+    -- Get the provided macro name
+    local name = args["$name"]:render()
+
+    -- Check if this macro exists
+    if not txe.macros[name] then
+        txe.error(args["name"], "Unknow macro '" .. name .. "'")
+    end
+
+    -- Add all arguments (except name) in user_opt_args
+    for k, v in pairs(args) do
+        if k:sub(1, 1) ~= "$" and k ~= "__args" then
+            table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+        end
+    end
+    for k, v in ipairs(args.__args) do
+        print(k, v)
+        table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+    end
+
+end)

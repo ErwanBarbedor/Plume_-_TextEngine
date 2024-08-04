@@ -26,6 +26,7 @@ function txe.register_macro (name, args, default_opt_args, macro, token)
     txe.macros[name] = {
         args             = args,
         default_opt_args = default_opt_args,
+        user_opt_args    = {},
         macro            = macro,
         token            = token
     }
