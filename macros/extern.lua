@@ -51,7 +51,7 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
     local folders     = {}
     local tried_paths = {}
 
-    local parent_paths = {}
+    local parent_paths = {calling_token.file}
     for _, parent in ipairs(txe.file_stack) do
         table.insert(parent_paths, parent)
     end
@@ -75,6 +75,10 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
                 else
                     table.insert(tried_paths, filepath)
                 end
+            end
+
+            if file then
+                break
             end
         end
     end
