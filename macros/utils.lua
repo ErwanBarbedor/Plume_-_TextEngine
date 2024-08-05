@@ -167,7 +167,6 @@ txe.register_macro("default", {"$name"}, {}, function(args)
         end
     end
     for k, v in ipairs(args.__args) do
-        print(k, v)
         table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
     end
 

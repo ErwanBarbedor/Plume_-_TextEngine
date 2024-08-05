@@ -73,7 +73,6 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         local co = coroutine.create(iterator_coroutine)
         while true do
             local sucess, value = coroutine.resume(co)
-            -- print(co, sucess, value)
             if not value then
                 break
             end
