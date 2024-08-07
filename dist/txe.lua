@@ -498,6 +498,13 @@ function txe.tokenlist (x)
         end
     })
 
+    -- Add all string methods, for convenience
+    for k, v in pairs(string) do
+        tokenlist[k] = function (self, ...)
+            return v(self:render(), ...)
+        end
+    end
+
     for k, v in ipairs(t) do
         tokenlist[k] = v
     end
