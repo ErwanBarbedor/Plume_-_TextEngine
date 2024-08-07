@@ -1333,10 +1333,16 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
     for _, parent in ipairs(txe.file_stack) do
         table.insert(parent_paths, parent)
     end
+    -- Parents are files, to target a
+    -- fake "dummy"
+    if txe.directory then
+        table.insert(parent_paths, txe.directory .. "/lib/dummy")
+    end
 
     local file, filepath
     for _, parent in ipairs(parent_paths) do
-        local folder = parent:gsub('[^/]*$', ''):gsub('/$', '')
+        
+        local folder = parent:gsub('[^\\/]*$', ''):gsub('[\\/]$', '')
         if not folders[folder] then
             folders[folder] = true
 
@@ -1912,9 +1918,12 @@ Examples:
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
 
---- Main function for the command-line interface.
+--- Main function for the command-line interface,
+-- a minimal cli parser
 function txe.cli_main ()
-    -- Minimal cli parser
+    -- Save txe directory
+    txe.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
+
     if arg[1] == "-v" or arg[1] == "--version" then
         print(txe._VERSION)
         return

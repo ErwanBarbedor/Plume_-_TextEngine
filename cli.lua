@@ -42,9 +42,12 @@ Examples:
 For more information, visit #GITHUB#.
 ]]
 
---- Main function for the command-line interface.
+--- Main function for the command-line interface,
+-- a minimal cli parser
 function txe.cli_main ()
-    -- Minimal cli parser
+    -- Save txe directory
+    txe.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
+
     if arg[1] == "-v" or arg[1] == "--version" then
         print(txe._VERSION)
         return
