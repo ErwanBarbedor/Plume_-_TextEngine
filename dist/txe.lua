@@ -1310,21 +1310,26 @@ end)
 -- Define macro to manipulate extern files
 
 --- Search a file for a given path
--- @param token token Token used to throw an error
--- @param calling_token token Token used to get context
+-- @param token token Token used to throw an error (optionnal)
+-- @param calling_token token Token used to get context (optionnal)
 -- @param formats table List of path formats to try (e.g., {"?.lua", "?/init.lua"})
 -- @param path string Path of the file to search for
+-- @param silent_fail bool If true, doesn't raise an error if not file found.
 -- @return file file File descriptor of the found file
 -- @return filepath string Full path of the found file
 -- @raise Throws an error if the file is not found, with a message detailing the paths tried
-function txe.search_for_files (token, calling_token, formats, path)
+function txe.search_for_files (token, calling_token, formats, path, silent_fail)
     -- To avoid checking same folder two times
     local parent
     local folders     = {}
     local tried_paths = {}
 
     -- Find the path relative to each parent
-    local parent_paths = {calling_token.file}
+    local parent_paths = {}
+
+    if calling_token then
+        table.insert(parent_paths, calling_token.file)
+    end
     for _, parent in ipairs(txe.file_stack) do
         table.insert(parent_paths, parent)
     end
@@ -1361,7 +1366,15 @@ function txe.search_for_files (token, calling_token, formats, path)
             msg = msg .. "\n\t" .. path
         end
         msg = msg .. "\n"
-        txe.error(token, msg)
+        if silent_fail then
+            return nil, nil, msg
+        else
+            if token then
+                txe.error(token, msg)
+            else
+                error(msg)
+            end
+        end
     end
 
     return file, filepath
@@ -1743,6 +1756,23 @@ end
 txe.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
     txe.lua_std_functions[name] = _G[name]
+end
+
+-- Edit require function
+local lua_require = txe.lua_std_functions.require
+
+--- Require a lua file
+-- Warning: doesn't behave exactly like the require macro,
+-- as this function has no access to current_token.file
+function txe.lua_std_functions.require (path)
+    local file, filepath, error_message = txe.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
+    if file then
+        file:close ()
+        filepath = filepath:gsub('%.lua$', '')
+        return lua_require(filepath)
+    else
+        error(error_message, 2)
+    end
 end
 
 --- Resets or initializes all session-specific tables.
