@@ -1903,7 +1903,12 @@ function txe.render (code, file)
     
     tokens = txe.tokenize(code, file)
     tokens = txe.parse(tokens)
-    -- print_tokens(tokens)
+    -- <DEV>
+    if txe.show_token then
+        print "--------"
+        print_tokens(tokens)
+    end
+    -- </DEV>
     result = tokens:render()
     
     return result
