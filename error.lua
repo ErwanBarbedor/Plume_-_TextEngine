@@ -39,21 +39,21 @@ local function token_info (token)
 
     -- Find all informations about the token
     if token.kind == "opt_block" or token.kind == "block" then
-        file = token.first.file
-        token_noline = token.first.line
-        code = token.first.code
-        beginpos = token.first.pos
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
 
-        if token.last.line == token_noline then
-            endpos = token.last.pos+1
+        if token:info().lastline == token_noline then
+            endpos = token:info().endpos+1
         else
             endpos = beginpos+1
         end
     elseif token.kind == "block_text" then
-        file = token[1].file
-        token_noline = token[1].line
-        code = token[1].code
-        beginpos = token[1].pos
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
 
         endpos = token[#token].pos + #token[#token].value
     else
@@ -120,8 +120,8 @@ local function lua_info (lua_message)
     local line = get_line (token:source (), noline)
 
     return {
-        file     = token.first.file,
-        noline   = token.first.line + noline - 1,
+        file     = token:info().file,
+        noline   = token:info().line + noline - 1,
         line     = line,
         beginpos = #line:match('^%s*'),
         endpos   = #line,

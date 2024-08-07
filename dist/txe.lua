@@ -345,11 +345,11 @@ end
 
 -- ## token.lua ##
 --- Creates a new token.
--- Token represente a small chunk of code :
+-- Token represents a small chunk of code:
 -- a macro, a newline, a word...
--- Each token track his position in the source code
+-- Each token tracks its position in the source code
 -- @param kind string The kind of token (text, escape, ...)
--- @param value string Informations about token behavior, may be different from code
+-- @param value string Information about token behavior, may be different from code
 -- @param line number The line number where the token appears
 -- @param pos number The position in the line where the token starts
 -- @param file string The file where the token appears
@@ -364,16 +364,18 @@ function txe.token (kind, value, line, pos, file, code)
         pos    = pos,
         file   = file,
         code   = code,
+        --- Returns the source code of the token
+        -- @return string The source code
         source = function (self)
             return self.value
         end
     }, {})
 end
 
---- Convert two elements into number
+--- Convert two elements into numbers
 -- @param x token|number|string Element to convert
 -- @param y token|number|string Element to convert
--- @return token, token
+-- @return number, number The converted numbers
 local function tokens2number(x, y)
     
     if type(x) == "table" and x.render then
@@ -408,13 +410,33 @@ function txe.tokenlist (x)
         __type = "tokenlist",-- used for debugging
         kind   = kind,
         
+        --- Get information (line, file, ...) about the tokenlist
+        -- The line will be the line of the first token
+        -- @return table
+        info = function (self)
+            local first = self.first or self[1]
+            local last = self.last or self[#self]
+            return {
+                file = first.file,
+                line = first.line,
+                lastline = last.line,
+                code = first.code,
+                pos  = first.pos,
+                endpos = last.pos
+            }
+        end,
+
+        --- Freezes the scope for all tokens in the list
+        -- @param scope table The scope to freeze
         freeze_scope = function (self, scope)
-            -- Each token keep a reference to given scope
+            -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
                 token.frozen_scope = scope
             end
         end,
     
+        --- Returns the source code of the tokenlist
+        -- @return string The source code
         source = function (self)
             -- "detokenize" the tokens, to retrieve the
             -- original code.
@@ -438,9 +460,9 @@ function txe.tokenlist (x)
         render = txe.renderToken
     }, {
         -- Some metamethods, for convenience :
-        -- Argument of macros are passed as tokenlist without rendered it.
-        -- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersone.
-        -- With metamethods, it became \def add[x y] #{x+y}
+        -- Arguments of macros are passed as tokenlist without rendering it.
+        -- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
+        -- With metamethods, it becomes \def add[x y] #{x+y}
         __add = function(self, y)
             x, y = tokens2number (self, y)
             return x+y
@@ -469,6 +491,7 @@ function txe.tokenlist (x)
     
     return tokenlist
 end
+
 
 -- ## tokenize.lua ##
 --- Tokenizes the given code.
@@ -713,21 +736,21 @@ local function token_info (token)
 
     -- Find all informations about the token
     if token.kind == "opt_block" or token.kind == "block" then
-        file = token.first.file
-        token_noline = token.first.line
-        code = token.first.code
-        beginpos = token.first.pos
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
 
-        if token.last.line == token_noline then
-            endpos = token.last.pos+1
+        if token:info().lastline == token_noline then
+            endpos = token:info().endpos+1
         else
             endpos = beginpos+1
         end
     elseif token.kind == "block_text" then
-        file = token[1].file
-        token_noline = token[1].line
-        code = token[1].code
-        beginpos = token[1].pos
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
 
         endpos = token[#token].pos + #token[#token].value
     else
@@ -794,8 +817,8 @@ local function lua_info (lua_message)
     local line = get_line (token:source (), noline)
 
     return {
-        file     = token.first.file,
-        noline   = token.first.line + noline - 1,
+        file     = token:info().file,
+        noline   = token:info().line + noline - 1,
         line     = line,
         beginpos = #line:match('^%s*'),
         endpos   = #line,

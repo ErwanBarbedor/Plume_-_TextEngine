@@ -180,3 +180,29 @@ Traceback :
     File 'string', line 10 : #{foo()}
                              ^
 // End
+
+// Test 'Error in control implicit block 5.1'
+\if #opt==0 #{print(#opt)}
+// Error Lua 5.1 Lua jit
+File 'string', line 1 : (lua error) attempt to get length of global 'opt' (a nil value)
+    #opt
+    ^^^^
+Traceback :
+    File 'string', line 1 : \if #opt==0 #{print(#opt)}
+                                ^
+    File 'string', line 1 : \if #opt==0 #{print(#opt)}
+                            ^^^
+// End
+
+// Test 'Error in control implicit block 5.4'
+\if #opt==0 #{print(#opt)}
+// Error Lua 5.4
+File 'string', line 1 : (lua error) attempt to get length of a nil value (global 'opt')
+    #opt
+    ^^^^
+Traceback :
+    File 'string', line 1 : \if #opt==0 #{print(#opt)}
+                                ^
+    File 'string', line 1 : \if #opt==0 #{print(#opt)}
+                            ^^^
+// End
