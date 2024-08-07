@@ -428,10 +428,10 @@ function txe.tokenlist (x)
 
         --- Freezes the scope for all tokens in the list
         -- @param scope table The scope to freeze
-        freeze_scope = function (self, scope)
+        set_context = function (self, scope)
             -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
-                token.frozen_scope = scope
+                token.context = scope
             end
         end,
     
@@ -991,6 +991,8 @@ function txe.register_macro (name, args, default_opt_args, macro, token)
         macro            = macro,
         token            = token
     }
+
+    return txe.macros[name]
 end
 
 --- Retrieves a macro by name.
@@ -1250,10 +1252,17 @@ local function def (def_args, redef, redef_forced, calling_token)
     end
     
     txe.register_macro(name, def_args.__args, opt_args, function(args)
-        
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
-        txe.freeze_scope (args)
+        local last_scope = txe.current_scope ()
+        for k, v in pairs(args) do
+            if k ~= "__args" then
+                v:set_context (last_scope)
+            end
+        end
+        for k, v in ipairs(args.__args) do
+            v:set_context (last_scope)
+        end
 
         -- argument are variable local to the macro
         txe.push_scope ()
@@ -1638,7 +1647,7 @@ function txe.call_lua_chunk(token, code)
         -- If the token is locked in a specific
         -- scope, execute inside it.
         -- Else, execute inside current scope.
-        local chunk_scope = token.frozen_scope or txe.current_scope ()
+        local chunk_scope = token.context or txe.current_scope ()
         local loaded_function, load_err = txe.load_lua_chunk(code, nil, "bt", chunk_scope)
 
         -- If loading chunk failed
@@ -1669,23 +1678,6 @@ function txe.call_lua_chunk(token, code)
 
     -- Lua 5.1 compatibility
     return (table.unpack or unpack)(result)
-end
-
---- Adds a reference to the current scope in each argument.
--- @param args table The arguments to freeze
-function txe.freeze_scope (args)
-    -- Add a reference to current scope
-    -- in each arg.
-
-    local last_scope = txe.current_scope ()
-    for k, v in pairs(args) do
-        if k ~= "__args" then
-            v:freeze_scope (last_scope)
-        end
-    end
-    for k, v in ipairs(args.__args) do
-        v:freeze_scope (last_scope)
-    end
 end
 
 --- Creates a new scope with the given parent.

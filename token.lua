@@ -96,10 +96,10 @@ function txe.tokenlist (x)
 
         --- Freezes the scope for all tokens in the list
         -- @param scope table The scope to freeze
-        freeze_scope = function (self, scope)
+        set_context = function (self, scope)
             -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
-                token.frozen_scope = scope
+                token.context = scope
             end
         end,
     

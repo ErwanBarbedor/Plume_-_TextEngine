@@ -65,7 +65,7 @@ function txe.call_lua_chunk(token, code)
         -- If the token is locked in a specific
         -- scope, execute inside it.
         -- Else, execute inside current scope.
-        local chunk_scope = token.frozen_scope or txe.current_scope ()
+        local chunk_scope = token.context or txe.current_scope ()
         local loaded_function, load_err = txe.load_lua_chunk(code, nil, "bt", chunk_scope)
 
         -- If loading chunk failed
@@ -96,23 +96,6 @@ function txe.call_lua_chunk(token, code)
 
     -- Lua 5.1 compatibility
     return (table.unpack or unpack)(result)
-end
-
---- Adds a reference to the current scope in each argument.
--- @param args table The arguments to freeze
-function txe.freeze_scope (args)
-    -- Add a reference to current scope
-    -- in each arg.
-
-    local last_scope = txe.current_scope ()
-    for k, v in pairs(args) do
-        if k ~= "__args" then
-            v:freeze_scope (last_scope)
-        end
-    end
-    for k, v in ipairs(args.__args) do
-        v:freeze_scope (last_scope)
-    end
 end
 
 --- Creates a new scope with the given parent.

@@ -30,6 +30,8 @@ function txe.register_macro (name, args, default_opt_args, macro, token)
         macro            = macro,
         token            = token
     }
+
+    return txe.macros[name]
 end
 
 --- Retrieves a macro by name.
