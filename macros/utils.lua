@@ -73,10 +73,17 @@ local function def (def_args, redef, redef_forced, calling_token)
     end
     
     txe.register_macro(name, def_args.__args, opt_args, function(args)
-        
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
-        txe.freeze_scope (args)
+        local last_scope = txe.current_scope ()
+        for k, v in pairs(args) do
+            if k ~= "__args" then
+                v:set_context (last_scope)
+            end
+        end
+        for k, v in ipairs(args.__args) do
+            v:set_context (last_scope)
+        end
 
         -- argument are variable local to the macro
         txe.push_scope ()
