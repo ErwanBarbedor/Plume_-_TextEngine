@@ -8,7 +8,11 @@
 // Test 'require (file does not exit)'
 \require foo
 // Error
-File 'string', line 1 : File 'foo.lua' doesn't exist or cannot be read.
+File 'string', line 1 : File 'foo' doesn't exist or cannot be read.
+Tried: 
+    foo.lua
+    foo/init.lua
+
     \require foo
              ^^^
 Traceback :

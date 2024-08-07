@@ -1309,51 +1309,27 @@ end)
 -- ## macros/extern.lua ##
 -- Define macro to manipulate extern files
 
-txe.register_macro("require", {"path"}, {}, function(args)
-    -- Execute a lua file in the current context
-
-    local path = args.path:render () .. ".lua"
-    local file = io.open(path)
-    if not file then
-        txe.error(args.path, "File '" .. path .. "' doesn't exist or cannot be read.")
-    end
-
-    local f = txe.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
-
-    return f()
-end)
-
-txe.register_macro("include", {"path"}, {}, function(args, calling_token)
-    -- \include{file} Execute the given file and return the output
-    -- \include[extern]{file} Include current file without execute it
-    local is_extern = args.__args.extern
-
-    local path = args.path:render ()
-
-    -- Find the path relative to each parent
-        
-    local formats = {}
-    
-    if is_extern or path:match('%.[^/][^/]-$') then
-        table.insert(formats, "?")
-    else
-        table.insert(formats, "?/init.txe")
-        table.insert(formats, "?.txe")
-    end
-
+--- Search a file for a given path
+-- @param token token Token used to throw an error
+-- @param calling_token token Token used to get context
+-- @param formats table List of path formats to try (e.g., {"?.lua", "?/init.lua"})
+-- @param path string Path of the file to search for
+-- @return file file File descriptor of the found file
+-- @return filepath string Full path of the found file
+-- @raise Throws an error if the file is not found, with a message detailing the paths tried
+function txe.search_for_files (token, calling_token, formats, path)
     -- To avoid checking same folder two times
     local parent
     local folders     = {}
     local tried_paths = {}
 
+    -- Find the path relative to each parent
     local parent_paths = {calling_token.file}
     for _, parent in ipairs(txe.file_stack) do
         table.insert(parent_paths, parent)
     end
 
-    local file
-    local filepath
-
+    local file, filepath
     for _, parent in ipairs(parent_paths) do
         local folder = parent:gsub('[^/]*$', ''):gsub('/$', '')
         if not folders[folder] then
@@ -1385,8 +1361,52 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
             msg = msg .. "\n\t" .. path
         end
         msg = msg .. "\n"
-        txe.error(args.path, msg)
+        txe.error(token, msg)
     end
+
+    return file, filepath
+end
+
+txe.register_macro("require", {"path"}, {}, function(args, calling_token)
+    -- Execute a lua file in the current context
+    -- Instead of lua require function, no caching.
+
+    local path = args.path:render ()
+
+    local formats = {}
+    
+    if is_extern or path:match('%.[^/][^/]-$') then
+        table.insert(formats, "?")
+    else
+        table.insert(formats, "?.lua")
+        table.insert(formats, "?/init.lua") 
+    end
+
+    local file, filepath = txe.search_for_files (args.path, calling_token, formats, path)
+
+    local f = txe.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
+
+    return f()
+end)
+
+txe.register_macro("include", {"path"}, {}, function(args, calling_token)
+    -- \include{file} Execute the given file and return the output
+    -- \include[extern]{file} Include current file without execute it
+    local is_extern = args.__args.extern
+
+    local path = args.path:render ()
+
+    local formats = {}
+    
+    if is_extern or path:match('%.[^/][^/]-$') then
+        table.insert(formats, "?")
+    else
+        table.insert(formats, "?")
+        table.insert(formats, "?.txe")
+        table.insert(formats, "?/init.txe")  
+    end
+
+    local file, filepath = txe.search_for_files (args.path, calling_token, formats, path)
 
     if is_extern then
         return file:read("*a")
