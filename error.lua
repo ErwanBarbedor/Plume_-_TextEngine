@@ -76,10 +76,19 @@ end
 --- Extracts information from a Lua error message.
 -- @param message string The error message
 -- @return table A table containing file, line number, line content, and position information
-local function lua_info (message)
-    local file, noline, message = message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
+local function lua_info (lua_message)
+    local file, noline, message = lua_message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
     if not file then
-        file, noline, message = message:match("^%s*(.-):([0-9]+): (.*)")
+        file, noline, message = lua_message:match("^%s*(.-):([0-9]+): (.*)")
+    end
+    if not file then
+        return {
+            file     = nil,
+            noline   = "",
+            line     = "",
+            beginpos = 0,
+            endpos   = -1
+        }
     end
 
     noline = tonumber(noline)
@@ -186,7 +195,13 @@ function txe.make_error_message (token, error_message, is_lua_error)
         local beginpos      = infos.beginpos - #leading_space
         local endpos        = infos.endpos - #leading_space
 
-        local line_info = "File '" .. infos.file .."', line " .. infos.noline .. " : "
+        local line_info
+        if infos.file then
+            line_info = "File '" .. infos.file .."', line " .. infos.noline .. " : "
+        else
+            line_info = ""
+        end
+
         local indicator
 
         if i==1 then

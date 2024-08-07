@@ -34,7 +34,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
     local mode = 1
 
     -- Check i=1, 10 syntax
-    -- var, first, last = iterator_source:match('%s*(.-)%s*=%s*([0-9]-)%s*,%s*([0-9]-)$')
+    var, first, last = iterator_source:match('%s*(.-)%s*=%s*([0-9]-)%s*,%s*([0-9]-)$')
 
     -- If fail, capture anything after "="
     if not var then
@@ -90,12 +90,17 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
         for name in var:gmatch('[^%s,]+') do
             table.insert(variables_list, name)
         end
-
+        
         -- Create the iterator
         local iter, state, key = txe.eval_lua_expression (args.iterator, iterator)
+        
+        -- Check if state is non nil
+        if state == nil then
+            txe.error(args.iterator, "fail to make the iterator.")
+        end
 
         -- Check if iter is callable.
-        if type(iter) ~= "function" or type(iter) == "table" and getmetatable(iter).__call then
+        if type(iter) ~= "function" or type(iter) == "table" and not getmetatable(iter).__call then
             txe.error(args.iterator, "iterator cannot be '" .. type(iter) .. "'")
         end
 
