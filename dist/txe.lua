@@ -817,7 +817,7 @@ function txe.make_error_message (token, error_message, is_lua_error)
     -- file and line info.
     if is_lua_error then
         table.insert(error_lines_infos, lua_info (error_message))
-        error_message = error_message:gsub('^.-:[0-9]+: ', '')
+        error_message = "(lua error) " .. error_message:gsub('^.-:[0-9]+: ', '')
 
         local traceback = (txe.lua_traceback or "")
         local first_line = true
@@ -829,10 +829,8 @@ function txe.make_error_message (token, error_message, is_lua_error)
                     first_line = false
                 else
                     local infos = lua_info (line)
-
-                    -- check if we arn't
                     table.insert(error_lines_infos, lua_info (line))
-                    -- last line
+                    -- check if we arn't last line
                     if line:match('^[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
                         break
                     end
