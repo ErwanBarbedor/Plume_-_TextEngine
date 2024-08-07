@@ -63,7 +63,7 @@ local function def (def_args, redef, redef_forced, calling_token)
     local opt_args = {}
     for k, v in pairs(def_args) do
         if k:sub(1, 1) ~= "$" then
-            table.insert(opt_args, {name=k, value=v})
+            opt_args[k] = v
         end
     end
 
@@ -170,11 +170,11 @@ txe.register_macro("default", {"$name"}, {}, function(args)
     -- Add all arguments (except name) in user_opt_args
     for k, v in pairs(args) do
         if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+            txe.macros[name].user_opt_args[k] = v
         end
     end
     for k, v in ipairs(args.__args) do
-        table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+        txe.macros[name].user_opt_args[k] = v
     end
 
 end)

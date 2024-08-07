@@ -104,48 +104,34 @@ function txe.parse_opt_args (macro, args, opt_args)
         end
     end
 
-    -- If parameter alone, without key, try to
-    -- find a name.
-    local last_index = 1
-    -- Not implemented: currently unable to determine argument order
-
-    -- for _, arg_value in ipairs(t) do
-    --     for i=last_index, #macro.default_opt_args do
-    --         local infos = macro.default_opt_args[i]
-
-    --         -- Check if this name isn't already used
-    --         if not args[infos.name] then
-    --             args[infos.name] = arg_value
-    --             last_index = last_index + 1
-    --             break
-    --         end
-    --     end
-    -- end
-
     -- Put all remaining args in the field "__args"
     args.__args = {}
-    for j=last_index, #captured_args do
+    for j=1, #captured_args do
         table.insert(args.__args, captured_args[j])
     end
 
-    
-
     -- set defaut value if not in args but provided by the macro
     -- or provided by the user
-    for i, opt_arg in ipairs(macro.user_opt_args) do
-        if tonumber(opt_arg.name) then
-            if not args.__args[opt_arg.name] then
-                args.__args[opt_arg.name] = opt_arg.value
+    for name, value in pairs(macro.user_opt_args) do
+        if tonumber(name) then
+            if not args.__args[name] then
+                args.__args[name] = value
             end
         else
-            if not args[opt_arg.name] then
-                args[opt_arg.name] = opt_arg.value
+            if not args[name] then
+                args[name] = value
             end
         end
     end
-    for i, opt_arg in ipairs(macro.default_opt_args) do
-        if not args[opt_arg.name] then
-            args[opt_arg.name] = opt_arg.value
+    for name, value in pairs(macro.default_opt_args) do
+        if tonumber(name) then
+            if not args.__args[name] then
+                args.__args[name] = value
+            end
+        else
+            if not args[name] then
+                args[name] = value
+            end
         end
     end
 
@@ -1262,7 +1248,7 @@ local function def (def_args, redef, redef_forced, calling_token)
     local opt_args = {}
     for k, v in pairs(def_args) do
         if k:sub(1, 1) ~= "$" then
-            table.insert(opt_args, {name=k, value=v})
+            opt_args[k] = v
         end
     end
 
@@ -1369,11 +1355,11 @@ txe.register_macro("default", {"$name"}, {}, function(args)
     -- Add all arguments (except name) in user_opt_args
     for k, v in pairs(args) do
         if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+            txe.macros[name].user_opt_args[k] = v
         end
     end
     for k, v in ipairs(args.__args) do
-        table.insert(txe.macros[name].user_opt_args, {name=k, value=v})
+        txe.macros[name].user_opt_args[k] = v
     end
 
 end) 
