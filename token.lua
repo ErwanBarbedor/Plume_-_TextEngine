@@ -84,6 +84,14 @@ function txe.tokenlist (x)
         info = function (self)
             local first = self.first or self[1]
             local last = self.last or self[#self]
+
+            if first.__type == "tokenlist" then
+                first = first:info()
+            end
+            if last.__type == "tokenlist" then
+                last = last:info()
+            end
+
             return {
                 file = first.file,
                 line = first.line,
@@ -99,7 +107,12 @@ function txe.tokenlist (x)
         set_context = function (self, scope)
             -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
-                token.context = scope
+                if token.__type == "tokenlist" then
+                    token:set_context (scope)
+                    if not token.context then
+                        token.context = scope
+                    end
+                end
             end
         end,
     
