@@ -250,7 +250,7 @@ end
 function txe.error (token, error_message, is_lua_error)
     -- If it is already an error, throw it.
     if txe.last_error then
-        error(txe.last_error)
+        error(txe.last_error, -1)
     end
 
     local error_message = txe.make_error_message (token, error_message, is_lua_error)

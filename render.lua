@@ -270,18 +270,25 @@ function txe.renderToken (self)
 
                         -- Update traceback, call the macro and add is result
                         table.insert(txe.traceback, token)
+                            local success, macro_call_result = pcall(function ()
+                                return { top.macro.macro (
+                                    args,
+                                    top.token, -- send self token to throw error
+                                    chain_sender,
+                                    chain_message
+                                ) }
+                            end)
 
-                        local call_result
-                        call_result, chain_message = top.macro.macro(
-                            args,
-                            top.token,--send self token to throw error
-                            chain_sender,
-                            chain_message
-                        )
+                            local call_result
+                            if success then
+                                call_result, chain_message = macro_call_result[1], macro_call_result[2]
+                            else
+                                txe.error(top.token, "Unexpected lua error running the macro : " .. macro_call_result)
+                            end
 
-                        chain_sender = top.token.value
+                            chain_sender = top.token.value
 
-                        table.insert(result, tostring(call_result or ""))
+                            table.insert(result, tostring(call_result or ""))
                         table.remove(txe.traceback)
                     end
                 end

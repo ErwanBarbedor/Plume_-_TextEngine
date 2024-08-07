@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Configuration settings
 
 -- Maximum number of nested macro
-txe.max_callstack_size          = 1000
+txe.max_callstack_size          = 100
 
 -- Maximum of loop iteration for macro "\while"
 txe.max_loop_size               = 1000

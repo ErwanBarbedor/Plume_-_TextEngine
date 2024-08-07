@@ -46,7 +46,7 @@ Traceback :
 // Test 'To many macro call'
 \def foo {\foo}\foo
 // Error
-File 'string', line 1 : To many intricate macro call (over the configurated limit of 1000).
+File 'string', line 1 : To many intricate macro call (over the configurated limit of 100).
     \def foo {\foo}\foo
               ^^^^
 Traceback :
@@ -55,7 +55,7 @@ Traceback :
     File 'string', line 1 : \def foo {\foo}\foo
                                       ^^^^
     ...
-    (same line again 998 times)
+    (same line again 98 times)
     File 'string', line 1 : \def foo {\foo}\foo
                                            ^^^^
 // End
