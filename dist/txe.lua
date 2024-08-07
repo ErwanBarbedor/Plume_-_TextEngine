@@ -260,7 +260,7 @@ function txe.renderToken (self)
                         -- An optional argument block
                         manage_opt_args(top, self[pos])
                     
-                    elseif self[pos].kind ~= "space" then
+                    elseif self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
                         -- If it is not a space, add the current block
                         -- to the argument list
                         table.insert(top.args, self[pos])
@@ -272,7 +272,7 @@ function txe.renderToken (self)
                 local oldpos          = pos
                 while self[pos+1] do
                     pos = pos + 1
-                    if self[pos].kind ~= "space" then
+                    if self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
                         finded_optional = self[pos].kind == "opt_block"
                         break
                     end
