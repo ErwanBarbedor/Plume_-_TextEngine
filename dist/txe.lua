@@ -1275,10 +1275,8 @@ txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, ca
     return ""
 end)
 
-txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
+local function set(args, calling_token, is_local)
     -- A macro to set variable to a value
-    local is_local = args.__args["local"]
-
     local key = args.key:render()
     if not txe.is_identifier(key) then
         txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
@@ -1301,9 +1299,18 @@ txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     else
         txe.scopes[1][key] = value 
     end
+end
 
+txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
+    set(args, calling_token,args.__args["local"])
     return ""
 end)
+
+txe.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
+    set(args, true)
+    return ""
+end)
+
 
 txe.register_macro("alias", {"name1", "name2"}, {}, function(args)
     -- Copie macro "name1" to name2
