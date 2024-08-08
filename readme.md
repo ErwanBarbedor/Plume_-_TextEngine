@@ -28,14 +28,13 @@ Plume - TextEngine requires Lua to run. It has been tested with versions Lua 5.1
 You just need to download the ```dist/txe.lua``` file.
 Write in a file `input.txe`
 ```txe
-\def table[x] {//
-    \for {i=1, 10} {//
+\def table[x] {
+    \for {i=1, 10} {
         #x * #i = #{x*i}
-    }//
-}//
+    }
+}
 \table #3
 ```
-
 
 Then, in a command console:
 
@@ -91,6 +90,8 @@ Options:
 
 The syntax is quite similar to that of LaTeX.
 
+Note : In the examples shown, superfluous spaces have been removed for clarity.
+
 ### Simple text
 You can write directly almost any text it will be rend as is.
 
@@ -112,7 +113,7 @@ Hello World
 
 ### Macros
 
-Macros in Plume are prefixed with a backslash ('\') and can take arguments enclosed in  braces.
+Macros in Plume are prefixed with a backslash (`\`) and can take arguments enclosed in  braces.
 
 Example:
 ```txe
@@ -151,7 +152,7 @@ Braces are optionnals if there is no space inside argument : `\foo bar baz` is t
 
 ### Variables
 
-Variables are defined using the `\set` command and accessed using the '#' symbol.
+Variables are defined using the `\set` command and accessed using the `#` symbol.
 
 Example:
 ```txe
@@ -163,7 +164,7 @@ Output:
 The value of x is 5
 ```
 
-"#" is almost a macro, with one difference: whereas the macro will capture the first argument (if not in square brackets) as a single no-space, "#" will only capture a valid identifier, to lighten the burden of writing certain expressions.
+`#` behaves almost like a macro, with one difference: whereas the macro will capture the first argument (if not in square brackets) as a single no-space, "#" will only capture a valid identifier, to lighten the burden of writing certain expressions.
 
 For example, `foo x+1` is the same as `foo {x+1}`, but `#x+1` is the same as `#{x}+1`.
 If you want to apply `#` to the whole expression, type `#{x+1}`. 
@@ -174,6 +175,7 @@ Variables are global by default
 \def foo {
     \set x 20
 }
+\set x 10
 \foo
 #x
 ```
@@ -211,6 +213,7 @@ Output:
 The sum of a and b is 7
 ```
 
+Input:
 ```txe
 The os time is #{os.time()}
 ```
@@ -402,4 +405,6 @@ Output:
 If you want to include a file containing no txe code but potentially many characters to escape, (like a css file) you can use the `\include[extern] {path}` option.
 The file will be read and directly included without being executed.
 
-### More Exemples
+
+
+## More Exemples
