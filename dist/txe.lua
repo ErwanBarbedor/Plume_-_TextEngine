@@ -24,12 +24,13 @@ txe._VERSION = "Plume - TextEngine 0.1.0 (dev)"
 
 -- ## config.lua ##
 -- Configuration settings
+txe.config = {}
 
 -- Maximum number of nested macro
-txe.max_callstack_size          = 100
+txe.config.max_callstack_size = 100
 
 -- Maximum of loop iteration for macro "\while"
-txe.max_loop_size               = 1000
+txe.config.max_loop_size      = 1000
 
 -- ## syntax.lua ##
 txe.syntax = {
@@ -189,8 +190,10 @@ function txe.renderToken (self)
             
             -- If more than txe.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            if #txe.traceback > txe.max_callstack_size then
-                txe.error(token, "To many intricate macro call (over the configurated limit of " .. txe.max_callstack_size .. ").")
+            local up_limit = txe.running_api.config.max_callstack_size
+            
+            if #txe.traceback > up_limit then
+                txe.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
             end
 
             local stack = {}
@@ -1065,8 +1068,18 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
     local iterator_coroutine = txe.load_lua_chunk (coroutine_code, _, _, txe.current_scope ())
     local co = coroutine.create(iterator_coroutine)
     
+    -- Limiting loop iterations to avoid infinite loop
+    local up_limit = txe.running_api.config.max_loop_size
+    local iteration_count  = 0
+
     -- Main iteration loop
     while true do
+        -- Update and check loop limit
+        iteration_count = iteration_count + 1
+        if iteration_count > up_limit then
+            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+        end
+
         -- Resume the coroutine to get the next set of values
         local values_list = { coroutine.resume(co) }
         local sucess = values_list[1]
@@ -1110,11 +1123,12 @@ txe.register_macro("while", {"condition", "body"}, {}, function(args)
 
     local result = {}
     local i = 0
+    local up_limit = txe.running_api.config.max_loop_size
     while txe.eval_lua_expression (args.condition) do
         table.insert(result, args.body:render())
         i = i + 1
-        if i > txe.max_loop_size then
-            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. txe.max_loop_size .. ").")
+        if i > up_limit then
+            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
     end
 
@@ -1769,8 +1783,16 @@ function txe.init_api ()
     local scope = txe.current_scope ()
     scope.txe = {}
 
+    -- keep a reference
+    txe.running_api = scope.txe
+
     for k, v in pairs(api) do
         scope.txe[k] = v
+    end
+
+    scope.txe.config = {}
+    for k, v in pairs(txe.config) do
+        scope.txe.config[k] = v
     end
 end
 

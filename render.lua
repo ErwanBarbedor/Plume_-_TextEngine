@@ -145,8 +145,10 @@ function txe.renderToken (self)
             
             -- If more than txe.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            if #txe.traceback > txe.max_callstack_size then
-                txe.error(token, "To many intricate macro call (over the configurated limit of " .. txe.max_callstack_size .. ").")
+            local up_limit = txe.running_api.config.max_callstack_size
+            
+            if #txe.traceback > up_limit then
+                txe.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
             end
 
             local stack = {}

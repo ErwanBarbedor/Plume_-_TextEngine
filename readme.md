@@ -215,8 +215,6 @@ Output:
 The factorial of 5 is: 120
 ```
 
-
-
 ### Control Structures
 
 #### Conditional Statements
@@ -256,7 +254,6 @@ Output:
     Line 2
     Line 3
 ```
-
 
 ```plume
 \set fruits #{{apple = "red", banana = "yellow", grape = "purple"}}
@@ -443,8 +440,53 @@ Gives
 
 ### Lua scope
 
-Any lua local variable is local to the macro script where it has been defined.
-For global variable, if a variable with this name already exist
+Local variables are local to the macro script, and cannot be used outside it.
+For global variables, either a variable with the same name exists, and they share the same scope.
+Or no variable with the same name exists, in which case they are global.
+To declare a variable inside a script macro but local to the current txe scope, use txe.set_local (key, value) (or its alias txe.setl).
+
+Exemple: 
+```txe
+\def foo {
+    \script {
+        local a = 0
+        b = 1
+        c = 2
+        txe.set_local("d", 3)
+    }
+    -- inside macro --
+    a: #a
+    b: #b
+    c: #c
+    d: #d
+    ------------------
+}
+\set d 20
+\set c 30
+\foo
+-- outside macro --
+    a: #a
+    b: #b
+    c: #c
+    d: #d
+------------------
+```
+Give
+
+```txe
+-- inside macro --
+a: 
+b: 1
+c: 2
+d: 3
+------------------
+-- outside macro --
+    a: 
+    b: 1
+    c: 2
+    d: 30
+------------------
+```
 
 ## Predefined macros list
 
@@ -453,5 +495,3 @@ For global variable, if a variable with this name already exist
 In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, because `newcommand` will be expansed _before_ `foo`.
 
 This doesn't work in Plume, because `foo` will be expansed first
-
-## More Exemples

@@ -31,7 +31,15 @@ function txe.init_api ()
     local scope = txe.current_scope ()
     scope.txe = {}
 
+    -- keep a reference
+    txe.running_api = scope.txe
+
     for k, v in pairs(api) do
         scope.txe[k] = v
+    end
+
+    scope.txe.config = {}
+    for k, v in pairs(txe.config) do
+        scope.txe.config[k] = v
     end
 end

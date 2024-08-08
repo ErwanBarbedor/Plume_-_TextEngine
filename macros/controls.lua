@@ -67,8 +67,18 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
     local iterator_coroutine = txe.load_lua_chunk (coroutine_code, _, _, txe.current_scope ())
     local co = coroutine.create(iterator_coroutine)
     
+    -- Limiting loop iterations to avoid infinite loop
+    local up_limit = txe.running_api.config.max_loop_size
+    local iteration_count  = 0
+
     -- Main iteration loop
     while true do
+        -- Update and check loop limit
+        iteration_count = iteration_count + 1
+        if iteration_count > up_limit then
+            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+        end
+
         -- Resume the coroutine to get the next set of values
         local values_list = { coroutine.resume(co) }
         local sucess = values_list[1]
@@ -112,11 +122,12 @@ txe.register_macro("while", {"condition", "body"}, {}, function(args)
 
     local result = {}
     local i = 0
+    local up_limit = txe.running_api.config.max_loop_size
     while txe.eval_lua_expression (args.condition) do
         table.insert(result, args.body:render())
         i = i + 1
-        if i > txe.max_loop_size then
-            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. txe.max_loop_size .. ").")
+        if i > up_limit then
+            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
     end
 
