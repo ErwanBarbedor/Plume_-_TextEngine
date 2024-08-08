@@ -102,7 +102,7 @@ Traceback :
 // Test 'for - nil iterator'
 \for {x in pairs(nil)} {}
 // Error Lua 5.4
-File 'string', line 1 : fail to make the iterator.
+File 'string', line 1 : (lua error) bad argument #1 to 'for iterator' (table expected, got nil)
     \for {x in pairs(nil)} {}
          ^^^^^^^^^^^^^^^^^
 Traceback :
@@ -113,12 +113,10 @@ Traceback :
 // Test 'for - nil iterator'
 \for {x in pairs(nil)} {}
 // Error Lua jit
-(lua error) bad argument #1 to '?' (table expected, got nil)
-    
-    
+File 'string', line 1 : (lua error) bad argument #1 to 'pairs' (table expected, got nil)
+    \for {x in pairs(nil)} {}
+         ^^^^^^^^^^^^^^^^^
 Traceback :
-    File 'string', line 1 : \for {x in pairs(nil)} {}
-                                 ^^^^^^^^^^^^^^^^^
     File 'string', line 1 : \for {x in pairs(nil)} {}
                             ^^^^
 // End
@@ -127,11 +125,9 @@ Traceback :
 \for {x in pairs(nil)} {}
 // Error Lua 5.1
 File 'string', line 1 : (lua error) bad argument #1 to 'pairs' (table expected, got nil)
-    x in pairs(nil)
-    ^^^^^^^^^^^^^^^
+    \for {x in pairs(nil)} {}
+         ^^^^^^^^^^^^^^^^^
 Traceback :
-    File 'string', line 1 : \for {x in pairs(nil)} {}
-                                 ^^^^^^^^^^^^^^^^^
     File 'string', line 1 : \for {x in pairs(nil)} {}
                             ^^^^
 // End
