@@ -6,26 +6,15 @@
 
 Plume - TextEngine is a Lua-based templating engine designed for text generation and manipulation. It provides a flexible and efficient way to create dynamic content using a combination of static text and embedded Lua code.
 
-The primary goal of Plume - TextEngine is to offer a powerful yet easy-to-use solution for generating text output in various contexts, such as document creation, code generation, or any scenario requiring dynamic text processing.
+The primary goal of Plume is to offer a powerful yet easy-to-use solution for generating text output in various contexts, such as document creation, code generation, or any scenario requiring dynamic text processing.
 
-
-## Key Features
-
-Plume - TextEngine offers a comprehensive set of features for efficient and flexible text templating:
-
-- **Macro Definition**: Create reusable text patterns with the `\def` command.
-- **Optional Arguments**: Define macros with optional parameters and default values.
-- **Variable Handling**: Set and use variables within templates using `\set` and `#varname` syntax.
-- **Scope Management**: Control variable scope with local and global variable declarations.
-- **Control Structures**: Implement conditional logic and loops using `\if`, `\while`, and `\for` commands.
-- **Lua Integration**:
-  - Lua Evaluation: Execute Lua expressions within templates using `#{...}` syntax.
-  - Lua Scripting: Embed full Lua scripts using the `\script{...}` or `\require{...}`command.
+Plume is highly extensible with the lua scripting language.
 
 ## Quick Start
 
-Plume - TextEngine requires Lua to run. It has been tested with versions Lua 5.1, Lua 5.4 and Luajit.
+Plume requires Lua to run. It has been tested with versions Lua 5.1, Lua 5.4 and Luajit.
 You just need to download the ```dist/txe.lua``` file.
+
 Write in a file `input.txe`
 ```txe
 \def table[x] {
@@ -41,8 +30,7 @@ Then, in a command console:
 ```bash
 lua txe.lua -p input.txe
 ```
-Executes the ```input.txe``` file and displays the result.
-You should see the multiplication table of 3 in your console.
+Executes the ```input.txe``` file  : you should see the multiplication table of 3 in your console.
 
 
 If you want to save this result to the ```output.txt``` file,
@@ -51,14 +39,7 @@ If you want to save this result to the ```output.txt``` file,
 lua txe.lua -o output.txt input.txe
 ```
 
-You can also execute
-
-```bash
-lua txe.lua input.txe
-```
-
-And program the output file(s) directly in txe :
-
+You can also write your input.txe like this
 ```txe
 \table[x] {
     ...
@@ -67,6 +48,13 @@ And program the output file(s) directly in txe :
     \table{3}
 }
 ```
+
+And just call
+
+```bash
+lua txe.lua input.txe
+```
+_Of course, with this method you can output severals files_
 
 You can access the list of available options with
 ```
@@ -85,7 +73,6 @@ Options:
   -p, --print         Display the result
 ```
 
-
 ## Documentation
 
 The syntax is quite similar to that of LaTeX.
@@ -95,7 +82,7 @@ Note : In the examples shown, superfluous spaces have been removed for clarity.
 ### Simple text
 You can write directly almost any text it will be rend as is.
 
-Exceptions : chars `\`, `#`, `{`, `}`, `[` and `]` have a special meaning.
+Exceptions : chars `\`, `#`, `{`, `}`, `[` and `]` have a special meaning. Also `//`.
 
 If you want to use then, escape it : `\\`, `\#`, ...
 
@@ -111,20 +98,19 @@ Output:
 Hello World
 ```
 
-### Macros
-
+### Call and define macros
 Macros in Plume are prefixed with a backslash (`\`) and can take arguments enclosed in  braces.
 
 Example:
 ```txe
-\command {arg1} {arg2}
+\macro {arg1} {arg2}
 ```
 
 Optionnal argument are inside square brackets
 
 Example:
 ```txe
-\command[foo bar=baz] {arg1} {arg2}
+\macro[foo bar=baz] {arg1} {arg2}
 ```
 
 A macro is defined by `\def`:
@@ -138,7 +124,7 @@ Output:
 Hello, World!
 ```
 
-And the code:
+You can define argument as optional with a defaut value:
 ```txe
 \def greeting[name=you] {Hello, #name!}
 \greeting
@@ -148,7 +134,16 @@ Output:
 Hello, you!
 ```
 
-Braces are optionnals if there is no space inside argument : `\foo bar baz` is the same as `\foo {bar} {baz}`
+You can use any number of arguments, separated by spaces
+```txe
+\def foo[x y z foo=bar baz=foo]{
+    ...
+}
+```
+
+_Note : Braces are optionnals if there is no space inside argument : `\foo bar baz` is the same as `\foo {bar} {baz}`_
+
+_Note : spaces between args used by the same macros are ignored._
 
 ### Variables
 
@@ -166,37 +161,10 @@ The value of x is 5
 
 `#` behaves almost like a macro, with one difference: whereas the macro will capture the first argument (if not in square brackets) as a single no-space, "#" will only capture a valid identifier, to lighten the burden of writing certain expressions.
 
-For example, `foo x+1` is the same as `foo {x+1}`, but `#x+1` is the same as `#{x}+1`.
+For example, `\foo x+1` is the same as `\foo {x+1}`, but `#x+1` is the same as `#{x}+1`.
 If you want to apply `#` to the whole expression, type `#{x+1}`. 
 
-#### Variables scope
-Variables are global by default
-```txe
-\def foo {
-    \set x 20
-}
-\set x 10
-\foo
-#x
-```
-Gives
-```
-20
-```
 
-But it is possible to make them local, with `\set[local]` (or its alias `\setl`).
-```txe
-\def foo {
-    \set[local] x 20
-}
-\set x 10
-\foo
-#x
-```
-Gives
-```
-10
-```
 
 ### Lua integration
 
@@ -246,11 +214,7 @@ Output:
 The factorial of 5 is: 120
 ```
 
-#### Lua scope
 
-Any lua local variable is local to the macro script where it has been defined.
-
-Global variables are more complicated.
 
 ### Control Structures
 
@@ -406,5 +370,89 @@ If you want to include a file containing no txe code but potentially many charac
 The file will be read and directly included without being executed.
 
 
+## Advanced documentation
+
+### Macro with arbitrary number of arguments
+
+### File searching
+
+### Tokenlist
+
+Behind the scene, Plume doesn't manipulate string but custom tables named **tokenlists**.
+For exemple,
+```txe
+\def foo[x]{
+    #{print(x)}
+}
+\foo{bar}
+```
+will print... `table: 0x560002d8ad30` or something like that, and not `bar`.
+
+To see the tokenlist content, you can call `tokenlist:source()`, that will return raw text, or `tokenlist:render()` to get final content.
+
+_if x is a tokenlist, `#x` is the same as `#{x:render()}`_
+
+Exemple:
+```txe
+\def foo[x]{
+    #{x:source()}
+    #{x:render()}
+}
+\foo{#{1+1}}
+```
+
+Gives
+```txe
+#{1+1}
+2
+```
+
+Plume do an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
+
+_if x and y are tokenlists, `#{x+y}` is roughly the same as `#{tonumber(x:render())+tonumber(y:render())}`_
+
+
+### Set
+
+### Variables scope
+Variables are global by default
+```txe
+\def foo {
+    \set x 20
+}
+\set x 10
+\foo
+#x
+```
+Gives
+```
+20
+```
+
+But it is possible to make them local, with `\set[local]` (or its alias `\setl`).
+```txe
+\def foo {
+    \set[local] x 20
+}
+\set x 10
+\foo
+#x
+```
+Gives
+```
+10
+```
+
+### Lua scope
+
+Any lua local variable is local to the macro script where it has been defined.
+
+Global variables are more complicated.
+
+## Warnings for LaTeX users
+
+In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, beacause `newcommand` will be expansed _before_ `foo`.
+
+This doesn't work in Plume, because `foo` will be expansed first
 
 ## More Exemples
