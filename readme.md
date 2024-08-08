@@ -12,7 +12,8 @@ Plume is highly extensible with the lua scripting language.
 
 ## Quick Start
 
-Plume requires Lua to run. It has been tested with versions Lua 5.1, Lua 5.4 and Luajit.
+Plume requires Lua to run.
+It has been tested with versions Lua 5.1, Lua 5.4 and Luajit.
 You just need to download the ```dist/txe.lua``` file.
 
 Write in a file `input.txe`
@@ -411,9 +412,6 @@ Plume do an implicit conversion each time you call a string method (like `gsub` 
 
 _if x and y are tokenlists, `#{x+y}` is roughly the same as `#{tonumber(x:render())+tonumber(y:render())}`_
 
-
-### Set
-
 ### Variables scope
 Variables are global by default
 ```txe
@@ -449,9 +447,11 @@ Any lua local variable is local to the macro script where it has been defined.
 
 Global variables are more complicated.
 
+## Predefined macros list
+
 ## Warnings for LaTeX users
 
-In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, beacause `newcommand` will be expansed _before_ `foo`.
+In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, because `newcommand` will be expansed _before_ `foo`.
 
 This doesn't work in Plume, because `foo` will be expansed first
 
