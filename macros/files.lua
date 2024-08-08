@@ -12,7 +12,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
--- Define macro to manipulate extern files
+-- Define macro related to files
 
 --- Search a file for a given path
 -- @param token token Token used to throw an error (optionnal)
@@ -146,4 +146,24 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
 
         return result
     end
+end)
+
+txe.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
+    -- Capture content and save it in a file.
+    -- Return nothing.
+    -- \file {foo.txt} {...}
+    local path = args.path:render ()
+    local file = io.open(path, "w")
+
+        if not file then
+            txe.error (calling_token, "Cannot write file '" .. path .. "'")
+        end
+
+        local content = args.content:render ()
+        file:write(content)
+
+    file:close ()
+
+    return ""
+
 end)
