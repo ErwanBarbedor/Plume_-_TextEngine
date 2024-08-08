@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License along with Plu
 local cli_help = [[
 Usage:
     txe INPUT_FILE
-    txe --output OUTPUT_FILE INPUT_FILE
     txe --version
     txe --help
 
@@ -24,7 +23,6 @@ Plume - TextEngine is a templating langage with advanced scripting features.
 Options:
   -h, --help          Show this help message and exit.
   -v, --version       Show the version of txe and exit.
-  -o, --output FILE   Write the output to FILE instead of displaying it.
 
 Examples:
   txe --help
@@ -34,10 +32,7 @@ Examples:
     Display the version of Plume - TextEngine.
 
   txe input.txe
-    Process 'input.txt' and display the result.
-
-  txe --output output.txt input.txe
-    Process 'input.txt' and save the result to 'output.txt'.
+    Process 'input.txt'
 
 For more information, visit #GITHUB#.
 ]]
@@ -56,16 +51,8 @@ function txe.cli_main ()
         return
     end
 
-    local output, input
-    if arg[1] == "-o" or arg[1] == "--output" then
-        output = arg[2]
-        if not output then
-            print ("No output file provided.")
-            return
-        end
-
-        input  = arg[3]
-    elseif not arg[1] then
+    local input
+    if not arg[1] then
     elseif arg[1]:match('^%-') then
         print("Unknow option '" .. arg[1] .. "'")
     else
@@ -79,21 +66,12 @@ function txe.cli_main ()
 
     txe.init (input)
     txe.current_scope().txe.input_file = input
-    txe.current_scope().txe.output_file = output
 
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        sucess, result = xpcall (txe.current_scope().txe.output, txe.error_handler, result)
-        if sucess then
-            print("Sucess.")
-        else
-            print("Error during finalization.")
-            result = txe.make_error_message(nil, result, true)
-        end
-    end
-
-    if not sucess then
+        print("Sucess.")
+    else
         print("Error:")
         print(result)
     end

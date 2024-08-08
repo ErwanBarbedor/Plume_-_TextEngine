@@ -1336,8 +1336,8 @@ txe.register_macro("default", {"$name"}, {}, function(args)
 
 end) 
 
--- ## macros/extern.lua ##
--- Define macro to manipulate extern files
+-- ## macros/files.lua ##
+-- Define macro related to files
 
 --- Search a file for a given path
 -- @param token token Token used to throw an error (optionnal)
@@ -1471,6 +1471,26 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
 
         return result
     end
+end)
+
+txe.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
+    -- Capture content and save it in a file.
+    -- Return nothing.
+    -- \file {foo.txt} {...}
+    local path = args.path:render ()
+    local file = io.open(path, "w")
+
+        if not file then
+            txe.error (calling_token, "Cannot write file '" .. path .. "'")
+        end
+
+        local content = args.content:render ()
+        file:write(content)
+
+    file:close ()
+
+    return ""
+
 end) 
 
 -- ## macros/script.lua ##
@@ -1722,27 +1742,8 @@ function txe.current_scope ()
 end
 
 -- ## api.lua ##
--- Manage methods that are visible from user
+-- Manage methods that are visible from user (not much at the moment)
 local api = {}
-
---- Outputs the result to a file or prints it to the console.
--- @param filename string|nil The name of the file to write to, or nil to print to console
--- @param result string The result to output
-function api.output (result)
-    local filename = txe.current_scope ().txe.output_file
-    if filename then
-        local file = io.open(filename, "w")
-        if not file then
-            error("Cannot write the file '" .. filename .. "'.", -1)
-            return
-        end
-        file:write(result)
-        file:close ()
-        print("File '" .. filename .. "' created.")
-    else
-        print(result)
-    end
-end
 
 --- Initializes the API methods visible to the user.
 function txe.init_api ()
@@ -1909,7 +1910,6 @@ end
 local cli_help = [[
 Usage:
     txe INPUT_FILE
-    txe --output OUTPUT_FILE INPUT_FILE
     txe --version
     txe --help
 
@@ -1918,7 +1918,6 @@ Plume - TextEngine is a templating langage with advanced scripting features.
 Options:
   -h, --help          Show this help message and exit.
   -v, --version       Show the version of txe and exit.
-  -o, --output FILE   Write the output to FILE instead of displaying it.
 
 Examples:
   txe --help
@@ -1928,10 +1927,7 @@ Examples:
     Display the version of Plume - TextEngine.
 
   txe input.txe
-    Process 'input.txt' and display the result.
-
-  txe --output output.txt input.txe
-    Process 'input.txt' and save the result to 'output.txt'.
+    Process 'input.txt'
 
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
@@ -1950,16 +1946,8 @@ function txe.cli_main ()
         return
     end
 
-    local output, input
-    if arg[1] == "-o" or arg[1] == "--output" then
-        output = arg[2]
-        if not output then
-            print ("No output file provided.")
-            return
-        end
-
-        input  = arg[3]
-    elseif not arg[1] then
+    local input
+    if not arg[1] then
     elseif arg[1]:match('^%-') then
         print("Unknow option '" .. arg[1] .. "'")
     else
@@ -1973,21 +1961,12 @@ function txe.cli_main ()
 
     txe.init (input)
     txe.current_scope().txe.input_file = input
-    txe.current_scope().txe.output_file = output
 
     sucess, result = pcall(txe.renderFile, input)
 
     if sucess then
-        sucess, result = xpcall (txe.current_scope().txe.output, txe.error_handler, result)
-        if sucess then
-            print("Sucess.")
-        else
-            print("Error during finalization.")
-            result = txe.make_error_message(nil, result, true)
-        end
-    end
-
-    if not sucess then
+        print("Sucess.")
+    else
         print("Error:")
         print(result)
     end
