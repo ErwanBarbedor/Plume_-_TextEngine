@@ -76,7 +76,7 @@ Options:
 
 ## Documentation
 
-The syntax is quite similar to that of LaTeX.
+The syntax is quite similar to that of LaTeX, but Plume behaves very differently.
 
 Note : In the examples shown, superfluous spaces have been removed for clarity.
 
@@ -288,8 +288,13 @@ Like for `\if`, `\while` limit may be any expression, and `\for` iterator follow
 
 #### Loops limit
 
-For more than 1000 iterations, txe will crash.
-
+Plume is configurated to stop loops after 1000 iteration, to avoid infinity loop.
+You can edit this limit like this :
+```txe
+\script{
+    txe.config.max_loop_size = 1000000
+}
+```
 
 ### Numbers formating
 If expression in `#{...}` return a number, you can format it.
@@ -372,7 +377,23 @@ The file will be read and directly included without being executed.
 
 ### Macro with arbitrary number of arguments
 
-### File searching
+You can access the table of all passed argument in the field `__args`.
+
+Exemple :
+```txe
+\def multiargs {
+    \for {i, args in ipairs(__args)} {
+        Argument #i : #args
+    }
+}
+\multiargs[foo bar baz]
+```
+gives
+```
+Argument 1 : foo
+Argument 2 : bar
+Argument 3 : baz
+```
 
 ### Tokenlist
 
@@ -438,6 +459,17 @@ Gives
 10
 ```
 
+### To many intricate macro call
+
+By default, Plume canno't handle more than 100 macro in the callstack, mainly to avoid infinity loop on things such `\def foo {\foo}`
+
+You can edit this limit : 
+```txe
+\script{
+    txe.config.max_callstack_size = 1000000
+}
+```
+
 ### Lua scope
 
 Local variables are local to the macro script, and cannot be used outside it.
@@ -490,8 +522,12 @@ d: 3
 
 ## Predefined macros list
 
+_Coming soon..._
+
 ## Warnings for LaTeX users
 
 In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, because `newcommand` will be expansed _before_ `foo`.
 
 This doesn't work in Plume, because `foo` will be expansed first
+
+## License
