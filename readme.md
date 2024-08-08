@@ -444,8 +444,7 @@ Gives
 ### Lua scope
 
 Any lua local variable is local to the macro script where it has been defined.
-
-Global variables are more complicated.
+For global variable, if a variable with this name already exist
 
 ## Predefined macros list
 
