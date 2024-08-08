@@ -1275,9 +1275,9 @@ txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, ca
     return ""
 end)
 
-txe.register_macro("set", {"key", "value"}, {global=false}, function(args, calling_token)
+txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     -- A macro to set variable to a value
-    local global = args.__args.global
+    local is_local = args.__args["local"]
 
     local key = args.key:render()
     if not txe.is_identifier(key) then
@@ -1296,10 +1296,10 @@ txe.register_macro("set", {"key", "value"}, {global=false}, function(args, calli
 
     value = tonumber(value) or value
 
-    if global then
-        txe.current_scope ()[key] = value
+    if is_local then
+        txe.scope_set_local (key, value)
     else
-        txe.scope_set_local (key, value, calling_token.frozen_scope)
+        txe.scopes[1][key] = value 
     end
 
     return ""

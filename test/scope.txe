@@ -7,7 +7,7 @@
 // End
 
 // Test 'Variable block scope 2'
-\def bar[x] {\set y 1 #x}//
+\def bar[x] {\set[local] y 1 #x}//
 \def foo {\bar #y}//
 \foo
 // Result
@@ -23,7 +23,7 @@
 
 // Test '__scope 2'
 \set x 10//
-\def foo {\set x 5}//
+\def foo {\set[local] x 5}//
 \foo//
 #{__scope.x}
 // Result
@@ -40,15 +40,14 @@
 
 // Test 'global 1'
 \def foo {\set x 0}//
-\set x 1//
 \foo//
 #x//
 // Result
-1
+0
 // End
 
 // Test 'global 2'
-\def foo {\set[global] x 0}//
+\def foo {\set x 0}//
 \set x 1//
 \foo//
 #x//
