@@ -120,11 +120,12 @@ function txe.create_scope (parent)
         end,
         __newindex = function (self, key, value)
             -- Register new value
-            -- Only if no parent has it
-            if (parent and not parent[key]) or not parent then
-                rawset(self, key, value)
-            elseif parent then
+            -- if has parent, send value to parent.
+            -- else, register it
+            if parent then
                 parent[key] = value
+            else
+                rawset(self, key, value)
             end
         end,
     })

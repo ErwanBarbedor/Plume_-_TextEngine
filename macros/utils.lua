@@ -140,7 +140,7 @@ local function set(args, calling_token, is_local)
     if is_local then
         txe.scope_set_local (key, value)
     else
-        txe.scopes[1][key] = value 
+        txe.current_scope()[key] = value 
     end
 end
 

@@ -1297,7 +1297,7 @@ local function set(args, calling_token, is_local)
     if is_local then
         txe.scope_set_local (key, value)
     else
-        txe.scopes[1][key] = value 
+        txe.current_scope()[key] = value 
     end
 end
 
@@ -1707,11 +1707,12 @@ function txe.create_scope (parent)
         end,
         __newindex = function (self, key, value)
             -- Register new value
-            -- Only if no parent has it
-            if (parent and not parent[key]) or not parent then
-                rawset(self, key, value)
-            elseif parent then
+            -- if has parent, send value to parent.
+            -- else, register it
+            if parent then
                 parent[key] = value
+            else
+                rawset(self, key, value)
             end
         end,
     })
