@@ -8,15 +8,14 @@ Plume - TextEngine is a Lua-based templating engine designed for text generation
 
 The primary goal of Plume is to offer a powerful yet easy-to-use solution for generating text output in various contexts, such as document creation, code generation, or any scenario requiring dynamic text processing.
 
-Plume is highly extensible with the lua scripting language.
+Plume is highly extensible with the Lua scripting language.
 
 ## Quick Start
 
-Plume requires Lua to run.
-It has been tested with versions Lua 5.1, Lua 5.4 and Luajit.
-You just need to download the ```dist/txe.lua``` file.
+Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the ```dist/txe.lua``` file.
 
-Write in a file `input.txe`
+Write the following in a file `input.txe`:
+
 ```txe
 \def table[x] {
     \for {i=1, 10} {
@@ -26,21 +25,22 @@ Write in a file `input.txe`
 \table {3}
 ```
 
-Then, in a command console:
+Then, in a command console, execute:
 
 ```bash
 lua txe.lua -p input.txe
 ```
-Executes the ```input.txe``` file  : you should see the multiplication table of 3 in your console.
 
+This runs the `input.txe` file and you should see the multiplication table of 3 in your console.
 
-If you want to save this result to the ```output.txt``` file,
+To save this result to the `output.txt` file, run:
 
 ```bash
 lua txe.lua -o output.txt input.txe
 ```
 
-You can also write your input.txe like this
+You can also write your `input.txe` like this:
+
 ```txe
 \table[x] {
     ...
@@ -50,14 +50,16 @@ You can also write your input.txe like this
 }
 ```
 
-And just call
+And just call:
 
 ```bash
 lua txe.lua input.txe
 ```
-_Of course, with this method you can output severals files_
 
-You can access the list of available options with
+_Of course, with this method you can output several files._
+
+For a list of available options, use:
+
 ```
 > lua txe.lua -h
 Usage:
@@ -78,17 +80,19 @@ Options:
 
 The syntax is quite similar to that of LaTeX, but Plume behaves very differently.
 
-Note : In the examples shown, superfluous spaces have been removed for clarity.
+Note: In the examples shown, superfluous spaces have been removed for clarity.
 
-### Simple text
-You can write directly almost any text it will be rend as is.
+### Simple Text
 
-Exceptions : chars `\`, `#`, `{`, `}`, `[` and `]` have a special meaning. Also `//`.
+You can write almost any text directly, and it will be rendered as-is.
 
-If you want to use then, escape it : `\\`, `\#`, ...
+Exceptions: the characters `\`, `#`, `{`, `}`, `[`, and `]` have special meanings. Also, `//`.
+
+If you want to use them, escape them: `\\`, `\#`, ...
 
 ### Comments
-Single-line comments are denoted by '//' and are not rendered in the output:
+
+Single-line comments are denoted by `//` and are not rendered in the output:
 
 ```txe
 Hello // This is a comment
@@ -99,22 +103,25 @@ Output:
 Hello World
 ```
 
-### Call and define macros
-Macros in Plume are prefixed with a backslash (`\`) and can take arguments enclosed in  braces.
+### Call and Define Macros
+
+Macros in Plume are prefixed with a backslash (`\`) and can take arguments enclosed in braces.
 
 Example:
+
 ```txe
 \macro {arg1} {arg2}
 ```
 
-Optionnal argument are inside square brackets
+Optional arguments are inside square brackets.
 
 Example:
+
 ```txe
 \macro[foo bar=baz] {arg1} {arg2}
 ```
 
-A macro is defined by `\def`:
+A macro is defined using `\def`:
 
 ```txe
 \def greeting[name] {Hello, #name!}
@@ -125,32 +132,37 @@ Output:
 Hello, World!
 ```
 
-You can define argument as optional with a defaut value:
+You can define arguments as optional with a default value:
+
 ```txe
 \def greeting[name=you] {Hello, #name!}
 \greeting
+\greeting[name=me]
 ```
 Output:
 ```
 Hello, you!
+Hello, me!
 ```
 
-You can use any number of arguments, separated by spaces
+You can use any number of arguments, separated by spaces:
+
 ```txe
 \def foo[x y z foo=bar baz=foo]{
     ...
 }
 ```
 
-_Note : Braces are optionnals if there is no space inside argument : `\foo bar baz` is the same as `\foo {bar} {baz}`_
+_Note: Braces are optional if there is no space inside the argument: `\foo bar baz` is the same as `\foo {bar} {baz}`._
 
-_Note : spaces between args used by the same macros are ignored._
+_Note: Spaces between args used by the same macros are ignored._
 
 ### Variables
 
 Variables are defined using the `\set` command and accessed using the `#` symbol.
 
 Example:
+
 ```txe
 \set x 5
 The value of x is #x
@@ -160,18 +172,17 @@ Output:
 The value of x is 5
 ```
 
-`#` behaves almost like a macro, with one difference: whereas the macro will capture the first argument (if not in square brackets) as a single no-space, "#" will only capture a valid identifier, to lighten the burden of writing certain expressions.
+The `#` behaves almost like a macro, with one difference: whereas the macro will capture the first argument (if not in square brackets) as a single no-space, `#` will only capture a valid identifier, making writing certain expressions easier.
 
-For example, `\foo x+1` is the same as `\foo {x+1}`, but `#x+1` is the same as `#{x}+1`.
-If you want to apply `#` to the whole expression, type `#{x+1}`. 
+For example, `\foo x+1` is the same as `\foo {x+1}`, but `#x+1` is equivalent to `#{x}+1`.
+If you want to apply `#` to the whole expression, use `#{x+1}`.
 
+### Lua Integration
 
+#### Lua Expressions
 
-### Lua integration
+You can evaluate any Lua expression using `#{...}` (or its alias `\eval{...}`):
 
-#### Lua expressions
-
-You can eval any lua expression using `#{...}` (or its alias `\eval{...}`) :
 ```txe
 \set a 3
 \set b 4
@@ -182,7 +193,8 @@ Output:
 The sum of a and b is 7
 ```
 
-Input:
+Example:
+
 ```txe
 The os time is #{os.time()}
 ```
@@ -191,11 +203,11 @@ Output:
 The os time is 701184650
 ```
 
-You should notice that the syntax is the same as for variables. In fact, txe doesn't really have any variables, it simply evaluates an underlying lua variable.
+You should notice that the syntax is the same as for variables. In fact, txe doesn't really have any variables; it simply evaluates an underlying Lua variable.
 
-#### Lua scripts
+#### Lua Scripts
 
-You can execute any lua statement inside `\script{...}`
+You can execute any Lua statement inside `\script{...}`.
 
 Example:
 
@@ -209,10 +221,26 @@ Example:
 
 The factorial of 5 is: #{factorial(5)}
 ```
-
 Output:
 ```
 The factorial of 5 is: 120
+```
+
+#### Require
+
+You can execute an external Lua file with `\require {path}`.
+
+```txe
+\require {my_lib}
+#{some_function ()}
+```
+
+Or with `\script`.
+
+```txe
+\script {
+    require "my_lib"
+}
 ```
 
 ### Control Structures
@@ -229,20 +257,20 @@ The `\if`, `\elseif`, and `\else` commands provide conditional logic:
     {x is less than 5}
 \else
     {x is equal to 5}
-
 ```
 Output:
 ```
-    x is greater than 5
+x is greater than 5
 ```
 
-The condition may be any lua expression.
+The condition may be any Lua expression.
 
 #### Loops
 
-Plume supports `\for` and `\while` loops:
+Plume supports `\for` and `\while` loops.
 
 For loop example:
+
 ```txe
 \for {i=1,3} {
     Line #i
@@ -250,9 +278,9 @@ For loop example:
 ```
 Output:
 ```
-    Line 1
-    Line 2
-    Line 3
+Line 1
+Line 2
+Line 3
 ```
 
 ```plume
@@ -261,7 +289,6 @@ Output:
     The #fruit is #color.
 }
 ```
-
 Output:
 ```
 The apple is red.
@@ -270,6 +297,7 @@ The grape is purple.
 ```
 
 While loop example:
+
 ```txe
 \set a 0
 \while {a < 3} {
@@ -279,25 +307,26 @@ While loop example:
 ```
 Output:
 ```
-    a is now 1
-    a is now 2
-    a is now 3
+a is now 1
+a is now 2
+a is now 3
 ```
 
-Like for `\if`, `\while` limit may be any expression, and `\for` iterator follow too the lua syntax.
+Like for `\if`, the `\while` limit may be any expression, and the `\for` iterator follows the Lua syntax.
 
-#### Loops limit
+#### Loop Limit
 
-Plume is configurated to stop loops after 1000 iteration, to avoid infinity loop.
-You can edit this limit like this :
+Plume is configured to stop loops after 1000 iterations to avoid infinite loops. You can edit this limit like this:
+
 ```txe
 \script{
     txe.config.max_loop_size = 1000000
 }
 ```
 
-### Numbers formating
-If expression in `#{...}` return a number, you can format it.
+### Number Formatting
+
+If an expression in `#{...}` returns a number, you can format it.
 
 ```txe
 #{4/3}[i]
@@ -313,8 +342,9 @@ Output:
 2+0.5
 ```
 
-### Defauts values
-You can set defaut args value for any macros.
+### Default Values
+
+You can set default argument values for any macros.
 
 ```txe
 \foo[bar=bar]{#bar}
@@ -328,7 +358,8 @@ bar
 baz
 ```
 
-For set '#' defaut value, use alias "eval".
+To set '#' default value, use the alias "eval".
+
 ```txe
 #{50000}
 \default eval [thousand_separator={ }]
@@ -347,6 +378,7 @@ You can include content from other files, which is useful for modularizing your 
 Example:
 
 Assuming a file named `header.txe` contains:
+
 ```txe
 \def header[title] {
 <header>
@@ -361,25 +393,24 @@ You can include and use it in your main file:
 \include header.txe
 \header{Welcome to My Website}
 ```
-
 Output:
+
 ```html
 <header>
     <h1>Welcome to My Website</h1>
 </header>
 ```
 
-If you want to include a file containing no txe code but potentially many characters to escape, (like a css file) you can use the `\include[extern] {path}` option.
-The file will be read and directly included without being executed.
+If you want to include a file containing no `txe` code but potentially many characters to escape (like a CSS file), you can use the `\include[extern] {path}` option. The file will be read and directly included without being executed.
 
+## Advanced Documentation
 
-## Advanced documentation
+### Macros with Arbitrary Numbers of Arguments
 
-### Macro with arbitrary number of arguments
+You can access the table of all passed arguments in the field `__args`.
 
-You can access the table of all passed argument in the field `__args`.
+Example:
 
-Exemple :
 ```txe
 \def multiargs {
     \for {i, args in ipairs(__args)} {
@@ -388,7 +419,8 @@ Exemple :
 }
 \multiargs[foo bar baz]
 ```
-gives
+Gives:
+
 ```
 Argument 1 : foo
 Argument 2 : bar
@@ -397,21 +429,22 @@ Argument 3 : baz
 
 ### Tokenlist
 
-Behind the scene, Plume doesn't manipulate string but custom tables named **tokenlists**.
-For exemple,
+Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
+
 ```txe
 \def foo[x]{
     #{print(x)}
 }
 \foo{bar}
 ```
-will print... `table: 0x560002d8ad30` or something like that, and not `bar`.
+This will print... `table: 0x560002d8ad30` or something like that, and not `bar`.
 
-To see the tokenlist content, you can call `tokenlist:source()`, that will return raw text, or `tokenlist:render()` to get final content.
+To see the tokenlist content, you can call `tokenlist:source()`, which will return raw text, or `tokenlist:render()` to get final content.
 
-_if x is a tokenlist, `#x` is the same as `#{x:render()}`_
+_If x is a tokenlist, `#x` is the same as `#{x:render()}`._
 
-Exemple:
+Example:
+
 ```txe
 \def foo[x]{
     #{x:source()}
@@ -419,19 +452,50 @@ Exemple:
 }
 \foo{#{1+1}}
 ```
+Gives:
 
-Gives
 ```txe
 #{1+1}
 2
 ```
 
-Plume do an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
+Plume does an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
 
-_if x and y are tokenlists, `#{x+y}` is roughly the same as `#{tonumber(x:render())+tonumber(y:render())}`_
+_If x and y are tokenlists, `#{x+y}` is roughly equivalent to `#{tonumber(x:render())+tonumber(y:render())}`._
 
-### Variables scope
-Variables are global by default
+### `\def`, `\redef`, and `\redef_forced`
+
+You can define a new macro with `\def`. But if the name is already taken, you must use `\redef`. If the name is taken by a predefined macro, use `\redef_forced`.
+
+### `\set` Behavior
+
+When calling `\set x {value}`, Plume will render the value before saving it as a string. So:
+
+```txe
+\def foo {bar}
+\set x \foo
+#x
+\redef foo baz
+#x
+```
+
+Gives `bar bar`, and not `bar baz`.
+
+If the value is an `\eval` block, `\set` will save it as a Lua object.
+
+```txe
+\set x 1+1
+\set y #{1+1}
+
+#{type(x)}, #{type(y)}
+```
+
+Gives `string, number`.
+
+### Variables Scope
+
+Variables are global by default.
+
 ```txe
 \def foo {
     \set x 20
@@ -440,12 +504,14 @@ Variables are global by default
 \foo
 #x
 ```
-Gives
+Gives:
+
 ```
 20
 ```
 
 But it is possible to make them local, with `\set[local]` (or its alias `\setl`).
+
 ```txe
 \def foo {
     \set[local] x 20
@@ -454,30 +520,31 @@ But it is possible to make them local, with `\set[local]` (or its alias `\setl`)
 \foo
 #x
 ```
-Gives
+
+Gives:
+
 ```
 10
 ```
 
-### To many intricate macro call
+### Too Many Intricate Macro Calls
 
-By default, Plume canno't handle more than 100 macro in the callstack, mainly to avoid infinity loop on things such `\def foo {\foo}`
+By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.
 
-You can edit this limit : 
+You can edit this limit:
+
 ```txe
 \script{
     txe.config.max_callstack_size = 1000000
 }
 ```
 
-### Lua scope
+### Lua Scope
 
-Local variables are local to the macro script, and cannot be used outside it.
-For global variables, either a variable with the same name exists, and they share the same scope.
-Or no variable with the same name exists, in which case they are global.
-To declare a variable inside a script macro but local to the current txe scope, use txe.set_local (key, value) (or its alias txe.setl).
+Local variables are local to the macro script and cannot be used outside it. For global variables, if a variable with the same name exists, they share the same scope. Otherwise, they are global. To declare a variable inside a script macro but local to the current `txe` scope, use `txe.set_local (key, value)` (or its alias `txe.setl`).
 
-Exemple: 
+Example:
+
 ```txe
 \def foo {
     \script {
@@ -486,48 +553,28 @@ Exemple:
         c = 2
         txe.set_local("d", 3)
     }
-    -- inside macro --
-    a: #a
-    b: #b
-    c: #c
-    d: #d
-    ------------------
+    a: #a, b: #b, c: #c, d: #d
 }
 \set d 20
 \set c 30
 \foo
--- outside macro --
-    a: #a
-    b: #b
-    c: #c
-    d: #d
-------------------
+a: #a, b: #b, c: #c, d: #d
 ```
-Give
+Gives:
 
 ```txe
--- inside macro --
-a: 
-b: 1
-c: 2
-d: 3
-------------------
--- outside macro --
-    a: 
-    b: 1
-    c: 2
-    d: 30
-------------------
+a: , b: 1, c: 2, d: 3
+a: , b: 1, c: 2, d: 20
 ```
 
-## Predefined macros list
+## Predefined Macros List
 
 _Coming soon..._
 
-## Warnings for LaTeX users
+## Warnings for LaTeX Users
 
-In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, because `newcommand` will be expansed _before_ `foo`.
+In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, because `newcommand` will be expanded _before_ `foo`.
 
-This doesn't work in Plume, because `foo` will be expansed first
+This doesn't work in Plume because `foo` will be expanded first.
 
 ## License
