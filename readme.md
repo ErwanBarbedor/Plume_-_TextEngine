@@ -33,7 +33,7 @@ Write in a file `input.txe`
         #x * #i = #{x*i}
     }
 }
-\table #3
+\table {3}
 ```
 
 Then, in a command console:
@@ -64,7 +64,7 @@ And program the output file(s) directly in txe :
     ...
 }
 \file {output.txt} {
-    \table[3]
+    \table{3}
 }
 ```
 
