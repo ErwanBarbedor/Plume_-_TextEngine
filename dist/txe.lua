@@ -1753,6 +1753,17 @@ end
 -- Manage methods that are visible from user (not much for now)
 local api = {}
 
+--- Define a variable locally
+-- @param key string
+-- @param value string
+function api.set_local (key, value)
+    txe.scope_set_local (key, value)
+end
+
+--- Alias for api.set_local
+-- @see api.set_local
+api.setl = api.set_local
+
 --- Initializes the API methods visible to the user.
 function txe.init_api ()
     local scope = txe.current_scope ()
