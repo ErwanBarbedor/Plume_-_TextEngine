@@ -12,27 +12,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
--- Manage methods that are visible from user
+-- Manage methods that are visible from user (not much for now)
 local api = {}
-
---- Outputs the result to a file or prints it to the console.
--- @param filename string|nil The name of the file to write to, or nil to print to console
--- @param result string The result to output
-function api.output (result)
-    local filename = txe.current_scope ().txe.output_file
-    if filename then
-        local file = io.open(filename, "w")
-        if not file then
-            error("Cannot write the file '" .. filename .. "'.", -1)
-            return
-        end
-        file:write(result)
-        file:close ()
-        print("File '" .. filename .. "' created.")
-    else
-        print(result)
-    end
-end
 
 --- Initializes the API methods visible to the user.
 function txe.init_api ()

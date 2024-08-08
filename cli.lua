@@ -13,28 +13,34 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 local cli_help = [[
+#VERSION#
+Plume is a templating langage with advanced scripting features.
+
 Usage:
     txe INPUT_FILE
+    txe --print INPUT_FILE
     txe --output OUTPUT_FILE INPUT_FILE
     txe --version
     txe --help
 
-Plume - TextEngine is a templating langage with advanced scripting features.
-
 Options:
   -h, --help          Show this help message and exit.
   -v, --version       Show the version of txe and exit.
-  -o, --output FILE   Write the output to FILE instead of displaying it.
+  -o, --output FILE   Write the output to FILE
+  -p, --print         Display the result
 
 Examples:
   txe --help
     Display this message.
 
   txe --version
-    Display the version of Plume - TextEngine.
+    Display the version of Plume.
 
   txe input.txe
-    Process 'input.txt' and display the result.
+    Process 'input.txt'
+
+  txe --print input.txe
+    Process 'input.txt' and display the result
 
   txe --output output.txt input.txe
     Process 'input.txt' and save the result to 'output.txt'.
@@ -48,12 +54,16 @@ function txe.cli_main ()
     -- Save txe directory
     txe.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
+    local print_output
     if arg[1] == "-v" or arg[1] == "--version" then
         print(txe._VERSION)
         return
     elseif arg[1] == "-h" or arg[1] == "--help" then
         print(cli_help)
         return
+    elseif arg[1] == "-p" or arg[1] == "--print" then
+        print_output = true
+        table.remove(arg, 1)
     end
 
     local output, input
@@ -83,17 +93,24 @@ function txe.cli_main ()
 
     sucess, result = pcall(txe.renderFile, input)
 
-    if sucess then
-        sucess, result = xpcall (txe.current_scope().txe.output, txe.error_handler, result)
-        if sucess then
-            print("Sucess.")
-        else
-            print("Error during finalization.")
-            result = txe.make_error_message(nil, result, true)
+    if print_output then
+        print(result)
+    end
+    if output then
+        local file = io.open(output, "w")
+        if not file then
+            error("Cannot write the file '" .. output .. "'.", -1)
+            return
         end
+        file:write(result)
+        file:close ()
+        print("File '" .. filename .. "' written.")
     end
 
-    if not sucess then
+
+    if sucess then
+        print("Sucess.")
+    else
         print("Error:")
         print(result)
     end
