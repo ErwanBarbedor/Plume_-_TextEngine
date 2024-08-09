@@ -610,9 +610,9 @@ List of variables :
 | max_loop_size         | 1000          | Maximum of loop iteration for macros `\while` and `\for`.|
 | ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab) and `\n` (newline) macros. |
 
-## Predefined Macros List
+## List of predefined Macros
 
-_Coming soon..._
+See [here](predefined_macros.md)
 
 ## Warnings for LaTeX Users
 
