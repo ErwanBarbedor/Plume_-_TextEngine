@@ -1394,7 +1394,7 @@ local function def (def_args, redef, redef_forced, calling_token)
             msg = msg .. "Use '\\redef "..name.."' to erase it."
             txe.error(def_args["$name"], msg)
         end
-    elseif redef then
+    elseif redef and not redef_forced then
         local msg = "The macro '" .. name .. "' doesn't exist, so you can't erase it. Use '\\def "..name.."' instead."
         txe.error(def_args["$name"], msg)
     end

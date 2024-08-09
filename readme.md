@@ -192,6 +192,12 @@ The `#` behaves almost like a macro, with one difference: whereas the macro will
 For example, `\foo x+1` is the same as `\foo {x+1}`, but `#x+1` is equivalent to `#{x}+1`.
 If you want to apply `#` to the whole expression, use `#{x+1}`.
 
+You can also define variable with Lua:
+
+```txe
+\script {x = 5}
+```
+
 ### Lua Integration
 
 #### Lua Expressions
@@ -503,6 +509,7 @@ Gives `string, number`.
 
 ### Variables Scope
 
+Each macro execution create a new scope.
 Variables are global by default.
 
 ```txe
@@ -540,7 +547,7 @@ Gives:
 
 By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.
 
-See configuration to edit this number.
+See `\config` macro to edit this number.
 
 ### Lua Scope
 
@@ -584,35 +591,16 @@ Gives
 foo bar
 ```
 
-You can also edit the `ignore_spaces` parameter (see config section) to remove almost all spaces from input file.
+You can also edit the `ignore_spaces` parameter (see `\config` macro) to remove almost all spaces from input file.
 Then, you have to add it yourself with `\n` for new line (or `\n[5]` for five new lines), `\s` for space and `\t` for tabulation.
-
-### Configuration
-
-Plume configurations variables may be edited via
-```txe
-\config {variable_name} {value}
-```
-Or 
-```txe
-\script{
-    txe.config.variable_name = value
-}
-```
-The first will raise an error if variable_name isn't the name of any paramter. The second don't.
-
-
-List of variables :
-
-| Name                  | Default value | Notes |
-| ----------- | ----------- |----------- |
-| max_callstack_size    | 100           | Maximum number of nested macros. Intended to prevent `\def foo {\foo}` kinds of error.|
-| max_loop_size         | 1000          | Maximum of loop iteration for macros `\while` and `\for`.|
-| ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab) and `\n` (newline) macros. |
 
 ## List of predefined Macros
 
 See [here](predefined_macros.md)
+
+## List of exposed methods in the `txe` field
+
+See [here](api.md)
 
 ## Warnings for LaTeX Users
 
