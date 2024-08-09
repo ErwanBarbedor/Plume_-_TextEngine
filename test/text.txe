@@ -44,7 +44,7 @@ Foo! Bar!
 // End
 
 // Test 'No space 3'
-\script{txe.config.ignore_spaces = true}
+\config ignore_spaces true
 Foo!{\n}Bar!
 // Result
 Foo!
@@ -53,7 +53,8 @@ Bar!
 
 // Test 'No space 4'
 \script{txe.config.ignore_spaces = true}
-Foo!{\n[3]}Bar!
+Foo!{\n[3]}
+Bar!
 // Result
 Foo!
 

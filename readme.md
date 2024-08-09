@@ -576,12 +576,18 @@ Then, you have to add it yourself with `\n` for new line (or `\n[5]` for five ne
 
 ### Configuration
 
-Plume configuration variables may be edited via
+Plume configurations variables may be edited via
+```txe
+\config {variable_name} {value}
+```
+Or 
 ```txe
 \script{
     txe.config.variable_name = value
 }
 ```
+The first will raise an error if variable_name isn't the name of any paramter. The second don't.
+
 
 List of variables :
 

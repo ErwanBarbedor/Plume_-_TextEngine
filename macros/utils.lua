@@ -186,7 +186,32 @@ txe.register_macro("default", {"$name"}, {}, function(args)
 
 end)
 
-txe.register_macro("raw", {"$body"}, {}, function(args)
+txe.register_macro("raw", {"body"}, {}, function(args)
     -- Return content without execute it
-    return args['$body']:source ()
+    return args['body']:source ()
+end)
+
+txe.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
+    -- Edit configuration
+    -- Warning : value will be converted
+
+    local name   = args.name:render ()
+    local value  = args.value:render ()
+    local config = txe.running_api.config
+
+    if config[name] == nil then
+        txe.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
+    end
+
+    if tonumber(value) then
+        value = value
+    elseif value == "false" then
+        value = false
+    elseif value == "true" then
+        value = true
+    elseif value == "nil" then
+        value = nil
+    end
+
+    config[name] = value
 end)

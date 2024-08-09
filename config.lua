@@ -22,4 +22,4 @@ txe.config.max_callstack_size = 100
 txe.config.max_loop_size      = 1000
 
 -- Ignore majority of spaces from input
-txe.config.ignore_all_spaces  = false
+txe.config.ignore_spaces  = false
