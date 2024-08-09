@@ -591,11 +591,11 @@ The first will raise an error if variable_name isn't the name of any paramter. T
 
 List of variables :
 
-| Name                  | Default value | Notes|
+| Name                  | Default value | Notes |
+| ----------- | ----------- |----------- |
 | max_callstack_size    | 100           | Maximum number of nested macros. Intended to prevent `\def foo {\foo}` kinds of error.|
 | max_loop_size         | 1000          | Maximum of loop iteration for macros `\while` and `\for`.|
-| ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one.
-To add spaces in the final file in this case, use the \s (space), \t (tab) and \n (newline) macros. |
+| ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one. To add spaces in the final file in this case, use the \s (space), \t (tab) and \n (newline) macros. |
 
 ## Predefined Macros List
 
