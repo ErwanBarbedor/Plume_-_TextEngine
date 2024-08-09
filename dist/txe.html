@@ -1525,6 +1525,11 @@ txe.register_macro("default", {"$name"}, {}, function(args)
         txe.macros[name].user_opt_args[k] = v
     end
 
+end)
+
+txe.register_macro("raw", {"$body"}, {}, function(args)
+    -- Return content without execute it
+    return args['$body']:source ()
 end) 
 
 -- ## macros/files.lua ##

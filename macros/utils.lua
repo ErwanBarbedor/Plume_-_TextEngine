@@ -185,3 +185,8 @@ txe.register_macro("default", {"$name"}, {}, function(args)
     end
 
 end)
+
+txe.register_macro("raw", {"$body"}, {}, function(args)
+    -- Return content without execute it
+    return args['$body']:source ()
+end)
