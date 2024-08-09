@@ -4,9 +4,11 @@
 #### `\for`
 
 **Description :** Implements a custom iteration mechanism that mimics Lua's for loop behavior.
+
 **Parameters:**
 - _iterator_ : A lua iterator syntax, like `i=1, 10` or `foo in pairs(t)`
 - _body_ : Any Plume block that will be repeated.
+
 **Exemple:**
 
 ```txe
@@ -17,9 +19,11 @@
 
 #### `\while`
 **Description :** Implements a custom iteration mechanism that mimics Lua's while loop behavior.
+
 **Parameters:**
 - _condition_ : Any lua expression
 - _body_ : Any Plume block that will be repeated.
+
 **Exemple:**
 
 ```txe
@@ -31,9 +35,12 @@
 
 #### `\if`
 **Description :** Implements a custom condition mechanism that mimics Lua's if behavior.
+
 **Parameters:**
+
 - _condition_ : Any lua expression.
 - _body_ : Any Plume block that will be repeated.
+
 **Exemple:**
 
 ```txe
@@ -45,9 +52,12 @@
 
 #### `\else`
 **Description :** Implements a custom condition mechanism that mimics Lua's else behavior.
+
 **Parameters:**
 - _body_ : Any Plume block that will be repeated.
+
 **Notes:** Must follow an `\if` or an `\elseif` macro, else it will raise an error.
+
 **Exemple:**
 
 ```txe
