@@ -12,6 +12,8 @@ Plume is highly extensible with the Lua scripting language.
 
 ## Quick Start
 
+You can test plume in [your browser](https://app.barbedor.bzh/txe.html). 
+
 Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the ```dist/txe.lua``` file.
 
 Write the following in a file `input.txe`:

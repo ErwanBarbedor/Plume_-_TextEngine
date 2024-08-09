@@ -1,0 +1,70 @@
+<head>
+    <style>
+        {{CSS}}
+    </style>
+    <title>Plume - TextEngine</title>
+</head>
+
+<body>
+    <div>
+        <h2>Enter your code here</h2>
+        <textarea id="input">\def double[x] {#x #x} \double 5</textarea>
+    </div>
+    <div >
+        <h2>Output</h2>
+        <pre id="output"></pre>
+    </div>
+    <h1>{{VERSION}}</h1>
+    <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
+        View on GitHub
+    </a>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+
+<script type="application/lua">
+    {{PLUME}}
+</script>
+
+<script type="application/lua">
+js = require("js")
+global = js.global
+local document = global.document
+
+local function updateOutput()
+    txe.init()
+
+    local inputElement = document:getElementById("input")
+    local outputElement = document:getElementById("output")
+
+    local sucess, result = pcall(txe.render, inputElement.value)
+
+    outputElement.innerHTML = result
+end
+
+local inputElement = document:getElementById("input")
+
+inputElement:addEventListener("input", updateOutput)
+
+local function handle_tab(self, event)
+    if event.key == "Tab" then
+        event:preventDefault()
+
+        local input = document:getElementById("input")
+        local start = input.selectionStart
+        local finish = input.selectionEnd
+        
+        -- Add the tab character
+        input.value = input.value:sub(1, start) .. "\t" .. input.value:sub(finish + 1)
+
+        -- Move the cursor to the correct position after the tab
+        input.selectionStart = start + 1
+        input.selectionEnd = start + 1
+    end
+end
+
+document:getElementById("input"):addEventListener("keydown", handle_tab)
+
+updateOutput()
+
+</script>

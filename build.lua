@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Quite dirty, but do the job
 
 local version = "Plume - TextEngine 0.1.0 (dev)"
+local github  = 'https://github.com/ErwanBarbedor/Plume_-_TextEngine'
 local code = io.open("txe.lua"):read "*a"
 
 
@@ -29,8 +30,29 @@ end
 
 code = code:gsub('\n%-%- <DEV>.-%-%- </DEV>\n', '')
 code = code:gsub('#VERSION#', version)
-code = code:gsub('#GITHUB#', 'https://github.com/ErwanBarbedor/Plume_-_TextEngine')
+code = code:gsub('#GITHUB#', github)
 
-io.open('dist/txe.lua', 'w'):write(code)
-
+local file = io.open('dist/txe.lua', 'w')
+    file:write(code)
+file:close ()
 print("Building " .. version .. " done." )
+
+-- Make the standalone html too
+file = io.open("web/txe.html")
+    local html = file:read "*a"
+file:close ()
+
+file = io.open("web/style.css")
+    local css = file:read "*a"
+file:close ()
+
+code = code:gsub('local txe = {}', 'txe = {}')
+html = html:gsub('{{PLUME}}', code:gsub('%%', '%%%%'))
+html = html:gsub('{{CSS}}',   css:gsub('%%', '%%%%'))
+html = html:gsub('{{GITHUB}}',  github)
+html = html:gsub('{{VERSION}}',  version)
+
+file = io.open("dist/txe.html", "w")
+    file:write(html)
+file:close ()
+print("Building website done." )
