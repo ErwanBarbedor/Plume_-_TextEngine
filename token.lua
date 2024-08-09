@@ -112,6 +112,8 @@ function txe.tokenlist (x)
                     if not token.context then
                         token.context = scope
                     end
+                else
+                    token.context = scope
                 end
             end
         end,

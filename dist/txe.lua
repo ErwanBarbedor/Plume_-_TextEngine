@@ -433,6 +433,8 @@ function txe.tokenlist (x)
                     if not token.context then
                         token.context = scope
                     end
+                else
+                    token.context = scope
                 end
             end
         end,
@@ -1037,7 +1039,7 @@ end
 --    \for{i = 1, 10}{ Iteration #i }
 --    \for{k, v in pairs(table)}{ #k : #v }
 
-txe.register_macro("for", {"iterator", "body"}, {}, function(args)
+txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     
@@ -1117,7 +1119,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args)
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            txe.scope_set_local (variables_list[i], values_list[i])
+            txe.scope_set_local (variables_list[i], values_list[i], calling_token.context)
         end
 
         -- Render the body of the loop and add it to the result
@@ -1321,7 +1323,7 @@ local function set(args, calling_token, is_local)
     if is_local then
         txe.scope_set_local (key, value)
     else
-        txe.current_scope()[key] = value 
+        (calling_token.context or txe.current_scope())[key] = value 
     end
 end
 
@@ -1894,10 +1896,14 @@ end
 -- <DEV>
 txe.show_token = false
 local function print_tokens(t, indent)
+    local function print_token_info (token)
+        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
+    end
+
     indent = indent or ""
     for _, token in ipairs(t) do
         if token.kind == "block" or token.kind == "opt_block" then
-            print(indent..token.kind)
+            print_token_info(token)
             print_tokens(token, "\t"..indent)
         
         elseif token.kind == "block_text" then
@@ -1905,12 +1911,12 @@ local function print_tokens(t, indent)
             for _, txt in ipairs(token) do
                 value = value .. txt.value
             end
-            print(indent..token.kind.."\t"..value:gsub('\n', '\\n'):gsub(' ', '_'))
+            print_token_info(token)
         elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
-            print(indent..token.kind)
+            print_token_info (token)
             print_tokens(token, "\t"..indent)
         else
-            print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_'))
+            print_token_info(token)
         end
     end
 end

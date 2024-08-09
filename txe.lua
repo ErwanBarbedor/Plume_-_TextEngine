@@ -36,10 +36,14 @@ require "init"
 -- <DEV>
 txe.show_token = false
 local function print_tokens(t, indent)
+    local function print_token_info (token)
+        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
+    end
+
     indent = indent or ""
     for _, token in ipairs(t) do
         if token.kind == "block" or token.kind == "opt_block" then
-            print(indent..token.kind)
+            print_token_info(token)
             print_tokens(token, "\t"..indent)
         
         elseif token.kind == "block_text" then
@@ -47,12 +51,12 @@ local function print_tokens(t, indent)
             for _, txt in ipairs(token) do
                 value = value .. txt.value
             end
-            print(indent..token.kind.."\t"..value:gsub('\n', '\\n'):gsub(' ', '_'))
+            print_token_info(token)
         elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
-            print(indent..token.kind)
+            print_token_info (token)
             print_tokens(token, "\t"..indent)
         else
-            print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_'))
+            print_token_info(token)
         end
     end
 end

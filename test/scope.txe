@@ -14,6 +14,41 @@
  
 // End
 
+// Test 'Variable block scope 3'
+\def foo[x] {#x}//
+\def bar[x] {#x}//
+\foo {//
+    \set x 3//
+    \bar{#x}//
+}//
+// Result
+3
+// End
+
+// Test 'Variable block scope 4'
+\def foo[x] {#x}//
+\def bar[x] {//
+    \foo \foo #x//
+}//
+\bar a
+// Result
+a
+// End
+
+// Test '__scope 1'
+\set x 10//
+#{__scope.x}
+// Result
+10
+// End
+
+// Test 'Variable block scope 5'
+\def foo[x] {#x}//
+\foo {\for {i=1,4} {#i}}
+// Result
+1234
+// End
+
 // Test '__scope 1'
 \set x 10//
 #{__scope.x}
