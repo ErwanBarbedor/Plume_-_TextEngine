@@ -318,13 +318,7 @@ Like for `\if`, the `\while` limit may be any expression, and the `\for` iterato
 
 #### Loop Limit
 
-Plume is configured to stop loops after 1000 iterations to avoid infinite loops. You can edit this limit like this:
-
-```txe
-\script{
-    txe.config.max_loop_size = 1000000
-}
-```
+Plume is configured to stop loops after 1000 iterations, to prevent infinite loops. See configuration to edit this number. Lua loops are not affected
 
 ### Number Formatting
 
@@ -533,13 +527,7 @@ Gives:
 
 By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.
 
-You can edit this limit:
-
-```txe
-\script{
-    txe.config.max_callstack_size = 1000000
-}
-```
+See configuration to edit this number.
 
 ### Lua Scope
 
@@ -564,10 +552,39 @@ a: #a, b: #b, c: #c, d: #d
 ```
 Gives:
 
-```txe
+```
 a: , b: 1, c: 2, d: 3
 a: , b: 1, c: 2, d: 20
 ```
+
+### Spacing
+By default, Plume retains all spaces. If you want to remove them, use comments.
+A comment deletes the line feed _and_ the indentation of the following line.
+
+For exemple, 
+```txe
+foo //
+    bar
+```
+Gives
+```txe
+foo bar
+```
+
+### Configuration
+
+Plume configuration variables may be edited via
+```txe
+\script{
+    txe.config.variable_name = value
+}
+```
+
+List of variables :
+
+| Name                  | Default value | note|
+| max_callstack_size    | 100           | Maximum number of nested macros. Intended to prevent `\def foo {\foo}` kinds of error.|
+| max_loop_size         | 1000          | Maximum of loop iteration for macros `\while` and `\for`.|
 
 ## Predefined Macros List
 

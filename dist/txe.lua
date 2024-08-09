@@ -26,10 +26,10 @@ txe._VERSION = "Plume - TextEngine 0.1.0 (dev)"
 -- Configuration settings
 txe.config = {}
 
--- Maximum number of nested macro
+-- Maximum number of nested macros
 txe.config.max_callstack_size = 100
 
--- Maximum of loop iteration for macro "\while"
+-- Maximum of loop iteration for macro "\while" and "\for"
 txe.config.max_loop_size      = 1000
 
 -- ## syntax.lua ##
@@ -599,14 +599,24 @@ function txe.tokenize (code, file)
                 write("comment")
                 table.insert(acc, c)
                 table.insert(acc, c)
+                local find_newline
                 repeat
                     pos = pos + 1
                     next = code:sub(pos, pos)
+                    if find_newline and not next:match "[ \t]" then
+                        pos = pos - 1
+                        break
+                    end
+
                     table.insert(acc, next)
-                until pos >= #code or next == "\n"
-                if next == "\n" then
+                    if next == "\n" then
+                        find_newline = pos+1
+                    end
+                until pos >= #code
+
+                if find_newline then
                     noline = noline + 1
-                    linepos = pos+1
+                    linepos = find_newline
                 end
             else
                 pos = pos - 1

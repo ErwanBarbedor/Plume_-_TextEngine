@@ -50,14 +50,14 @@ This is x:0
 
 // Test 'variable args number'
 \def multiargs {//
-    \for {i, args in ipairs(__args)} {//
-        Argument #i : #args
+    \for {i, args in ipairs(__args)} {
+        Argument #i : #args//
     }//
 }//
 \multiargs[foo bar baz]
 // Result
-            Argument 1 : foo
-            Argument 2 : bar
-            Argument 3 : baz
-    
+
+        Argument 1 : foo
+        Argument 2 : bar
+        Argument 3 : baz
 // End

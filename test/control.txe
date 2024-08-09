@@ -52,9 +52,9 @@ Traceback :
     Ligne #i
 }
 // Result
-    Ligne 1
-    Ligne 2
-    Ligne 3
+Ligne 1
+Ligne 2
+Ligne 3
 
 // End
 
@@ -64,9 +64,9 @@ Traceback :
     Ligne #i
 }
 // Result
-    Ligne 1
-    Ligne 3
-    Ligne 5
+Ligne 1
+Ligne 3
+Ligne 5
 
 // End
 
@@ -76,9 +76,9 @@ Traceback :
     #k:#v
 }
 // Result
-    1:1
-    2:4
-    3:9
+1:1
+2:4
+3:9
 
 // End
 
