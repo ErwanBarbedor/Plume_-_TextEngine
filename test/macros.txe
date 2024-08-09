@@ -1,34 +1,34 @@
-// Test 'simple commande 1'
+// Test 'simple macro 1'
 \def foo bar\foo
 // Result
 bar
 // End
 
-// Test 'simple commande 2'
+// Test 'simple macro 2'
 \def foo {bar bar}\foo
 // Result
 bar bar
 // End
 
-// Test 'commande with simple arg'
+// Test 'macro with simple arg'
 \def double[x] {#x #x}\double{foo}
 // Result
 foo foo
 // End
 
-// Test 'commande with simple args 1'
+// Test 'macro with simple args 1'
 \def add[x y] {#x+#y}\add{1}{2}
 // Result
 1+2
 // End
 
-// Test 'commande with simple args 2'
+// Test 'macro with simple args 2'
 \def add[x y] #{x+y}\add{1}{2}
 // Result
 3
 // End
 
-// Test 'command args are local'
+// Test 'macro args are local'
 \def foo[x]{This is x:#x}//
 \set x 0//
 This is x:#x
@@ -40,7 +40,7 @@ This is x:5
 This is x:0
 // End
 
-// Test 'commande with useless space'
+// Test 'macro with useless spaces'
 \def foo[
 
 ]{bar}

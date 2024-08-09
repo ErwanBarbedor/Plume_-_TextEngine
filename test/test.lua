@@ -7,7 +7,7 @@ else
     print_error_detail = true
 end
 local txe = require "txe"
-local files = {"text", "eval", "commands_error", "commands", "syntax_error", "control", "extern", "script", "alias", "commands_optargs", "scope"}
+local files = {"text", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optargs", "scope"}
 
 local function readFile(filename)
     local file = io.open("test/"..filename..".txe", "r")
