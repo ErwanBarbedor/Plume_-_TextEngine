@@ -12,14 +12,28 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
--- Configuration settings
-txe.config = {}
+-- Define spaces-related macros
 
--- Maximum number of nested macros
-txe.config.max_callstack_size = 100
+txe.register_macro("n", {}, {}, function(args)
+    local count = 1
+    if args.__args[1] then
+        count = args.__args[1]:render()
+    end
+    return ("\n"):rep(count)
+end)
 
--- Maximum of loop iteration for macro "\while" and "\for"
-txe.config.max_loop_size      = 1000
+txe.register_macro("s", {}, {}, function(args)
+    local count = 1
+    if args.__args[1] then
+        count = args.__args[1]:render()
+    end
+    return (" "):rep(count)
+end)
 
--- Ignore majority of spaces from input
-txe.config.ignore_all_spaces  = false
+txe.register_macro("t", {}, {}, function(args)
+    local count = 1
+    if args.__args[1] then
+        count = args.__args[1]:render()
+    end
+    return ("\t"):rep(count)
+end)

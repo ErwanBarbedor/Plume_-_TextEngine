@@ -571,6 +571,9 @@ Gives
 foo bar
 ```
 
+You can also edit the `ignore_spaces` parameter (see config section) to remove almost all spaces from input file.
+Then, you have to add it yourself with `\n` for new line (or `\n[5]` for five new lines), `\s` for space and `\t` for tabulation.
+
 ### Configuration
 
 Plume configuration variables may be edited via
@@ -582,9 +585,11 @@ Plume configuration variables may be edited via
 
 List of variables :
 
-| Name                  | Default value | note|
+| Name                  | Default value | Notes|
 | max_callstack_size    | 100           | Maximum number of nested macros. Intended to prevent `\def foo {\foo}` kinds of error.|
 | max_loop_size         | 1000          | Maximum of loop iteration for macros `\while` and `\for`.|
+| ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one.
+To add spaces in the final file in this case, use the \s (space), \t (tab) and \n (newline) macros. |
 
 ## Predefined Macros List
 
@@ -597,3 +602,5 @@ In LaTeX, you can define a macro like this: `\newcommand {\foo} {bar}`, because 
 This doesn't work in Plume because `foo` will be expanded first.
 
 ## License
+
+This project is licensed under the GNU General Public License (GNU-GPL). This means that you are free to use, modify and redistribute the source code. However, if you distribute a modified version, you must also do so under the same license. 

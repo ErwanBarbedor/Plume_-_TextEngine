@@ -110,6 +110,9 @@ function txe.renderToken (self)
     -- Used to achieve \if \else behavior
     local chain_sender, chain_message
 
+    -- Used to skip space at line beginning
+    local last_is_newline = false
+
     while pos <= #self do
         local token = self[pos]
 
@@ -117,6 +120,10 @@ function txe.renderToken (self)
         if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" then
             chain_sender  = nil
             chain_message = nil
+        end
+
+        if token.kind ~= "space" then
+            last_is_newline = false
         end
 
         if token.kind == "block_text" then
@@ -134,12 +141,28 @@ function txe.renderToken (self)
         elseif token.kind == "escaped_text" then
             table.insert(result, token.value)
         
-        elseif token.kind == "newline"  then
-            table.insert(result, token.value)
+        elseif token.kind == "newline" then
+            if not txe.running_api.config.ignore_spaces then
+                if token.__type == "token" then
+                    table.insert(result, token.value)
+                else
+                    table.insert(result, token:render())
+                end
+            else
+                last_is_newline = true
+            end
         
         elseif token.kind == "space" then
-            table.insert(result, token.value)
-        
+            if txe.running_api.config.ignore_spaces then
+                if last_is_newline then
+                    last_is_newline = false
+                else
+                    table.insert(result, " ")
+                end
+            else
+                table.insert(result, token.value)
+            end
+
         elseif token.kind == "macro" then
             -- Capture required number of block after the macro.
             

@@ -45,6 +45,7 @@ require "macros/controls"
 require "macros/utils" 
 require "macros/files" 
 require "macros/script" 
+require "macros/spaces" 
 
 -- Save predifined macro to permit reset of txe
 txe.std_macros = {}

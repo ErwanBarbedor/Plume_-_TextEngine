@@ -32,6 +32,9 @@ txe.config.max_callstack_size = 100
 -- Maximum of loop iteration for macro "\while" and "\for"
 txe.config.max_loop_size      = 1000
 
+-- Ignore majority of spaces from input
+txe.config.ignore_all_spaces  = false
+
 -- ## syntax.lua ##
 txe.syntax = {
     -- identifier must be a lua valid identifier
@@ -155,6 +158,9 @@ function txe.renderToken (self)
     -- Used to achieve \if \else behavior
     local chain_sender, chain_message
 
+    -- Used to skip space at line beginning
+    local last_is_newline = false
+
     while pos <= #self do
         local token = self[pos]
 
@@ -162,6 +168,10 @@ function txe.renderToken (self)
         if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" then
             chain_sender  = nil
             chain_message = nil
+        end
+
+        if token.kind ~= "space" then
+            last_is_newline = false
         end
 
         if token.kind == "block_text" then
@@ -179,12 +189,28 @@ function txe.renderToken (self)
         elseif token.kind == "escaped_text" then
             table.insert(result, token.value)
         
-        elseif token.kind == "newline"  then
-            table.insert(result, token.value)
+        elseif token.kind == "newline" then
+            if not txe.running_api.config.ignore_spaces then
+                if token.__type == "token" then
+                    table.insert(result, token.value)
+                else
+                    table.insert(result, token:render())
+                end
+            else
+                last_is_newline = true
+            end
         
         elseif token.kind == "space" then
-            table.insert(result, token.value)
-        
+            if txe.running_api.config.ignore_spaces then
+                if last_is_newline then
+                    last_is_newline = false
+                else
+                    table.insert(result, " ")
+                end
+            else
+                table.insert(result, token.value)
+            end
+
         elseif token.kind == "macro" then
             -- Capture required number of block after the macro.
             
@@ -1616,6 +1642,33 @@ txe.register_macro("eval", {"expr"}, {}, function(args)
     end
     
     return result
+end) 
+
+-- ## macros/spaces.lua ##
+-- Define spaces-related macros
+
+txe.register_macro("n", {}, {}, function(args)
+    local count = 1
+    if args.__args[1] then
+        count = args.__args[1]:render()
+    end
+    return ("\n"):rep(count)
+end)
+
+txe.register_macro("s", {}, {}, function(args)
+    local count = 1
+    if args.__args[1] then
+        count = args.__args[1]:render()
+    end
+    return (" "):rep(count)
+end)
+
+txe.register_macro("t", {}, {}, function(args)
+    local count = 1
+    if args.__args[1] then
+        count = args.__args[1]:render()
+    end
+    return ("\t"):rep(count)
 end) 
 
 -- Save predifined macro to permit reset of txe
