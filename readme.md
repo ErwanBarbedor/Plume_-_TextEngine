@@ -4,11 +4,23 @@
 
 ## Introduction
 
-Plume - TextEngine is a Lua-based templating engine designed for text generation and manipulation. It provides a flexible and efficient way to create dynamic content using a combination of static text and embedded Lua code.
+Programming languages like Python and Lua enable the implementation of complex logic with relative ease. However, working with text input can often be tedious due to cumbersome syntax.
 
-The primary goal of Plume is to offer a powerful yet easy-to-use solution for generating text output in various contexts, such as document creation, code generation, or any scenario requiring dynamic text processing.
+While there are formats that facilitate enriched text writing, such as Markdown or Jinja, they tend to have limited logical capabilities.
 
-Plume is highly extensible with the Lua scripting language.
+Plume's philosophy is to combine the best of both worlds: text input is at the core of its design, yet the integration of logic is seamless, thanks to its close relationship with the Lua scripting language.
+
+To illustrate, consider the task of generating ten files, each containing a multiplication table for a specific number. This can certainly be achieved in Python or Lua, but of Plume offers a more intuitive approach:
+
+```txe
+\for {i=1,10} {
+    \file {table-#i.txt} {
+        \for {i=j,10}{
+            #i * #j = #{i*j}
+        }
+    }
+}
+```
 
 ## Quick Start
 
@@ -83,6 +95,7 @@ Options:
 The syntax is quite similar to that of LaTeX, but Plume behaves very differently.
 
 Note: In the examples shown, superfluous spaces have been removed for clarity.
+
 
 ### Simple Text
 
@@ -595,7 +608,7 @@ List of variables :
 | ----------- | ----------- |----------- |
 | max_callstack_size    | 100           | Maximum number of nested macros. Intended to prevent `\def foo {\foo}` kinds of error.|
 | max_loop_size         | 1000          | Maximum of loop iteration for macros `\while` and `\for`.|
-| ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one. To add spaces in the final file in this case, use the \s (space), \t (tab) and \n (newline) macros. |
+| ignore_spaces         | false         | New lines and spaces in line beginning in the processed file will be ignored. Consecutive other spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab) and `\n` (newline) macros. |
 
 ## Predefined Macros List
 
