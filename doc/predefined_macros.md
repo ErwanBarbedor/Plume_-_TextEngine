@@ -23,7 +23,7 @@
 
 **Parameters:**
 - _condition_: Any Lua expression.
-- _body_: Any Plume block that will be repeated.
+- _body_: Any Plume block.
 
 **Example:**
 
@@ -39,7 +39,7 @@
 
 **Parameters:**
 - _condition_: Any Lua expression.
-- _body_: Any Plume block that will be repeated.
+- _body_: Any Plume block.
 
 **Example:**
 
@@ -54,7 +54,7 @@
 **Description:** Implements a custom condition mechanism that mimics Lua's else behavior.
 
 **Parameters:**
-- _body_: Any Plume block that will be repeated.
+- _body_: Any Plume block.
 
 **Notes:** Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
 
