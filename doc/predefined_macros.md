@@ -1,6 +1,8 @@
-### Controls
+# Predefined macros
 
-#### `\for`
+## Controls
+
+### `\for`
 
 **Description:** Implements a custom iteration mechanism that mimics Lua's for loop behavior.
 
@@ -16,7 +18,7 @@
 }
 ```
 
-#### `\while`
+### `\while`
 **Description:** Implements a custom iteration mechanism that mimics Lua's while loop behavior.
 
 **Parameters:**
@@ -32,7 +34,7 @@
 }
 ```
 
-#### `\if`
+### `\if`
 **Description:** Implements a custom condition mechanism that mimics Lua's if behavior.
 
 **Parameters:**
@@ -48,7 +50,7 @@
 }
 ```
 
-#### `\else`
+### `\else`
 **Description:** Implements a custom condition mechanism that mimics Lua's else behavior.
 
 **Parameters:**
@@ -68,13 +70,13 @@
 }
 ```
 
-#### `\elseif`
+### `\elseif`
 
 **Description:** Behaves exactly like `\if`, but must follow an `\if` or an `\elseif` macro.
 
-### Files
+## Files
 
-#### Note on Path Searching
+### Note on Path Searching
 
 When using `\require` or `\include`, Plume will search for file in theses folder :
 
@@ -91,7 +93,7 @@ If using `\require`, Plume will automatically search for file:
 Same `\include` with ".txe" instead of ".lua".
 
 
-#### `\require`
+### `\require`
 
 **Description:** Executes a Lua file in the current scope.
 
@@ -102,7 +104,7 @@ Same `\include` with ".txe" instead of ".lua".
 
 **Notes:** Unlike the Lua `require` function, `\require` does not perform any caching.
 
-#### `\include`
+### `\include`
 
 **Description:** Includes an external file.
 
@@ -121,7 +123,7 @@ Same `\include` with ".txe" instead of ".lua".
 \include[extern] {style.css} // no need to escape all CSS brackets
 ```
 
-#### `\file`
+### `\file`
 
 **Description:** Saves the content to a file.
 
@@ -139,9 +141,9 @@ Same `\include` with ".txe" instead of ".lua".
 
 This will create a file named `output.txt` and write `foo` inside.
 
-### Script
+## Script
 
-#### `\script`
+### `\script`
 
 **Description:** Executes a Lua chunk in the current context. Any returned value will be added to the output. Returning a value is optional.
 
@@ -165,7 +167,7 @@ This will create a file named `output.txt` and write `foo` inside.
 
 Output: `1`.
 
-#### `\eval`
+### `\eval`
 
 **Description:** Evaluates and returns the given Lua expression.
 
@@ -180,23 +182,23 @@ Output: `1`.
 \set x #{35 + 1 * 2}
 ```
 
-### Spaces
+## Spaces
 
-#### `\n`
+### `\n`
 
 **Description:** Returns a newline character.
 
-#### `\s`
+### `\s`
 
 **Description:** Returns a space character.
 
-#### `\t`
+### `\t`
 
 **Description:** Returns a tabulation character.
 
-### Utils
+## Utils
 
-#### `\def`, `\redef`, `\redef_forced`
+### `\def`, `\redef`, `\redef_forced`
 
 **Description:** Defines a new macro.
 
@@ -230,7 +232,7 @@ a b baz
 bar
 ```
 
-#### `\set`
+### `\set`
 
 **Description:** Sets a variable to a value.
 
@@ -247,11 +249,11 @@ bar
 **Notes:**
 - The value will be saved as a number (if possible), otherwise as a string unless the value is an `\eval` block. In that case, it will be saved as a Lua object.
 
-#### `\setl`
+### `\setl`
 
 **Description:** An alias for `\set[local]`.
 
-#### `\alias`
+### `\alias`
 
 **Description:** Copies a macro to a new name.
 
@@ -261,7 +263,7 @@ bar
 **Notes:**
 - The macro is passed by reference, so editing it changes the alias as well. However, deleting one doesn't delete the other.
 
-#### `\raw`
+### `\raw`
 **Description:** Returns content as raw text.
 
 **Parameters:**
@@ -281,7 +283,7 @@ Output:
 \def foo bar
 ```
 
-#### `\config`
+### `\config`
 **Description:** Edits configuration settings.
 
 **Parameters:**
@@ -300,7 +302,7 @@ Output:
 | max_loop_size         | 1000          | Maximum number of loop iterations for `\while` and `\for` macros.|
 | ignore_spaces         | false         | New lines and leading spaces in the processed file will be ignored. Consecutive spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab), and `\n` (newline) macros. |
 
-#### `\default`
+### `\default`
 **Description:** Edits the default value of optional macro arguments.
 
 **Parameters:**

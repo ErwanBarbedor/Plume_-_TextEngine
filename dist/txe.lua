@@ -1873,6 +1873,20 @@ end
 -- @see api.set_local
 api.setl = api.set_local
 
+--- Require a lua file
+-- @param path string
+-- @return table|bool|nil
+function api.require (path)
+    local file, filepath, error_message = txe.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
+    if file then
+        file:close ()
+        filepath = filepath:gsub('%.lua$', '')
+        return require(filepath)
+    else
+        error(error_message, 2)
+    end
+end
+
 --- Initializes the API methods visible to the user.
 function txe.init_api ()
     local scope = txe.current_scope ()
@@ -1912,23 +1926,6 @@ end
 txe.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
     txe.lua_std_functions[name] = _G[name]
-end
-
--- Edit require function
-local lua_require = txe.lua_std_functions.require
-
---- Require a lua file
--- Warning: doesn't behave exactly like the require macro,
--- as this function has no access to current_token.file
-function txe.lua_std_functions.require (path)
-    local file, filepath, error_message = txe.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
-    if file then
-        file:close ()
-        filepath = filepath:gsub('%.lua$', '')
-        return lua_require(filepath)
-    else
-        error(error_message, 2)
-    end
 end
 
 --- Resets or initializes all session-specific tables.

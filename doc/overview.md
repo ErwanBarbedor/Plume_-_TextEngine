@@ -163,11 +163,11 @@ You can execute an external Lua file with `\require {path}`.
 #{some_function ()}
 ```
 
-Or with `\script`.
+Or with `txe.require` inside `\script`:
 
 ```txe
 \script {
-    require "my_lib"
+    txe.require "my_lib"
 }
 ```
 
