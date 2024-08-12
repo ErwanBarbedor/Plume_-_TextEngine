@@ -358,6 +358,28 @@ function txe.renderToken (self)
     return table.concat(result)
 end
 
+--- If the tokenlist starts with `#`, ``eval` or ``script`
+-- evaluate this macro and return the result as a lua object,
+-- without conversion to string.
+-- Otherwise, render the tokenlist.
+-- @param self tokenlist The token list to render
+-- @return lua_objet Result of evaluation
+function txe.renderTokenLua (self)
+    local is_macro
+    if #self > 0 and self[1].kind == "macro" then
+        is_macro = is_macro or self[1].value == "#"
+        is_macro = is_macro or self[1].value == "eval"
+        is_macro = is_macro or self[1].value == "script"
+    end
+
+    if is_macro then
+        return txe.eval_lua_expression(self[2])
+    else
+        local result = self:render ()
+        return tonumber(result) or result
+    end
+end
+
 -- ## token.lua ##
 --- Creates a new token.
 -- Token represents a small chunk of code:
@@ -487,7 +509,8 @@ function txe.tokenlist (x)
 
             return table.concat(result, "")
         end,
-        render = txe.renderToken
+        render    = txe.renderToken,
+        renderLua = txe.renderTokenLua
     }, {
         -- Some metamethods, for convenience :
         -- Arguments of macros are passed as tokenlist without rendering it.
@@ -1334,15 +1357,7 @@ local function set(args, calling_token, is_local)
         txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
     end
 
-    local value
-    --If value is a lua chunk, call it there to avoid conversion to string
-    if #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "#" then
-        value = txe.eval_lua_expression(args.value[2])
-    elseif #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "script" then
-        value = txe.eval_lua_expression(args.value[2])
-    else
-        value = args.value:render ()
-    end
+    local value = args.value:renderLua ()
 
     value = tonumber(value) or value
 

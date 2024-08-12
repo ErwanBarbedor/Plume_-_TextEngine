@@ -125,15 +125,7 @@ local function set(args, calling_token, is_local)
         txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
     end
 
-    local value
-    --If value is a lua chunk, call it there to avoid conversion to string
-    if #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "#" then
-        value = txe.eval_lua_expression(args.value[2])
-    elseif #args.value > 0 and args.value[1].kind == "macro" and args.value[1].value == "script" then
-        value = txe.eval_lua_expression(args.value[2])
-    else
-        value = args.value:render ()
-    end
+    local value = args.value:renderLua ()
 
     value = tonumber(value) or value
 
