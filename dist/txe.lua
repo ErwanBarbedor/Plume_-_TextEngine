@@ -2205,7 +2205,68 @@ Examples:
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
 
---- Main function for the command-line interface,
+--- Determine the current directory
+local function getCurrentDirectory ()
+    -- Determine the appropriate directory separator based on the OS
+    local sep = package.config:sub(1, 1)
+    local command = sep == '\\' and "cd" or "pwd"
+
+    -- Execute the proper command to get the current directory
+    local handle = io.popen(command)
+    local currentDir = handle:read("*a")
+    handle:close()
+    
+    -- Remove any newline characters at the end of the path
+    return currentDir:gsub("\n", "")
+end
+
+--- Convert a path to an absolute path
+-- @param dir string Current directory
+-- @param path string Path to be converted to absolute. Can be relative or already absolute.
+-- @return string Absolute path
+local function absolutePath(dir, path)
+    if not path then
+        return
+    end
+
+    -- Normalize path separators to work with both Windows and Linux
+    local function normalizePath(p)
+        return p:gsub("\\", "/")
+    end
+    
+    dir = normalizePath(dir)
+    path = normalizePath(path)
+    
+    -- Check if the path is already absolute
+    if path:sub(1, 1) == "/" or path:sub(2, 2) == ":" then
+        return path
+    end
+    
+    -- Function to split a string based on a separator
+    local function split(str, sep)
+        local result = {}
+        for part in str:gmatch("[^" .. sep .. "]+") do
+            table.insert(result, part)
+        end
+        return result
+    end
+
+    -- Start with the current directory
+    local parts = split(dir, "/")
+    
+    -- Append each part of the path, resolving "." and ".."
+    for part in path:gmatch('[^/]+') do
+        if part == ".." then
+            table.remove(parts) -- Move up one level
+        elseif part ~= "." then
+            table.insert(parts, part) -- Add the part to the path
+        end
+    end
+
+    return table.concat(parts, "/")
+end
+
+-- Main function for the command-line interface,
 -- a minimal cli parser
 function txe.cli_main ()
     -- Save txe directory
@@ -2233,27 +2294,29 @@ function txe.cli_main ()
 
         input  = arg[3]
     elseif not arg[1] then
-    elseif arg[1]:match('^%-') then
-        print("Unknow option '" .. arg[1] .. "'")
-    else
-        input  = arg[1]
-    end
-
-    if not input then
         print ("No input file provided.")
         return
+    elseif arg[1]:match('^%-') then
+        print("Unknown option '" .. arg[1] .. "'")
+    else
+        input  = arg[1]  -- Set input file
     end
 
+    -- Initialize with the input file
+    local currentDirectory = getCurrentDirectory ()
     txe.init (input)
-    txe.current_scope().txe.input_file = input
-    txe.current_scope().txe.output_file = output
+    txe.current_scope().txe.input_file  = absolutePath(currentDirectory, input)
+    txe.current_scope().txe.output_file = absolutePath(currentDirectory, output)
 
-    sucess, result = pcall(txe.renderFile, input)
+    -- Render the file and capture success or error
+    success, result = pcall(txe.renderFile, input)
 
     if print_output then
+        -- Print the result if the print_output flag is set
         print(result)
     end
     if output then
+        -- Write the result to the output file if specified
         local file = io.open(output, "w")
         if not file then
             error("Cannot write the file '" .. output .. "'.", -1)
@@ -2264,9 +2327,8 @@ function txe.cli_main ()
         print("File '" .. filename .. "' written.")
     end
 
-
-    if sucess then
-        print("Sucess.")
+    if success then
+        print("Success.")
     else
         print("Error:")
         print(result)
