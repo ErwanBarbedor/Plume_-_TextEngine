@@ -32,6 +32,43 @@ Output:
 2
 ```
 
+### `txe.get`
+
+**Description:** Get a variable value from current scope by name.
+**Parameters:**
+- _name_: Variable name
+
+**Note** : `txe.get` may return a tokenlist, so may have to call `txe.get (name):render ()` or `txe.get (name):renderLua ()`. See `txe.get_render` and `txe.get_renderLua`
+
+```txe
+\script{
+    a = 1
+    return txe.get "a"
+}
+```
+Output
+```
+1
+```
+
+### `txe.get_render`
+**Description:** If the variable has a render method, call it and return the result. Otherwise, return the variable.
+**Parameters:**
+- _name_: Variable name
+**Alias** : `txe.getr`
+
+### `txe.getr`
+**Description:** Alias to `txe.get_render`
+
+### `txe.get_lua`
+**Description:** If the variable has a renderLua method, call it and return the result. Otherwise, return the variable.
+**Parameters:**
+- _name_: Variable name
+**Alias** : `txe.getl`
+
+### `txe.getl`
+**Description:** Alias to `txe.get_renderLua`
+
 ### `txe.require`
 
 **Description:**  Works like Lua's require, but uses Plume's file search system.

@@ -22,6 +22,42 @@ function api.set_local (key, value)
     txe.scope_set_local (key, value)
 end
 
+
+--- Get a variable value by name
+-- @param key string
+-- @param value string
+function api.get (key)
+    return txe.current_scope()[key]
+end
+
+--- Shortcut for api.get(key):render ()
+-- @param key string
+-- @param value string
+function api.get_render (key)
+    local result = txe.current_scope()[key]
+    if type(result) == table and result.render then
+        return result:render ()
+    else
+        return result
+    end
+end
+--- Alias to api.get_render
+api.getr = api.get_render
+
+--- Shortcut for api.get(key):renderLua ()
+-- @param key string
+-- @param value string
+function api.get_lua (key)
+    local result = txe.current_scope()[key]
+    if type(result) == table and result.renderLua then
+        return result:renderLua ()
+    else
+        return result
+    end
+end
+--- Alias to api.get_renderLua
+api.getl = api.get_lua
+
 --- Alias for api.set_local
 -- @see api.set_local
 api.setl = api.set_local

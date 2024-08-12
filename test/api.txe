@@ -1,0 +1,13 @@
+// Test 'get'
+\set a 1//
+#{txe.get "a"}
+// Result
+1
+// End
+
+// Test 'getrl'
+\set a #{{21}}//
+#{txe.getl "a"[1]}
+// Result
+21
+// End
