@@ -1,11 +1,11 @@
 # Predefined functions
 
 
-## `txe`
+## `txe` functions
 
-`txe` is a global table containing the following functions.
+`txe` is a global table containing the following functions :
 
-### `txe.set_local`
+### `txe.set_local ()`
 
 **Description:** Set a variable locally
 
@@ -32,7 +32,7 @@ Output:
 2
 ```
 
-### `txe.get`
+### `txe.get ()`
 
 **Description:** Get a variable value from current scope by name.
 **Parameters:**
@@ -51,13 +51,13 @@ Output
 1
 ```
 
-### `txe.get_render`
+### `txe.get_render ()`
 **Description:** If the variable has a render method, call it and return the result. Otherwise, return the variable.
 **Parameters:**
 - _name_: Variable name
 **Alias** : `txe.getr`
 
-### `txe.getr`
+### `txe.getr ()`
 **Description:** Alias to `txe.get_render`
 
 ### `txe.get_lua`
@@ -66,14 +66,21 @@ Output
 - _name_: Variable name
 **Alias** : `txe.getl`
 
-### `txe.getl`
+### `txe.getl ()`
 **Description:** Alias to `txe.get_renderLua`
 
-### `txe.require`
+### `txe.require ()`
 
 **Description:**  Works like Lua's require, but uses Plume's file search system.
 **Parameters:**
 - _name_: Name of the lua file to load.
+
+## `txe` variables
+
+| Name                   |  Notes |
+| ---------------------  | ----------- |
+| input_file             | input path given to txe, if any |
+| output_file            | input path given to txe, if any |
 
 ## `tokenlist`
 
