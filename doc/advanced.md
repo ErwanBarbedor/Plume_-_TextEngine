@@ -22,6 +22,24 @@ Argument 2 : bar
 Argument 3 : baz
 ```
 
+You can also easily check if there is an unnamed optionnal argument with a certain value
+```txe
+\def foo {
+    \if {__args.option_a} {
+        Option A
+    }
+    \elseif {__args.option_b} {
+        Option B
+    }
+}
+\foo[option_b]
+```
+Gives:
+
+```
+Option B
+```
+
 ## Tokenlist
 
 Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
