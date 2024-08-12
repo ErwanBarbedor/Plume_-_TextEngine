@@ -190,7 +190,7 @@ function txe.renderToken (self)
 
                 local macro = txe.get_macro (name)
                 if not macro then
-                    txe.error(token, "Unknow macro '" .. name .. "'")
+                    txe.error_macro_not_found(token, name)
                 end
 
                 table.insert(stack, {token=token, macro=macro, args={}})

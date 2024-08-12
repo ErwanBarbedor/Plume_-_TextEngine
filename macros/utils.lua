@@ -163,7 +163,7 @@ txe.register_macro("default", {"$name"}, {}, function(args)
 
     -- Check if this macro exists
     if not txe.macros[name] then
-        txe.error(args["name"], "Unknow macro '" .. name .. "'")
+        txe.error_macro_not_found(args["name"], name)
     end
 
     -- Add all arguments (except name) in user_opt_args

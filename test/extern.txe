@@ -35,7 +35,7 @@ foo foo
 // Test 'include error'
 \include test/lib_error.txe
 // Error
-File 'test/lib_error.txe', line 1 : Unknow macro 'foo'
+File 'test/lib_error.txe', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
     \foo
     ^^^^
 Traceback :

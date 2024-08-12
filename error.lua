@@ -274,3 +274,77 @@ function txe.error (token, error_message, is_lua_error)
     -- And throw it
     error(error_message, -1)
 end
+
+--- Compute Damerau-Levenshtein distance
+-- @param s1 string first word to compare
+-- @param s2 string second word to compare
+-- @return int Damerau-Levenshtein distance bewteen s1 and s2
+local function word_distance(s1, s2)
+    
+    local len1, len2 = #s1, #s2
+    local matrix = {}
+
+    for i = 0, len1 do
+        matrix[i] = {[0] = i}
+    end
+    for j = 0, len2 do
+        matrix[0][j] = j
+    end
+
+    for i = 1, len1 do
+        for j = 1, len2 do
+            local cost = (s1:sub(i,i) ~= s2:sub(j,j)) and 1 or 0
+            matrix[i][j] = math.min(
+                matrix[i-1][j] + 1,
+                matrix[i][j-1] + 1,
+                matrix[i-1][j-1] + cost
+            )
+            if i > 1 and j > 1 and s1:sub(i,i) == s2:sub(j-1,j-1) and s1:sub(i-1,i-1) == s2:sub(j,j) then
+                matrix[i][j] = math.min(matrix[i][j], matrix[i-2][j-2] + cost)
+            end
+        end
+    end
+
+    return matrix[len1][len2]
+end
+
+--- Generates error message for macro not found.
+-- @param token table The token that caused the error (optional)
+-- @param macro_name string The name of the not founded macro
+function txe.error_macro_not_found (token, macro_name)
+    
+    --Use a table to avoid duplicate names
+    local suggestions_table = {}
+
+    -- Hardcoded suggestions
+    if macro_name == "import" then
+        if txe.macros.require then
+            suggestions_table["require"] = true
+        end
+        if txe.macros.include then
+            suggestions_table["include"] = true
+        end
+    end
+
+    -- Suggestions for possible typing errors
+    for name, _ in pairs(txe.macros) do
+        if word_distance (name, macro_name) < 3 then
+            suggestions_table[name] = true
+        end
+    end
+
+    local suggestions_list = {}
+    for name, _ in pairs(suggestions_table) do
+        table.insert (suggestions_list, "'" .. name .."'")
+    end
+
+    local msg = "Unknow macro '" .. macro_name .. "'."
+
+    if #suggestions_list > 0 then
+        msg = msg .. " Perhaps you mean "
+        msg = msg .. table.concat(suggestions_list, ", "):gsub(',([^,]*)$', " or%1")
+        msg = msg .. "?"
+    end
+
+    txe.error (token, msg)
+end
