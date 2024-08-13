@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-txe = {}
-txe._VERSION = "#VERSION#"
+plume = {}
+plume._VERSION = "#VERSION#"
 
 require "config"
 require "syntax"
@@ -34,7 +34,7 @@ require "api"
 require "init"
 
 -- <DEV>
-txe.show_token = false
+plume.show_token = false
 local function print_tokens(t, indent)
     local function print_token_info (token)
         print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
@@ -66,13 +66,13 @@ end
 -- @param code string The code to render
 -- @param file string The name used to track the code
 -- @return string The rendered output
-function txe.render (code, file)
+function plume.render (code, file)
     local tokens, result
     
-    tokens = txe.tokenize(code, file)
-    tokens = txe.parse(tokens)
+    tokens = plume.tokenize(code, file)
+    tokens = plume.parse(tokens)
     -- <DEV>
-    if txe.show_token then
+    if plume.show_token then
         print "--------"
         print_tokens(tokens)
     end
@@ -85,23 +85,23 @@ end
 --- Reads the content of a file and renders it.
 -- @param filename string The name of the file to render
 -- @return string The rendered output
-function txe.renderFile(filename)
+function plume.renderFile(filename)
     local file = io.open(filename, "r")
         assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
         local content = file:read("*all")
     file:close()
     
     -- Track the file we are currently in
-    table.insert(txe.file_stack, filename)
+    table.insert(plume.file_stack, filename)
     
-    local result = txe.render(content, filename)
+    local result = plume.render(content, filename)
     
     -- Remove file from stack
-    table.remove(txe.file_stack)
+    table.remove(plume.file_stack)
 
     return result
 end
 
 require "cli"
 
-return txe
+return plume

@@ -6,11 +6,11 @@ else
     package.path = package.path .. ";../?.lua"
     print_error_detail = true
 end
-local txe = require "txe"
+local plume = require "plume"
 local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optargs", "scope"}
 
 local function readFile(filename)
-    local file = io.open("test/"..filename..".txe", "r")
+    local file = io.open("test/"..filename..".plume", "r")
     if not file then
         error("Could not open file " .. filename)
     end
@@ -48,10 +48,10 @@ local function runTests(tests)
         if #versions==0 or versions:match(_VERSION) then
             testNumber = testNumber + 1
             
-            txe.init ()
-            table.insert(txe.file_stack, "/")
+            plume.init ()
+            table.insert(plume.file_stack, "/")
 
-            local sucess, result = pcall (txe.render, test.input)
+            local sucess, result = pcall (plume.render, test.input)
             local err = ""
             if not sucess then
                 err = result:gsub('\t', '    ')

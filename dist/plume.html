@@ -1,4 +1,136 @@
---[[
+<head>
+    <style>
+        /* Positionning% */
+* {
+  box-sizing: border-box;
+}
+body {
+    display: flex;
+}
+
+body div {
+  width:45vw;
+  height: 70vh;
+  margin: 5vw;
+}
+
+#input, #output {
+  width: 100%;
+  height: 60vh;
+  margin: 0;
+}
+
+/* General styles for the page body */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f7f9;
+  color: #333;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+#input {
+  background-color: #ffffff;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  padding: 15px;
+  font-size: 16px;
+  color: #444;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  resize: none;
+  overflow-y: auto;
+}
+
+#input:focus {
+  border-color: #007bff;
+  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.1);
+  outline: none;
+}
+
+#output {
+  background-color: #ffffff;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  padding: 15px;
+  font-size: 16px;
+  color: #444;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Style for the GitHub button and title*/
+h1 {
+  position: absolute;
+  top:10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+}
+
+#github-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-block;
+  background-color: #24292e;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  transition: background-color 0.3s ease;
+  margin-top: 20px; /* Space above the button */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+#github-button:hover {
+  background-color: #444c56; /* Darker shade on hover */
+}
+    </style>
+    <title>Plume - TextEngine</title>
+</head>
+
+<body>
+    <div>
+        <h2>Enter your code here</h2>
+        <textarea id="input">\def double[x] {#x #x} \double 5</textarea>
+    </div>
+    <div >
+        <h2>Output</h2>
+        <pre id="output"></pre>
+    </div>
+    <h1><img src="plume.png" width="200" height="100"></h1>
+    <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
+        View on GitHub
+    </a>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+
+<script type="application/lua">
+    --[[
 Plume - TextEngine 0.1.0
 Copyright (C) 2024 Erwan Barbedor
 
@@ -18,32 +150,32 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local txe = {}
-txe._VERSION = "Plume - TextEngine 0.1.0"
+plume = {}
+plume._VERSION = "Plume - TextEngine 0.1.0"
 
 
 -- ## config.lua ##
 -- Configuration settings
-txe.config = {}
+plume.config = {}
 
 -- Maximum number of nested macros
-txe.config.max_callstack_size = 100
+plume.config.max_callstack_size = 100
 
 -- Maximum of loop iteration for macro "\while" and "\for"
-txe.config.max_loop_size      = 1000
+plume.config.max_loop_size      = 1000
 
 -- Ignore majority of spaces from input
-txe.config.ignore_spaces  = false
+plume.config.ignore_spaces  = false
 
 -- ## syntax.lua ##
-txe.syntax = {
+plume.syntax = {
     -- identifier must be a lua valid identifier
     identifier           = "[a-zA-Z0-9_]",
     identifier_begin     = "[a-zA-Z_]",
 
     -- all folowing must be one char long
     escape               = "\\",
-    comment              = "/",-- comments are two txe.syntax.comment char next to each other.
+    comment              = "/",-- comments are two plume.syntax.comment char next to each other.
     block_begin          = "{",
     block_end            = "}",
     opt_block_begin      = "[",
@@ -55,8 +187,8 @@ txe.syntax = {
 --- Checks if a string is a valid identifier.
 -- @param s string The string to check
 -- @return boolean True if the string is a valid identifier, false otherwise
-function txe.is_identifier(s)
-    return s:match('^' .. txe.syntax.identifier_begin .. txe.syntax.identifier..'*$')
+function plume.is_identifier(s)
+    return s:match('^' .. plume.syntax.identifier_begin .. plume.syntax.identifier..'*$')
 end
 
 -- ## render.lua ##
@@ -64,7 +196,7 @@ end
 -- @param macro table The macro being called
 -- @param args table The arguments table to be filled
 -- @param opt_args table The optional arguments to parse
-function txe.parse_opt_args (macro, args, opt_args)
+function plume.parse_opt_args (macro, args, opt_args)
     local key, eq, space
     local captured_args = {}
     for _, token in ipairs(opt_args) do
@@ -72,14 +204,14 @@ function txe.parse_opt_args (macro, args, opt_args)
             if token.kind == "space" or token.kind == "newline" then
             elseif eq then
                 if token.kind == "opt_assign" then
-                    txe.error(token, "Expected parameter value, not '" .. token.value .. "'.")
+                    plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
                 elseif key.kind ~= "block_text" then
-                    txe.error(key, "Optional parameters names must be raw text.")
+                    plume.error(key, "Optional parameters names must be raw text.")
                 end
                 local name = key:render ()
                 
-                if not txe.is_identifier(name) then
-                    txe.error(key, "'" .. name .. "' is an invalid name for an argument name.")
+                if not plume.is_identifier(name) then
+                    plume.error(key, "'" .. name .. "' is an invalid name for an argument name.")
                 end
 
                 captured_args[name] = token
@@ -92,7 +224,7 @@ function txe.parse_opt_args (macro, args, opt_args)
                 key = token
             end
         elseif token.kind == "opt_assign" then
-            txe.error(token, "Expected parameter name, not '" .. token.value .. "'.")
+            plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
         elseif token.kind ~= "space" and token.kind ~= "newline"then
             key = token
         end
@@ -150,7 +282,7 @@ end
 --- Main Plume - TextEngine function, that builds the output.
 -- @param self tokenlist The token list to render
 -- @return string The rendered output
-function txe.renderToken (self)
+function plume.renderToken (self)
     local pos = 1
     local result = {}
 
@@ -190,7 +322,7 @@ function txe.renderToken (self)
             table.insert(result, token.value)
         
         elseif token.kind == "newline" then
-            if not txe.running_api.config.ignore_spaces then
+            if not plume.running_api.config.ignore_spaces then
                 if token.__type == "token" then
                     table.insert(result, token.value)
                 else
@@ -201,7 +333,7 @@ function txe.renderToken (self)
             end
         
         elseif token.kind == "space" then
-            if txe.running_api.config.ignore_spaces then
+            if plume.running_api.config.ignore_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
@@ -214,31 +346,31 @@ function txe.renderToken (self)
         elseif token.kind == "macro" then
             -- Capture required number of block after the macro.
             
-            -- If more than txe.max_callstack_size macro are running, throw an error.
+            -- If more than plume.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            local up_limit = txe.running_api.config.max_callstack_size
+            local up_limit = plume.running_api.config.max_callstack_size
             
-            if #txe.traceback > up_limit then
-                txe.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
+            if #plume.traceback > up_limit then
+                plume.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
             end
 
             local stack = {}
 
             local function push_macro (token)
                 -- Check if macro exist, then add it to the stack
-                local name  = token.value:gsub("^"..txe.syntax.escape , "")
+                local name  = token.value:gsub("^"..plume.syntax.escape , "")
 
-                if name == txe.syntax.eval then
+                if name == plume.syntax.eval then
                     name = "eval"
                 end
 
-                if not txe.is_identifier(name) then
-                    txe.error(token, "'" .. name .. "' is an invalid name for a macro.")
+                if not plume.is_identifier(name) then
+                    plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
                 end
 
-                local macro = txe.get_macro (name)
+                local macro = plume.get_macro (name)
                 if not macro then
-                    txe.error_macro_not_found(token, name)
+                    plume.error_macro_not_found(token, name)
                 end
 
                 table.insert(stack, {token=token, macro=macro, args={}})
@@ -246,7 +378,7 @@ function txe.renderToken (self)
 
             local function manage_opt_args(top, token)
                 if top.opt_args then
-                    txe.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
+                    plume.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
                 end
                 top.opt_args = token
             end
@@ -262,7 +394,7 @@ function txe.renderToken (self)
                     pos = pos+1
                     if not self[pos] then
                         -- End reached, but not enough arguments
-                        txe.error(token, "End of block reached, not enough arguments for macro '" .. stack[1].token.value.."'. " .. #top.args.." instead of " .. #top.macro.args .. ".")
+                        plume.error(token, "End of block reached, not enough arguments for macro '" .. stack[1].token.value.."'. " .. #top.args.." instead of " .. #top.macro.args .. ".")
                     
                     elseif self[pos].kind == "macro" then
                         -- A new macro. Push it to the stack to catpures
@@ -304,7 +436,7 @@ function txe.renderToken (self)
                     top = table.remove(stack)
                     if #stack > 0 then
                         local subtop = stack[#stack]
-                        local arg_list = txe.tokenlist(top.args)
+                        local arg_list = plume.tokenlist(top.args)
 
                         -- rebuild the captured macro hand it's argument
                         if top.opt_args then
@@ -325,10 +457,10 @@ function txe.renderToken (self)
                         end
 
                         -- Parse optionnal args
-                        txe.parse_opt_args(top.macro, args, top.opt_args or {})
+                        plume.parse_opt_args(top.macro, args, top.opt_args or {})
 
                         -- Update traceback, call the macro and add is result
-                        table.insert(txe.traceback, token)
+                        table.insert(plume.traceback, token)
                             local success, macro_call_result = pcall(function ()
                                 return { top.macro.macro (
                                     args,
@@ -342,13 +474,13 @@ function txe.renderToken (self)
                             if success then
                                 call_result, chain_message = macro_call_result[1], macro_call_result[2]
                             else
-                                txe.error(top.token, "Unexpected lua error running the macro : " .. macro_call_result)
+                                plume.error(top.token, "Unexpected lua error running the macro : " .. macro_call_result)
                             end
 
                             chain_sender = top.token.value
 
                             table.insert(result, tostring(call_result or ""))
-                        table.remove(txe.traceback)
+                        table.remove(plume.traceback)
                     end
                 end
             end
@@ -364,7 +496,7 @@ end
 -- Otherwise, render the tokenlist.
 -- @param self tokenlist The token list to render
 -- @return lua_objet Result of evaluation
-function txe.renderTokenLua (self)
+function plume.renderTokenLua (self)
     local is_lua
     if #self == 2 and self[1].kind == "macro" then
         is_lua = is_lua or self[1].value == "#"
@@ -373,7 +505,7 @@ function txe.renderTokenLua (self)
     end
 
     if is_lua then
-        local result = txe.eval_lua_expression(self[2])
+        local result = plume.eval_lua_expression(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then
             result = result:render ()
         end
@@ -396,7 +528,7 @@ end
 -- @param file string The file where the token appears
 -- @param code string The full source code
 -- @return token A new token object
-function txe.token (kind, value, line, pos, file, code)
+function plume.token (kind, value, line, pos, file, code)
     return setmetatable({
         __type = "token",-- used mainly for debugging
         kind   = kind,
@@ -437,7 +569,7 @@ end
 --- Creates a new tokenlist.
 -- @param x string|table Either a kind string or a table of tokens
 -- @return tokenlist A new tokenlist object
-function txe.tokenlist (x)
+function plume.tokenlist (x)
     local kind = "block"
     local t = {}
 
@@ -499,22 +631,22 @@ function txe.tokenlist (x)
             local result = {}
             for _, token in ipairs(self) do
                 if token.kind == "block" then
-                    table.insert(result, txe.syntax.block_begin)
+                    table.insert(result, plume.syntax.block_begin)
                 elseif token.kind == "opt_block" then
-                    table.insert(result, txe.syntax.opt_block_begin)
+                    table.insert(result, plume.syntax.opt_block_begin)
                 end
                 table.insert(result, token:source())
                 if token.kind == "block" then
-                    table.insert(result, txe.syntax.block_end)
+                    table.insert(result, plume.syntax.block_end)
                 elseif token.kind == "opt_block" then
-                    table.insert(result, txe.syntax.opt_block_end)
+                    table.insert(result, plume.syntax.opt_block_end)
                 end
             end
 
             return table.concat(result, "")
         end,
-        render    = txe.renderToken,
-        renderLua = txe.renderTokenLua
+        render    = plume.renderToken,
+        renderLua = plume.renderTokenLua
     }, {
         -- Some metamethods, for convenience :
         -- Arguments of macros are passed as tokenlist without rendering it.
@@ -562,9 +694,9 @@ end
 -- @param code string The code to tokenize
 -- @param file string The name of the file being tokenized, for debuging purpose. May be any string.
 -- @return table A list of tokens
-function txe.tokenize (code, file)
-    -- Get the txe code as raw string, and return a list of token.
-    local result  = txe.tokenlist("render-block")
+function plume.tokenize (code, file)
+    -- Get the plume code as raw string, and return a list of token.
+    local result  = plume.tokenlist("render-block")
     local acc     = {}
     local noline  = 1
     local linepos = 1
@@ -574,7 +706,7 @@ function txe.tokenize (code, file)
 
     local function newtoken (kind, value, delta)
         table.insert(result,
-            txe.token(kind, value, noline, pos - #value - linepos + (delta or 0), file, code)
+            plume.token(kind, value, noline, pos - #value - linepos + (delta or 0), file, code)
         )
     end
 
@@ -598,14 +730,14 @@ function txe.tokenize (code, file)
             noline = noline + 1
             linepos = pos+1
         
-        elseif c == txe.syntax.opt_assign then
+        elseif c == plume.syntax.opt_assign then
             write()
-            newtoken ("opt_assign", txe.syntax.opt_assign, 1)
+            newtoken ("opt_assign", plume.syntax.opt_assign, 1)
         
-        elseif c == txe.syntax.escape then
+        elseif c == plume.syntax.escape then
             -- Begin a macro or escape any special character.
             local next = code:sub(pos+1, pos+1)
-            if next:match(txe.syntax.identifier_begin) then
+            if next:match(plume.syntax.identifier_begin) then
                 write()
                 state = "macro"
                 table.insert(acc, c)
@@ -615,42 +747,42 @@ function txe.tokenize (code, file)
                 pos = pos + 1
             end
         
-        elseif c == txe.syntax.block_begin then
+        elseif c == plume.syntax.block_begin then
             write()
-            newtoken ("block_begin", txe.syntax.block_begin, 1)
+            newtoken ("block_begin", plume.syntax.block_begin, 1)
         
-        elseif c == txe.syntax.block_end then
+        elseif c == plume.syntax.block_end then
             write()
-            newtoken ("block_end", txe.syntax.block_end, 1)
+            newtoken ("block_end", plume.syntax.block_end, 1)
         
-        elseif c == txe.syntax.opt_block_begin then
+        elseif c == plume.syntax.opt_block_begin then
             write()
-            newtoken ("opt_block_begin", txe.syntax.opt_block_begin, 1)
+            newtoken ("opt_block_begin", plume.syntax.opt_block_begin, 1)
         
-        elseif c == txe.syntax.opt_block_end then
+        elseif c == plume.syntax.opt_block_end then
             write()
-            newtoken ("opt_block_end", txe.syntax.opt_block_end, 1)
+            newtoken ("opt_block_end", plume.syntax.opt_block_end, 1)
         
-        elseif c == txe.syntax.eval then
+        elseif c == plume.syntax.eval then
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
             write()
             pos = pos + 1
-            newtoken ("eval", txe.syntax.eval)
+            newtoken ("eval", plume.syntax.eval)
             local next = code:sub(pos, pos)
-            if next:match(txe.syntax.identifier_begin) then
-                local name = code:sub(pos, -1):match(txe.syntax.identifier .. '+')
+            if next:match(plume.syntax.identifier_begin) then
+                local name = code:sub(pos, -1):match(plume.syntax.identifier .. '+')
                 pos = pos + #name-1
                 newtoken ("text", name)
             else
                 pos = pos - 1
             end
         
-        elseif c == txe.syntax.comment then
+        elseif c == plume.syntax.comment then
             pos = pos + 1
             local next = code:sub(pos, pos)
-            if next == txe.syntax.comment then
+            if next == plume.syntax.comment then
                 write("comment")
                 table.insert(acc, c)
                 table.insert(acc, c)
@@ -682,7 +814,7 @@ function txe.tokenize (code, file)
             write ("space")
             table.insert(acc, c)
         else
-            if state == "macro" and c:match(txe.syntax.identifier) then
+            if state == "macro" and c:match(plume.syntax.identifier) then
                 write ("macro")
             else
                 write ("text")
@@ -694,7 +826,7 @@ function txe.tokenize (code, file)
     write ()
 
     -- <DEV>
-    if txe.show_token then
+    if plume.show_token then
         for _, token in ipairs(result) do
             print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
         end
@@ -709,8 +841,8 @@ end
 -- Handles blocks, optional blocks, and text grouping
 -- @param tokenlist table The list of tokens to parse
 -- @return tokenlist The parsed nested structure
-function txe.parse (tokenlist)
-    local stack = {txe.tokenlist("block")}
+function plume.parse (tokenlist)
+    local stack = {plume.tokenlist("block")}
     local eval_var = 0 -- #a+1 must be seen as \eval{a}+1, not \eval{a+1}
 
     for _, token in ipairs(tokenlist) do
@@ -718,7 +850,7 @@ function txe.parse (tokenlist)
 
         if token.kind == "block_begin" then
             eval_var = 0
-            table.insert(stack, txe.tokenlist("block"))
+            table.insert(stack, plume.tokenlist("block"))
             stack[#stack].first = token
         
         elseif token.kind == "block_end" then
@@ -728,9 +860,9 @@ function txe.parse (tokenlist)
 
             -- Check if match the oppening brace
             if not top then
-                txe.error(token, "This brace close nothing.")
+                plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "block" then
-                txe.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
             end
             
             last.last = token
@@ -738,7 +870,7 @@ function txe.parse (tokenlist)
         
         elseif token.kind == "opt_block_begin" then
             eval_var = 0
-            table.insert(stack, txe.tokenlist("opt_block"))
+            table.insert(stack, plume.tokenlist("opt_block"))
             stack[#stack].first = token
         
         elseif token.kind == "opt_block_end" then
@@ -748,9 +880,9 @@ function txe.parse (tokenlist)
 
             -- Check if match the oppening brace
             if not top then
-                txe.error(token, "This brace close nothing.")
+                plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "opt_block" then
-                txe.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
             end
 
             last.last = token
@@ -763,7 +895,7 @@ function txe.parse (tokenlist)
             local last = stack[#stack]
             if #last == 0 or last[#last].kind ~= "block_text" or eval_var > 0 then
                 eval_var = eval_var - 1
-                table.insert(last, txe.tokenlist("block_text"))
+                table.insert(last, plume.tokenlist("block_text"))
             end
             table.insert(last[#last], token)
         
@@ -777,14 +909,14 @@ function txe.parse (tokenlist)
         end
     end
     if #stack > 1 then
-        txe.error(stack[#stack].first, "This brace was never closed")
+        plume.error(stack[#stack].first, "This brace was never closed")
     end
     return stack[1] 
 end
 
 -- ## error.lua ##
-txe.last_error = nil
-txe.traceback = {}
+plume.last_error = nil
+plume.traceback = {}
 
 --- Retrieves a line by its line number in the source code.
 -- @param source string The source code
@@ -869,7 +1001,7 @@ local function lua_info (lua_message)
 
     noline = noline - 1
     local token
-    for _, chunk in pairs(txe.lua_cache) do
+    for _, chunk in pairs(plume.lua_cache) do
         if chunk.chunk_count == chunk_id then
             token = chunk.token
             break
@@ -903,8 +1035,8 @@ end
 --- Captures debug.traceback for error handling.
 -- @param msg string The error message
 -- @return string The error message
-function txe.error_handler (msg)
-    txe.lua_traceback = debug.traceback ()
+function plume.error_handler (msg)
+    plume.lua_traceback = debug.traceback ()
     return msg
 end
 
@@ -912,7 +1044,7 @@ end
 -- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function txe.make_error_message (token, error_message, is_lua_error)
+function plume.make_error_message (token, error_message, is_lua_error)
     
     -- Make the list of lines to prompt.
     local error_lines_infos = {}
@@ -925,7 +1057,7 @@ function txe.make_error_message (token, error_message, is_lua_error)
         table.insert(error_lines_infos, lua_info (error_message))
         error_message = "(lua error) " .. error_message:gsub('^.-:[0-9]+: ', '')
 
-        local traceback = (txe.lua_traceback or "")
+        local traceback = (plume.lua_traceback or "")
         local first_line = true
         for line in traceback:gmatch('[^\n]+') do
             if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
@@ -952,8 +1084,8 @@ function txe.make_error_message (token, error_message, is_lua_error)
     end
     
     -- Then add all traceback
-    for i=#txe.traceback, 1, -1 do
-        table.insert(error_lines_infos, token_info (txe.traceback[i]))
+    for i=#plume.traceback, 1, -1 do
+        table.insert(error_lines_infos, token_info (plume.traceback[i]))
     end
 
     -- Now, for each line print line info (file, noline, line content)
@@ -1031,16 +1163,16 @@ end
 -- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function txe.error (token, error_message, is_lua_error)
+function plume.error (token, error_message, is_lua_error)
     -- If it is already an error, throw it.
-    if txe.last_error then
-        error(txe.last_error, -1)
+    if plume.last_error then
+        error(plume.last_error, -1)
     end
 
-    local error_message = txe.make_error_message (token, error_message, is_lua_error)
+    local error_message = plume.make_error_message (token, error_message, is_lua_error)
 
     -- Save the error
-    txe.last_error = error_message
+    plume.last_error = error_message
 
     -- And throw it
     error(error_message, -1)
@@ -1082,23 +1214,23 @@ end
 --- Generates error message for macro not found.
 -- @param token table The token that caused the error (optional)
 -- @param macro_name string The name of the not founded macro
-function txe.error_macro_not_found (token, macro_name)
+function plume.error_macro_not_found (token, macro_name)
     
     --Use a table to avoid duplicate names
     local suggestions_table = {}
 
     -- Hardcoded suggestions
     if macro_name == "import" then
-        if txe.macros.require then
+        if plume.macros.require then
             suggestions_table["require"] = true
         end
-        if txe.macros.include then
+        if plume.macros.include then
             suggestions_table["include"] = true
         end
     end
 
     -- Suggestions for possible typing errors
-    for name, _ in pairs(txe.macros) do
+    for name, _ in pairs(plume.macros) do
         if word_distance (name, macro_name) < 3 then
             suggestions_table[name] = true
         end
@@ -1117,13 +1249,13 @@ function txe.error_macro_not_found (token, macro_name)
         msg = msg .. "?"
     end
 
-    txe.error (token, msg)
+    plume.error (token, msg)
 end
 
 -- ## macro.lua ##
 -- Implement macro behavior
 
-txe.macros = {}
+plume.macros = {}
 
 --- Registers a new macro.
 -- @param name string The name of the macro
@@ -1131,8 +1263,8 @@ txe.macros = {}
 -- @param default_opt_args table Default names and values for optional arguments
 -- @param macro function The function to call when the macro is used
 -- @param token token The token where the macro was declared (optional). Used for debuging.
-function txe.register_macro (name, args, default_opt_args, macro, token)
-    txe.macros[name] = {
+function plume.register_macro (name, args, default_opt_args, macro, token)
+    plume.macros[name] = {
         args             = args,
         default_opt_args = default_opt_args,
         user_opt_args    = {},
@@ -1140,14 +1272,14 @@ function txe.register_macro (name, args, default_opt_args, macro, token)
         token            = token
     }
 
-    return txe.macros[name]
+    return plume.macros[name]
 end
 
 --- Retrieves a macro by name.
 -- @param name string The name of the macro
 -- @return table The macro object
-function txe.get_macro(name)
-    return txe.macros[name]
+function plume.get_macro(name)
+    return plume.macros[name]
 end
 
 
@@ -1166,7 +1298,7 @@ end
 --    \for{i = 1, 10}{ Iteration #i }
 --    \for{k, v in pairs(table)}{ #k : #v }
 
-txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
+plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     
@@ -1189,7 +1321,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
     
     -- If both attempts fail, raise an error
     if not var then
-        txe.error(args.iterator, "Non valid syntax for iterator.")
+        plume.error(args.iterator, "Non valid syntax for iterator.")
     end
 
     -- Extract all variable names from the iterator
@@ -1204,11 +1336,11 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
     coroutine_code = coroutine_code .. " end"
 
     -- Load and create the coroutine
-    local iterator_coroutine = txe.load_lua_chunk (coroutine_code, _, _, txe.current_scope ())
+    local iterator_coroutine = plume.load_lua_chunk (coroutine_code, _, _, plume.current_scope ())
     local co = coroutine.create(iterator_coroutine)
     
     -- Limiting loop iterations to avoid infinite loop
-    local up_limit = txe.running_api.config.max_loop_size
+    local up_limit = plume.running_api.config.max_loop_size
     local iteration_count  = 0
 
     -- Main iteration loop
@@ -1216,7 +1348,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
         -- Update and check loop limit
         iteration_count = iteration_count + 1
         if iteration_count > up_limit then
-            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- Resume the coroutine to get the next set of values
@@ -1232,12 +1364,12 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
 
         -- Check for Lua errors in the coroutine
         if not sucess or not co then
-            txe.error(args.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+            plume.error(args.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
         end
 
         -- Verify that the number of variables matches the number of values
         if #values_list ~= #variables_list then
-            txe.error(args.iterator,
+            plume.error(args.iterator,
                 "Wrong number of variables, "
                 .. #variables_list
                 .. " instead of "
@@ -1246,7 +1378,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            txe.scope_set_local (variables_list[i], values_list[i], calling_token.context)
+            plume.scope_set_local (variables_list[i], values_list[i], calling_token.context)
         end
 
         -- Render the body of the loop and add it to the result
@@ -1256,42 +1388,42 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
     return table.concat(result, "")
 end)
 
-txe.register_macro("while", {"condition", "body"}, {}, function(args)
+plume.register_macro("while", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua while control structure.
-    -- To prevent infinite loop, a hard limit is setted by txe.max_loop_size
+    -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
 
     local result = {}
     local i = 0
-    local up_limit = txe.running_api.config.max_loop_size
-    while txe.eval_lua_expression (args.condition) do
+    local up_limit = plume.running_api.config.max_loop_size
+    while plume.eval_lua_expression (args.condition) do
         table.insert(result, args.body:render())
         i = i + 1
         if i > up_limit then
-            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
     end
 
     return table.concat(result, "")
 end)
 
-txe.register_macro("if", {"condition", "body"}, {}, function(args)
+plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = txe.eval_lua_expression(args.condition)
+    local condition = plume.eval_lua_expression(args.condition)
     if condition then
         return args.body:render()
     end
     return "", not condition
 end)
 
-txe.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
 
     -- Must receive a message from preceding if
     if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
-        txe.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
+        plume.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
     end
 
     if chain_message then
@@ -1301,17 +1433,17 @@ txe.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender
     return ""
 end)
 
-txe.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
     
     -- Must receive a message from preceding if
     if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
-        txe.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
+        plume.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
     end
 
     local condition
     if chain_message then
-        condition = txe.eval_lua_expression(args.condition)
+        condition = plume.eval_lua_expression(args.condition)
         if condition then
             return args.body:render()
         end
@@ -1334,21 +1466,21 @@ local function def (def_args, redef, redef_forced, calling_token)
     local name = def_args["$name"]:render()
 
     -- Check if the name is a valid identifier
-    if not txe.is_identifier(name) then
-        txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
+    if not plume.is_identifier(name) then
+        plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
     -- Test if the name is taken by standard macro
-    if txe.std_macros[name] then
+    if plume.std_macros[name] then
         if not redef_forced then
             local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
-            txe.error(def_args["$name"], msg)
+            plume.error(def_args["$name"], msg)
         end
     -- Test if this macro already exists
-    elseif txe.macros[name] then
+    elseif plume.macros[name] then
         if not redef then
             local msg = "The macro '" .. name .. "' already exist"
-            local first_definition = txe.macros[name].token
+            local first_definition = plume.macros[name].token
 
             if first_definition then
                 msg = msg
@@ -1361,11 +1493,11 @@ local function def (def_args, redef, redef_forced, calling_token)
             end
 
             msg = msg .. "Use '\\redef "..name.."' to erase it."
-            txe.error(def_args["$name"], msg)
+            plume.error(def_args["$name"], msg)
         end
     elseif redef and not redef_forced then
         local msg = "The macro '" .. name .. "' doesn't exist, so you can't erase it. Use '\\def "..name.."' instead."
-        txe.error(def_args["$name"], msg)
+        plume.error(def_args["$name"], msg)
     end
 
     -- All args (except $name, $body and __args) are optional args
@@ -1382,10 +1514,10 @@ local function def (def_args, redef, redef_forced, calling_token)
         def_args.__args[k] = v:render()
     end
     
-    txe.register_macro(name, def_args.__args, opt_args, function(args)
+    plume.register_macro(name, def_args.__args, opt_args, function(args)
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
-        local last_scope = txe.current_scope ()
+        local last_scope = plume.current_scope ()
         for k, v in pairs(args) do
             if k ~= "__args" then
                 v:set_context (last_scope)
@@ -1396,34 +1528,34 @@ local function def (def_args, redef, redef_forced, calling_token)
         end
 
         -- argument are variable local to the macro
-        txe.push_scope ()
+        plume.push_scope ()
 
         -- add all args in the current scope
         for k, v in pairs(args) do
-            txe.scope_set_local(k, v)
+            plume.scope_set_local(k, v)
         end
 
         local result = def_args["$body"]:render()
 
         --exit macro scope
-        txe.pop_scope ()
+        plume.pop_scope ()
 
         return result
     end, calling_token)
 end
 
-txe.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, calling_token)
     return ""
 end)
 
-txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, calling_token)
     return ""
 end)
 
-txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, true, calling_token)
     return ""
 end)
@@ -1431,8 +1563,8 @@ end)
 local function set(args, calling_token, is_local)
     -- A macro to set variable to a value
     local key = args.key:render()
-    if not txe.is_identifier(key) then
-        txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
+    if not plume.is_identifier(key) then
+        plume.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
     end
 
     local value = args.value:renderLua ()
@@ -1440,69 +1572,69 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
 
     if is_local then
-        txe.scope_set_local (key, value)
+        plume.scope_set_local (key, value)
     else
-        (calling_token.context or txe.current_scope())[key] = value 
+        (calling_token.context or plume.current_scope())[key] = value 
     end
 end
 
-txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
+plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token,args.__args["local"])
     return ""
 end)
 
-txe.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
+plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     set(args, true)
     return ""
 end)
 
 
-txe.register_macro("alias", {"name1", "name2"}, {}, function(args)
+plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
     -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
 
-    txe.macros[name2] = txe.macros[name1]
+    plume.macros[name2] = plume.macros[name1]
     return ""
 end)
 
 
-txe.register_macro("default", {"$name"}, {}, function(args)
+plume.register_macro("default", {"$name"}, {}, function(args)
     -- Get the provided macro name
     local name = args["$name"]:render()
 
     -- Check if this macro exists
-    if not txe.macros[name] then
-        txe.error_macro_not_found(args["name"], name)
+    if not plume.macros[name] then
+        plume.error_macro_not_found(args["name"], name)
     end
 
     -- Add all arguments (except name) in user_opt_args
     for k, v in pairs(args) do
         if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            txe.macros[name].user_opt_args[k] = v
+            plume.macros[name].user_opt_args[k] = v
         end
     end
     for k, v in ipairs(args.__args) do
-        txe.macros[name].user_opt_args[k] = v
+        plume.macros[name].user_opt_args[k] = v
     end
 
 end)
 
-txe.register_macro("raw", {"body"}, {}, function(args)
+plume.register_macro("raw", {"body"}, {}, function(args)
     -- Return content without execute it
     return args['body']:source ()
 end)
 
-txe.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
+plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
     -- Edit configuration
     -- Warning : value will be converted
 
     local name   = args.name:render ()
     local value  = args.value:render ()
-    local config = txe.running_api.config
+    local config = plume.running_api.config
 
     if config[name] == nil then
-        txe.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
+        plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
     end
 
     if tonumber(value) then
@@ -1530,7 +1662,7 @@ end)
 -- @return file file File descriptor of the found file
 -- @return filepath string Full path of the found file
 -- @raise Throws an error if the file is not found, with a message detailing the paths tried
-function txe.search_for_files (token, calling_token, formats, path, silent_fail)
+function plume.search_for_files (token, calling_token, formats, path, silent_fail)
     -- To avoid checking same folder two times
     local parent
     local folders     = {}
@@ -1542,13 +1674,13 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
     if calling_token then
         table.insert(parent_paths, calling_token.file)
     end
-    for _, parent in ipairs(txe.file_stack) do
+    for _, parent in ipairs(plume.file_stack) do
         table.insert(parent_paths, parent)
     end
     -- Parents are files, to target a
     -- fake "dummy"
-    if txe.directory then
-        table.insert(parent_paths, txe.directory .. "/lib/dummy")
+    if plume.directory then
+        table.insert(parent_paths, plume.directory .. "/lib/dummy")
     end
 
     local file, filepath
@@ -1588,7 +1720,7 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
             return nil, nil, msg
         else
             if token then
-                txe.error(token, msg)
+                plume.error(token, msg)
             else
                 error(msg)
             end
@@ -1598,7 +1730,7 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
     return file, filepath
 end
 
-txe.register_macro("require", {"path"}, {}, function(args, calling_token)
+plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     -- Execute a lua file in the current context
     -- Instead of lua require function, no caching.
 
@@ -1613,14 +1745,14 @@ txe.register_macro("require", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?/init.lua") 
     end
 
-    local file, filepath = txe.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
 
-    local f = txe.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
+    local f = plume.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
 
     return f()
 end)
 
-txe.register_macro("include", {"path"}, {}, function(args, calling_token)
+plume.register_macro("include", {"path"}, {}, function(args, calling_token)
     -- \include{file} Execute the given file and return the output
     -- \include[extern]{file} Include current file without execute it
     local is_extern = args.__args.extern
@@ -1633,29 +1765,29 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?")
     else
         table.insert(formats, "?")
-        table.insert(formats, "?.txe")
-        table.insert(formats, "?/init.txe")  
+        table.insert(formats, "?.plume")
+        table.insert(formats, "?/init.plume")  
     end
 
-    local file, filepath = txe.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
 
     if is_extern then
         return file:read("*a")
     else
         -- Track the file we are currently in
-        table.insert(txe.file_stack, filepath)
+        table.insert(plume.file_stack, filepath)
             
         -- Render file content
-        local result = txe.render(file:read("*a"), filepath)
+        local result = plume.render(file:read("*a"), filepath)
 
         -- Remove file from stack
-        table.remove(txe.file_stack)
+        table.remove(plume.file_stack)
 
         return result
     end
 end)
 
-txe.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
+plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
     -- Capture content and save it in a file.
     -- Return nothing.
     -- \file {foo.txt} {...}
@@ -1663,7 +1795,7 @@ txe.register_macro("file", {"path", "content"}, {}, function (args, calling_toke
     local file = io.open(path, "w")
 
         if not file then
-            txe.error (calling_token, "Cannot write file '" .. path .. "'")
+            plume.error (calling_token, "Cannot write file '" .. path .. "'")
         end
 
         local content = args.content:render ()
@@ -1678,9 +1810,9 @@ end)
 -- ## macros/script.lua ##
 -- Define script-related macro
 
-txe.register_macro("script", {"body"}, {}, function(args)
+plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = txe.call_lua_chunk(args.body)
+    local result = plume.call_lua_chunk(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -1690,7 +1822,7 @@ txe.register_macro("script", {"body"}, {}, function(args)
     return result
 end)
 
-txe.register_macro("eval", {"expr"}, {}, function(args)
+plume.register_macro("eval", {"expr"}, {}, function(args)
     --Eval lua expression and return the result
     -- \eval{1+1} or #{1+1}
     -- If the result is a number, format it : #{1/3}[.2f]
@@ -1712,7 +1844,7 @@ txe.register_macro("eval", {"expr"}, {}, function(args)
         elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
             format = arg_render
         else
-            txe.error(arg, "Unknow arg '" .. arg_render .. "'.")
+            plume.error(arg, "Unknow arg '" .. arg_render .. "'.")
         end
     end
 
@@ -1730,7 +1862,7 @@ txe.register_macro("eval", {"expr"}, {}, function(args)
         d_sep = "."
     end
 
-    local result = txe.eval_lua_expression(args.expr)
+    local result = plume.eval_lua_expression(args.expr)
 
     -- if result is a token, render it
     if type(result) == "table" and result.render then
@@ -1770,7 +1902,7 @@ end)
 -- ## macros/spaces.lua ##
 -- Define spaces-related macros
 
-txe.register_macro("n", {}, {}, function(args)
+plume.register_macro("n", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()
@@ -1778,7 +1910,7 @@ txe.register_macro("n", {}, {}, function(args)
     return ("\n"):rep(count)
 end)
 
-txe.register_macro("s", {}, {}, function(args)
+plume.register_macro("s", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()
@@ -1786,7 +1918,7 @@ txe.register_macro("s", {}, {}, function(args)
     return (" "):rep(count)
 end)
 
-txe.register_macro("t", {}, {}, function(args)
+plume.register_macro("t", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()
@@ -1794,10 +1926,10 @@ txe.register_macro("t", {}, {}, function(args)
     return ("\t"):rep(count)
 end) 
 
--- Save predifined macro to permit reset of txe
-txe.std_macros = {}
-for k, v in pairs(txe.macros) do
-    txe.std_macros[k] = v
+-- Save predifined macro to permit reset of plume
+plume.std_macros = {}
+for k, v in pairs(plume.macros) do
+    plume.std_macros[k] = v
 end
 
 -- ## runtime.lua ##
@@ -1810,7 +1942,7 @@ end
 -- @param env table The environment to load the chunk in
 -- @return function|nil, string The loaded function or nil and an error message
 if _VERSION == "Lua 5.1" or jit then
-    function txe.load_lua_chunk (code, _, _, env)
+    function plume.load_lua_chunk (code, _, _, env)
         local f, err = loadstring(code)
         if f then
             setfenv(f, env)
@@ -1818,18 +1950,18 @@ if _VERSION == "Lua 5.1" or jit then
         return f, err
     end
 else
-    txe.load_lua_chunk = load
+    plume.load_lua_chunk = load
 end
 
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression
 -- @param code string The Lua code to evaluate (optional)
 -- @return any The result of the evaluation
-function txe.eval_lua_expression (token, code)
+function plume.eval_lua_expression (token, code)
     code = code or token:source ()
     code = 'return ' .. code
 
-    return txe.call_lua_chunk (token, code)
+    return plume.call_lua_chunk (token, code)
 end
 
 --- Loads, caches, and executes Lua code.
@@ -1837,10 +1969,10 @@ end
 -- or, if code is given, token used to throw error
 -- @param code string The Lua code to execute (optional)
 -- @return any The result of the execution
-function txe.call_lua_chunk(token, code)
+function plume.call_lua_chunk(token, code)
     code = code or token:source ()
 
-    if not txe.lua_cache[code] then
+    if not plume.lua_cache[code] then
         -- Put the chunk number in the code,
         -- to retrieve it in case of error.
         -- A bit messy, but each chunk executes
@@ -1848,39 +1980,39 @@ function txe.call_lua_chunk(token, code)
         -- share the same code. A more elegant
         -- solution certainly exists,
         -- but this does the trick for now.
-        txe.chunk_count = txe.chunk_count + 1
-        code = "--chunk" .. txe.chunk_count .. "\n" .. code
+        plume.chunk_count = plume.chunk_count + 1
+        code = "--chunk" .. plume.chunk_count .. "\n" .. code
         
         -- If the token is locked in a specific
         -- scope, execute inside it.
         -- Else, execute inside current scope.
-        local chunk_scope = token.context or txe.current_scope ()
-        local loaded_function, load_err = txe.load_lua_chunk(code, nil, "bt", chunk_scope)
+        local chunk_scope = token.context or plume.current_scope ()
+        local loaded_function, load_err = plume.load_lua_chunk(code, nil, "bt", chunk_scope)
 
         -- If loading chunk failed
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            txe.lua_cache[code] = {token=token, chunk_count=txe.chunk_count}
-            txe.error(token, load_err, true)
+            plume.lua_cache[code] = {token=token, chunk_count=plume.chunk_count}
+            plume.error(token, load_err, true)
         end
 
-        txe.lua_cache[code] = setmetatable({
+        plume.lua_cache[code] = setmetatable({
             token=token,
-            chunk_count=txe.chunk_count
+            chunk_count=plume.chunk_count
         },{
             __call = function ()
-                return { xpcall (loaded_function, txe.error_handler) }
+                return { xpcall (loaded_function, plume.error_handler) }
             end
         })
     end
 
-    local result = txe.lua_cache[code] ()
+    local result = plume.lua_cache[code] ()
     local sucess = result[1]
     table.remove(result, 1)
 
     if not sucess then
-        txe.error(token, result[1], true)
+        plume.error(token, result[1], true)
     end
 
     -- Lua 5.1 compatibility
@@ -1890,7 +2022,7 @@ end
 --- Creates a new scope with the given parent.
 -- @param parent table The parent scope
 -- @return table The new scope
-function txe.create_scope (parent)
+function plume.create_scope (parent)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
@@ -1921,16 +2053,16 @@ function txe.create_scope (parent)
 end
 
 --- Creates a new scope with the penultimate scope as parent.
-function txe.push_scope ()
-    local last_scope = txe.current_scope ()
-    local new_scope = txe.create_scope (last_scope)
+function plume.push_scope ()
+    local last_scope = plume.current_scope ()
+    local new_scope = plume.create_scope (last_scope)
 
-    table.insert(txe.scopes, new_scope)
+    table.insert(plume.scopes, new_scope)
 end
 
 --- Removes the last created scope.
-function txe.pop_scope ()
-    table.remove(txe.scopes)
+function plume.pop_scope ()
+    table.remove(plume.scopes)
 end
 
 --- Registers a variable locally in the given scope.
@@ -1938,17 +2070,17 @@ end
 -- @param key string The key to set
 -- @param value any The value to set
 -- @param scope table The scope to set the variable in (optional)
-function txe.scope_set_local (key, value, scope)
+function plume.scope_set_local (key, value, scope)
     -- Register a variable locally
     -- If not provided, "scope" is the last created.
-    local scope = scope or txe.current_scope ()
+    local scope = scope or plume.current_scope ()
     rawset (scope, key, value)
 end
 
 --- Returns the current scope.
 -- @return table The current scope
-function txe.current_scope ()
-    return txe.scopes[#txe.scopes]
+function plume.current_scope ()
+    return plume.scopes[#plume.scopes]
 end
 
 -- ## api.lua ##
@@ -1959,7 +2091,7 @@ local api = {}
 -- @param key string
 -- @param value string
 function api.set_local (key, value)
-    txe.scope_set_local (key, value)
+    plume.scope_set_local (key, value)
 end
 
 
@@ -1967,14 +2099,14 @@ end
 -- @param key string
 -- @param value string
 function api.get (key)
-    return txe.current_scope()[key]
+    return plume.current_scope()[key]
 end
 
 --- Shortcut for api.get(key):render ()
 -- @param key string
 -- @param value string
 function api.get_render (key)
-    local result = txe.current_scope()[key]
+    local result = plume.current_scope()[key]
     if type(result) == table and result.render then
         return result:render ()
     else
@@ -1988,7 +2120,7 @@ api.getr = api.get_render
 -- @param key string
 -- @param value string
 function api.get_lua (key)
-    local result = txe.current_scope()[key]
+    local result = plume.current_scope()[key]
     if type(result) == table and result.renderLua then
         return result:renderLua ()
     else
@@ -2006,7 +2138,7 @@ api.setl = api.set_local
 -- @param path string
 -- @return table|bool|nil
 function api.require (path)
-    local file, filepath, error_message = txe.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
+    local file, filepath, error_message = plume.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
     if file then
         file:close ()
         filepath = filepath:gsub('%.lua$', '')
@@ -2017,20 +2149,20 @@ function api.require (path)
 end
 
 --- Initializes the API methods visible to the user.
-function txe.init_api ()
-    local scope = txe.current_scope ()
-    scope.txe = {}
+function plume.init_api ()
+    local scope = plume.current_scope ()
+    scope.plume = {}
 
     -- keep a reference
-    txe.running_api = scope.txe
+    plume.running_api = scope.plume
 
     for k, v in pairs(api) do
-        scope.txe[k] = v
+        scope.plume[k] = v
     end
 
-    scope.txe.config = {}
-    for k, v in pairs(txe.config) do
-        scope.txe.config[k] = v
+    scope.plume.config = {}
+    for k, v in pairs(plume.config) do
+        scope.plume.config[k] = v
     end
 end
 
@@ -2052,58 +2184,58 @@ else -- Assume version is 5.4
     lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
 end
 
-txe.lua_std_functions = {}
+plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
-    txe.lua_std_functions[name] = _G[name]
+    plume.lua_std_functions[name] = _G[name]
 end
 
 --- Resets or initializes all session-specific tables.
-function txe.init ()
+function plume.init ()
     -- A table that contain
     -- all local scopes.
-    txe.scopes = {}
+    plume.scopes = {}
 
     -- Create the first local scope
     -- (indeed, the global one)
-    txe.push_scope ()
+    plume.push_scope ()
 
     -- Init methods that are visible from user
-    txe.init_api ()
+    plume.init_api ()
 
     -- Cache lua code to not
     -- call "load" multiple times
     -- for the same chunk
-    txe.lua_cache    = {}
+    plume.lua_cache    = {}
 
     -- Track number of chunks,
     -- To assign a number of each
     -- of them.
-    txe.chunk_count = 0
+    plume.chunk_count = 0
 
     -- Stack of executed files
-    txe.file_stack = {}
+    plume.file_stack = {}
         
     -- Add all std function into
     -- global scope
-    for k, v in pairs(txe.lua_std_functions) do
-        txe.scopes[1][k] = v
+    for k, v in pairs(plume.lua_std_functions) do
+        plume.scopes[1][k] = v
     end
 
     -- Add all std macros to
     -- the macro table
-    txe.macros = {}
-    for k, v in pairs(txe.std_macros) do
+    plume.macros = {}
+    for k, v in pairs(plume.std_macros) do
         v.user_opt_args = {}
-        txe.macros[k] = v
+        plume.macros[k] = v
     end
 
     -- Initialise error tracing
-    txe.last_error = nil
-    txe.traceback = {}
+    plume.last_error = nil
+    plume.traceback = {}
 end
 
 -- <DEV>
-txe.show_token = false
+plume.show_token = false
 local function print_tokens(t, indent)
     local function print_token_info (token)
         print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
@@ -2135,13 +2267,13 @@ end
 -- @param code string The code to render
 -- @param file string The name used to track the code
 -- @return string The rendered output
-function txe.render (code, file)
+function plume.render (code, file)
     local tokens, result
     
-    tokens = txe.tokenize(code, file)
-    tokens = txe.parse(tokens)
+    tokens = plume.tokenize(code, file)
+    tokens = plume.parse(tokens)
     -- <DEV>
-    if txe.show_token then
+    if plume.show_token then
         print "--------"
         print_tokens(tokens)
     end
@@ -2154,19 +2286,19 @@ end
 --- Reads the content of a file and renders it.
 -- @param filename string The name of the file to render
 -- @return string The rendered output
-function txe.renderFile(filename)
+function plume.renderFile(filename)
     local file = io.open(filename, "r")
         assert(file, "File " .. filename .. " doesn't exist or cannot be read.")
         local content = file:read("*all")
     file:close()
     
     -- Track the file we are currently in
-    table.insert(txe.file_stack, filename)
+    table.insert(plume.file_stack, filename)
     
-    local result = txe.render(content, filename)
+    local result = plume.render(content, filename)
     
     -- Remove file from stack
-    table.remove(txe.file_stack)
+    table.remove(plume.file_stack)
 
     return result
 end
@@ -2178,32 +2310,32 @@ Plume - TextEngine 0.1.0
 Plume is a templating langage with advanced scripting features.
 
 Usage:
-    txe INPUT_FILE
-    txe --print INPUT_FILE
-    txe --output OUTPUT_FILE INPUT_FILE
-    txe --version
-    txe --help
+    plume INPUT_FILE
+    plume --print INPUT_FILE
+    plume --output OUTPUT_FILE INPUT_FILE
+    plume --version
+    plume --help
 
 Options:
   -h, --help          Show this help message and exit.
-  -v, --version       Show the version of txe and exit.
+  -v, --version       Show the version of plume and exit.
   -o, --output FILE   Write the output to FILE
   -p, --print         Display the result
 
 Examples:
-  txe --help
+  plume --help
     Display this message.
 
-  txe --version
+  plume --version
     Display the version of Plume.
 
-  txe input.txe
+  plume input.plume
     Process 'input.txt'
 
-  txe --print input.txe
+  plume --print input.plume
     Process 'input.txt' and display the result
 
-  txe --output output.txt input.txe
+  plume --output output.txt input.plume
     Process 'input.txt' and save the result to 'output.txt'.
 
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
@@ -2272,13 +2404,13 @@ end
 
 -- Main function for the command-line interface,
 -- a minimal cli parser
-function txe.cli_main ()
-    -- Save txe directory
-    txe.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
+function plume.cli_main ()
+    -- Save plume directory
+    plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
     local print_output
     if arg[1] == "-v" or arg[1] == "--version" then
-        print(txe._VERSION)
+        print(plume._VERSION)
         return
     elseif arg[1] == "-h" or arg[1] == "--help" then
         print(cli_help)
@@ -2308,12 +2440,12 @@ function txe.cli_main ()
 
     -- Initialize with the input file
     local currentDirectory = getCurrentDirectory ()
-    txe.init (input)
-    txe.current_scope().txe.input_file  = absolutePath(currentDirectory, input)
-    txe.current_scope().txe.output_file = absolutePath(currentDirectory, output)
+    plume.init (input)
+    plume.current_scope().plume.input_file  = absolutePath(currentDirectory, input)
+    plume.current_scope().plume.output_file = absolutePath(currentDirectory, output)
 
     -- Render the file and capture success or error
-    success, result = pcall(txe.renderFile, input)
+    success, result = pcall(plume.renderFile, input)
 
     if print_output then
         -- Print the result if the print_output flag is set
@@ -2342,7 +2474,51 @@ end
 -- Trick to test if we are called from the command line
 -- Handle the specific case where arg is nil (when used in fegari for exemple)
 if arg and debug.getinfo(3, "S")==nil then
-    txe.cli_main ()
+    plume.cli_main ()
 end
 
-return txe
+return plume
+</script>
+
+<script type="application/lua">
+js = require("js")
+global = js.global
+local document = global.document
+
+local function updateOutput()
+    plume.init()
+
+    local inputElement = document:getElementById("input")
+    local outputElement = document:getElementById("output")
+
+    local sucess, result = pcall(plume.render, inputElement.value)
+
+    outputElement.innerHTML = result
+end
+
+local inputElement = document:getElementById("input")
+
+inputElement:addEventListener("input", updateOutput)
+
+local function handle_tab(self, event)
+    if event.key == "Tab" then
+        event:preventDefault()
+
+        local input = document:getElementById("input")
+        local start = input.selectionStart
+        local finish = input.selectionEnd
+        
+        -- Add the tab character
+        input.value = input.value:sub(1, start) .. "\t" .. input.value:sub(finish + 1)
+
+        -- Move the cursor to the correct position after the tab
+        input.selectionStart = start + 1
+        input.selectionEnd = start + 1
+    end
+end
+
+document:getElementById("input"):addEventListener("keydown", handle_tab)
+
+updateOutput()
+
+</script>

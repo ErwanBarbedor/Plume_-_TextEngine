@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param macro table The macro being called
 -- @param args table The arguments table to be filled
 -- @param opt_args table The optional arguments to parse
-function txe.parse_opt_args (macro, args, opt_args)
+function plume.parse_opt_args (macro, args, opt_args)
     local key, eq, space
     local captured_args = {}
     for _, token in ipairs(opt_args) do
@@ -24,14 +24,14 @@ function txe.parse_opt_args (macro, args, opt_args)
             if token.kind == "space" or token.kind == "newline" then
             elseif eq then
                 if token.kind == "opt_assign" then
-                    txe.error(token, "Expected parameter value, not '" .. token.value .. "'.")
+                    plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
                 elseif key.kind ~= "block_text" then
-                    txe.error(key, "Optional parameters names must be raw text.")
+                    plume.error(key, "Optional parameters names must be raw text.")
                 end
                 local name = key:render ()
                 
-                if not txe.is_identifier(name) then
-                    txe.error(key, "'" .. name .. "' is an invalid name for an argument name.")
+                if not plume.is_identifier(name) then
+                    plume.error(key, "'" .. name .. "' is an invalid name for an argument name.")
                 end
 
                 captured_args[name] = token
@@ -44,7 +44,7 @@ function txe.parse_opt_args (macro, args, opt_args)
                 key = token
             end
         elseif token.kind == "opt_assign" then
-            txe.error(token, "Expected parameter name, not '" .. token.value .. "'.")
+            plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
         elseif token.kind ~= "space" and token.kind ~= "newline"then
             key = token
         end
@@ -102,7 +102,7 @@ end
 --- Main Plume - TextEngine function, that builds the output.
 -- @param self tokenlist The token list to render
 -- @return string The rendered output
-function txe.renderToken (self)
+function plume.renderToken (self)
     local pos = 1
     local result = {}
 
@@ -142,7 +142,7 @@ function txe.renderToken (self)
             table.insert(result, token.value)
         
         elseif token.kind == "newline" then
-            if not txe.running_api.config.ignore_spaces then
+            if not plume.running_api.config.ignore_spaces then
                 if token.__type == "token" then
                     table.insert(result, token.value)
                 else
@@ -153,7 +153,7 @@ function txe.renderToken (self)
             end
         
         elseif token.kind == "space" then
-            if txe.running_api.config.ignore_spaces then
+            if plume.running_api.config.ignore_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
@@ -166,31 +166,31 @@ function txe.renderToken (self)
         elseif token.kind == "macro" then
             -- Capture required number of block after the macro.
             
-            -- If more than txe.max_callstack_size macro are running, throw an error.
+            -- If more than plume.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            local up_limit = txe.running_api.config.max_callstack_size
+            local up_limit = plume.running_api.config.max_callstack_size
             
-            if #txe.traceback > up_limit then
-                txe.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
+            if #plume.traceback > up_limit then
+                plume.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
             end
 
             local stack = {}
 
             local function push_macro (token)
                 -- Check if macro exist, then add it to the stack
-                local name  = token.value:gsub("^"..txe.syntax.escape , "")
+                local name  = token.value:gsub("^"..plume.syntax.escape , "")
 
-                if name == txe.syntax.eval then
+                if name == plume.syntax.eval then
                     name = "eval"
                 end
 
-                if not txe.is_identifier(name) then
-                    txe.error(token, "'" .. name .. "' is an invalid name for a macro.")
+                if not plume.is_identifier(name) then
+                    plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
                 end
 
-                local macro = txe.get_macro (name)
+                local macro = plume.get_macro (name)
                 if not macro then
-                    txe.error_macro_not_found(token, name)
+                    plume.error_macro_not_found(token, name)
                 end
 
                 table.insert(stack, {token=token, macro=macro, args={}})
@@ -198,7 +198,7 @@ function txe.renderToken (self)
 
             local function manage_opt_args(top, token)
                 if top.opt_args then
-                    txe.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
+                    plume.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
                 end
                 top.opt_args = token
             end
@@ -214,7 +214,7 @@ function txe.renderToken (self)
                     pos = pos+1
                     if not self[pos] then
                         -- End reached, but not enough arguments
-                        txe.error(token, "End of block reached, not enough arguments for macro '" .. stack[1].token.value.."'. " .. #top.args.." instead of " .. #top.macro.args .. ".")
+                        plume.error(token, "End of block reached, not enough arguments for macro '" .. stack[1].token.value.."'. " .. #top.args.." instead of " .. #top.macro.args .. ".")
                     
                     elseif self[pos].kind == "macro" then
                         -- A new macro. Push it to the stack to catpures
@@ -256,7 +256,7 @@ function txe.renderToken (self)
                     top = table.remove(stack)
                     if #stack > 0 then
                         local subtop = stack[#stack]
-                        local arg_list = txe.tokenlist(top.args)
+                        local arg_list = plume.tokenlist(top.args)
 
                         -- rebuild the captured macro hand it's argument
                         if top.opt_args then
@@ -277,10 +277,10 @@ function txe.renderToken (self)
                         end
 
                         -- Parse optionnal args
-                        txe.parse_opt_args(top.macro, args, top.opt_args or {})
+                        plume.parse_opt_args(top.macro, args, top.opt_args or {})
 
                         -- Update traceback, call the macro and add is result
-                        table.insert(txe.traceback, token)
+                        table.insert(plume.traceback, token)
                             local success, macro_call_result = pcall(function ()
                                 return { top.macro.macro (
                                     args,
@@ -294,13 +294,13 @@ function txe.renderToken (self)
                             if success then
                                 call_result, chain_message = macro_call_result[1], macro_call_result[2]
                             else
-                                txe.error(top.token, "Unexpected lua error running the macro : " .. macro_call_result)
+                                plume.error(top.token, "Unexpected lua error running the macro : " .. macro_call_result)
                             end
 
                             chain_sender = top.token.value
 
                             table.insert(result, tostring(call_result or ""))
-                        table.remove(txe.traceback)
+                        table.remove(plume.traceback)
                     end
                 end
             end
@@ -316,7 +316,7 @@ end
 -- Otherwise, render the tokenlist.
 -- @param self tokenlist The token list to render
 -- @return lua_objet Result of evaluation
-function txe.renderTokenLua (self)
+function plume.renderTokenLua (self)
     local is_lua
     if #self == 2 and self[1].kind == "macro" then
         is_lua = is_lua or self[1].value == "#"
@@ -325,7 +325,7 @@ function txe.renderTokenLua (self)
     end
 
     if is_lua then
-        local result = txe.eval_lua_expression(self[2])
+        local result = plume.eval_lua_expression(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then
             result = result:render ()
         end

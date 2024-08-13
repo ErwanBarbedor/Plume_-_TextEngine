@@ -16,7 +16,7 @@ If you want to use them, escape them: `\\`, `\#`, ...
 
 Single-line comments are denoted by `//` and are not rendered in the output:
 
-```txe
+```plume
 Hello // This is a comment
 World
 ```
@@ -31,7 +31,7 @@ Macros in Plume are prefixed with a backslash (`\`) and can take arguments enclo
 
 Example:
 
-```txe
+```plume
 \macro {arg1} {arg2}
 ```
 
@@ -39,13 +39,13 @@ Optional arguments are inside square brackets.
 
 Example:
 
-```txe
+```plume
 \macro[foo bar=baz] {arg1} {arg2}
 ```
 
 A macro is defined using `\def`:
 
-```txe
+```plume
 \def greeting[name] {Hello, #name!}
 \greeting {World}
 ```
@@ -56,7 +56,7 @@ Hello, World!
 
 You can define arguments as optional with a default value:
 
-```txe
+```plume
 \def greeting[name=you] {Hello, #name!}
 \greeting
 \greeting[name=me]
@@ -69,7 +69,7 @@ Hello, me!
 
 You can use any number of arguments, separated by spaces:
 
-```txe
+```plume
 \def foo[x y z foo=bar baz=foo]{
     ...
 }
@@ -85,7 +85,7 @@ Variables are defined using the `\set` command and accessed using the `#` symbol
 
 Example:
 
-```txe
+```plume
 \set x 5
 The value of x is #x
 ```
@@ -101,7 +101,7 @@ If you want to apply `#` to the whole expression, use `#{x+1}`.
 
 You can also define variable with Lua:
 
-```txe
+```plume
 \script {x = 5}
 ```
 
@@ -111,7 +111,7 @@ You can also define variable with Lua:
 
 You can evaluate any Lua expression using `#{...}` (or its alias `\eval{...}`):
 
-```txe
+```plume
 \set a 3
 \set b 4
 The sum of a and b is #{a + b}
@@ -123,7 +123,7 @@ The sum of a and b is 7
 
 Example:
 
-```txe
+```plume
 The os time is #{os.time()}
 ```
 Output:
@@ -131,7 +131,7 @@ Output:
 The os time is 701184650
 ```
 
-You should notice that the syntax is the same as for variables. In fact, txe doesn't really have any variables; it simply evaluates an underlying Lua variable.
+You should notice that the syntax is the same as for variables. In fact, plume doesn't really have any variables; it simply evaluates an underlying Lua variable.
 
 ### Lua Scripts
 
@@ -139,7 +139,7 @@ You can execute any Lua statement inside `\script{...}`.
 
 Example:
 
-```txe
+```plume
 \script{
     function factorial(n)
         if n == 0 then return 1 end
@@ -158,16 +158,16 @@ The factorial of 5 is: 120
 
 You can execute an external Lua file with `\require {path}`.
 
-```txe
+```plume
 \require {my_lib}
 #{some_function ()}
 ```
 
-Or with `txe.require` inside `\script`:
+Or with `plume.require` inside `\script`:
 
-```txe
+```plume
 \script {
-    txe.require "my_lib"
+    plume.require "my_lib"
 }
 ```
 
@@ -177,7 +177,7 @@ Or with `txe.require` inside `\script`:
 
 The `\if`, `\elseif`, and `\else` commands provide conditional logic:
 
-```txe
+```plume
 \set x 10
 \if {x > 5}
     {x is greater than 5}
@@ -199,7 +199,7 @@ Plume supports `\for` and `\while` loops.
 
 For loop example:
 
-```txe
+```plume
 \for {i=1,3} {
     Line #i
 }
@@ -226,7 +226,7 @@ The grape is purple.
 
 While loop example:
 
-```txe
+```plume
 \set a 0
 \while {a < 3} {
     \set a #{a+1}
@@ -250,7 +250,7 @@ Plume is configured to stop loops after 1000 iterations, to prevent infinite loo
 
 If an expression in `#{...}` returns a number, you can format it.
 
-```txe
+```plume
 #{4/3}[i]
 #{1/3}[.4f]
 #{10000}[thousand_separator=,]
@@ -268,7 +268,7 @@ Output:
 
 You can set default argument values for any macros.
 
-```txe
+```plume
 \foo[bar=bar]{#bar}
 \foo
 \default foo[bar=baz]
@@ -282,7 +282,7 @@ baz
 
 To set '#' default value, use the alias "eval".
 
-```txe
+```plume
 #{50000}
 \default eval [thousand_separator={ }]
 #{50000}
@@ -299,9 +299,9 @@ You can include content from other files, which is useful for modularizing your 
 
 Example:
 
-Assuming a file named `header.txe` contains:
+Assuming a file named `header.plume` contains:
 
-```txe
+```plume
 \def header[title] {
 <header>
     <h1>#title</h1>
@@ -311,8 +311,8 @@ Assuming a file named `header.txe` contains:
 
 You can include and use it in your main file:
 
-```txe
-\include header.txe
+```plume
+\include header.plume
 \header{Welcome to My Website}
 ```
 Output:
@@ -323,4 +323,4 @@ Output:
 </header>
 ```
 
-If you want to include a file containing no `txe` code but potentially many characters to escape (like a CSS file), you can use the `\include[extern] {path}` option. The file will be read and directly included without being executed.
+If you want to include a file containing no `plume` code but potentially many characters to escape (like a CSS file), you can use the `\include[extern] {path}` option. The file will be read and directly included without being executed.

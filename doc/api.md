@@ -1,11 +1,11 @@
 # Predefined functions
 
 
-## `txe` functions
+## `plume` functions
 
-`txe` is a global table containing the following functions :
+`plume` is a global table containing the following functions :
 
-### `txe.set_local ()`
+### `plume.set_local ()`
 
 **Description:** Set a variable locally
 
@@ -15,10 +15,10 @@
 
 **Example:**
 
-```txe
+```plume
 \def foo {
     \script{
-        txe.set_local("a", 1)
+        plume.set_local("a", 1)
         b = 2
     }
     #a #b
@@ -32,18 +32,18 @@ Output:
 2
 ```
 
-### `txe.get ()`
+### `plume.get ()`
 
 **Description:** Get a variable value from current scope by name.
 **Parameters:**
 - _name_: Variable name
 
-**Note** : `txe.get` may return a tokenlist, so may have to call `txe.get (name):render ()` or `txe.get (name):renderLua ()`. See `txe.get_render` and `txe.get_renderLua`
+**Note** : `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See `plume.get_render` and `plume.get_renderLua`
 
-```txe
+```plume
 \script{
     a = 1
-    return txe.get "a"
+    return plume.get "a"
 }
 ```
 Output
@@ -51,36 +51,36 @@ Output
 1
 ```
 
-### `txe.get_render ()`
+### `plume.get_render ()`
 **Description:** If the variable has a render method, call it and return the result. Otherwise, return the variable.
 **Parameters:**
 - _name_: Variable name
-**Alias** : `txe.getr`
+**Alias** : `plume.getr`
 
-### `txe.getr ()`
-**Description:** Alias to `txe.get_render`
+### `plume.getr ()`
+**Description:** Alias to `plume.get_render`
 
-### `txe.get_lua`
+### `plume.get_lua`
 **Description:** If the variable has a renderLua method, call it and return the result. Otherwise, return the variable.
 **Parameters:**
 - _name_: Variable name
-**Alias** : `txe.getl`
+**Alias** : `plume.getl`
 
-### `txe.getl ()`
-**Description:** Alias to `txe.get_renderLua`
+### `plume.getl ()`
+**Description:** Alias to `plume.get_renderLua`
 
-### `txe.require ()`
+### `plume.require ()`
 
 **Description:**  Works like Lua's require, but uses Plume's file search system.
 **Parameters:**
 - _name_: Name of the lua file to load.
 
-## `txe` variables
+## `plume` variables
 
 | Name                   |  Notes |
 | ---------------------  | ----------- |
-| input_file             | input path given to txe, if any |
-| output_file            | input path given to txe, if any |
+| input_file             | input path given to plume, if any |
+| output_file            | input path given to plume, if any |
 
 ## `tokenlist`
 
@@ -88,7 +88,7 @@ Output
 `tokenlist` are Lua representations of Plume structures. You can access them in a macro call via variables named after arguments.
 
 Example:
-```txe
+```plume
 \def foo[x] {
     #{x.__type}
 }
@@ -103,7 +103,7 @@ tokenlist
 
 **Description:**  Renders tokenlist
 Example:
-```txe
+```plume
 \def foo[x] {
     x=#{x:render()}
 }
@@ -116,10 +116,10 @@ x=5
 
 ## `tokenlist:renderLua ()`
 
-**Description:** If the tokenlist starts with `#`, ``eval` or ``script`, evaluate this macro and return the result as a lua object, without conversion to string.
+**Description:** If the tokenlist starts with `#`, `eval` or `script`, evaluate this macro and return the result as a lua object, without conversion to string.
 Otherwise, render the tokenlist.
 
-```txe
+```plume
 \def foo[x] {
     Render : #{type(x:render())}
     RenderLua : #{type(x:renderLua())}
@@ -137,7 +137,7 @@ RenderLua : table
 
 **Description:** Get tokenlist string representation
 Example:
-```txe
+```plume
 \def foo[x] {
     Source   : #{x:source ()}
     Rendered : #{x:render()}

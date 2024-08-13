@@ -13,13 +13,13 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Configuration settings
-txe.config = {}
+plume.config = {}
 
 -- Maximum number of nested macros
-txe.config.max_callstack_size = 100
+plume.config.max_callstack_size = 100
 
 -- Maximum of loop iteration for macro "\while" and "\for"
-txe.config.max_loop_size      = 1000
+plume.config.max_loop_size      = 1000
 
 -- Ignore majority of spaces from input
-txe.config.ignore_spaces  = false
+plume.config.ignore_spaces  = false

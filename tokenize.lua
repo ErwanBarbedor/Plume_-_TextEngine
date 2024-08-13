@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param code string The code to tokenize
 -- @param file string The name of the file being tokenized, for debuging purpose. May be any string.
 -- @return table A list of tokens
-function txe.tokenize (code, file)
-    -- Get the txe code as raw string, and return a list of token.
-    local result  = txe.tokenlist("render-block")
+function plume.tokenize (code, file)
+    -- Get the plume code as raw string, and return a list of token.
+    local result  = plume.tokenlist("render-block")
     local acc     = {}
     local noline  = 1
     local linepos = 1
@@ -28,7 +28,7 @@ function txe.tokenize (code, file)
 
     local function newtoken (kind, value, delta)
         table.insert(result,
-            txe.token(kind, value, noline, pos - #value - linepos + (delta or 0), file, code)
+            plume.token(kind, value, noline, pos - #value - linepos + (delta or 0), file, code)
         )
     end
 
@@ -52,14 +52,14 @@ function txe.tokenize (code, file)
             noline = noline + 1
             linepos = pos+1
         
-        elseif c == txe.syntax.opt_assign then
+        elseif c == plume.syntax.opt_assign then
             write()
-            newtoken ("opt_assign", txe.syntax.opt_assign, 1)
+            newtoken ("opt_assign", plume.syntax.opt_assign, 1)
         
-        elseif c == txe.syntax.escape then
+        elseif c == plume.syntax.escape then
             -- Begin a macro or escape any special character.
             local next = code:sub(pos+1, pos+1)
-            if next:match(txe.syntax.identifier_begin) then
+            if next:match(plume.syntax.identifier_begin) then
                 write()
                 state = "macro"
                 table.insert(acc, c)
@@ -69,42 +69,42 @@ function txe.tokenize (code, file)
                 pos = pos + 1
             end
         
-        elseif c == txe.syntax.block_begin then
+        elseif c == plume.syntax.block_begin then
             write()
-            newtoken ("block_begin", txe.syntax.block_begin, 1)
+            newtoken ("block_begin", plume.syntax.block_begin, 1)
         
-        elseif c == txe.syntax.block_end then
+        elseif c == plume.syntax.block_end then
             write()
-            newtoken ("block_end", txe.syntax.block_end, 1)
+            newtoken ("block_end", plume.syntax.block_end, 1)
         
-        elseif c == txe.syntax.opt_block_begin then
+        elseif c == plume.syntax.opt_block_begin then
             write()
-            newtoken ("opt_block_begin", txe.syntax.opt_block_begin, 1)
+            newtoken ("opt_block_begin", plume.syntax.opt_block_begin, 1)
         
-        elseif c == txe.syntax.opt_block_end then
+        elseif c == plume.syntax.opt_block_end then
             write()
-            newtoken ("opt_block_end", txe.syntax.opt_block_end, 1)
+            newtoken ("opt_block_end", plume.syntax.opt_block_end, 1)
         
-        elseif c == txe.syntax.eval then
+        elseif c == plume.syntax.eval then
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
             write()
             pos = pos + 1
-            newtoken ("eval", txe.syntax.eval)
+            newtoken ("eval", plume.syntax.eval)
             local next = code:sub(pos, pos)
-            if next:match(txe.syntax.identifier_begin) then
-                local name = code:sub(pos, -1):match(txe.syntax.identifier .. '+')
+            if next:match(plume.syntax.identifier_begin) then
+                local name = code:sub(pos, -1):match(plume.syntax.identifier .. '+')
                 pos = pos + #name-1
                 newtoken ("text", name)
             else
                 pos = pos - 1
             end
         
-        elseif c == txe.syntax.comment then
+        elseif c == plume.syntax.comment then
             pos = pos + 1
             local next = code:sub(pos, pos)
-            if next == txe.syntax.comment then
+            if next == plume.syntax.comment then
                 write("comment")
                 table.insert(acc, c)
                 table.insert(acc, c)
@@ -136,7 +136,7 @@ function txe.tokenize (code, file)
             write ("space")
             table.insert(acc, c)
         else
-            if state == "macro" and c:match(txe.syntax.identifier) then
+            if state == "macro" and c:match(plume.syntax.identifier) then
                 write ("macro")
             else
                 write ("text")
@@ -148,7 +148,7 @@ function txe.tokenize (code, file)
     write ()
 
     -- <DEV>
-    if txe.show_token then
+    if plume.show_token then
         for _, token in ipairs(result) do
             print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
         end

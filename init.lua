@@ -29,52 +29,52 @@ else -- Assume version is 5.4
     lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
 end
 
-txe.lua_std_functions = {}
+plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
-    txe.lua_std_functions[name] = _G[name]
+    plume.lua_std_functions[name] = _G[name]
 end
 
 --- Resets or initializes all session-specific tables.
-function txe.init ()
+function plume.init ()
     -- A table that contain
     -- all local scopes.
-    txe.scopes = {}
+    plume.scopes = {}
 
     -- Create the first local scope
     -- (indeed, the global one)
-    txe.push_scope ()
+    plume.push_scope ()
 
     -- Init methods that are visible from user
-    txe.init_api ()
+    plume.init_api ()
 
     -- Cache lua code to not
     -- call "load" multiple times
     -- for the same chunk
-    txe.lua_cache    = {}
+    plume.lua_cache    = {}
 
     -- Track number of chunks,
     -- To assign a number of each
     -- of them.
-    txe.chunk_count = 0
+    plume.chunk_count = 0
 
     -- Stack of executed files
-    txe.file_stack = {}
+    plume.file_stack = {}
         
     -- Add all std function into
     -- global scope
-    for k, v in pairs(txe.lua_std_functions) do
-        txe.scopes[1][k] = v
+    for k, v in pairs(plume.lua_std_functions) do
+        plume.scopes[1][k] = v
     end
 
     -- Add all std macros to
     -- the macro table
-    txe.macros = {}
-    for k, v in pairs(txe.std_macros) do
+    plume.macros = {}
+    for k, v in pairs(plume.std_macros) do
         v.user_opt_args = {}
-        txe.macros[k] = v
+        plume.macros[k] = v
     end
 
     -- Initialise error tracing
-    txe.last_error = nil
-    txe.traceback = {}
+    plume.last_error = nil
+    plume.traceback = {}
 end

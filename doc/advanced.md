@@ -6,7 +6,7 @@ You can access the table of all passed arguments in the field `__args`.
 
 Example:
 
-```txe
+```plume
 \def multiargs {
     \for {i, args in ipairs(__args)} {
         Argument #i : #args
@@ -23,7 +23,7 @@ Argument 3 : baz
 ```
 
 You can also easily check if there is an unnamed optionnal argument with a certain value
-```txe
+```plume
 \def foo {
     \if {__args.option_a} {
         Option A
@@ -44,7 +44,7 @@ Option B
 
 Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
 
-```txe
+```plume
 \def foo[x]{
     #{print(x)}
 }
@@ -58,7 +58,7 @@ _If x is a tokenlist, `#x` is the same as `#{x:render()}`._
 
 Example:
 
-```txe
+```plume
 \def foo[x]{
     #{x:source()}
     #{x:render()}
@@ -67,7 +67,7 @@ Example:
 ```
 Gives:
 
-```txe
+```plume
 #{1+1}
 2
 ```
@@ -84,7 +84,7 @@ You can define a new macro with `\def`. But if the name is already taken, you mu
 
 When calling `\set x {value}`, Plume will render the value before saving it as a string. So:
 
-```txe
+```plume
 \def foo {bar}
 \set x \foo
 #x
@@ -96,7 +96,7 @@ Gives `bar bar`, and not `bar baz`.
 
 If the value is an `\eval` block, `\set` will save it as a Lua object.
 
-```txe
+```plume
 \set x 1+1
 \set y #{1+1}
 
@@ -110,7 +110,7 @@ Gives `string, number`.
 Each macro execution create a new scope.
 Variables are global by default.
 
-```txe
+```plume
 \def foo {
     \set x 20
 }
@@ -126,7 +126,7 @@ Gives:
 
 But it is possible to make them local, with `\set[local]` (or its alias `\setl`).
 
-```txe
+```plume
 \def foo {
     \set[local] x 20
 }
@@ -149,17 +149,17 @@ See `\config` macro to edit this number.
 
 ## Lua Scope
 
-Local variables are local to the macro script and cannot be used outside it. For global variables, if a variable with the same name exists, they share the same scope. Otherwise, they are global. To declare a variable inside a script macro but local to the current `txe` scope, use `txe.set_local (key, value)` (or its alias `txe.setl`).
+Local variables are local to the macro script and cannot be used outside it. For global variables, if a variable with the same name exists, they share the same scope. Otherwise, they are global. To declare a variable inside a script macro but local to the current `plume` scope, use `plume.set_local (key, value)` (or its alias `plume.setl`).
 
 Example:
 
-```txe
+```plume
 \def foo {
     \script {
         local a = 0
         b = 1
         c = 2
-        txe.set_local("d", 3)
+        plume.set_local("d", 3)
     }
     a: #a, b: #b, c: #c, d: #d
 }
@@ -180,12 +180,12 @@ By default, Plume retains all spaces. If you want to remove them, use comments.
 A comment deletes the line feed _and_ the indentation of the following line.
 
 For exemple, 
-```txe
+```plume
 foo //
     bar
 ```
 Gives
-```txe
+```plume
 foo bar
 ```
 

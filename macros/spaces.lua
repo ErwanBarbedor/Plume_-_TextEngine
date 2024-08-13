@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define spaces-related macros
 
-txe.register_macro("n", {}, {}, function(args)
+plume.register_macro("n", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()
@@ -22,7 +22,7 @@ txe.register_macro("n", {}, {}, function(args)
     return ("\n"):rep(count)
 end)
 
-txe.register_macro("s", {}, {}, function(args)
+plume.register_macro("s", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()
@@ -30,7 +30,7 @@ txe.register_macro("s", {}, {}, function(args)
     return (" "):rep(count)
 end)
 
-txe.register_macro("t", {}, {}, function(args)
+plume.register_macro("t", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()

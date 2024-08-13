@@ -12,7 +12,7 @@
 
 **Example:**
 
-```txe
+```plume
 \for {i=1, 10} {
     Line number #i.
 }
@@ -27,7 +27,7 @@
 
 **Example:**
 
-```txe
+```plume
 \set i 100
 \while {i>10} {
     \set i #{i-1}
@@ -43,7 +43,7 @@
 
 **Example:**
 
-```txe
+```plume
 \set i 3
 \if {i==4} {
     foo
@@ -60,7 +60,7 @@
 
 **Example:**
 
-```txe
+```plume
 \set i 3
 \if {i==4} {
     foo
@@ -83,14 +83,14 @@ When using `\require` or `\include`, Plume will search for file in theses folder
 - First next to the file where `\require` or `\include` was called.
 - Then to the file, if exist, that included the file calling  `\require` or `\include`.
 - Then the previous path...
-- Then in the "lib" folder next to `txe.lua`
+- Then in the "lib" folder next to `plume.lua`
 
 If using `\require`, Plume will automatically search for file:
 - With the exact name
 - With the exact name followed by ".lua"
 - With the name "init.lua" inside the folder with given name.
 
-Same `\include` with ".txe" instead of ".lua".
+Same `\include` with ".plume" instead of ".lua".
 
 
 ### `\require`
@@ -118,8 +118,8 @@ Same `\include` with ".txe" instead of ".lua".
 
 **Example:**
 
-```txe
-\include {mylib} // will import mylib.txe
+```plume
+\include {mylib} // will import mylib.plume
 \include[extern] {style.css} // no need to escape all CSS brackets
 ```
 
@@ -133,7 +133,7 @@ Same `\include` with ".txe" instead of ".lua".
 
 **Example:**
 
-```txe
+```plume
 \file {output.txt} {
     foo
 }
@@ -153,11 +153,11 @@ This will create a file named `output.txt` and write `foo` inside.
 **Notes:**
 - Local Lua variables are local to the chunk and cannot be accessed outside.
 - Global Lua variables can be accessed from anywhere outside.
-- You can define variables local to the current Plume scope with `txe.set_local(key, value)`.
+- You can define variables local to the current Plume scope with `plume.set_local(key, value)`.
 
 **Example:**
 
-```txe
+```plume
 \script {
     local a = 0
     a = a + 1
@@ -178,7 +178,7 @@ Output: `1`.
 - `\#{...}` is equivalent to `\eval {...}`
 - `\#x+1` is equivalent to `\eval {x}+1`
 
-```txe
+```plume
 \set x #{35 + 1 * 2}
 ```
 
@@ -218,7 +218,7 @@ Output: `1`.
 
 **Example:**
 
-```txe
+```plume
 \def foo[x y bar=baz] {
     x: #x, y: #y, bar: #bar
 }
@@ -274,7 +274,7 @@ bar
 
 **Example:**
 
-```txe
+```plume
 \raw{\def foo bar}
 ```
 
@@ -291,7 +291,7 @@ Output:
 - _value_: New value of the parameter.
 
 **Notes:**
-- Almost equivalent to `\script{txe.config.variable_name = value}`, except `\config` will raise an error if the key isn't a known parameter name.
+- Almost equivalent to `\script{plume.config.variable_name = value}`, except `\config` will raise an error if the key isn't a known parameter name.
 - If the value is a number, "true", "false", or "nil", it will be converted.
 
 **List of Parameters:**

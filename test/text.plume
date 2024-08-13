@@ -29,7 +29,7 @@ Hello...world!
 // End
 
 // Test 'No space 1'
-\script{txe.config.ignore_spaces = true}
+\script{plume.config.ignore_spaces = true}
 Foo!
     Bar!
 // Result
@@ -37,7 +37,7 @@ Foo!Bar!
 // End
 
 // Test 'No space 2'
-\script{txe.config.ignore_spaces = true}
+\script{plume.config.ignore_spaces = true}
 Foo!             Bar!
 // Result
 Foo! Bar!
@@ -52,7 +52,7 @@ Bar!
 // End
 
 // Test 'No space 4'
-\script{txe.config.ignore_spaces = true}
+\script{plume.config.ignore_spaces = true}
 Foo!{\n[3]}
 Bar!
 // Result

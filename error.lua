@@ -12,8 +12,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-txe.last_error = nil
-txe.traceback = {}
+plume.last_error = nil
+plume.traceback = {}
 
 --- Retrieves a line by its line number in the source code.
 -- @param source string The source code
@@ -98,7 +98,7 @@ local function lua_info (lua_message)
 
     noline = noline - 1
     local token
-    for _, chunk in pairs(txe.lua_cache) do
+    for _, chunk in pairs(plume.lua_cache) do
         if chunk.chunk_count == chunk_id then
             token = chunk.token
             break
@@ -132,8 +132,8 @@ end
 --- Captures debug.traceback for error handling.
 -- @param msg string The error message
 -- @return string The error message
-function txe.error_handler (msg)
-    txe.lua_traceback = debug.traceback ()
+function plume.error_handler (msg)
+    plume.lua_traceback = debug.traceback ()
     return msg
 end
 
@@ -141,7 +141,7 @@ end
 -- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function txe.make_error_message (token, error_message, is_lua_error)
+function plume.make_error_message (token, error_message, is_lua_error)
     
     -- Make the list of lines to prompt.
     local error_lines_infos = {}
@@ -154,7 +154,7 @@ function txe.make_error_message (token, error_message, is_lua_error)
         table.insert(error_lines_infos, lua_info (error_message))
         error_message = "(lua error) " .. error_message:gsub('^.-:[0-9]+: ', '')
 
-        local traceback = (txe.lua_traceback or "")
+        local traceback = (plume.lua_traceback or "")
         local first_line = true
         for line in traceback:gmatch('[^\n]+') do
             if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
@@ -181,8 +181,8 @@ function txe.make_error_message (token, error_message, is_lua_error)
     end
     
     -- Then add all traceback
-    for i=#txe.traceback, 1, -1 do
-        table.insert(error_lines_infos, token_info (txe.traceback[i]))
+    for i=#plume.traceback, 1, -1 do
+        table.insert(error_lines_infos, token_info (plume.traceback[i]))
     end
 
     -- Now, for each line print line info (file, noline, line content)
@@ -260,16 +260,16 @@ end
 -- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function txe.error (token, error_message, is_lua_error)
+function plume.error (token, error_message, is_lua_error)
     -- If it is already an error, throw it.
-    if txe.last_error then
-        error(txe.last_error, -1)
+    if plume.last_error then
+        error(plume.last_error, -1)
     end
 
-    local error_message = txe.make_error_message (token, error_message, is_lua_error)
+    local error_message = plume.make_error_message (token, error_message, is_lua_error)
 
     -- Save the error
-    txe.last_error = error_message
+    plume.last_error = error_message
 
     -- And throw it
     error(error_message, -1)
@@ -311,23 +311,23 @@ end
 --- Generates error message for macro not found.
 -- @param token table The token that caused the error (optional)
 -- @param macro_name string The name of the not founded macro
-function txe.error_macro_not_found (token, macro_name)
+function plume.error_macro_not_found (token, macro_name)
     
     --Use a table to avoid duplicate names
     local suggestions_table = {}
 
     -- Hardcoded suggestions
     if macro_name == "import" then
-        if txe.macros.require then
+        if plume.macros.require then
             suggestions_table["require"] = true
         end
-        if txe.macros.include then
+        if plume.macros.include then
             suggestions_table["include"] = true
         end
     end
 
     -- Suggestions for possible typing errors
-    for name, _ in pairs(txe.macros) do
+    for name, _ in pairs(plume.macros) do
         if word_distance (name, macro_name) < 3 then
             suggestions_table[name] = true
         end
@@ -346,5 +346,5 @@ function txe.error_macro_not_found (token, macro_name)
         msg = msg .. "?"
     end
 
-    txe.error (token, msg)
+    plume.error (token, msg)
 end

@@ -12,7 +12,7 @@ Plume's philosophy is to combine the best of both worlds: text input is at the c
 
 To illustrate, consider the task of generating ten files, each containing a multiplication table for a specific number. This can certainly be achieved in Python or Lua, but of Plume offers a more intuitive approach:
 
-```txe
+```plume
 \for {i=1,10} {
     \file {table-#i.txt} {
         \for {j=1,10}{
@@ -24,13 +24,13 @@ To illustrate, consider the task of generating ten files, each containing a mult
 
 ## Quick Start
 
-You can test plume in [your browser](https://app.barbedor.bzh/txe.html). 
+You can test plume in [your browser](https://app.barbedor.bzh/plume.html). 
 
-Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the file [dist/txe.lua](dist/txe.lua).
+Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the file [dist/plume.lua](dist/plume.lua).
 
-Write the following in a file `input.txe`:
+Write the following in a file `input.plume`:
 
-```txe
+```plume
 \def table[x] {
     \for {i=1, 10} {
         #x * #i = #{x*i}
@@ -42,20 +42,20 @@ Write the following in a file `input.txe`:
 Then, in a command console, execute:
 
 ```bash
-lua txe.lua -p input.txe
+lua plume.lua -p input.plume
 ```
 
-This runs the `input.txe` file and you should see the multiplication table of 3 in your console.
+This runs the `input.plume` file and you should see the multiplication table of 3 in your console.
 
 To save this result to the `output.txt` file, run:
 
 ```bash
-lua txe.lua -o output.txt input.txe
+lua plume.lua -o output.txt input.plume
 ```
 
-You can also write your `input.txe` like this:
+You can also write your `input.plume` like this:
 
-```txe
+```plume
 \table[x] {
     ...
 }
@@ -67,7 +67,7 @@ You can also write your `input.txe` like this:
 And just call:
 
 ```bash
-lua txe.lua input.txe
+lua plume.lua input.plume
 ```
 
 _Of course, with this method you can output several files._
@@ -75,17 +75,17 @@ _Of course, with this method you can output several files._
 For a list of available options, use:
 
 ```
-> lua txe.lua -h
+> lua plume.lua -h
 Usage:
-    txe INPUT_FILE
-    txe --print INPUT_FILE
-    txe --output OUTPUT_FILE INPUT_FILE
-    txe --version
-    txe --help
+    plume INPUT_FILE
+    plume --print INPUT_FILE
+    plume --output OUTPUT_FILE INPUT_FILE
+    plume --version
+    plume --help
 
 Options:
   -h, --help          Show this help message and exit.
-  -v, --version       Show the version of txe and exit.
+  -v, --version       Show the version of plume and exit.
   -o, --output FILE   Write the output to FILE
   -p, --print         Display the result
 ```
@@ -95,7 +95,7 @@ Options:
 To find out more about Plume, you can consult:
 - [An overview of its main functions](doc/overview.md)
 - [More advanced points](doc/advanced.md)
-- Full documentation on predefined [macros](doc/predefined_macros.md) and  [functions](doc/api.md).
+- Full documentation on predefined [macros](doc/predefined_macros.md) and  [functions/tables](doc/api.md).
 
 You can also [read more about lua](https://www.lua.org/pil/1.html)
 

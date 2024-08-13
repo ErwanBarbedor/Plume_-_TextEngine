@@ -26,7 +26,7 @@ You should have received a copy of the GNU General Public License along with Plu
 --    \for{i = 1, 10}{ Iteration #i }
 --    \for{k, v in pairs(table)}{ #k : #v }
 
-txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
+plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     
@@ -49,7 +49,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
     
     -- If both attempts fail, raise an error
     if not var then
-        txe.error(args.iterator, "Non valid syntax for iterator.")
+        plume.error(args.iterator, "Non valid syntax for iterator.")
     end
 
     -- Extract all variable names from the iterator
@@ -64,11 +64,11 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
     coroutine_code = coroutine_code .. " end"
 
     -- Load and create the coroutine
-    local iterator_coroutine = txe.load_lua_chunk (coroutine_code, _, _, txe.current_scope ())
+    local iterator_coroutine = plume.load_lua_chunk (coroutine_code, _, _, plume.current_scope ())
     local co = coroutine.create(iterator_coroutine)
     
     -- Limiting loop iterations to avoid infinite loop
-    local up_limit = txe.running_api.config.max_loop_size
+    local up_limit = plume.running_api.config.max_loop_size
     local iteration_count  = 0
 
     -- Main iteration loop
@@ -76,7 +76,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
         -- Update and check loop limit
         iteration_count = iteration_count + 1
         if iteration_count > up_limit then
-            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- Resume the coroutine to get the next set of values
@@ -92,12 +92,12 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
 
         -- Check for Lua errors in the coroutine
         if not sucess or not co then
-            txe.error(args.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+            plume.error(args.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
         end
 
         -- Verify that the number of variables matches the number of values
         if #values_list ~= #variables_list then
-            txe.error(args.iterator,
+            plume.error(args.iterator,
                 "Wrong number of variables, "
                 .. #variables_list
                 .. " instead of "
@@ -106,7 +106,7 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            txe.scope_set_local (variables_list[i], values_list[i], calling_token.context)
+            plume.scope_set_local (variables_list[i], values_list[i], calling_token.context)
         end
 
         -- Render the body of the loop and add it to the result
@@ -116,42 +116,42 @@ txe.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token
     return table.concat(result, "")
 end)
 
-txe.register_macro("while", {"condition", "body"}, {}, function(args)
+plume.register_macro("while", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua while control structure.
-    -- To prevent infinite loop, a hard limit is setted by txe.max_loop_size
+    -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
 
     local result = {}
     local i = 0
-    local up_limit = txe.running_api.config.max_loop_size
-    while txe.eval_lua_expression (args.condition) do
+    local up_limit = plume.running_api.config.max_loop_size
+    while plume.eval_lua_expression (args.condition) do
         table.insert(result, args.body:render())
         i = i + 1
         if i > up_limit then
-            txe.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
     end
 
     return table.concat(result, "")
 end)
 
-txe.register_macro("if", {"condition", "body"}, {}, function(args)
+plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = txe.eval_lua_expression(args.condition)
+    local condition = plume.eval_lua_expression(args.condition)
     if condition then
         return args.body:render()
     end
     return "", not condition
 end)
 
-txe.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
 
     -- Must receive a message from preceding if
     if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
-        txe.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
+        plume.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
     end
 
     if chain_message then
@@ -161,17 +161,17 @@ txe.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender
     return ""
 end)
 
-txe.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
     
     -- Must receive a message from preceding if
     if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
-        txe.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
+        plume.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
     end
 
     local condition
     if chain_message then
-        condition = txe.eval_lua_expression(args.condition)
+        condition = plume.eval_lua_expression(args.condition)
         if condition then
             return args.body:render()
         end

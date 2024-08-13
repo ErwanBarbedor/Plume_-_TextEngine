@@ -21,24 +21,24 @@ Traceback :
 // End
 
 // Test 'include'
-\include test/lib.txe
+\include test/lib.plume
 // Result
 foo foo
 // End
 
 // Test 'include extern'
-\include[extern] test/lib.txe
+\include[extern] test/lib.plume
 // Result
 \def double[x] {#x #x}\double foo
 // End
 
 // Test 'include error'
-\include test/lib_error.txe
+\include test/lib_error.plume
 // Error
-File 'test/lib_error.txe', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
+File 'test/lib_error.plume', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
     \foo
     ^^^^
 Traceback :
-    File 'string', line 1 : \include test/lib_error.txe
+    File 'string', line 1 : \include test/lib_error.plume
                             ^^^^^^^^
 // End

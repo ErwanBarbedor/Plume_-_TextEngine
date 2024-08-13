@@ -17,32 +17,32 @@ local cli_help = [[
 Plume is a templating langage with advanced scripting features.
 
 Usage:
-    txe INPUT_FILE
-    txe --print INPUT_FILE
-    txe --output OUTPUT_FILE INPUT_FILE
-    txe --version
-    txe --help
+    plume INPUT_FILE
+    plume --print INPUT_FILE
+    plume --output OUTPUT_FILE INPUT_FILE
+    plume --version
+    plume --help
 
 Options:
   -h, --help          Show this help message and exit.
-  -v, --version       Show the version of txe and exit.
+  -v, --version       Show the version of plume and exit.
   -o, --output FILE   Write the output to FILE
   -p, --print         Display the result
 
 Examples:
-  txe --help
+  plume --help
     Display this message.
 
-  txe --version
+  plume --version
     Display the version of Plume.
 
-  txe input.txe
+  plume input.plume
     Process 'input.txt'
 
-  txe --print input.txe
+  plume --print input.plume
     Process 'input.txt' and display the result
 
-  txe --output output.txt input.txe
+  plume --output output.txt input.plume
     Process 'input.txt' and save the result to 'output.txt'.
 
 For more information, visit #GITHUB#.
@@ -111,13 +111,13 @@ end
 
 -- Main function for the command-line interface,
 -- a minimal cli parser
-function txe.cli_main ()
-    -- Save txe directory
-    txe.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
+function plume.cli_main ()
+    -- Save plume directory
+    plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
     local print_output
     if arg[1] == "-v" or arg[1] == "--version" then
-        print(txe._VERSION)
+        print(plume._VERSION)
         return
     elseif arg[1] == "-h" or arg[1] == "--help" then
         print(cli_help)
@@ -147,12 +147,12 @@ function txe.cli_main ()
 
     -- Initialize with the input file
     local currentDirectory = getCurrentDirectory ()
-    txe.init (input)
-    txe.current_scope().txe.input_file  = absolutePath(currentDirectory, input)
-    txe.current_scope().txe.output_file = absolutePath(currentDirectory, output)
+    plume.init (input)
+    plume.current_scope().plume.input_file  = absolutePath(currentDirectory, input)
+    plume.current_scope().plume.output_file = absolutePath(currentDirectory, output)
 
     -- Render the file and capture success or error
-    success, result = pcall(txe.renderFile, input)
+    success, result = pcall(plume.renderFile, input)
 
     if print_output then
         -- Print the result if the print_output flag is set
@@ -181,5 +181,5 @@ end
 -- Trick to test if we are called from the command line
 -- Handle the specific case where arg is nil (when used in fegari for exemple)
 if arg and debug.getinfo(3, "S")==nil then
-    txe.cli_main ()
+    plume.cli_main ()
 end

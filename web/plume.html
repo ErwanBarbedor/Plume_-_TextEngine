@@ -32,12 +32,12 @@ global = js.global
 local document = global.document
 
 local function updateOutput()
-    txe.init()
+    plume.init()
 
     local inputElement = document:getElementById("input")
     local outputElement = document:getElementById("output")
 
-    local sucess, result = pcall(txe.render, inputElement.value)
+    local sucess, result = pcall(plume.render, inputElement.value)
 
     outputElement.innerHTML = result
 end

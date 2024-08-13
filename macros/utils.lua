@@ -24,21 +24,21 @@ local function def (def_args, redef, redef_forced, calling_token)
     local name = def_args["$name"]:render()
 
     -- Check if the name is a valid identifier
-    if not txe.is_identifier(name) then
-        txe.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
+    if not plume.is_identifier(name) then
+        plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
     -- Test if the name is taken by standard macro
-    if txe.std_macros[name] then
+    if plume.std_macros[name] then
         if not redef_forced then
             local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
-            txe.error(def_args["$name"], msg)
+            plume.error(def_args["$name"], msg)
         end
     -- Test if this macro already exists
-    elseif txe.macros[name] then
+    elseif plume.macros[name] then
         if not redef then
             local msg = "The macro '" .. name .. "' already exist"
-            local first_definition = txe.macros[name].token
+            local first_definition = plume.macros[name].token
 
             if first_definition then
                 msg = msg
@@ -51,11 +51,11 @@ local function def (def_args, redef, redef_forced, calling_token)
             end
 
             msg = msg .. "Use '\\redef "..name.."' to erase it."
-            txe.error(def_args["$name"], msg)
+            plume.error(def_args["$name"], msg)
         end
     elseif redef and not redef_forced then
         local msg = "The macro '" .. name .. "' doesn't exist, so you can't erase it. Use '\\def "..name.."' instead."
-        txe.error(def_args["$name"], msg)
+        plume.error(def_args["$name"], msg)
     end
 
     -- All args (except $name, $body and __args) are optional args
@@ -72,10 +72,10 @@ local function def (def_args, redef, redef_forced, calling_token)
         def_args.__args[k] = v:render()
     end
     
-    txe.register_macro(name, def_args.__args, opt_args, function(args)
+    plume.register_macro(name, def_args.__args, opt_args, function(args)
         -- Give each arg a reference to current lua scope
         -- (affect only scripts and evals tokens)
-        local last_scope = txe.current_scope ()
+        local last_scope = plume.current_scope ()
         for k, v in pairs(args) do
             if k ~= "__args" then
                 v:set_context (last_scope)
@@ -86,34 +86,34 @@ local function def (def_args, redef, redef_forced, calling_token)
         end
 
         -- argument are variable local to the macro
-        txe.push_scope ()
+        plume.push_scope ()
 
         -- add all args in the current scope
         for k, v in pairs(args) do
-            txe.scope_set_local(k, v)
+            plume.scope_set_local(k, v)
         end
 
         local result = def_args["$body"]:render()
 
         --exit macro scope
-        txe.pop_scope ()
+        plume.pop_scope ()
 
         return result
     end, calling_token)
 end
 
-txe.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, calling_token)
     return ""
 end)
 
-txe.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, calling_token)
     return ""
 end)
 
-txe.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, true, calling_token)
     return ""
 end)
@@ -121,8 +121,8 @@ end)
 local function set(args, calling_token, is_local)
     -- A macro to set variable to a value
     local key = args.key:render()
-    if not txe.is_identifier(key) then
-        txe.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
+    if not plume.is_identifier(key) then
+        plume.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
     end
 
     local value = args.value:renderLua ()
@@ -130,69 +130,69 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
 
     if is_local then
-        txe.scope_set_local (key, value)
+        plume.scope_set_local (key, value)
     else
-        (calling_token.context or txe.current_scope())[key] = value 
+        (calling_token.context or plume.current_scope())[key] = value 
     end
 end
 
-txe.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
+plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token,args.__args["local"])
     return ""
 end)
 
-txe.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
+plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     set(args, true)
     return ""
 end)
 
 
-txe.register_macro("alias", {"name1", "name2"}, {}, function(args)
+plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
     -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
 
-    txe.macros[name2] = txe.macros[name1]
+    plume.macros[name2] = plume.macros[name1]
     return ""
 end)
 
 
-txe.register_macro("default", {"$name"}, {}, function(args)
+plume.register_macro("default", {"$name"}, {}, function(args)
     -- Get the provided macro name
     local name = args["$name"]:render()
 
     -- Check if this macro exists
-    if not txe.macros[name] then
-        txe.error_macro_not_found(args["name"], name)
+    if not plume.macros[name] then
+        plume.error_macro_not_found(args["name"], name)
     end
 
     -- Add all arguments (except name) in user_opt_args
     for k, v in pairs(args) do
         if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            txe.macros[name].user_opt_args[k] = v
+            plume.macros[name].user_opt_args[k] = v
         end
     end
     for k, v in ipairs(args.__args) do
-        txe.macros[name].user_opt_args[k] = v
+        plume.macros[name].user_opt_args[k] = v
     end
 
 end)
 
-txe.register_macro("raw", {"body"}, {}, function(args)
+plume.register_macro("raw", {"body"}, {}, function(args)
     -- Return content without execute it
     return args['body']:source ()
 end)
 
-txe.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
+plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
     -- Edit configuration
     -- Warning : value will be converted
 
     local name   = args.name:render ()
     local value  = args.value:render ()
-    local config = txe.running_api.config
+    local config = plume.running_api.config
 
     if config[name] == nil then
-        txe.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
+        plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
     end
 
     if tonumber(value) then

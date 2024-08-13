@@ -19,7 +19,7 @@ local api = {}
 -- @param key string
 -- @param value string
 function api.set_local (key, value)
-    txe.scope_set_local (key, value)
+    plume.scope_set_local (key, value)
 end
 
 
@@ -27,14 +27,14 @@ end
 -- @param key string
 -- @param value string
 function api.get (key)
-    return txe.current_scope()[key]
+    return plume.current_scope()[key]
 end
 
 --- Shortcut for api.get(key):render ()
 -- @param key string
 -- @param value string
 function api.get_render (key)
-    local result = txe.current_scope()[key]
+    local result = plume.current_scope()[key]
     if type(result) == table and result.render then
         return result:render ()
     else
@@ -48,7 +48,7 @@ api.getr = api.get_render
 -- @param key string
 -- @param value string
 function api.get_lua (key)
-    local result = txe.current_scope()[key]
+    local result = plume.current_scope()[key]
     if type(result) == table and result.renderLua then
         return result:renderLua ()
     else
@@ -66,7 +66,7 @@ api.setl = api.set_local
 -- @param path string
 -- @return table|bool|nil
 function api.require (path)
-    local file, filepath, error_message = txe.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
+    local file, filepath, error_message = plume.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
     if file then
         file:close ()
         filepath = filepath:gsub('%.lua$', '')
@@ -77,19 +77,19 @@ function api.require (path)
 end
 
 --- Initializes the API methods visible to the user.
-function txe.init_api ()
-    local scope = txe.current_scope ()
-    scope.txe = {}
+function plume.init_api ()
+    local scope = plume.current_scope ()
+    scope.plume = {}
 
     -- keep a reference
-    txe.running_api = scope.txe
+    plume.running_api = scope.plume
 
     for k, v in pairs(api) do
-        scope.txe[k] = v
+        scope.plume[k] = v
     end
 
-    scope.txe.config = {}
-    for k, v in pairs(txe.config) do
-        scope.txe.config[k] = v
+    scope.plume.config = {}
+    for k, v in pairs(plume.config) do
+        scope.plume.config[k] = v
     end
 end

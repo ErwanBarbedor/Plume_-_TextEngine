@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param file string The file where the token appears
 -- @param code string The full source code
 -- @return token A new token object
-function txe.token (kind, value, line, pos, file, code)
+function plume.token (kind, value, line, pos, file, code)
     return setmetatable({
         __type = "token",-- used mainly for debugging
         kind   = kind,
@@ -64,7 +64,7 @@ end
 --- Creates a new tokenlist.
 -- @param x string|table Either a kind string or a table of tokens
 -- @return tokenlist A new tokenlist object
-function txe.tokenlist (x)
+function plume.tokenlist (x)
     local kind = "block"
     local t = {}
 
@@ -126,22 +126,22 @@ function txe.tokenlist (x)
             local result = {}
             for _, token in ipairs(self) do
                 if token.kind == "block" then
-                    table.insert(result, txe.syntax.block_begin)
+                    table.insert(result, plume.syntax.block_begin)
                 elseif token.kind == "opt_block" then
-                    table.insert(result, txe.syntax.opt_block_begin)
+                    table.insert(result, plume.syntax.opt_block_begin)
                 end
                 table.insert(result, token:source())
                 if token.kind == "block" then
-                    table.insert(result, txe.syntax.block_end)
+                    table.insert(result, plume.syntax.block_end)
                 elseif token.kind == "opt_block" then
-                    table.insert(result, txe.syntax.opt_block_end)
+                    table.insert(result, plume.syntax.opt_block_end)
                 end
             end
 
             return table.concat(result, "")
         end,
-        render    = txe.renderToken,
-        renderLua = txe.renderTokenLua
+        render    = plume.renderToken,
+        renderLua = plume.renderTokenLua
     }, {
         -- Some metamethods, for convenience :
         -- Arguments of macros are passed as tokenlist without rendering it.

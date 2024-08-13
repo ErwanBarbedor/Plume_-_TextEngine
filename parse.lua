@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Handles blocks, optional blocks, and text grouping
 -- @param tokenlist table The list of tokens to parse
 -- @return tokenlist The parsed nested structure
-function txe.parse (tokenlist)
-    local stack = {txe.tokenlist("block")}
+function plume.parse (tokenlist)
+    local stack = {plume.tokenlist("block")}
     local eval_var = 0 -- #a+1 must be seen as \eval{a}+1, not \eval{a+1}
 
     for _, token in ipairs(tokenlist) do
@@ -25,7 +25,7 @@ function txe.parse (tokenlist)
 
         if token.kind == "block_begin" then
             eval_var = 0
-            table.insert(stack, txe.tokenlist("block"))
+            table.insert(stack, plume.tokenlist("block"))
             stack[#stack].first = token
         
         elseif token.kind == "block_end" then
@@ -35,9 +35,9 @@ function txe.parse (tokenlist)
 
             -- Check if match the oppening brace
             if not top then
-                txe.error(token, "This brace close nothing.")
+                plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "block" then
-                txe.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
             end
             
             last.last = token
@@ -45,7 +45,7 @@ function txe.parse (tokenlist)
         
         elseif token.kind == "opt_block_begin" then
             eval_var = 0
-            table.insert(stack, txe.tokenlist("opt_block"))
+            table.insert(stack, plume.tokenlist("opt_block"))
             stack[#stack].first = token
         
         elseif token.kind == "opt_block_end" then
@@ -55,9 +55,9 @@ function txe.parse (tokenlist)
 
             -- Check if match the oppening brace
             if not top then
-                txe.error(token, "This brace close nothing.")
+                plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "opt_block" then
-                txe.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
             end
 
             last.last = token
@@ -70,7 +70,7 @@ function txe.parse (tokenlist)
             local last = stack[#stack]
             if #last == 0 or last[#last].kind ~= "block_text" or eval_var > 0 then
                 eval_var = eval_var - 1
-                table.insert(last, txe.tokenlist("block_text"))
+                table.insert(last, plume.tokenlist("block_text"))
             end
             table.insert(last[#last], token)
         
@@ -84,7 +84,7 @@ function txe.parse (tokenlist)
         end
     end
     if #stack > 1 then
-        txe.error(stack[#stack].first, "This brace was never closed")
+        plume.error(stack[#stack].first, "This brace was never closed")
     end
     return stack[1] 
 end

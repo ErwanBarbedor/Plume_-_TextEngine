@@ -23,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @return file file File descriptor of the found file
 -- @return filepath string Full path of the found file
 -- @raise Throws an error if the file is not found, with a message detailing the paths tried
-function txe.search_for_files (token, calling_token, formats, path, silent_fail)
+function plume.search_for_files (token, calling_token, formats, path, silent_fail)
     -- To avoid checking same folder two times
     local parent
     local folders     = {}
@@ -35,13 +35,13 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
     if calling_token then
         table.insert(parent_paths, calling_token.file)
     end
-    for _, parent in ipairs(txe.file_stack) do
+    for _, parent in ipairs(plume.file_stack) do
         table.insert(parent_paths, parent)
     end
     -- Parents are files, to target a
     -- fake "dummy"
-    if txe.directory then
-        table.insert(parent_paths, txe.directory .. "/lib/dummy")
+    if plume.directory then
+        table.insert(parent_paths, plume.directory .. "/lib/dummy")
     end
 
     local file, filepath
@@ -81,7 +81,7 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
             return nil, nil, msg
         else
             if token then
-                txe.error(token, msg)
+                plume.error(token, msg)
             else
                 error(msg)
             end
@@ -91,7 +91,7 @@ function txe.search_for_files (token, calling_token, formats, path, silent_fail)
     return file, filepath
 end
 
-txe.register_macro("require", {"path"}, {}, function(args, calling_token)
+plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     -- Execute a lua file in the current context
     -- Instead of lua require function, no caching.
 
@@ -106,14 +106,14 @@ txe.register_macro("require", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?/init.lua") 
     end
 
-    local file, filepath = txe.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
 
-    local f = txe.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
+    local f = plume.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
 
     return f()
 end)
 
-txe.register_macro("include", {"path"}, {}, function(args, calling_token)
+plume.register_macro("include", {"path"}, {}, function(args, calling_token)
     -- \include{file} Execute the given file and return the output
     -- \include[extern]{file} Include current file without execute it
     local is_extern = args.__args.extern
@@ -126,29 +126,29 @@ txe.register_macro("include", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?")
     else
         table.insert(formats, "?")
-        table.insert(formats, "?.txe")
-        table.insert(formats, "?/init.txe")  
+        table.insert(formats, "?.plume")
+        table.insert(formats, "?/init.plume")  
     end
 
-    local file, filepath = txe.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
 
     if is_extern then
         return file:read("*a")
     else
         -- Track the file we are currently in
-        table.insert(txe.file_stack, filepath)
+        table.insert(plume.file_stack, filepath)
             
         -- Render file content
-        local result = txe.render(file:read("*a"), filepath)
+        local result = plume.render(file:read("*a"), filepath)
 
         -- Remove file from stack
-        table.remove(txe.file_stack)
+        table.remove(plume.file_stack)
 
         return result
     end
 end)
 
-txe.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
+plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
     -- Capture content and save it in a file.
     -- Return nothing.
     -- \file {foo.txt} {...}
@@ -156,7 +156,7 @@ txe.register_macro("file", {"path", "content"}, {}, function (args, calling_toke
     local file = io.open(path, "w")
 
         if not file then
-            txe.error (calling_token, "Cannot write file '" .. path .. "'")
+            plume.error (calling_token, "Cannot write file '" .. path .. "'")
         end
 
         local content = args.content:render ()

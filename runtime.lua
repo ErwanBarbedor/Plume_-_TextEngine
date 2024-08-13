@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param env table The environment to load the chunk in
 -- @return function|nil, string The loaded function or nil and an error message
 if _VERSION == "Lua 5.1" or jit then
-    function txe.load_lua_chunk (code, _, _, env)
+    function plume.load_lua_chunk (code, _, _, env)
         local f, err = loadstring(code)
         if f then
             setfenv(f, env)
@@ -29,18 +29,18 @@ if _VERSION == "Lua 5.1" or jit then
         return f, err
     end
 else
-    txe.load_lua_chunk = load
+    plume.load_lua_chunk = load
 end
 
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression
 -- @param code string The Lua code to evaluate (optional)
 -- @return any The result of the evaluation
-function txe.eval_lua_expression (token, code)
+function plume.eval_lua_expression (token, code)
     code = code or token:source ()
     code = 'return ' .. code
 
-    return txe.call_lua_chunk (token, code)
+    return plume.call_lua_chunk (token, code)
 end
 
 --- Loads, caches, and executes Lua code.
@@ -48,10 +48,10 @@ end
 -- or, if code is given, token used to throw error
 -- @param code string The Lua code to execute (optional)
 -- @return any The result of the execution
-function txe.call_lua_chunk(token, code)
+function plume.call_lua_chunk(token, code)
     code = code or token:source ()
 
-    if not txe.lua_cache[code] then
+    if not plume.lua_cache[code] then
         -- Put the chunk number in the code,
         -- to retrieve it in case of error.
         -- A bit messy, but each chunk executes
@@ -59,39 +59,39 @@ function txe.call_lua_chunk(token, code)
         -- share the same code. A more elegant
         -- solution certainly exists,
         -- but this does the trick for now.
-        txe.chunk_count = txe.chunk_count + 1
-        code = "--chunk" .. txe.chunk_count .. "\n" .. code
+        plume.chunk_count = plume.chunk_count + 1
+        code = "--chunk" .. plume.chunk_count .. "\n" .. code
         
         -- If the token is locked in a specific
         -- scope, execute inside it.
         -- Else, execute inside current scope.
-        local chunk_scope = token.context or txe.current_scope ()
-        local loaded_function, load_err = txe.load_lua_chunk(code, nil, "bt", chunk_scope)
+        local chunk_scope = token.context or plume.current_scope ()
+        local loaded_function, load_err = plume.load_lua_chunk(code, nil, "bt", chunk_scope)
 
         -- If loading chunk failed
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            txe.lua_cache[code] = {token=token, chunk_count=txe.chunk_count}
-            txe.error(token, load_err, true)
+            plume.lua_cache[code] = {token=token, chunk_count=plume.chunk_count}
+            plume.error(token, load_err, true)
         end
 
-        txe.lua_cache[code] = setmetatable({
+        plume.lua_cache[code] = setmetatable({
             token=token,
-            chunk_count=txe.chunk_count
+            chunk_count=plume.chunk_count
         },{
             __call = function ()
-                return { xpcall (loaded_function, txe.error_handler) }
+                return { xpcall (loaded_function, plume.error_handler) }
             end
         })
     end
 
-    local result = txe.lua_cache[code] ()
+    local result = plume.lua_cache[code] ()
     local sucess = result[1]
     table.remove(result, 1)
 
     if not sucess then
-        txe.error(token, result[1], true)
+        plume.error(token, result[1], true)
     end
 
     -- Lua 5.1 compatibility
@@ -101,7 +101,7 @@ end
 --- Creates a new scope with the given parent.
 -- @param parent table The parent scope
 -- @return table The new scope
-function txe.create_scope (parent)
+function plume.create_scope (parent)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
@@ -132,16 +132,16 @@ function txe.create_scope (parent)
 end
 
 --- Creates a new scope with the penultimate scope as parent.
-function txe.push_scope ()
-    local last_scope = txe.current_scope ()
-    local new_scope = txe.create_scope (last_scope)
+function plume.push_scope ()
+    local last_scope = plume.current_scope ()
+    local new_scope = plume.create_scope (last_scope)
 
-    table.insert(txe.scopes, new_scope)
+    table.insert(plume.scopes, new_scope)
 end
 
 --- Removes the last created scope.
-function txe.pop_scope ()
-    table.remove(txe.scopes)
+function plume.pop_scope ()
+    table.remove(plume.scopes)
 end
 
 --- Registers a variable locally in the given scope.
@@ -149,15 +149,15 @@ end
 -- @param key string The key to set
 -- @param value any The value to set
 -- @param scope table The scope to set the variable in (optional)
-function txe.scope_set_local (key, value, scope)
+function plume.scope_set_local (key, value, scope)
     -- Register a variable locally
     -- If not provided, "scope" is the last created.
-    local scope = scope or txe.current_scope ()
+    local scope = scope or plume.current_scope ()
     rawset (scope, key, value)
 end
 
 --- Returns the current scope.
 -- @return table The current scope
-function txe.current_scope ()
-    return txe.scopes[#txe.scopes]
+function plume.current_scope ()
+    return plume.scopes[#plume.scopes]
 end

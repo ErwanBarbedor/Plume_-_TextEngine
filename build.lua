@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License along with Plu
 
 local version = "Plume - TextEngine 0.1.0"
 local github  = 'https://github.com/ErwanBarbedor/Plume_-_TextEngine'
-local code = io.open("txe.lua"):read "*a"
+local code = io.open("plume.lua"):read "*a"
 
 
-code = code:gsub('(txe = {}[\r\n]+)', 'local %1')
+code = code:gsub('(plume = {}[\r\n]+)', 'local %1')
 
 for i=1, 2 do
     code = code:gsub('require "(.-)"', function (m)
@@ -32,13 +32,13 @@ code = code:gsub('\n%-%- <DEV>.-%-%- </DEV>\n', '')
 code = code:gsub('#VERSION#', version)
 code = code:gsub('#GITHUB#', github)
 
-local file = io.open('dist/txe.lua', 'w')
+local file = io.open('dist/plume.lua', 'w')
     file:write(code)
 file:close ()
 print("Building " .. version .. " done." )
 
 -- Make the standalone html too
-file = io.open("web/txe.html")
+file = io.open("web/plume.html")
     local html = file:read "*a"
 file:close ()
 
@@ -46,13 +46,13 @@ file = io.open("web/style.css")
     local css = file:read "*a"
 file:close ()
 
-code = code:gsub('local txe = {}', 'txe = {}')
+code = code:gsub('local plume = {}', 'plume = {}')
 html = html:gsub('{{PLUME}}', code:gsub('%%', '%%%%'))
 html = html:gsub('{{CSS}}',   css:gsub('%%', '%%%%'))
 html = html:gsub('{{GITHUB}}',  github)
 html = html:gsub('{{VERSION}}',  version)
 
-file = io.open("dist/txe.html", "w")
+file = io.open("dist/plume.html", "w")
     file:write(html)
 file:close ()
 print("Building website done." )

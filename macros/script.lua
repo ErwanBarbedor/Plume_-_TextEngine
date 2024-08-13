@@ -14,9 +14,9 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define script-related macro
 
-txe.register_macro("script", {"body"}, {}, function(args)
+plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = txe.call_lua_chunk(args.body)
+    local result = plume.call_lua_chunk(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -26,7 +26,7 @@ txe.register_macro("script", {"body"}, {}, function(args)
     return result
 end)
 
-txe.register_macro("eval", {"expr"}, {}, function(args)
+plume.register_macro("eval", {"expr"}, {}, function(args)
     --Eval lua expression and return the result
     -- \eval{1+1} or #{1+1}
     -- If the result is a number, format it : #{1/3}[.2f]
@@ -48,7 +48,7 @@ txe.register_macro("eval", {"expr"}, {}, function(args)
         elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
             format = arg_render
         else
-            txe.error(arg, "Unknow arg '" .. arg_render .. "'.")
+            plume.error(arg, "Unknow arg '" .. arg_render .. "'.")
         end
     end
 
@@ -66,7 +66,7 @@ txe.register_macro("eval", {"expr"}, {}, function(args)
         d_sep = "."
     end
 
-    local result = txe.eval_lua_expression(args.expr)
+    local result = plume.eval_lua_expression(args.expr)
 
     -- if result is a token, render it
     if type(result) == "table" and result.render then
