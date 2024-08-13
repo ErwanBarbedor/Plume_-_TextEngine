@@ -365,17 +365,22 @@ end
 -- @param self tokenlist The token list to render
 -- @return lua_objet Result of evaluation
 function txe.renderTokenLua (self)
-    local is_macro
-    if #self > 0 and self[1].kind == "macro" then
-        is_macro = is_macro or self[1].value == "#"
-        is_macro = is_macro or self[1].value == "eval"
-        is_macro = is_macro or self[1].value == "script"
+    local is_lua
+    if #self == 2 and self[1].kind == "macro" then
+        is_lua = is_lua or self[1].value == "#"
+        is_lua = is_lua or self[1].value == "eval"
+        is_lua = is_lua or self[1].value == "script"
     end
 
-    if is_macro then
-        return txe.eval_lua_expression(self[2])
+    if is_lua then
+        local result = txe.eval_lua_expression(self[2])
+        if type(result) == "table" and result.__type == "tokenlist" then
+            result = result:render ()
+        end
+        return result
     else
         local result = self:render ()
+        print(result)
         return tonumber(result) or result
     end
 end
