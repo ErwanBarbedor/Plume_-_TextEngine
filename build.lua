@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Merge all code into a single file.
 -- Quite dirty, but do the job
 
-local version = "Plume - TextEngine 0.1.0 (dev)"
+local version = "Plume - TextEngine 0.1.0"
 local github  = 'https://github.com/ErwanBarbedor/Plume_-_TextEngine'
 local code = io.open("txe.lua"):read "*a"
 

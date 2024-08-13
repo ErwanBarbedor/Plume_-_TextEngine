@@ -332,7 +332,6 @@ function txe.renderTokenLua (self)
         return result
     else
         local result = self:render ()
-        print(result)
         return tonumber(result) or result
     end
 end

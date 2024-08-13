@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.1.0 (dev)
+Plume - TextEngine 0.1.0
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local txe = {}
-txe._VERSION = "Plume - TextEngine 0.1.0 (dev)"
+txe._VERSION = "Plume - TextEngine 0.1.0"
 
 
 -- ## config.lua ##
@@ -380,7 +380,6 @@ function txe.renderTokenLua (self)
         return result
     else
         local result = self:render ()
-        print(result)
         return tonumber(result) or result
     end
 end
@@ -2175,7 +2174,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.1.0 (dev)
+Plume - TextEngine 0.1.0
 Plume is a templating langage with advanced scripting features.
 
 Usage:
