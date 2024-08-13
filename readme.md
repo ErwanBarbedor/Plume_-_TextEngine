@@ -26,7 +26,7 @@ To illustrate, consider the task of generating ten files, each containing a mult
 
 You can test plume in [your browser](https://app.barbedor.bzh/txe.html). 
 
-Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the ```dist/txe.lua``` file.
+Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the file [dist/txe.lua](dist/txe.lua).
 
 Write the following in a file `input.txe`:
 
