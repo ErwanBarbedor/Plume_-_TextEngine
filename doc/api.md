@@ -35,6 +35,7 @@ Output:
 ### `plume.get ()`
 
 **Description:** Get a variable value from current scope by name.
+
 **Parameters:**
 - _name_: Variable name
 
@@ -53,8 +54,10 @@ Output
 
 ### `plume.get_render ()`
 **Description:** If the variable has a render method, call it and return the result. Otherwise, return the variable.
+
 **Parameters:**
 - _name_: Variable name
+
 **Alias** : `plume.getr`
 
 ### `plume.getr ()`
@@ -62,8 +65,10 @@ Output
 
 ### `plume.get_lua`
 **Description:** If the variable has a renderLua method, call it and return the result. Otherwise, return the variable.
+
 **Parameters:**
 - _name_: Variable name
+
 **Alias** : `plume.getl`
 
 ### `plume.getl ()`
@@ -72,6 +77,7 @@ Output
 ### `plume.require ()`
 
 **Description:**  Works like Lua's require, but uses Plume's file search system.
+
 **Parameters:**
 - _name_: Name of the lua file to load.
 
@@ -102,6 +108,7 @@ tokenlist
 ## `tokenlist:render ()`
 
 **Description:**  Renders tokenlist
+
 Example:
 ```plume
 \def foo[x] {
@@ -136,6 +143,7 @@ RenderLua : table
 ## `tokenlist:source ()`
 
 **Description:** Get tokenlist string representation
+
 Example:
 ```plume
 \def foo[x] {
