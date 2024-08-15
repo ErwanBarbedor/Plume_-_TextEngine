@@ -258,10 +258,11 @@ bar
 **Description:** Copies a macro to a new name.
 
 **Parameters:**
-- _name_: Name of the macro to copy.
+- _base_name_: Name of the macro to copy.
+- _alias_name_: Name of the alias.
 
 **Notes:**
-- The macro is passed by reference, so editing it changes the alias as well. However, deleting one doesn't delete the other.
+- The macro is passed by reference, so editing it changes the alias as well. However, `\redef` one doesn't affect the other.
 
 ### `\raw`
 **Description:** Returns content as raw text.
@@ -270,7 +271,7 @@ bar
 - _content_: Content to return without execution.
 
 **Notes:**
-- This macro is convenient for new users but isn't hard to define on its own: `\def raw[x]{#{x:source()}}`
+- This macro is convenient for clarity but isn't hard to define on its own: `\def raw[x]{#{x:source()}}`
 
 **Example:**
 
