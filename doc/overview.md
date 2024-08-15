@@ -312,7 +312,7 @@ Assuming a file named `header.plume` contains:
 You can include and use it in your main file:
 
 ```plume
-\include header.plume
+\include header
 \header{Welcome to My Website}
 ```
 Output:
