@@ -107,6 +107,24 @@ For exemple, in LaTeX, you can define a macro like this: `\newcommand {\foo} {ba
 
 This doesn't work in Plume because `foo` will be expanded first.
 
+## Changelog
+
+### 0.2.0
+
+#### Features
+- Can give argument to included files.
+- Can call any method or metamethod on tokenlist via implicit call.
+
+#### Improvement
+- In traceback, file path shown as relative
+- Alias cannot erase existing macros
+- `\config` second argument is always sees as a lua block.
+
+### 0.1.0
+
+Initial release
+
 ## License
 
 This project is licensed under the GNU General Public License (GNU-GPL). This means that you are free to use, modify and redistribute the source code. However, if you distribute a modified version, you must also do so under the same license. 
+

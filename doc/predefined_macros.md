@@ -262,7 +262,7 @@ bar
 - _alias_name_: Name of the alias.
 
 **Notes:**
-- The macro is passed by reference, so editing it changes the alias as well. However, `\redef` one doesn't affect the other.
+- The macro is passed by reference, so editing it (like using `\default`) changes the alias as well. However, `\redef` one doesn't affect the other.
 
 ### `\raw`
 **Description:** Returns content as raw text.
@@ -311,3 +311,16 @@ Output:
 
 **Optional Parameters:**
 - Any pairs of `key=value` will be saved as defaults for the given macro.
+
+Exemple:
+```plume
+\def foo[bar=bar] {#bar}
+\foo
+\default foo[bar=baz]
+\foo
+```
+Ouputs
+```plume
+bar
+baz
+```
