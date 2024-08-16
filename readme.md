@@ -116,9 +116,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Can call any method or metamethod on tokenlist via implicit call.
 
 #### Improvement
-- In traceback, file path shown as relative
-- Alias cannot erase existing macros
-- `\config` second argument is always sees as a lua block.
+- In traceback, file path shown as relative.
+- Alias cannot erase existing macros.
+- `\config` second argument isn't converted automaticaly anymore, for coherence.
 
 ### 0.1.0
 

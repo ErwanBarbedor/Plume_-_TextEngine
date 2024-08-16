@@ -1498,21 +1498,11 @@ plume.register_macro("config", {"name", "value"}, {}, function(args, calling_tok
     -- Warning : value will be converted
 
     local name   = args.name:render ()
-    local value  = args.value:render ()
+    local value  = args.value:renderLua ()
     local config = plume.running_api.config
 
     if config[name] == nil then
         plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
-    end
-
-    if tonumber(value) then
-        value = value
-    elseif value == "false" then
-        value = false
-    elseif value == "true" then
-        value = true
-    elseif value == "nil" then
-        value = nil
     end
 
     config[name] = value

@@ -292,7 +292,7 @@ Output:
 - _value_: New value of the parameter.
 
 **Notes:**
-- Almost equivalent to `\script{plume.config.variable_name = value}`, except `\config` will raise an error if the key isn't a known parameter name.
+- `\config {variable_name} #{value}` is almost equivalent to `\script{plume.config.variable_name = value}`, except `\config` will raise an error if the key isn't a known parameter name.
 - If the value is a number, "true", "false", or "nil", it will be converted.
 
 **List of Parameters:**
