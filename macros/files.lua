@@ -113,9 +113,9 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     return f()
 end)
 
-plume.register_macro("include", {"path"}, {}, function(args, calling_token)
+plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     --  Execute the given file and return the output
-    local path = args.path:render ()
+    local path = args["$path"]:render ()
 
     local formats = {}
     
@@ -123,14 +123,31 @@ plume.register_macro("include", {"path"}, {}, function(args, calling_token)
     table.insert(formats, "?.plume")
     table.insert(formats, "?/init.plume")  
 
-    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.search_for_files (args["$path"], calling_token, formats, path)
 
+    -- file scope
     table.insert(plume.file_stack, filepath)
-            
-    -- Render file content
-    local result = plume.render(file:read("*a"), filepath)
+    plume.push_scope ()
 
-    -- Remove file from stack
+        -- Add arguments to file scope
+        local file_args = {}
+        for k, v in ipairs(args.__args) do
+            file_args[k] = v
+        end
+
+        for k, v in pairs(args) do
+            if k ~= "__args" then
+                file_args[k] = v
+            end
+        end
+
+        plume.scope_set_local("__file_args", file_args)
+
+        -- Render file content
+        local result = plume.render(file:read("*a"), filepath)
+
+    -- Exit from file scope
+    plume.pop_scope ()
     table.remove(plume.file_stack)
 
     return result

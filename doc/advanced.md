@@ -40,6 +40,23 @@ Gives:
 Option B
 ```
 
+## File arguments
+You can supply arguments to included files. They will be stored in the `__file_args` table.
+
+Example:
+```plume
+\include[foo=bar baz] lib
+// lib.plume
+#{__file_args.foo}
+#{__file_args[1]}
+```
+Output:
+```
+bar
+baz
+```
+
+
 ## Tokenlist
 
 Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:

@@ -111,7 +111,9 @@ Same `\include` with ".plume" instead of ".lua".
 **Parameters:**
 - _path_: Path of the file to include.
 
-**Note:** See _Note on Path Searching_ above.
+**Notes:**
+- See _Note on Path Searching_ above.
+- All optionnal arguments are stored in a `__file_args` table accessible from the imported file.
 
 **Example:**
 
