@@ -1,3 +1,12 @@
+
+Documentation pour les macros
+closures
+number format -> ecriture scientifique
+tool to import lua lib as macro
+namespace?
+Créer .bat / .bash
+
+
 # 0.2.0
 
 ## Features
@@ -9,7 +18,3 @@
 
 ## Fixes
 - Alias cannot erase existing macros
-
-# 0.1.0
-
-Initial release
