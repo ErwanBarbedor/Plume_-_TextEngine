@@ -545,10 +545,9 @@ function plume.token (kind, value, line, pos, file, code)
     }, {})
 end
 
---- Convert two elements into numbers
--- @param x token|number|string Element to convert
--- @param y token|number|string Element to convert
--- @return number, number The converted numbers
+--- Convert one element into number
+-- @param x tokenlist|number|string Element to convert
+-- @return number The converted numbers
 local function tokens2number(x, y)
     
     if type(x) == "table" and x.render then
@@ -556,14 +555,62 @@ local function tokens2number(x, y)
     else
         x = tonumber (x)
     end
-    if type(y) == "table" and y.render then
-        y = tonumber(y:render())
+
+    return x
+end
+
+--- Convert one element into string
+-- @param x tokenlist|number|string Element to convert
+-- @return number The converted numbers
+local function tokens2string(x, y)
+    
+    if type(x) == "table" and x.render then
+        x = x:render()
     else
-        y = tonumber (y)
+        x = tostring(x)
     end
 
-    -- todo : error when x or y is nil
-    return x, y
+    return x
+end
+
+-- Categorize metamethods , for convenience :
+-- Arguments of macros are passed as tokenlist without rendering it.
+-- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
+-- With metamethods, it becomes \def add[x y] #{x+y}, with an implicit call to tokenlist:render ()
+local metamethods_binary_numeric = {
+    add  = function (x, y) return x+y end,
+    sub  = function (x, y) return x-y end,
+    div  = function (x, y) return x/y end,
+    mul  = function (x, y) return x*y end,
+    mod  = function (x, y) return x%y end,
+    pow  = function (x, y) return x^y end,
+    lt   = function (x, y) return x<y end,
+    le   = function (x, y) return x<=y end
+}
+
+local metamethods_unary_numeric = {
+    unm = function (x, y) return x+y end
+}
+
+local metamethods_binary_string = {
+    concat = function (x, y) return x..y end,
+    eq     = function (x, y) return x==y end
+}
+
+local metamethods_unary_string = {
+    tostring = function (x) return x end,
+}
+
+-- Use load to avoid syntax error in prior versions of Lua.
+if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+    metamethods_binary_numeric.idiv = load("return function (x, y) return x//y end")()
+    metamethods_binary_numeric.band = load("return function (x, y) return x&y end")()
+    metamethods_binary_numeric.bor  = load("return function (x, y) return x|y end")()
+    metamethods_binary_numeric.bxor = load("return function (x, y) return x~y end")()
+    metamethods_binary_numeric.shl  = load("return function (x, y) return x>>y end")()
+    metamethods_binary_numeric.shr  = load("return function (x, y) return x<<y end")()
+
+    metamethods_unary_numeric.bnot = load("return function (x) return ~x end")()
 end
 
 --- Creates a new tokenlist.
@@ -579,9 +626,46 @@ function plume.tokenlist (x)
         kind = x
     end
 
+    local metatable = {}
+
+    for name, method in pairs(metamethods_binary_numeric) do
+        metatable["__" .. name] = function (x, y)
+            return method (tokens2number(x), tokens2number(y))
+        end
+    end
+
+    for name, method in pairs(metamethods_unary_numeric) do
+        metatable["__" .. name] = function (x)
+            return method (tokens2number(x))
+        end
+    end
+
+    for name, method in pairs(metamethods_binary_string) do
+        metatable["__" .. name] = function (x, y)
+            return method (tokens2string(x), tokens2string(y))
+        end
+    end
+
+    for name, method in pairs(metamethods_unary_numeric) do
+        metatable["__" .. name] = function (x)
+            return method (tokens2string(x))
+        end
+    end
+
+    function metatable.__index (self, key)
+        -- Table except n+1 value to be nil
+        if tonumber (key) then
+            return rawget(self, key)
+        end
+        return rawget(self, key) or self:renderLua ()
+    end
+
     local tokenlist = setmetatable({
-        __type = "tokenlist",-- used for debugging
-        kind   = kind,
+        __type  = "tokenlist",-- used for debugging
+        kind    = kind,
+        context = false,
+        first   = false,
+        last    = false,
         
         --- Get information (line, file, ...) about the tokenlist
         -- The line will be the line of the first token
@@ -647,39 +731,7 @@ function plume.tokenlist (x)
         end,
         render    = plume.renderToken,
         renderLua = plume.renderTokenLua
-    }, {
-        -- Some metamethods, for convenience :
-        -- Arguments of macros are passed as tokenlist without rendering it.
-        -- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
-        -- With metamethods, it becomes \def add[x y] #{x+y}
-        __add = function(self, y)
-            x, y = tokens2number (self, y)
-            return x+y
-        end,
-        __sub = function(self, y)
-            x, y = tokens2number (self, y)
-            return x-y
-        end,
-        __mul = function(self, y)
-            x, y = tokens2number (self, y)
-            return x*y
-        end,
-        __div = function(self, y)
-            x, y = tokens2number (self, y)
-            return x/y
-        end,
-        __concat = function(self, y)
-            if y.render then y = y:render () end
-            return x:render () .. y
-        end
-    })
-
-    -- Add all string methods, for convenience
-    for k, v in pairs(string) do
-        tokenlist[k] = function (self, ...)
-            return v(self:render(), ...)
-        end
-    end
+    }, metatable)
 
     for k, v in ipairs(t) do
         tokenlist[k] = v

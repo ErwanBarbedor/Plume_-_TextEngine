@@ -113,7 +113,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Features
 - Can give argument to included files.
-- Can call any method or metamethod on tokenlist via implicit call.
+- Can call any method and alomst any metamethod on tokenlist via implicit call.
 
 #### Improvement
 - In traceback, file path shown as relative.

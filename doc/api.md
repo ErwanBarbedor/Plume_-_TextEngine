@@ -105,6 +105,17 @@ Output:
 tokenlist
 ```
 
+## `tokenlist:[method] ()`
+If tokenlist doesn't have the requested method, it implicitly calls tokenlist:renderLua () and tries to call the method on the result. This is particularly useful for calling string methods directly, such as gsub or others.
+
+If `x` is a tokenlist `#{x:gsub ("a", "b")}` is the same as `#{x:render():gsub ("a", "b")}`
+
+## `tokenlist+tokenlist`, `tokenlist-tokenlist`, ...
+
+For all calculation metamethods (including concatenation), Plume will implicitly call `:render()` on each operand and attempt to convert them before performing the calculation.
+
+If `x` and `y` are tokenlists, this allows you to write `#{x+y}` instead of `#{tonumber(x:render()) + tonumber(y:render())}`.
+
 ## `tokenlist:render ()`
 
 **Description:**  Renders tokenlist
