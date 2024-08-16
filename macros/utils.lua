@@ -14,26 +14,18 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define some useful macro like def, set, alias...
 
---- Defines a new macro or redefines an existing one.
--- @param def_args table The arguments for the macro definition
+--- Test if the given name i available
+-- @param name string the name to test
 -- @param redef boolean Whether this is a redefinition
 -- @param redef_forced boolean Whether to force redefinition of standard macros
--- @param calling_token token The token where the macro is being defined
-local function def (def_args, redef, redef_forced, calling_token)
-    -- Get the provided macro name
-    local name = def_args["$name"]:render()
-
-    -- Check if the name is a valid identifier
-    if not plume.is_identifier(name) then
-        plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
-    end
-
+local function test_macro_name_available (name, redef, redef_forced)
     -- Test if the name is taken by standard macro
     if plume.std_macros[name] then
         if not redef_forced then
             local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
-            plume.error(def_args["$name"], msg)
+            return false, msg
         end
+
     -- Test if this macro already exists
     elseif plume.macros[name] then
         if not redef then
@@ -51,10 +43,32 @@ local function def (def_args, redef, redef_forced, calling_token)
             end
 
             msg = msg .. "Use '\\redef "..name.."' to erase it."
-            plume.error(def_args["$name"], msg)
+            return false, msg
         end
     elseif redef and not redef_forced then
         local msg = "The macro '" .. name .. "' doesn't exist, so you can't erase it. Use '\\def "..name.."' instead."
+        return false, msg
+    end
+
+    return true
+end
+
+--- Defines a new macro or redefines an existing one.
+-- @param def_args table The arguments for the macro definition
+-- @param redef boolean Whether this is a redefinition
+-- @param redef_forced boolean Whether to force redefinition of standard macros
+-- @param calling_token token The token where the macro is being defined
+local function def (def_args, redef, redef_forced, calling_token)
+    -- Get the provided macro name
+    local name = def_args["$name"]:render()
+
+    -- Check if the name is a valid identifier
+    if not plume.is_identifier(name) then
+        plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
+    end
+
+    local available, msg = test_macro_name_available (name, redef, redef_forced)
+    if not available then
         plume.error(def_args["$name"], msg)
     end
 
@@ -151,6 +165,15 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
     -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
+
+    -- Test if name2 is available
+    local available, msg = test_macro_name_available (name2)
+    if not available then
+        -- Remove the last sentence of the error message
+        -- (the reference to redef)
+        msg = msg:gsub("%.[^%.]-%.$", ".")
+        plume.error(args.name2, msg)
+    end
 
     plume.macros[name2] = plume.macros[name1]
     return ""
