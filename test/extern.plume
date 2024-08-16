@@ -27,7 +27,7 @@ foo foo
 // End
 
 // Test 'include extern'
-\include[extern] test/lib.plume
+\extern test/lib.plume
 // Result
 \def double[x] {#x #x}\double foo
 // End

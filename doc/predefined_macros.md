@@ -106,13 +106,10 @@ Same `\include` with ".plume" instead of ".lua".
 
 ### `\include`
 
-**Description:** Includes an external file.
+**Description:** Includes and execute an external file.
 
 **Parameters:**
 - _path_: Path of the file to include.
-
-**Optional Keywords:**
-- _extern_: If provided, the file will not be executed but included as raw text.
 
 **Note:** See _Note on Path Searching_ above.
 
@@ -120,6 +117,20 @@ Same `\include` with ".plume" instead of ".lua".
 
 ```plume
 \include {mylib} // will import mylib.plume
+```
+
+### `\extern`
+
+**Description:** Includes an external file without execution.
+
+**Parameters:**
+- _path_: Path of the file to include.
+
+**Note:** See _Note on Path Searching_ above.
+
+**Example:**
+
+```plume
 \include[extern] {style.css} // no need to escape all CSS brackets
 ```
 

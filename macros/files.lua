@@ -114,38 +114,40 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
 end)
 
 plume.register_macro("include", {"path"}, {}, function(args, calling_token)
-    -- \include{file} Execute the given file and return the output
-    -- \include[extern]{file} Include current file without execute it
-    local is_extern = args.__args.extern
+    --  Execute the given file and return the output
+    local path = args.path:render ()
+
+    local formats = {}
+    
+    table.insert(formats, "?")
+    table.insert(formats, "?.plume")
+    table.insert(formats, "?/init.plume")  
+
+    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
+
+    table.insert(plume.file_stack, filepath)
+            
+    -- Render file content
+    local result = plume.render(file:read("*a"), filepath)
+
+    -- Remove file from stack
+    table.remove(plume.file_stack)
+
+    return result
+end)
+
+plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
+    -- Include a file without execute it
 
     local path = args.path:render ()
 
     local formats = {}
     
-    if is_extern or path:match('%.[^/][^/]-$') then
-        table.insert(formats, "?")
-    else
-        table.insert(formats, "?")
-        table.insert(formats, "?.plume")
-        table.insert(formats, "?/init.plume")  
-    end
+    table.insert(formats, "?")
 
     local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
 
-    if is_extern then
-        return file:read("*a")
-    else
-        -- Track the file we are currently in
-        table.insert(plume.file_stack, filepath)
-            
-        -- Render file content
-        local result = plume.render(file:read("*a"), filepath)
-
-        -- Remove file from stack
-        table.remove(plume.file_stack)
-
-        return result
-    end
+    return file:read("*a")
 end)
 
 plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)

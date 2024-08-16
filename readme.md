@@ -112,6 +112,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 ### 0.2.0
 
 #### Features
+- Replace `\include[extern]` by `\extern`
+- Remove `extern` option for `\include`
 - Can give argument to included files.
 - Can call any method and almost any metamethod on tokenlist via implicit call to `render`.
 

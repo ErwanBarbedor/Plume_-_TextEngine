@@ -323,4 +323,4 @@ Output:
 </header>
 ```
 
-If you want to include a file containing no `plume` code but potentially many characters to escape (like a CSS file), you can use the `\include[extern] {path}` option. The file will be read and directly included without being executed.
+If you want to include a file containing no `plume` code but potentially many characters to escape (like a CSS file), use `\extern {path}`. The file will be read and directly included without being executed.
