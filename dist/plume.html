@@ -131,7 +131,7 @@ h1 {
 
 <script type="application/lua">
     --[[
-Plume - TextEngine 0.2.0
+Plume - TextEngine 0.3.0
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -151,7 +151,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.2.0"
+plume._VERSION = "Plume - TextEngine 0.3.0"
 
 
 -- ## config.lua ##
@@ -657,7 +657,7 @@ function plume.tokenlist (x)
         if tonumber (key) then
             return rawget(self, key)
         end
-        return rawget(self, key) or self:renderLua ()
+        return rawget(self, key) or rawget(self:renderLua (), key)
     end
 
     local tokenlist = setmetatable({
@@ -876,16 +876,7 @@ function plume.tokenize (code, file)
         pos = pos + 1
     end
     write ()
-
-    -- <DEV>
-    if plume.show_token then
-        for _, token in ipairs(result) do
-            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
-        end
-    end
-    -- </DEV>
-
-    return result
+return result
 end
 
 -- ## parse.lua ##
@@ -2008,8 +1999,7 @@ plume.register_macro("t", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\t"):rep(count)
-end) 
-
+end)
 -- Save predifined macro to permit reset of plume
 plume.std_macros = {}
 for k, v in pairs(plume.macros) do
@@ -2077,13 +2067,14 @@ function plume.call_lua_chunk(token, code)
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            plume.lua_cache[code] = {token=token, chunk_count=plume.chunk_count}
+            plume.lua_cache[code] = {token=token, chunk_count=plume.chunk_count, code=code}
             plume.error(token, load_err, true)
         end
 
         plume.lua_cache[code] = setmetatable({
             token=token,
-            chunk_count=plume.chunk_count
+            chunk_count=plume.chunk_count,
+            code=code
         },{
             __call = function ()
                 return { xpcall (loaded_function, plume.error_handler) }
@@ -2317,36 +2308,6 @@ function plume.init ()
     plume.last_error = nil
     plume.traceback = {}
 end
-
--- <DEV>
-plume.show_token = false
-local function print_tokens(t, indent)
-    local function print_token_info (token)
-        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
-    end
-
-    indent = indent or ""
-    for _, token in ipairs(t) do
-        if token.kind == "block" or token.kind == "opt_block" then
-            print_token_info(token)
-            print_tokens(token, "\t"..indent)
-        
-        elseif token.kind == "block_text" then
-            local value = ""
-            for _, txt in ipairs(token) do
-                value = value .. txt.value
-            end
-            print_token_info(token)
-        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
-            print_token_info (token)
-            print_tokens(token, "\t"..indent)
-        else
-            print_token_info(token)
-        end
-    end
-end
--- </DEV>
-
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
 -- @param file string The name used to track the code
@@ -2356,13 +2317,7 @@ function plume.render (code, file)
     
     tokens = plume.tokenize(code, file)
     tokens = plume.parse(tokens)
-    -- <DEV>
-    if plume.show_token then
-        print "--------"
-        print_tokens(tokens)
-    end
-    -- </DEV>
-    result = tokens:render()
+result = tokens:render()
     
     return result
 end
@@ -2390,7 +2345,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.2.0
+Plume - TextEngine 0.3.0
 Plume is a templating langage with advanced scripting features.
 
 Usage:
