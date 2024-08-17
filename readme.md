@@ -1,6 +1,6 @@
 <p align="center"><img src="dist/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.2.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -119,7 +119,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Improvement
 - Alias cannot erase existing macros.
-- `\config` second argument isn't converted automaticaly anymore, for coherence.
+- `\config` second argument isn't converted automaticaly anymore.
 
 ### 0.1.0
 
