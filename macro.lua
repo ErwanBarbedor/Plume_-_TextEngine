@@ -46,6 +46,9 @@ require "macros/utils"
 require "macros/files" 
 require "macros/script" 
 require "macros/spaces" 
+-- <DEV>
+require "macros/debug" 
+-- </DEV>
 
 -- Save predifined macro to permit reset of plume
 plume.std_macros = {}
