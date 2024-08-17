@@ -109,6 +109,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Changelog
 
+### 0.3.0
+
 ### 0.2.0
 
 #### Features
