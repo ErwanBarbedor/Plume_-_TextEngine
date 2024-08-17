@@ -152,7 +152,7 @@ function plume.tokenlist (x)
         if tonumber (key) then
             return rawget(self, key)
         end
-        return rawget(self, key) or self:renderLua ()
+        return rawget(self, key) or rawget(self:renderLua (), key)
     end
 
     local tokenlist = setmetatable({

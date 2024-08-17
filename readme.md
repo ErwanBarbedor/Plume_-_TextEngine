@@ -111,6 +111,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### 0.3.0
 
+#### Fixes
+- Fix error where calling methods on tokenlist via implicit call to `render` doesn't work.
+
 ### 0.2.0
 
 #### Features
