@@ -35,6 +35,16 @@
 a
 // End
 
+// Test 'Variable block scope 5'
+\def id[x] {#x}//
+\def foo[bar] {\id{#bar}}//
+\foo{bar}
+\foo{baz}
+// Result
+bar
+baz
+// End
+
 // Test '__scope 1'
 \set x 10//
 #{__scope.x}
