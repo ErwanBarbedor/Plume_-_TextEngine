@@ -51,7 +51,7 @@ end
 function plume.call_lua_chunk(token, code)
     code = code or token:source ()
 
-    if not plume.lua_cache[code] then
+    if not token.lua_cache then
         -- Put the chunk number in the code,
         -- to retrieve it in case of error.
         -- A bit messy, but each chunk executes
@@ -72,21 +72,25 @@ function plume.call_lua_chunk(token, code)
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            plume.lua_cache[code] = {token=token, chunk_count=plume.chunk_count}
+            table.insert(plume.lua_cache, {token=token, chunk_count=plume.chunk_count, code=code})
             plume.error(token, load_err, true)
         end
 
-        plume.lua_cache[code] = setmetatable({
+        local chunck = setmetatable({
             token=token,
-            chunk_count=plume.chunk_count
+            chunk_count=plume.chunk_count,
+            code=code
         },{
             __call = function ()
                 return { xpcall (loaded_function, plume.error_handler) }
             end
         })
+
+        token.lua_cache = chunck
+        table.insert(plume.lua_cache, chunck)
     end
 
-    local result = plume.lua_cache[code] ()
+    local result = token.lua_cache ()
     local sucess = result[1]
     table.remove(result, 1)
 
