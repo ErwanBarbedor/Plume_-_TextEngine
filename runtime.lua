@@ -74,7 +74,7 @@ end
 function plume.call_lua_chunk(token, code)
     code = code or token:source ()
 
-    if not plume.lua_cache[code] then
+    if not token.lua_cache then
         -- Put the chunk number in the code,
         -- to retrieve it in case of error.
         -- A bit messy, but each chunk executes
@@ -85,33 +85,38 @@ function plume.call_lua_chunk(token, code)
         plume.chunk_count = plume.chunk_count + 1
         code = "--chunk" .. plume.chunk_count .. "\n" .. code
         
-        -- If the token is locked in a specific
-        -- scope, execute inside it.
-        -- Else, execute inside current scope.
-        local chunk_scope = token.context or plume.current_scope ()
+        -- Load the code
         local loaded_function, load_err = plume.load_lua_chunk(code)
 
-        -- If loading chunk failed
+        -- In case of syntax error
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            plume.lua_cache[code] = {token=token, chunk_count=plume.chunk_count, code=code}
+            token.lua_cache = {code=code}
+            table.insert(plume.lua_cache, token)
             plume.error(token, load_err, true)
         end
 
-        plume.lua_cache[code] = setmetatable({
-            token=token,
-            chunk_count=plume.chunk_count,
+        local chunck = setmetatable({
             code=code
         },{
             __call = function ()
+                -- If the token is locked in a specific
+                -- scope, execute inside it.
+                -- Else, execute inside current scope.
+                local chunk_scope = token.context or plume.current_scope ()
                 plume.setfenv (loaded_function, chunk_scope)
+
                 return { xpcall (loaded_function, plume.error_handler) }
             end
         })
+
+        token.lua_cache = chunck
+        -- Track the code for debug purpose
+        table.insert(plume.lua_cache, token)
     end
 
-    local result = plume.lua_cache[code] ()
+    local result = token.lua_cache ()
     local sucess = result[1]
     table.remove(result, 1)
 

@@ -92,18 +92,12 @@ local function lua_info (lua_message)
     end
 
     noline = tonumber(noline)
+    noline = noline - 1
 
     -- Get chunk id
     local chunk_id = tonumber(file:match('^string "%-%-chunk([0-9]-)%.%.%."'))
-
-    noline = noline - 1
-    local token
-    for _, chunk in pairs(plume.lua_cache) do
-        if chunk.chunk_count == chunk_id then
-            token = chunk.token
-            break
-        end
-    end
+    
+    local token = plume.lua_cache[chunk_id]
 
     -- Error handling from other lua files is
     -- not supported, so placeholder.

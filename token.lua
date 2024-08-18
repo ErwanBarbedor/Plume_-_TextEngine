@@ -157,10 +157,11 @@ function plume.tokenlist (x)
 
     local tokenlist = setmetatable({
         __type  = "tokenlist",-- used for debugging
-        kind    = kind,
-        context = false,
-        first   = false,
-        last    = false,
+        kind      = kind,
+        context   = false,
+        first     = false,
+        last      = false,
+        lua_cache = false,
         
         --- Get information (line, file, ...) about the tokenlist
         -- The line will be the line of the first token
@@ -189,11 +190,12 @@ function plume.tokenlist (x)
         --- Copy the tokenlist
         -- @return tokenlist
         copy = function (self)
-            local token_copy   = plume.tokenlist ()
-            token_copy.kind    = self.kind
-            token_copy.context = self.context
-            token_copy.first   = self.first
-            token_copy.last    = self.last
+            local token_copy     = plume.tokenlist ()
+            token_copy.kind      = self.kind
+            token_copy.context   = self.context
+            token_copy.first     = self.first
+            token_copy.last      = self.last
+            token_copy.lua_cache = self.lua_cache
 
             for _, token in ipairs(self) do
                 if token.__type == "tokenlist" then

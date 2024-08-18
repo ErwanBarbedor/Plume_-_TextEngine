@@ -115,9 +115,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Fix a bug causing dev sections to be included in the final code.
 - Fix error where calling methods on tokenlist via implicit call to `render` doesn't work.
 - Fix error when calling a macro as argument of another macro with the same name.
-
-#### For information
-- Rewrite caching system
+- Fix error causing lua caching do not work at all.
 
 ### 0.2.0
 
