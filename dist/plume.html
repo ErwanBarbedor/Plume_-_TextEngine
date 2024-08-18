@@ -354,136 +354,113 @@ function plume.renderToken (self)
                 plume.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
             end
 
-            local stack = {}
+            local name = token.value:gsub("^"..plume.syntax.escape , "")
 
-            local function push_macro (token)
-                -- Check if macro exist, then add it to the stack
-                local name  = token.value:gsub("^"..plume.syntax.escape , "")
-
-                if name == plume.syntax.eval then
-                    name = "eval"
-                end
-
-                if not plume.is_identifier(name) then
-                    plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
-                end
-
-                local macro = plume.get_macro (name)
-                if not macro then
-                    plume.error_macro_not_found(token, name)
-                end
-
-                table.insert(stack, {token=token, macro=macro, args={}})
+            if name == plume.syntax.eval then
+                name = "eval"
             end
 
-            local function manage_opt_args(top, token)
-                if top.opt_args then
-                    plume.error(token, "To many optional blocks given for macro '" .. stack[1].token.value .. "'")
-                end
-                top.opt_args = token
+            if not plume.is_identifier(name) then
+                plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
             end
- 
-            push_macro (token)
-            -- Manage chained macro like \double \double x, that
-            -- must be treated as \double{\double{x}}
-            while #stack > 0 do
+
+            local macro = plume.get_macro (name)
+            if not macro then
+                plume.error_macro_not_found(token, name)
+            end
+
+            local args = {}
+            local opt_args
+
+            while #args < #macro.args do
+                pos = pos+1
+                if not self[pos] then
+                    -- End reached, but not enough arguments
+                    plume.error(token, "End of block reached, not enough arguments for macro '" .. token.value.."'. " .. #args.." instead of " .. #macro.args .. ".")
                 
-                -- Capture the right number of arguments for the macro
-                local top = stack[#stack]
-                while #top.args < #top.macro.args do
-                    pos = pos+1
-                    if not self[pos] then
-                        -- End reached, but not enough arguments
-                        plume.error(token, "End of block reached, not enough arguments for macro '" .. stack[1].token.value.."'. " .. #top.args.." instead of " .. #top.macro.args .. ".")
-                    
-                    elseif self[pos].kind == "macro" then
-                        -- A new macro. Push it to the stack to catpures
-                        -- it's arguments
-                        push_macro(self[pos])
-                        top = nil
-                        break
-                    
-                    elseif self[pos].kind == "opt_block" then
-                        -- An optional argument block
-                        manage_opt_args(top, self[pos])
-                    
-                    elseif self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
-                        -- If it is not a space, add the current block
-                        -- to the argument list
-                        table.insert(top.args, self[pos])
-                    end
-                end
-
-                --Check if there are an optional block after the arguments
-                local finded_optional = false
-                local oldpos          = pos
-                while self[pos+1] do
-                    pos = pos + 1
-                    if self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
-                        finded_optional = self[pos].kind == "opt_block"
-                        break
-                    end
-                end
-
-                if finded_optional then
-                    manage_opt_args(top, self[pos])
-                else
-                    pos = oldpos
-                end
-
-                -- top if nil only when capturing a new macro
-                if top then
-                    top = table.remove(stack)
-                    if #stack > 0 then
-                        local subtop = stack[#stack]
-                        local arg_list = plume.tokenlist(top.args)
-
-                        -- rebuild the captured macro hand it's argument
-                        if top.opt_args then
-                            table.insert(arg_list, 1, top.opt_args)
+                elseif self[pos].kind == "macro" then
+                    -- Raise an error. (except for '#') 
+                    -- Macro as parameter must be enclosed in braces
+                    if self[pos].value == plume.syntax.eval then
+                        if not self[pos+1] then
+                            plume.error(token, "End of block reached, not enough arguments for macro '#'.0 instead of 1.")
                         end
-                        
-                        table.insert(arg_list, 1, top.token)
-                        table.insert(subtop.args, arg_list)
+                        local eval = plume.tokenlist ()
+                        table.insert(eval, self[pos])
+                        table.insert(eval, self[pos+1])
+                        table.insert(args, eval)
+                        pos = pos + 1
                     else
-                        local args = {}
-                        for k, v in ipairs(top.args) do
-                            args[top.macro.args[k]] = v
-                        end
-                        for k, v in pairs(top.args) do
-                            if type(k) ~= "number" then
-                                args[k] = v
-                            end
-                        end
+                        plume.error(self[pos], "Macro call cannot be a parameter (here, parameter #"..(#args+1).." of the macro '\\" .. name .."', line" .. token.line .. ") without being surrounded by braces.")
+                    end
+                
+                elseif self[pos].kind == "opt_block" then
+                    -- Register an opt arg, or raise an error if too many.
+                    if opt_args then
+                        plume.error(self[pos], "To many optional blocks given for macro '\\" .. name .. "'")
+                    else
+                        opt_args = self[pos]
+                    end
+                    
+                elseif self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
+                    -- If it is not a space, add the current block
+                    -- to the argument list
+                    table.insert(args, self[pos])
+                end
+            end
 
-                        -- Parse optionnal args
-                        plume.parse_opt_args(top.macro, args, top.opt_args or {})
-
-                        -- Update traceback, call the macro and add is result
-                        table.insert(plume.traceback, token)
-                            local success, macro_call_result = pcall(function ()
-                                return { top.macro.macro (
-                                    args,
-                                    top.token, -- send self token to throw error
-                                    chain_sender,
-                                    chain_message
-                                ) }
-                            end)
-
-                            local call_result
-                            if success then
-                                call_result, chain_message = macro_call_result[1], macro_call_result[2]
-                            else
-                                plume.error(top.token, "Unexpected lua error running the macro : " .. macro_call_result)
-                            end
-
-                            chain_sender = top.token.value
-
-                            table.insert(result, tostring(call_result or ""))
-                        table.remove(plume.traceback)
+            -- Try to capture optional block,
+            -- Even after parameters.
+            if not opt_args then
+                local test_pos = pos
+                while self[test_pos+1] do
+                    test_pos = test_pos+1
+                    if self[test_pos].kind == "opt_block" then
+                        opt_args = self[test_pos]
+                        pos = test_pos
+                        break
+                    elseif self[test_pos].kind ~= "space" and self[test_pos].kind ~= "newline" then
+                        break
                     end
                 end
             end
+
+            local macro_args = {}
+            for k, v in ipairs(args) do
+                macro_args[macro.args[k]] = v
+            end
+            for k, v in pairs(args) do
+                if type(k) ~= "number" then
+                    macro_args[k] = v
+                end
+            end
+
+            -- Parse optionnal args
+            plume.parse_opt_args(macro, macro_args, opt_args or {})
+
+            -- Update traceback, call the macro and add is result
+            table.insert(plume.traceback, token)
+                local success, macro_call_result = pcall(function ()
+                    return { macro.macro (
+                        macro_args,
+                        token, -- send self token to throw error, if any
+                        chain_sender,
+                        chain_message
+                    ) }
+                end)
+
+                local call_result
+                if success then
+                    call_result, chain_message = macro_call_result[1], macro_call_result[2]
+                else
+                    plume.error(token, "Unexpected lua error running the macro : " .. macro_call_result)
+                end
+
+                chain_sender = token.value
+
+                table.insert(result, tostring(call_result or ""))
+            table.remove(plume.traceback)
+
         end
         pos = pos + 1
     end
@@ -622,7 +599,7 @@ function plume.tokenlist (x)
 
     if type(x) == "table" then
         t = x
-    else
+    elseif x then
         kind = x
     end
 

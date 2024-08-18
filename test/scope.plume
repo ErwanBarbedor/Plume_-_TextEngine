@@ -28,7 +28,7 @@
 // Test 'Variable block scope 4'
 \def foo[x] {#x}//
 \def bar[x] {//
-    \foo \foo #x//
+    \foo {\foo #x}//
 }//
 \bar a
 // Result

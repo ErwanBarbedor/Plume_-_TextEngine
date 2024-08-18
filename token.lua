@@ -117,7 +117,7 @@ function plume.tokenlist (x)
 
     if type(x) == "table" then
         t = x
-    else
+    elseif x then
         kind = x
     end
 

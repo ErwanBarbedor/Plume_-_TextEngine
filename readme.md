@@ -111,6 +111,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### 0.3.0
 
+#### Features
+- Remove macro chain call : `\foo \foo x` will not longer be equivalent to `\foo {\foo x}`, but will raise an error. However, '\foo #{x}' still works.
+
 #### Fixes
 - Fix a bug causing dev sections to be included in the final code.
 - Fix error where calling methods on tokenlist via implicit call to `render` doesn't work.
