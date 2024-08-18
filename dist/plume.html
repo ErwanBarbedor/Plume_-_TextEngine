@@ -691,6 +691,27 @@ function plume.tokenlist (x)
             }
         end,
 
+        --- Copy the tokenlist
+        -- @return tokenlist
+        copy = function (self)
+            local token_copy   = plume.tokenlist ()
+            token_copy.kind    = self.kind
+            token_copy.context = self.context
+            token_copy.first   = self.first
+            token_copy.last    = self.last
+
+            for _, token in ipairs(self) do
+                if token.__type == "tokenlist" then
+                    table.insert(token_copy, token:copy())
+                else
+                    table.insert(token_copy, token)
+                end
+            end
+
+            return token_copy
+
+        end,
+
         --- Freezes the scope for all tokens in the list
         -- @param scope table The scope to freeze
         set_context = function (self, scope)
@@ -1379,7 +1400,8 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     coroutine_code = coroutine_code .. " end"
 
     -- Load and create the coroutine
-    local iterator_coroutine = plume.load_lua_chunk (coroutine_code, _, _, plume.current_scope ())
+    local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
+    plume.setfenv (iterator_coroutine, plume.current_scope ())
     local co = coroutine.create(iterator_coroutine)
     
     -- Limiting loop iterations to avoid infinite loop
@@ -1572,16 +1594,19 @@ local function def (def_args, redef, redef_forced, calling_token)
     end
     
     plume.register_macro(name, def_args.__args, opt_args, function(args)
-        -- Give each arg a reference to current lua scope
+        -- Copy all tokens. Then, hive each of them
+        -- a reference to current lua scope
         -- (affect only scripts and evals tokens)
         local last_scope = plume.current_scope ()
         for k, v in pairs(args) do
             if k ~= "__args" then
-                v:set_context (last_scope)
+                args[k] = v:copy ()
+                args[k]:set_context (last_scope)
             end
         end
         for k, v in ipairs(args.__args) do
-            v:set_context (last_scope)
+            args.__args[k] = v:copy ()
+            args.__args[k]:set_context (last_scope)
         end
 
         -- argument are variable local to the macro
@@ -2009,22 +2034,45 @@ end
 -- ## runtime.lua ##
 -- Manage scopes and runtime lua executions
 
---- Loads a Lua chunk with compatibility for Lua 5.1.
--- @param code string The Lua code to load
--- @param _ nil Unused parameter
--- @param _ nil Unused parameter
--- @param env table The environment to load the chunk in
--- @return function|nil, string The loaded function or nil and an error message
+
 if _VERSION == "Lua 5.1" or jit then
-    function plume.load_lua_chunk (code, _, _, env)
-        local f, err = loadstring(code)
-        if f then
-            setfenv(f, env)
-        end
-        return f, err
-    end
+    plume.load_lua_chunk  = loadstring
+    plume.setfenv = setfenv
 else
     plume.load_lua_chunk = load
+
+    --- Sets the environment of a given function.
+    -- Uses the debug library to achieve setfenv functionality
+    -- by modifying the _ENV upvalue of the function.
+    -- @param func function The function whose environment is to be set.
+    -- @param env table The new environment table to be set for the function.
+    -- @return The function with the modified environment.
+    function plume.setfenv(func, env)
+        -- Initialize the upvalue index to 1
+        local i = 1
+
+        -- Iterate through the upvalues of the function
+        while true do
+            -- Retrieve the name of the upvalue at index i
+            local name = debug.getupvalue(func, i)
+
+            -- Check if the current upvalue is _ENV
+            if name == "_ENV" then
+                -- Use debug.upvaluejoin to set the new environment for _ENV
+                debug.upvaluejoin(func, i, (function() return env end), 1)
+                break
+            -- If there are no more upvalues to check, break the loop
+            elseif not name then
+                break
+            end
+
+            -- Increment the upvalue index
+            i = i + 1
+        end
+
+        -- Return the function with the updated environment
+        return func
+    end
 end
 
 --- Evaluates a Lua expression and returns the result.
@@ -2061,7 +2109,7 @@ function plume.call_lua_chunk(token, code)
         -- scope, execute inside it.
         -- Else, execute inside current scope.
         local chunk_scope = token.context or plume.current_scope ()
-        local loaded_function, load_err = plume.load_lua_chunk(code, nil, "bt", chunk_scope)
+        local loaded_function, load_err = plume.load_lua_chunk(code)
 
         -- If loading chunk failed
         if not loaded_function then
@@ -2077,6 +2125,7 @@ function plume.call_lua_chunk(token, code)
             code=code
         },{
             __call = function ()
+                plume.setfenv (loaded_function, chunk_scope)
                 return { xpcall (loaded_function, plume.error_handler) }
             end
         })

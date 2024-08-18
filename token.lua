@@ -186,6 +186,27 @@ function plume.tokenlist (x)
             }
         end,
 
+        --- Copy the tokenlist
+        -- @return tokenlist
+        copy = function (self)
+            local token_copy   = plume.tokenlist ()
+            token_copy.kind    = self.kind
+            token_copy.context = self.context
+            token_copy.first   = self.first
+            token_copy.last    = self.last
+
+            for _, token in ipairs(self) do
+                if token.__type == "tokenlist" then
+                    table.insert(token_copy, token:copy())
+                else
+                    table.insert(token_copy, token)
+                end
+            end
+
+            return token_copy
+
+        end,
+
         --- Freezes the scope for all tokens in the list
         -- @param scope table The scope to freeze
         set_context = function (self, scope)

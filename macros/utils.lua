@@ -87,16 +87,19 @@ local function def (def_args, redef, redef_forced, calling_token)
     end
     
     plume.register_macro(name, def_args.__args, opt_args, function(args)
-        -- Give each arg a reference to current lua scope
+        -- Copy all tokens. Then, hive each of them
+        -- a reference to current lua scope
         -- (affect only scripts and evals tokens)
         local last_scope = plume.current_scope ()
         for k, v in pairs(args) do
             if k ~= "__args" then
-                v:set_context (last_scope)
+                args[k] = v:copy ()
+                args[k]:set_context (last_scope)
             end
         end
         for k, v in ipairs(args.__args) do
-            v:set_context (last_scope)
+            args.__args[k] = v:copy ()
+            args.__args[k]:set_context (last_scope)
         end
 
         -- argument are variable local to the macro

@@ -158,6 +158,18 @@ Gives:
 10
 ```
 
+## Parameters scopes
+
+Variables used as parameters retain the scope in which the macro was called.
+
+```plume
+\def foo[bar] {\set[local] x 3 #bar}
+\set x 1 
+\foo {#x}
+```
+
+Output `1`.
+
 ## Too Many Intricate Macro Calls
 
 By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.

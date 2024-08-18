@@ -14,22 +14,45 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Manage scopes and runtime lua executions
 
---- Loads a Lua chunk with compatibility for Lua 5.1.
--- @param code string The Lua code to load
--- @param _ nil Unused parameter
--- @param _ nil Unused parameter
--- @param env table The environment to load the chunk in
--- @return function|nil, string The loaded function or nil and an error message
+
 if _VERSION == "Lua 5.1" or jit then
-    function plume.load_lua_chunk (code, _, _, env)
-        local f, err = loadstring(code)
-        if f then
-            setfenv(f, env)
-        end
-        return f, err
-    end
+    plume.load_lua_chunk  = loadstring
+    plume.setfenv = setfenv
 else
     plume.load_lua_chunk = load
+
+    --- Sets the environment of a given function.
+    -- Uses the debug library to achieve setfenv functionality
+    -- by modifying the _ENV upvalue of the function.
+    -- @param func function The function whose environment is to be set.
+    -- @param env table The new environment table to be set for the function.
+    -- @return The function with the modified environment.
+    function plume.setfenv(func, env)
+        -- Initialize the upvalue index to 1
+        local i = 1
+
+        -- Iterate through the upvalues of the function
+        while true do
+            -- Retrieve the name of the upvalue at index i
+            local name = debug.getupvalue(func, i)
+
+            -- Check if the current upvalue is _ENV
+            if name == "_ENV" then
+                -- Use debug.upvaluejoin to set the new environment for _ENV
+                debug.upvaluejoin(func, i, (function() return env end), 1)
+                break
+            -- If there are no more upvalues to check, break the loop
+            elseif not name then
+                break
+            end
+
+            -- Increment the upvalue index
+            i = i + 1
+        end
+
+        -- Return the function with the updated environment
+        return func
+    end
 end
 
 --- Evaluates a Lua expression and returns the result.
@@ -66,7 +89,7 @@ function plume.call_lua_chunk(token, code)
         -- scope, execute inside it.
         -- Else, execute inside current scope.
         local chunk_scope = token.context or plume.current_scope ()
-        local loaded_function, load_err = plume.load_lua_chunk(code, nil, "bt", chunk_scope)
+        local loaded_function, load_err = plume.load_lua_chunk(code)
 
         -- If loading chunk failed
         if not loaded_function then
@@ -82,6 +105,7 @@ function plume.call_lua_chunk(token, code)
             code=code
         },{
             __call = function ()
+                plume.setfenv (loaded_function, chunk_scope)
                 return { xpcall (loaded_function, plume.error_handler) }
             end
         })

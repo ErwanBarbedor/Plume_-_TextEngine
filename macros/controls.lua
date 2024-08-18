@@ -64,7 +64,8 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     coroutine_code = coroutine_code .. " end"
 
     -- Load and create the coroutine
-    local iterator_coroutine = plume.load_lua_chunk (coroutine_code, _, _, plume.current_scope ())
+    local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
+    plume.setfenv (iterator_coroutine, plume.current_scope ())
     local co = coroutine.create(iterator_coroutine)
     
     -- Limiting loop iterations to avoid infinite loop
