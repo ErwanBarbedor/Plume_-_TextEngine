@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Manage methods that are visible from user (not much for now)
 local api = {}
 
+api._VERSION = plume._VERSION
+
 --- Captures and stores all local variables
 -- in the current scope.
 function api.capture_local()
