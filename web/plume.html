@@ -8,7 +8,16 @@
 <body>
     <div>
         <h2>Enter your code here</h2>
-        <textarea id="input">\def double[x] {#x #x} \double 5</textarea>
+        <textarea id="input">Welcome to #{plume._VERSION}!
+
+Need to revise your table of 7? Here it is:
+\for {i=1,10} {
+    #i * 7 = #{i*7}//
+}
+
+Need to know current timestamp? Ok: #{os.time ()}.
+(Under the hood, it use #{plume._LUA_VERSION})
+        </textarea>
     </div>
     <div >
         <h2>Output</h2>

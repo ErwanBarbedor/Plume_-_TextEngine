@@ -126,7 +126,16 @@ h2 {
 <body>
     <div>
         <h2>Enter your code here</h2>
-        <textarea id="input">\def double[x] {#x #x} \double 5</textarea>
+        <textarea id="input">Welcome to #{plume._VERSION}!
+
+Need to revise your table of 7? Here it is:
+\for {i=1,10} {
+    #i * 7 = #{i*7}//
+}
+
+Need to know current timestamp? Ok: #{os.time ()}.
+(Under the hood, it use #{plume._LUA_VERSION})
+        </textarea>
     </div>
     <div >
         <h2>Output</h2>
@@ -2252,11 +2261,82 @@ function plume.current_scope ()
     return plume.scopes[#plume.scopes]
 end
 
+-- ## init.lua ##
+-- Initialisation of Plume - TextEngine
+
+plume._LUA_VERSION = _VERSION
+-- Save all lua standard functions to be available from "eval" macros
+local lua_std_functions
+if _VERSION == "Lua 5.1" then
+    if jit then
+        plume._LUA_VERSION = "Lua jit"
+        lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
+    else
+        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
+    end
+else -- Assume version is 5.4
+    if _VERSION ~= "Lua 5.4" then
+        print("Warning : unsuported version '" .. _VERSION .. "'.")
+    end
+    lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
+end
+
+plume.lua_std_functions = {}
+for name in lua_std_functions:gmatch('%S+') do
+    plume.lua_std_functions[name] = _G[name]
+end
+
+--- Resets or initializes all session-specific tables.
+function plume.init ()
+    -- A table that contain
+    -- all local scopes.
+    plume.scopes = {}
+
+    -- Create the first local scope
+    -- (indeed, the global one)
+    plume.push_scope ()
+
+    -- Init methods that are visible from user
+    plume.init_api ()
+
+    -- Cache lua code to not
+    -- call "load" multiple times
+    -- for the same chunk
+    plume.lua_cache    = {}
+
+    -- Track number of chunks,
+    -- To assign a number of each
+    -- of them.
+    plume.chunk_count = 0
+
+    -- Stack of executed files
+    plume.file_stack = {}
+        
+    -- Add all std function into
+    -- global scope
+    for k, v in pairs(plume.lua_std_functions) do
+        plume.scopes[1][k] = v
+    end
+
+    -- Add all std macros to
+    -- the macro table
+    plume.macros = {}
+    for k, v in pairs(plume.std_macros) do
+        v.user_opt_args = {}
+        plume.macros[k] = v
+    end
+
+    -- Initialise error tracing
+    plume.last_error = nil
+    plume.traceback = {}
+end
+
 -- ## api.lua ##
 -- Manage methods that are visible from user (not much for now)
 local api = {}
 
 api._VERSION = plume._VERSION
+api._LUA_VERSION = plume._LUA_VERSION
 
 --- Captures and stores all local variables
 -- in the current scope.
@@ -2342,74 +2422,6 @@ function plume.init_api ()
     for k, v in pairs(plume.config) do
         scope.plume.config[k] = v
     end
-end
-
--- ## init.lua ##
--- Initialisation of Plume - TextEngine
-
--- Save all lua standard functions to be available from "eval" macros
-local lua_std_functions
-if _VERSION == "Lua 5.1" then
-    if jit then
-        lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
-    else
-        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
-    end
-else -- Assume version is 5.4
-    if _VERSION ~= "Lua 5.4" then
-        print("Warning : unsuported version '" .. _VERSION .. "'.")
-    end
-    lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
-end
-
-plume.lua_std_functions = {}
-for name in lua_std_functions:gmatch('%S+') do
-    plume.lua_std_functions[name] = _G[name]
-end
-
---- Resets or initializes all session-specific tables.
-function plume.init ()
-    -- A table that contain
-    -- all local scopes.
-    plume.scopes = {}
-
-    -- Create the first local scope
-    -- (indeed, the global one)
-    plume.push_scope ()
-
-    -- Init methods that are visible from user
-    plume.init_api ()
-
-    -- Cache lua code to not
-    -- call "load" multiple times
-    -- for the same chunk
-    plume.lua_cache    = {}
-
-    -- Track number of chunks,
-    -- To assign a number of each
-    -- of them.
-    plume.chunk_count = 0
-
-    -- Stack of executed files
-    plume.file_stack = {}
-        
-    -- Add all std function into
-    -- global scope
-    for k, v in pairs(plume.lua_std_functions) do
-        plume.scopes[1][k] = v
-    end
-
-    -- Add all std macros to
-    -- the macro table
-    plume.macros = {}
-    for k, v in pairs(plume.std_macros) do
-        v.user_opt_args = {}
-        plume.macros[k] = v
-    end
-
-    -- Initialise error tracing
-    plume.last_error = nil
-    plume.traceback = {}
 end
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
