@@ -112,8 +112,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 ### 0.3.0
 
 #### Features
-- Remove macro chain call : `\foo \foo x` will not longer be equivalent to `\foo {\foo x}`, but will raise an error. However, '\foo #{x}' still works.
+- Remove macro chain call : `\foo \foo x` will not longer be equivalent to `\foo {\foo x}`, but will raise an error. However, `\foo #{x}` still works.
 - Implement closures.
+- Add one scope per loops iterations.
 - No need to escape `[` and `]` anymore outside of a macro call.
 
 
