@@ -7,11 +7,14 @@ File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
 // End
 
 // Test 'Invalid macro name'
-\foo/
+\def foo/ {}
 // Error
 File 'string', line 1 : 'foo/' is an invalid name for a macro.
-    \foo/
-    ^^^^^
+    \def foo/ {}
+         ^^^^
+Traceback :
+    File 'string', line 1 : \def foo/ {}
+                            ^^^^
 // End
 
 // Test 'Unknow macro (multilines)'

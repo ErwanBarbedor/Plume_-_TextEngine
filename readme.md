@@ -122,11 +122,12 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 
 #### Fixes
-- Fix a bug causing dev sections to be included in the final code.
-- Fix error where calling methods on tokenlist via implicit call to `render` doesn't work.
-- Fix error when calling a macro as argument of another macro with the same name.
-- Fix error causing lua caching do not work at all.
-- Fix error causing `setl` macro do not work at all.
+- Fix a bug causing development sections to be included in the final code.
+- Fix an error where calling methods on `tokenlist` via implicit call to `render` doesn't work.
+- Fix an error when calling a macro as an argument of another macro with the same name.
+- Fix an error causing Lua caching to not work at all.
+- Fix an error causing the `setl` macro to not work at all.
+- Fix an error where the character `\` doesn't display if it appears alone at the start of the line.
 
 ### 0.2.0
 

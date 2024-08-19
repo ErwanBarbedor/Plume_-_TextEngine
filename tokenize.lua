@@ -129,6 +129,7 @@ function plume.tokenize (code, file)
                 end
             else
                 pos = pos - 1
+                write ("text")
                 table.insert(acc, c)
             end
 
