@@ -99,3 +99,37 @@ baz
 // Result
 0
 // End
+
+// Test 'Simple closure'
+\def mydef[name body] {//
+    \def {#name} {#body}//
+}//
+\mydef foo bar//
+\foo
+// Result
+bar
+// End
+
+// Test 'Independant closures'
+\def mydef[name body] {//
+    \def {#name} {#body}//
+}//
+\mydef foo bar//
+\mydef bar baz//
+\foo
+\bar
+// Result
+bar
+baz
+// End
+
+// Test 'Closure in Expression'
+\def create_multiplier[multiplier] {
+    \def multiply_by[x] { #{x*multiplier} }//
+    \multiply_by {3}//
+}//
+\create_multiplier {2}
+// Result
+
+     6 
+// End

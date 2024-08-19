@@ -113,6 +113,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Features
 - Remove macro chain call : `\foo \foo x` will not longer be equivalent to `\foo {\foo x}`, but will raise an error. However, '\foo #{x}' still works.
+- Add closures.
 
 #### Fixes
 - Fix a bug causing dev sections to be included in the final code.

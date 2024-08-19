@@ -1433,9 +1433,15 @@ local function def (def_args, redef, redef_forced, calling_token)
     for k, v in ipairs(def_args.__args) do
         def_args.__args[k] = v:render()
     end
+
+    -- Capture current scope
+    local closure = plume.current_scope ()
     
     plume.register_macro(name, def_args.__args, opt_args, function(args)
-        -- Copy all tokens. Then, hive each of them
+        -- Insert closure
+        plume.push_scope (closure)
+
+        -- Copy all tokens. Then, give each of them
         -- a reference to current lua scope
         -- (affect only scripts and evals tokens)
         local last_scope = plume.current_scope ()
@@ -1460,7 +1466,10 @@ local function def (def_args, redef, redef_forced, calling_token)
 
         local result = def_args["$body"]:render()
 
-        --exit macro scope
+        -- exit macro scope
+        plume.pop_scope ()
+
+        -- exit closure
         plume.pop_scope ()
 
         return result
@@ -1990,19 +1999,19 @@ function plume.call_lua_chunk(token, code)
 end
 
 --- Creates a new scope with the given parent.
--- @param parent table The parent scope
+-- @param parent scope The parent scope
+-- @param source scope An optionnal scope to copy
 -- @return table The new scope
-function plume.create_scope (parent)
+function plume.create_scope (parent, source)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
-
-    return setmetatable(scope, {
+return setmetatable(scope, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
             -- call parent
-            local value = rawget(self, key)
+            local value = rawget(source or self, key)
             if value then
                 return value
             elseif parent then
@@ -2016,19 +2025,20 @@ function plume.create_scope (parent)
             if parent then
                 parent[key] = value
             else
-                rawset(self, key, value)
+                rawset(source or self, key, value)
             end
         end,
     })
 end
 
 --- Creates a new scope with the penultimate scope as parent.
-function plume.push_scope ()
+function plume.push_scope (scope)
     local last_scope = plume.current_scope ()
-    local new_scope = plume.create_scope (last_scope)
+    local new_scope = plume.create_scope (last_scope, scope)
 
     table.insert(plume.scopes, new_scope)
 end
+
 
 --- Removes the last created scope.
 function plume.pop_scope ()

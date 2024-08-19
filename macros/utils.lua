@@ -85,9 +85,15 @@ local function def (def_args, redef, redef_forced, calling_token)
     for k, v in ipairs(def_args.__args) do
         def_args.__args[k] = v:render()
     end
+
+    -- Capture current scope
+    local closure = plume.current_scope ()
     
     plume.register_macro(name, def_args.__args, opt_args, function(args)
-        -- Copy all tokens. Then, hive each of them
+        -- Insert closure
+        plume.push_scope (closure)
+
+        -- Copy all tokens. Then, give each of them
         -- a reference to current lua scope
         -- (affect only scripts and evals tokens)
         local last_scope = plume.current_scope ()
@@ -112,7 +118,10 @@ local function def (def_args, redef, redef_forced, calling_token)
 
         local result = def_args["$body"]:render()
 
-        --exit macro scope
+        -- exit macro scope
+        plume.pop_scope ()
+
+        -- exit closure
         plume.pop_scope ()
 
         return result

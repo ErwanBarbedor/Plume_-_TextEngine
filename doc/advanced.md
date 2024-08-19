@@ -170,6 +170,19 @@ Variables used as parameters retain the scope in which the macro was called.
 
 Output `1`.
 
+## Closure
+
+Plume implements a closure system, i.e. variables local to the block where the macro is defined remain accessible from this macro.
+
+```plume
+\def mydef[name body] {
+    \def {#name} {#body}
+}
+\mydef foo bar
+\foo
+```
+Output `bar`, even though `name` and `body` are variables local to the `mydef` block and shouldn't be accessible anywhere else.
+
 ## Too Many Intricate Macro Calls
 
 By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.

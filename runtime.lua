@@ -130,8 +130,9 @@ end
 
 --- Creates a new scope with the given parent.
 -- @param parent scope The parent scope
+-- @param source scope An optionnal scope to copy
 -- @return table The new scope
-function plume.create_scope (parent)
+function plume.create_scope (parent, source)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
@@ -149,7 +150,7 @@ function plume.create_scope (parent)
             -- Return registered value.
             -- If value is nil, recursively
             -- call parent
-            local value = rawget(self, key)
+            local value = rawget(source or self, key)
             if value then
                 return value
             elseif parent then
@@ -163,7 +164,7 @@ function plume.create_scope (parent)
             if parent then
                 parent[key] = value
             else
-                rawset(self, key, value)
+                rawset(source or self, key, value)
             end
         end,
     })
