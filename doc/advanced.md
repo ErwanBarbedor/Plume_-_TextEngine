@@ -122,7 +122,8 @@ If the value is an `\eval` block, `\set` will save it as a Lua object.
 
 Gives `string, number`.
 
-## Variables Scope
+## Scopes
+### Variables Scope
 
 Each macro execution create a new scope.
 Variables are global by default.
@@ -158,7 +159,10 @@ Gives:
 10
 ```
 
-## Parameters scopes
+## `\for` and `\while` scope
+Like macros, each iteration has it's own scope.
+
+### Parameters scopes
 
 Variables used as parameters retain the scope in which the macro was called.
 
@@ -170,7 +174,7 @@ Variables used as parameters retain the scope in which the macro was called.
 
 Output `1`.
 
-## Closure
+### Closure
 
 Plume implements a closure system, i.e. variables local to the block where the macro is defined remain accessible from this macro.
 

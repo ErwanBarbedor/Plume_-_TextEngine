@@ -10,6 +10,8 @@
 - _iterator_: A Lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
 - _body_: Any Plume block that will be repeated.
 
+**Note:** Each iteration has it's own scope.
+
 **Example:**
 
 ```plume
@@ -24,6 +26,8 @@
 **Parameters:**
 - _condition_: Any Lua expression.
 - _body_: Any Plume block.
+
+**Note:** Each iteration has it's own scope.
 
 **Example:**
 
