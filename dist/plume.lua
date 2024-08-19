@@ -180,6 +180,12 @@ function plume.renderToken (self)
         elseif token.kind == "block" then
             table.insert(result, token:render())
 
+        elseif token.kind == "opt_block" then
+            table.insert(result,
+                plume.syntax.opt_block_begin
+                .. token:render() 
+                .. plume.syntax.opt_block_end)
+
         elseif token.kind == "opt_assign" then
             table.insert(result, token.value)
 
@@ -1511,12 +1517,12 @@ local function set(args, calling_token, is_local)
 end
 
 plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
-    set(args, calling_token,args.__args["local"])
+    set(args, calling_token, args.__args["local"])
     return ""
 end)
 
 plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
-    set(args, true)
+    set(args, calling_token, true)
     return ""
 end)
 

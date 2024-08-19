@@ -113,13 +113,16 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Features
 - Remove macro chain call : `\foo \foo x` will not longer be equivalent to `\foo {\foo x}`, but will raise an error. However, '\foo #{x}' still works.
-- Add closures.
+- Implement closures.
+- No need to escape `[` and `]` anymore outside of a macro call.
+
 
 #### Fixes
 - Fix a bug causing dev sections to be included in the final code.
 - Fix error where calling methods on tokenlist via implicit call to `render` doesn't work.
 - Fix error when calling a macro as argument of another macro with the same name.
 - Fix error causing lua caching do not work at all.
+- Fix error causing `setl` macro do not work at all.
 
 ### 0.2.0
 

@@ -132,6 +132,12 @@ function plume.renderToken (self)
         elseif token.kind == "block" then
             table.insert(result, token:render())
 
+        elseif token.kind == "opt_block" then
+            table.insert(result,
+                plume.syntax.opt_block_begin
+                .. token:render() 
+                .. plume.syntax.opt_block_end)
+
         elseif token.kind == "opt_assign" then
             table.insert(result, token.value)
 
