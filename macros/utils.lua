@@ -163,12 +163,12 @@ local function set(args, calling_token, is_local)
 end
 
 plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
-    set(args, calling_token,args.__args["local"])
+    set(args, calling_token, args.__args["local"])
     return ""
 end)
 
 plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
-    set(args, true)
+    set(args, calling_token, true)
     return ""
 end)
 
