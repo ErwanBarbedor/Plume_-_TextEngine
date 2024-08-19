@@ -67,6 +67,7 @@ Output
 | input_file             | input path given to plume, if any |
 | output_file            | input path given to plume, if any |
 | _VERSION               | plume version |
+| _LUA\_VERSION          | lua version. |
 
 ## `tokenlist`
 
