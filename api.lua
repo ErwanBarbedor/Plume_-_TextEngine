@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License along with Plu
 local api = {}
 
 api._VERSION = plume._VERSION
+api._LUA_VERSION = plume._LUA_VERSION
 
 --- Captures and stores all local variables
 -- in the current scope.

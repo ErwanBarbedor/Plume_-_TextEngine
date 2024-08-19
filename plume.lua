@@ -30,8 +30,8 @@ require "parse"
 require "error"
 require "macro"
 require "runtime"
-require "api"
 require "init"
+require "api"
 
 -- <DEV>
 plume.show_token = false
