@@ -66,6 +66,28 @@ function plume.eval_lua_expression (token, code)
     return plume.call_lua_chunk (token, code)
 end
 
+--- Call Lua Statements
+-- This function executes Lua statements provided in a token or code string.
+-- @param token table The token containing the source Lua code.
+-- @param code string Optional. The Lua code to be executed. If not provided, the code will be extracted from the token's source.
+-- @return any The result of executing the Lua chunk.
+function plume.call_lua_statements (token, code)
+    code = code or token:source()
+
+    -- Script cannot return value
+    local end_code = code:gsub('%s+$', ''):match('[^;\n]-$')
+    if end_code and end_code:match('^%s*return') then
+        plume.error(token, "\\script cannot return value.")
+    end
+
+    -- Add function to capture local variables at the end of the provided code.
+    code = code .. "\nplume.capture_local()"
+
+    -- Call the modified Lua chunk using the plume module.
+    return plume.call_lua_chunk(token, code)
+end
+
+
 --- Loads, caches, and executes Lua code.
 -- @param token table The token containing the code
 -- or, if code is given, token used to throw error

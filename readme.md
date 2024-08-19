@@ -111,11 +111,14 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### 0.3.0
 
-#### Features
-- Remove macro chain call : `\foo \foo x` will not longer be equivalent to `\foo {\foo x}`, but will raise an error. However, `\foo #{x}` still works.
+#### Changes
+- Remove macro chain call: `\foo \foo x` will no longer be equivalent to `\foo {\foo x}`, but will raise an error. However, `\foo #{x}` still works.
 - Implement closures.
-- Add one scope per loops iterations.
+- Add one scope per loop iteration.
 - No need to escape `[` and `]` anymore outside of a macro call.
+- The `\script` macro can no longer return a value.
+- Local variables of `\script` will be captured, so there's no need for `plume.set_local` anymore.
+- Remove `plume.set_local`.
 
 
 #### Fixes
@@ -127,7 +130,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### 0.2.0
 
-#### Features
+#### Changes
 - Replace `\include[extern]` by `\extern`
 - Remove `extern` option for `\include`
 - Can give argument to included files.

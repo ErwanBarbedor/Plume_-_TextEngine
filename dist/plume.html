@@ -1915,7 +1915,7 @@ end)
 
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = plume.call_lua_chunk(args.body)
+    local result = plume.call_lua_statements(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -2089,6 +2089,28 @@ function plume.eval_lua_expression (token, code)
     return plume.call_lua_chunk (token, code)
 end
 
+--- Call Lua Statements
+-- This function executes Lua statements provided in a token or code string.
+-- @param token table The token containing the source Lua code.
+-- @param code string Optional. The Lua code to be executed. If not provided, the code will be extracted from the token's source.
+-- @return any The result of executing the Lua chunk.
+function plume.call_lua_statements (token, code)
+    code = code or token:source()
+
+    -- Script cannot return value
+    local end_code = code:gsub('%s+$', ''):match('[^;\n]-$')
+    if end_code and end_code:match('^%s*return') then
+        plume.error(token, "\\script cannot return value.")
+    end
+
+    -- Add function to capture local variables at the end of the provided code.
+    code = code .. "\nplume.capture_local()"
+
+    -- Call the modified Lua chunk using the plume module.
+    return plume.call_lua_chunk(token, code)
+end
+
+
 --- Loads, caches, and executes Lua code.
 -- @param token table The token containing the code
 -- or, if code is given, token used to throw error
@@ -2220,13 +2242,20 @@ end
 -- Manage methods that are visible from user (not much for now)
 local api = {}
 
---- Define a variable locally
--- @param key string
--- @param value string
-function api.set_local (key, value)
-    plume.scope_set_local (key, value)
+--- Captures and stores all local variables
+-- in the current scope.
+function api.capture_local()
+    local index = 1
+    while true do
+        local key, value = debug.getlocal(2, index)
+        if key then
+            plume.scope_set_local(key, value)
+        else
+            break
+        end
+        index = index + 1 
+    end
 end
-
 
 --- Get a variable value by name
 -- @param key string

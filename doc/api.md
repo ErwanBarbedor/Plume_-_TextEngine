@@ -5,33 +5,6 @@
 
 `plume` is a global table containing the following functions :
 
-### `plume.set_local ()`
-
-**Description:** Set a variable locally
-
-**Parameters:**
-- _name_: Variable name.
-- _value_: Variable value.
-
-**Example:**
-
-```plume
-\def foo {
-    \script{
-        plume.set_local("a", 1)
-        b = 2
-    }
-    #a #b
-}
-\foo
-#a #b
-```
-Output:
-```
-1 2
-2
-```
-
 ### `plume.get ()`
 
 **Description:** Get a variable value from current scope by name.
@@ -80,6 +53,12 @@ Output
 
 **Parameters:**
 - _name_: Name of the lua file to load.
+
+### `plume.capture_local ()`
+
+**Description:** Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `\script`.
+
+**Notes:** You shouldn't use this function.
 
 ## `plume` variables
 

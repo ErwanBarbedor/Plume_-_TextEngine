@@ -15,13 +15,20 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Manage methods that are visible from user (not much for now)
 local api = {}
 
---- Define a variable locally
--- @param key string
--- @param value string
-function api.set_local (key, value)
-    plume.scope_set_local (key, value)
+--- Captures and stores all local variables
+-- in the current scope.
+function api.capture_local()
+    local index = 1
+    while true do
+        local key, value = debug.getlocal(2, index)
+        if key then
+            plume.scope_set_local(key, value)
+        else
+            break
+        end
+        index = index + 1 
+    end
 end
-
 
 --- Get a variable value by name
 -- @param key string

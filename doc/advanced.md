@@ -159,7 +159,7 @@ Gives:
 10
 ```
 
-## `\for` and `\while` scope
+### `\for` and `\while` scope
 Like macros, each iteration has it's own scope.
 
 ### Parameters scopes
@@ -185,6 +185,7 @@ Plume implements a closure system, i.e. variables local to the block where the m
 \mydef foo bar
 \foo
 ```
+
 Output `bar`, even though `name` and `body` are variables local to the `mydef` block and shouldn't be accessible anywhere else.
 
 ## Too Many Intricate Macro Calls
@@ -195,8 +196,7 @@ See `\config` macro to edit this number.
 
 ## Lua Scope
 
-Local variables are local to the macro script and cannot be used outside it. For global variables, if a variable with the same name exists, they share the same scope. Otherwise, they are global. To declare a variable inside a script macro but local to the current `plume` scope, use `plume.set_local (key, value)` (or its alias `plume.setl`).
-
+Global and local _lua_ variables are seamlessly equivalent to global and local _plume_ variables.
 Example:
 
 ```plume
@@ -204,21 +204,19 @@ Example:
     \script {
         local a = 0
         b = 1
-        c = 2
-        plume.set_local("d", 3)
     }
-    a: #a, b: #b, c: #c, d: #d
+    a: #a, b: #b
 }
-\set d 20
-\set c 30
+\set a 20
+\set b 30
 \foo
-a: #a, b: #b, c: #c, d: #d
+a: #a, b: #b
 ```
 Gives:
 
 ```
-a: , b: 1, c: 2, d: 3
-a: , b: 1, c: 2, d: 20
+a: 0, b: 1
+a: 20, b: 1
 ```
 
 ## Spacing

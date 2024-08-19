@@ -162,27 +162,23 @@ This will create a file named `output.txt` and write `foo` inside.
 
 ### `\script`
 
-**Description:** Executes a Lua chunk in the current context. Any returned value will be added to the output. Returning a value is optional.
+**Description:** Executes a Lua chunk in the current context. You cannot return value.
 
 **Parameters:**
 - _code_: Lua chunk to execute.
 
-**Notes:**
-- Local Lua variables are local to the chunk and cannot be accessed outside.
-- Global Lua variables can be accessed from anywhere outside.
-- You can define variables local to the current Plume scope with `plume.set_local(key, value)`.
+**Note:** Global and local _lua_ variables are seamlessly equivalent to global and local _plume_ variables.
 
 **Example:**
 
 ```plume
 \script {
-    local a = 0
-    a = a + 1
-    return a
+    a = 0
 }
+#a
 ```
 
-Output: `1`.
+Output: `0`.
 
 ### `\eval`
 
