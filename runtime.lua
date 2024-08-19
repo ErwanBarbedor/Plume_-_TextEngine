@@ -129,12 +129,20 @@ function plume.call_lua_chunk(token, code)
 end
 
 --- Creates a new scope with the given parent.
--- @param parent table The parent scope
+-- @param parent scope The parent scope
 -- @return table The new scope
 function plume.create_scope (parent)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
+
+    -- <DEV>
+    if parent then
+        scope.__parent = parent
+        table.insert(parent.__childs, scope)
+    end
+    scope.__childs = {}
+    -- </DEV>
 
     return setmetatable(scope, {
         __index = function (self, key)
@@ -162,12 +170,13 @@ function plume.create_scope (parent)
 end
 
 --- Creates a new scope with the penultimate scope as parent.
-function plume.push_scope ()
+function plume.push_scope (scope)
     local last_scope = plume.current_scope ()
-    local new_scope = plume.create_scope (last_scope)
+    local new_scope = plume.create_scope (last_scope, scope)
 
     table.insert(plume.scopes, new_scope)
 end
+
 
 --- Removes the last created scope.
 function plume.pop_scope ()
