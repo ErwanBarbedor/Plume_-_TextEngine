@@ -76,13 +76,24 @@ body {
   background: #a8a8a8;
 }
 
-/* Style for the GitHub button and title*/
+
 h1 {
   position: absolute;
   top:10px;
   left: 50%;
   transform: translateX(-50%);
   font-weight: bold;
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+}
+
+h1 p {
+  font-size: 50%;
+}
+
+h2 {
+  text-align: center;
 }
 
 #github-button {

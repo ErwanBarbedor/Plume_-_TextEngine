@@ -51,6 +51,8 @@ html = html:gsub('{{PLUME}}', code:gsub('%%', '%%%%'))
 html = html:gsub('{{CSS}}',   css:gsub('%%', '%%%%'))
 html = html:gsub('{{GITHUB}}',  github)
 html = html:gsub('{{VERSION}}',  version)
+local version_number = version:match('%S-$')
+html = html:gsub('{{VERSION%-NUMBER}}',  version_number)
 
 file = io.open("dist/plume.html", "w")
     file:write(html)
