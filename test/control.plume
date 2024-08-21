@@ -154,3 +154,20 @@ Traceback :
     File 'string', line 1 : \else foo
                             ^^^^^
 // End
+
+// Test 'do'
+\do {//
+    \setl x 0//
+    \def foo {//
+        \set x #{x+1}//
+        #x
+    }//
+}//
+\foo//
+\set x 5//
+\foo//
+// Result
+1
+    2
+    
+// End

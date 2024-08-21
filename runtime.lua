@@ -181,9 +181,9 @@ function plume.create_scope (parent, source)
         end,
         __newindex = function (self, key, value)
             -- Register new value
-            -- if has parent, send value to parent.
-            -- else, register it
-            if parent then
+            -- if has parent and do not have the key,
+            -- send value to parent. Else, register it.
+            if parent and not (source and source[key])then
                 parent[key] = value
             else
                 rawset(source or self, key, value)

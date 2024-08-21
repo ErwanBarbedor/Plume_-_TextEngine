@@ -751,7 +751,16 @@ function plume.tokenize (code, file)
         pos = pos + 1
     end
     write ()
-return result
+
+    -- <DEV>
+    if plume.show_token then
+        for _, token in ipairs(result) do
+            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+        end
+    end
+    -- </DEV>
+
+    return result
 end
 
 -- ## parse.lua ##
@@ -1123,6 +1132,25 @@ local function word_distance(s1, s2)
     return matrix[len1][len2]
 end
 
+--- Convert an associative table to an alphabetically sorted one.
+-- @param t table The associative table to sort
+-- @return table The table containing sorted keys
+local function sort(t)
+    -- Create an empty table to store the sorted keys
+    local sortedTable = {}
+    
+    -- Extract keys from the associative table
+    for k in pairs(t) do
+        table.insert(sortedTable, k)
+    end
+
+    -- Sort the keys alphabetically
+    table.sort(sortedTable)
+    
+    return sortedTable
+end
+
+
 --- Generates error message for macro not found.
 -- @param token table The token that caused the error (optional)
 -- @param macro_name string The name of the not founded macro
@@ -1148,9 +1176,9 @@ function plume.error_macro_not_found (token, macro_name)
         end
     end
 
-    local suggestions_list = {}
-    for name, _ in pairs(suggestions_table) do
-        table.insert (suggestions_list, "'" .. name .."'")
+    local suggestions_list = sort(suggestions_table)
+    for i, name in ipairs(suggestions_list) do
+        suggestions_list[i] =  "'" .. name .."'"
     end
 
     local msg = "Unknow macro '" .. macro_name .. "'."
@@ -1379,6 +1407,15 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
         condition = true
     end
     return "", not condition
+end)
+
+plume.register_macro("do", {"body"}, {}, function(args, self_token)
+    
+    plume.push_scope ()
+        local result = args.body:render ()
+    plume.pop_scope ()
+
+    return result
 end) 
 
 -- ## macros/utils.lua ##
@@ -1896,7 +1933,41 @@ plume.register_macro("t", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\t"):rep(count)
+end) 
+-- <DEV>
+
+-- ## macros/debug.lua ##
+-- Tools for debuging during developpement.
+
+plume.register_macro("stop", {}, {}, function(args, calling_token)
+    plume.error(calling_token, "Program ends by macro.")
 end)
+
+local function print_env(env, indent)
+    indent = indent or ""
+    print(indent .. tostring(env))
+    print(indent .. "Variables :")
+    for k, v in pairs(env) do
+        if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
+            if type(v) == "table" and v.source then
+                print(indent.."\t".. k .. " : ", v, " : ", v:source())
+            else
+                print(indent.."\t".. k .. " : ", v)
+            end
+        end
+    end
+    print(indent .. "Sub-envs :")
+    for _, child in ipairs(env.__childs) do
+        print_env (child, indent.."\t")
+    end
+end
+
+plume.register_macro("print_env", {}, {}, function(args, calling_token)
+    print("=== Environnement informations ===")
+    print_env (plume.scopes[1])
+end) 
+-- </DEV>
+
 -- Save predifined macro to permit reset of plume
 plume.std_macros = {}
 for k, v in pairs(plume.macros) do
@@ -2050,7 +2121,16 @@ function plume.create_scope (parent, source)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
-return setmetatable(scope, {
+
+    -- <DEV>
+    if parent then
+        scope.__parent = parent
+        table.insert(parent.__childs, scope)
+    end
+    scope.__childs = {}
+    -- </DEV>
+
+    return setmetatable(scope, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
@@ -2064,9 +2144,9 @@ return setmetatable(scope, {
         end,
         __newindex = function (self, key, value)
             -- Register new value
-            -- if has parent, send value to parent.
-            -- else, register it
-            if parent then
+            -- if has parent and do not have the key,
+            -- send value to parent. Else, register it.
+            if parent and not (source and source[key])then
                 parent[key] = value
             else
                 rawset(source or self, key, value)
@@ -2269,6 +2349,36 @@ function plume.init_api ()
         scope.plume.config[k] = v
     end
 end
+
+-- <DEV>
+plume.show_token = false
+local function print_tokens(t, indent)
+    local function print_token_info (token)
+        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
+    end
+
+    indent = indent or ""
+    for _, token in ipairs(t) do
+        if token.kind == "block" or token.kind == "opt_block" then
+            print_token_info(token)
+            print_tokens(token, "\t"..indent)
+        
+        elseif token.kind == "block_text" then
+            local value = ""
+            for _, txt in ipairs(token) do
+                value = value .. txt.value
+            end
+            print_token_info(token)
+        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
+            print_token_info (token)
+            print_tokens(token, "\t"..indent)
+        else
+            print_token_info(token)
+        end
+    end
+end
+-- </DEV>
+
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
 -- @param file string The name used to track the code
@@ -2278,7 +2388,13 @@ function plume.render (code, file)
     
     tokens = plume.tokenize(code, file)
     tokens = plume.parse(tokens)
-result = tokens:render()
+    -- <DEV>
+    if plume.show_token then
+        print "--------"
+        print_tokens(tokens)
+    end
+    -- </DEV>
+    result = tokens:render()
     
     return result
 end
