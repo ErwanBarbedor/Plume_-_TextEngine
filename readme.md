@@ -119,6 +119,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - The `\script` macro can no longer return a value.
 - Local variables of `\script` will be captured, so there's no need for `plume.set_local` anymore.
 - Remove `plume.set_local`.
+- New macro `\do`
 
 
 #### Fixes

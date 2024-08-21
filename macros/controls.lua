@@ -196,3 +196,12 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
     end
     return "", not condition
 end)
+
+plume.register_macro("do", {"body"}, {}, function(args, self_token)
+    
+    plume.push_scope ()
+        local result = args.body:render ()
+    plume.pop_scope ()
+
+    return result
+end)
