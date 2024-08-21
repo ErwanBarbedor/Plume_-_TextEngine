@@ -1,7 +1,7 @@
 // Test 'Unknow macro'
 \foo
 // Error
-File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
+File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'do' or 'for'?
     \foo
     ^^^^
 // End
@@ -22,7 +22,7 @@ Hello!
 
 \foo
 // Error
-File 'string', line 3 : Unknow macro 'foo'. Perhaps you mean 'for'?
+File 'string', line 3 : Unknow macro 'foo'. Perhaps you mean 'do' or 'for'?
     \foo
     ^^^^
 // End
