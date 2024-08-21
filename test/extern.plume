@@ -35,7 +35,7 @@ foo foo
 // Test 'include error'
 \include test/lib_error.plume
 // Error
-File 'test/lib_error.plume', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
+File 'test/lib_error.plume', line 1 : Unknow macro 'foo'. Perhaps you mean 'do' or 'for'?
     \foo
     ^^^^
 Traceback :
