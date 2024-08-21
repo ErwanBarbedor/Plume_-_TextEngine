@@ -136,8 +136,6 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Remove `extern` option for `\include`
 - Can give argument to included files.
 - Can call any method and almost any metamethod on tokenlist via implicit call to `render`.
-
-#### Improvement
 - Alias cannot erase existing macros.
 - `\config` second argument isn't converted automaticaly anymore.
 
