@@ -122,7 +122,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 
 #### Fixes
-- Fix a bug causing development sections to be included in the final code.
+- Fix an error causing development sections to be included in the final code.
 - Fix an error where calling methods on `tokenlist` via implicit call to `render` doesn't work.
 - Fix an error when calling a macro as an argument of another macro with the same name.
 - Fix an error causing Lua caching to not work at all.
