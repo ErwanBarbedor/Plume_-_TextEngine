@@ -302,6 +302,25 @@ local function word_distance(s1, s2)
     return matrix[len1][len2]
 end
 
+--- Convert an associative table to an alphabetically sorted one.
+-- @param t table The associative table to sort
+-- @return table The table containing sorted keys
+local function sort(t)
+    -- Create an empty table to store the sorted keys
+    local sortedTable = {}
+    
+    -- Extract keys from the associative table
+    for k in pairs(t) do
+        table.insert(sortedTable, k)
+    end
+
+    -- Sort the keys alphabetically
+    table.sort(sortedTable)
+    
+    return sortedTable
+end
+
+
 --- Generates error message for macro not found.
 -- @param token table The token that caused the error (optional)
 -- @param macro_name string The name of the not founded macro
@@ -327,9 +346,9 @@ function plume.error_macro_not_found (token, macro_name)
         end
     end
 
-    local suggestions_list = {}
-    for name, _ in pairs(suggestions_table) do
-        table.insert (suggestions_list, "'" .. name .."'")
+    local suggestions_list = sort(suggestions_table)
+    for i, name in ipairs(suggestions_list) do
+        suggestions_list[i] =  "'" .. name .."'"
     end
 
     local msg = "Unknow macro '" .. macro_name .. "'."
