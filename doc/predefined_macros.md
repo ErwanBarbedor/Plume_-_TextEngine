@@ -78,6 +78,13 @@
 
 **Description:** Behaves exactly like `\if`, but must follow an `\if` or an `\elseif` macro.
 
+### `\do`
+
+**Description:** Create a scope and execute `body` inside.
+
+**Parameters:**
+- _body_: Any Plume block.
+
 ## Files
 
 ### Note on Path Searching
