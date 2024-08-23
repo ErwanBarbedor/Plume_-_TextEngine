@@ -1798,16 +1798,16 @@ end)
 -- ## macros/files.lua ##
 -- Define macro related to files
 
---- Search a file for a given path
+--- Search path and open file
 -- @param token token Token used to throw an error (optionnal)
--- @param calling_token token Token used to get context (optionnal)
 -- @param formats table List of path formats to try (e.g., {"?.lua", "?/init.lua"})
 -- @param path string Path of the file to search for
+-- @param mode string mode to open file into. Defaut "r".
 -- @param silent_fail bool If true, doesn't raise an error if not file found.
 -- @return file file File descriptor of the found file
 -- @return filepath string Full path of the found file
 -- @raise Throws an error if the file is not found, with a message detailing the paths tried
-function plume.search_for_files (token, calling_token, formats, path, silent_fail)
+function plume.open (token, formats, path, mode, silent_fail)
     -- To avoid checking same folder two times
     local parent
     local folders     = {}
@@ -1816,41 +1816,37 @@ function plume.search_for_files (token, calling_token, formats, path, silent_fai
     -- Find the path relative to each parent
     local parent_paths = {}
 
-    if calling_token then
-        table.insert(parent_paths, calling_token.file)
+    for i=#plume.traceback, 1, -1 do
+        local file = plume.traceback[i].file
+        local dir  = file:gsub('[^\\/]*$', ''):gsub('[\\/]$', '')
+
+        if not parent_paths[dir] then
+            parent_paths[dir] = true
+            table.insert(parent_paths, dir)
+        end
     end
-    for _, parent in ipairs(plume.file_stack) do
-        table.insert(parent_paths, parent)
-    end
-    -- Parents are files, to target a
-    -- fake "dummy"
+
     if plume.directory then
-        table.insert(parent_paths, plume.directory .. "/lib/dummy")
+        table.insert(parent_paths, plume.directory .. "/lib")
     end
 
     local file, filepath
-    for _, parent in ipairs(parent_paths) do
-        
-        local folder = parent:gsub('[^\\/]*$', ''):gsub('[\\/]$', '')
-        if not folders[folder] then
-            folders[folder] = true
+    for _, folder in ipairs(parent_paths) do
+        for _, format in ipairs(formats) do
+            filepath = format:gsub('?', path)
+            filepath = (folder .. "/" .. filepath)
+            filepath = filepath:gsub('^/', '')
 
-            for _, format in ipairs(formats) do
-                filepath = format:gsub('?', path)
-                filepath = (folder .. "/" .. filepath)
-                filepath = filepath:gsub('^/', '')
-
-                file = io.open(filepath)
-                if file then
-                    break
-                else
-                    table.insert(tried_paths, filepath)
-                end
-            end
-
+            file = io.open(filepath, mode)
             if file then
                 break
+            else
+                table.insert(tried_paths, filepath)
             end
+        end
+
+        if file then
+            break
         end
     end
 
@@ -1890,7 +1886,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?/init.lua") 
     end
 
-    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.open (args.path, formats, path)
 
     local f = plume.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
 
@@ -1907,7 +1903,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     table.insert(formats, "?.plume")
     table.insert(formats, "?/init.plume")  
 
-    local file, filepath = plume.search_for_files (args["$path"], calling_token, formats, path)
+    local file, filepath = plume.open (args["$path"], formats, path)
 
     -- file scope
     table.insert(plume.file_stack, filepath)
@@ -1946,7 +1942,7 @@ plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     
     table.insert(formats, "?")
 
-    local file, filepath = plume.search_for_files (args.path, calling_token, formats, path)
+    local file, filepath = plume.open (args.path, formats, path)
 
     return file:read("*a")
 end)
@@ -2432,6 +2428,16 @@ function api.capture_local()
         end
         index = index + 1 
     end
+end
+
+--- Searches for a file in the given path and open it in the given mode.
+-- @param path string The path where to search for the file.
+-- @param safe_mode boolean If true, the search will not raise an error if no file is found.
+-- @param open_mode boolean Defaut "r". Mode to open the file.
+-- @return file The file found during the search.
+-- @return fpath string The path of the file found.
+function api.open (path, open_mode, silent_fail)
+    return plume.open (nil, {"?"}, path, open_mode, silent_fail)
 end
 
 --- Get a variable value by name

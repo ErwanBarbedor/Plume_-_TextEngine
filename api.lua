@@ -33,6 +33,16 @@ function api.capture_local()
     end
 end
 
+--- Searches for a file in the given path and open it in the given mode.
+-- @param path string The path where to search for the file.
+-- @param safe_mode boolean If true, the search will not raise an error if no file is found.
+-- @param open_mode boolean Defaut "r". Mode to open the file.
+-- @return file The file found during the search.
+-- @return fpath string The path of the file found.
+function api.open (path, open_mode, silent_fail)
+    return plume.open (nil, {"?"}, path, open_mode, silent_fail)
+end
+
 --- Get a variable value by name
 -- @param key string
 -- @param value string

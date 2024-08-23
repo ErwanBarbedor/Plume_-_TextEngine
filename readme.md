@@ -113,15 +113,15 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Remove macro chain call: `\foo \foo x` will no longer be equivalent to `\foo {\foo x}`, but will raise an error. However, `\foo #{x}` still works.
+- The `\script` macro can no longer return a value.
 - Implement closures.
 - Add one scope per loop iteration.
 - No need to escape `[` and `]` anymore outside of a macro call.
-- The `\script` macro can no longer return a value.
 - Local variables of `\script` will be captured, so there's no need for `plume.set_local` anymore.
-- Remove `plume.set_local`.
-- New macro `\do`
 - Change file searching behavior.
-
+- New macro `\do`
+- New `api.open`
+- Remove `plume.set_local`.
 
 #### Fixes
 - Fix an error causing development sections to be included in the final code.

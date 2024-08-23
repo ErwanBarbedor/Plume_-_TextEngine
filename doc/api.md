@@ -36,7 +36,7 @@ Output
 ### `plume.getr ()`
 **Description:** Alias to `plume.get_render`
 
-### `plume.get_lua`
+### `plume.get_lua ()`
 **Description:** If the variable has a renderLua method, call it and return the result. Otherwise, return the variable.
 
 **Parameters:**
@@ -54,11 +54,20 @@ Output
 **Parameters:**
 - _name_: Name of the lua file to load.
 
+### `plume.open ()`
+
+**Description:**  Searches for a file using the plume search system and open it in the given mode. Return the opened file and the full path of the file.
+
+**Parameters:**
+_path (string)_ : The path where to search for the file.
+_safe_mode (boolean)_ : If true, the search will not raise an error if no file is found.
+_open_mode (boolean)_ : Defaut "r". Mode to open the file.
+
 ### `plume.capture_local ()`
 
 **Description:** Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `\script`.
 
-**Notes:** You shouldn't use this function.
+**Notes:** Mainly internal use, you shouldn't use this function.
 
 ## `plume` variables
 
@@ -70,7 +79,6 @@ Output
 | _LUA\_VERSION          | lua version. |
 
 ## `tokenlist`
-
 
 `tokenlist` are Lua representations of Plume structures. You can access them in a macro call via variables named after arguments.
 
