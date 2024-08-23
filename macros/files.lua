@@ -33,41 +33,37 @@ function plume.open (token, calling_token, formats, path, mode, silent_fail)
     -- Find the path relative to each parent
     local parent_paths = {}
 
-    if calling_token then
-        table.insert(parent_paths, calling_token.file)
+    for i=#plume.traceback, 1, -1 do
+        local file = plume.traceback[i].file
+        local dir  = file:gsub('[^\\/]*$', ''):gsub('[\\/]$', '')
+
+        if not parent_paths[dir] then
+            parent_paths[dir] = true
+            table.insert(parent_paths, dir)
+        end
     end
-    for _, parent in ipairs(plume.file_stack) do
-        table.insert(parent_paths, parent)
-    end
-    -- Parents are files, so create a
-    -- fake "dummy"
+
     if plume.directory then
-        table.insert(parent_paths, plume.directory .. "/lib/dummy")
+        table.insert(parent_paths, plume.directory .. "/lib")
     end
 
     local file, filepath
-    for _, parent in ipairs(parent_paths) do
-        
-        local folder = parent:gsub('[^\\/]*$', ''):gsub('[\\/]$', '')
-        if not folders[folder] then
-            folders[folder] = true
+    for _, folder in ipairs(parent_paths) do
+        for _, format in ipairs(formats) do
+            filepath = format:gsub('?', path)
+            filepath = (folder .. "/" .. filepath)
+            filepath = filepath:gsub('^/', '')
 
-            for _, format in ipairs(formats) do
-                filepath = format:gsub('?', path)
-                filepath = (folder .. "/" .. filepath)
-                filepath = filepath:gsub('^/', '')
-
-                file = io.open(filepath, mode)
-                if file then
-                    break
-                else
-                    table.insert(tried_paths, filepath)
-                end
-            end
-
+            file = io.open(filepath, mode)
             if file then
                 break
+            else
+                table.insert(tried_paths, filepath)
             end
+        end
+
+        if file then
+            break
         end
     end
 

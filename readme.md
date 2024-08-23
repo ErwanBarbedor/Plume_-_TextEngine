@@ -120,6 +120,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Local variables of `\script` will be captured, so there's no need for `plume.set_local` anymore.
 - Remove `plume.set_local`.
 - New macro `\do`
+- Change file searching behavior.
 
 
 #### Fixes

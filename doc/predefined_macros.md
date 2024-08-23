@@ -89,12 +89,8 @@
 
 ### Note on Path Searching
 
-When using `\require` or `\include`, Plume will search for file in theses folder :
+When using `\require` or `\include`, Plume will search for the file by tracing back through the traceback. Essentially, it retrieves the parent directory of the file where the last macro was called and checks if the requested file is found there. If it doesn't work, it moves to the previous macro, and so on, until the entire traceback is exhausted.
 
-- First next to the file where `\require` or `\include` was called.
-- Then to the file, if exist, that included the file calling  `\require` or `\include`.
-- Then the previous path...
-- Then in the "lib" folder next to `plume.lua`
 
 If using `\require`, Plume will automatically search for file:
 - With the exact name
