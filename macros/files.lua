@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License along with Plu
 
 --- Search path and open file
 -- @param token token Token used to throw an error (optionnal)
--- @param calling_token token Token used to get context (optionnal)
 -- @param formats table List of path formats to try (e.g., {"?.lua", "?/init.lua"})
 -- @param path string Path of the file to search for
 -- @param mode string mode to open file into. Defaut "r".
@@ -24,7 +23,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @return file file File descriptor of the found file
 -- @return filepath string Full path of the found file
 -- @raise Throws an error if the file is not found, with a message detailing the paths tried
-function plume.open (token, calling_token, formats, path, mode, silent_fail)
+function plume.open (token, formats, path, mode, silent_fail)
     -- To avoid checking same folder two times
     local parent
     local folders     = {}
@@ -103,7 +102,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?/init.lua") 
     end
 
-    local file, filepath = plume.open (args.path, calling_token, formats, path)
+    local file, filepath = plume.open (args.path, formats, path)
 
     local f = plume.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
 
@@ -120,7 +119,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     table.insert(formats, "?.plume")
     table.insert(formats, "?/init.plume")  
 
-    local file, filepath = plume.open (args["$path"], calling_token, formats, path)
+    local file, filepath = plume.open (args["$path"], formats, path)
 
     -- file scope
     table.insert(plume.file_stack, filepath)
@@ -159,7 +158,7 @@ plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     
     table.insert(formats, "?")
 
-    local file, filepath = plume.open (args.path, calling_token, formats, path)
+    local file, filepath = plume.open (args.path, formats, path)
 
     return file:read("*a")
 end)
