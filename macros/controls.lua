@@ -29,7 +29,6 @@ You should have received a copy of the GNU General Public License along with Plu
 plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
-    
     local result = {}
     local iterator_source = args.iterator:source ()
     local var, var1, var2, first, last
@@ -44,7 +43,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
     --- If the first attempt fails, try to match the "var in iterator" syntax
     if not var then
-        var, iterator = iterator_source:match('%s*(.+)%s*in%s*(.-)$')
+        var, iterator = iterator_source:match('%s*(.-[^,])%s+in%s*(.-)$')
     end
     
     -- If both attempts fail, raise an error
