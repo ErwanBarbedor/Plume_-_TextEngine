@@ -28,6 +28,37 @@ bar-bar
 foo-foo
 // End
 
+
+// Test 'Optional arg (set eval 1)'
+\def foo[x={#{1+1}}] {#x}//
+\foo
+// Result
+2
+// End
+
+// Test 'Optional arg (set eval 2)'
+\def foo bar//
+\def bar[x={\foo}] {#x}//
+\bar
+// Result
+bar
+// End
+
+// Test 'Optional arg (pass eval 1)'
+\def foo {#x}//
+\foo[x={#{1+1}}]
+// Result
+2
+// End
+
+// Test 'Optional arg (pass eval 2)'
+\def foo bar//
+\def bar {#x}//
+\bar[x={\foo}]
+// Result
+bar
+// End
+
 // Test 'Optional arg (by name)'
 \def foo {\if __args.bar {Provided args!} \else {not Provided arg.}}//
 \foo
@@ -46,7 +77,6 @@ Provided args!
 bar
 baz
 // End
-
 
 // Test 'To many optional blocks'
 \def[x][x] foo bar
