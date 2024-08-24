@@ -154,9 +154,9 @@ local function set(args, calling_token, is_local)
     local value = args.value:renderLua ()
 
     value = tonumber(value) or value
-
+    
     if is_local then
-        plume.scope_set_local (key, value)
+        plume.scope_set_local (key, value, calling_token.context)
     else
         (calling_token.context or plume.current_scope())[key] = value 
     end

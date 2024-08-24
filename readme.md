@@ -109,6 +109,14 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Changelog
 
+### 0.3.1
+
+#### Fixes
+- Fix old code in `api.require`
+- Fix parsing error in the macro `\for`
+- Fix an error occurring when using a local variable in a macro used as parameter of another macro.
+
+
 ### 0.3.0
 
 #### Changes

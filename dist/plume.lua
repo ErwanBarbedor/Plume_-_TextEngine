@@ -1562,9 +1562,9 @@ local function set(args, calling_token, is_local)
     local value = args.value:renderLua ()
 
     value = tonumber(value) or value
-
+    
     if is_local then
-        plume.scope_set_local (key, value)
+        plume.scope_set_local (key, value, calling_token.context)
     else
         (calling_token.context or plume.current_scope())[key] = value 
     end
@@ -1947,7 +1947,8 @@ local function print_env(env, indent)
     for k, v in pairs(env) do
         if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
             if type(v) == "table" and v.source then
-                print(indent.."\t".. k .. " : ", v, " : ", v:source())
+                local source = v:source():gsub('\n', '\\n')
+                print(indent.."\t".. k .. " : ", v, " : ", source)
             else
                 print(indent.."\t".. k .. " : ", v)
             end
@@ -2265,10 +2266,11 @@ api._LUA_VERSION = plume._LUA_VERSION
 -- in the current scope.
 function api.capture_local()
     local index = 1
+    local calling_token = plume.traceback[#plume.traceback]
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.scope_set_local(key, value)
+            plume.scope_set_local(key, value, calling_token.context)
         else
             break
         end

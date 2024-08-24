@@ -25,7 +25,8 @@ local function print_env(env, indent)
     for k, v in pairs(env) do
         if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
             if type(v) == "table" and v.source then
-                print(indent.."\t".. k .. " : ", v, " : ", v:source())
+                local source = v:source():gsub('\n', '\\n')
+                print(indent.."\t".. k .. " : ", v, " : ", source)
             else
                 print(indent.."\t".. k .. " : ", v)
             end

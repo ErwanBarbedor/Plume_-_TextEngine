@@ -22,10 +22,11 @@ api._LUA_VERSION = plume._LUA_VERSION
 -- in the current scope.
 function api.capture_local()
     local index = 1
+    local calling_token = plume.traceback[#plume.traceback]
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.scope_set_local(key, value)
+            plume.scope_set_local(key, value, calling_token.context)
         else
             break
         end

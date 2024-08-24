@@ -133,3 +133,26 @@ baz
 
      6 
 // End
+
+// Test 'Local test 1'
+\script{
+    local a = 4
+}//
+#a
+// Result
+4
+// End
+
+// Test 'Local test 2'
+\def foo[body] {#body}//
+//
+\def bar {//
+    \foo {//
+        \script{local x=5}//
+        #x//
+    }//
+}//
+\bar
+// Result
+5
+// End
