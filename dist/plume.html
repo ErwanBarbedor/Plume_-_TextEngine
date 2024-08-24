@@ -1411,7 +1411,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
     --- If the first attempt fails, try to match the "var in iterator" syntax
     if not var then
-        var, iterator = iterator_source:match('%s*(.-)%s*in%s*(.-)$')
+        var, iterator = iterator_source:match('%s*(.+)%s*in%s*(.-)$')
     end
     
     -- If both attempts fail, raise an error
@@ -1431,9 +1431,11 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     coroutine_code = coroutine_code .. " end"
 
     -- Load and create the coroutine
+    plume.push_scope ()
     local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
     plume.setfenv (iterator_coroutine, plume.current_scope ())
     local co = coroutine.create(iterator_coroutine)
+    plume.pop_scope ()
     
     -- Limiting loop iterations to avoid infinite loop
     local up_limit = plume.running_api.config.max_loop_size
