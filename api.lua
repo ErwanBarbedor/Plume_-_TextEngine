@@ -86,7 +86,7 @@ api.setl = api.set_local
 -- @param path string
 -- @return table|bool|nil
 function api.require (path)
-    local file, filepath, error_message = plume.search_for_files (nil, nil, {"?.lua", "?/init.lua"}, path, true)
+    local file, filepath, error_message = plume.open (nil, {"?.lua", "?/init.lua"}, path, "r", true)
     if file then
         file:close ()
         filepath = filepath:gsub('%.lua$', '')
