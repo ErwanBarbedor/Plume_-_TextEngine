@@ -28,7 +28,7 @@ for i=1, 2 do
     end)
 end
 
--- code = code:gsub('%s*%-%- <DEV>.-%-%- </DEV>%s*', '\n')
+code = code:gsub('%s*%-%- <DEV>.-%-%- </DEV>%s*', '\n')
 code = code:gsub('#VERSION#', version)
 code = code:gsub('#GITHUB#', github)
 
