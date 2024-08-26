@@ -24,12 +24,16 @@ local function print_env(env, indent)
     print(indent .. "Variables :")
     for k, v in pairs(env) do
         if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
+            local source = ""
+            local context = ""
             if type(v) == "table" and v.source then
-                local source = v:source():gsub('\n', '\\n')
-                print(indent.."\t".. k .. " : ", v, " : ", source)
-            else
-                print(indent.."\t".. k .. " : ", v)
+                source = ": source='" .. v:source():gsub('\n', '\\n') .. "'"
             end
+            if type(v) == "table" and v.context then
+                context = ": context='" .. tostring(v.context) .. "'"
+            end
+
+            print(indent.."\t".. k .. " : ", v, source, context)
         end
     end
     print(indent .. "Sub-envs :")

@@ -216,12 +216,8 @@ function plume.tokenlist (x)
             for _, token in ipairs(self) do
                 if token.__type == "tokenlist" then
                     token:set_context (scope)
-                    if not token.context then
-                        token.context = scope
-                    end
-                else
-                    token.context = scope
                 end
+                token.context = token.context or scope
             end
         end,
     

@@ -45,6 +45,12 @@ bar
 baz
 // End
 
+// Test 'Variable block scope 6'
+\def foo[x]{#x}\def bar[x]{#x}\bar {\foo {\setl x 0 #x}}
+// Result
+ 0
+// End
+
 // Test '__scope 1'
 \set x 10//
 #{__scope.x}

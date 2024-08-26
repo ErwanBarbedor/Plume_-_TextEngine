@@ -114,8 +114,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 #### Fixes
 - Fix old code in `api.require`
 - Fix parsing error in the macro `\for`
-- Fix an error occurring when using a local variable in a macro used as parameter of another macro.
-
+- Fix an error occurring when using a local variable in a macro used as a parameter of another macro.
+- Fix a case where scope won't be frozen.
 
 ### 0.3.0
 
