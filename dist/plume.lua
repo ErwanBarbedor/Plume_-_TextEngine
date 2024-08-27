@@ -1257,22 +1257,21 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     end
 
     -- Construct a Lua coroutine to handle the iteration
-    local coroutine_code = "for " .. iterator_source .. " do"
+    local coroutine_code = "return coroutine.create(function () for " .. iterator_source .. " do"
     coroutine_code = coroutine_code .. " coroutine.yield(" .. var .. ")"
-    coroutine_code = coroutine_code .. " end"
+    coroutine_code = coroutine_code .. " end end)"
 
     -- Load and create the coroutine
-    plume.push_scope ()
+    -- plume.push_scope ()
     local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
     plume.setfenv (iterator_coroutine, plume.current_scope ())
-    local co = coroutine.create(iterator_coroutine)
-    plume.pop_scope ()
+    local co = iterator_coroutine ()
+    -- plume.pop_scope ()
     
     -- Limiting loop iterations to avoid infinite loop
     local up_limit = plume.running_api.config.max_loop_size
     local iteration_count  = 0
 
-    
     -- Main iteration loop
     while true do
 
@@ -1293,6 +1292,8 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
             
         -- Break the loop if there are no more values
         if not first_value then
+            -- exit local scope
+            plume.pop_scope ()
             break
         end
 
@@ -1316,6 +1317,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         end
 
         -- Render the body of the loop and add it to the result
+
         table.insert(result, args.body:render())
 
         -- exit local scope
