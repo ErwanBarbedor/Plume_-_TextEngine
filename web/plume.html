@@ -15,8 +15,13 @@ Need to revise your table of 7? Here it is:
     #i * 7 = #{i*7}//
 }
 
-Need to know current timestamp? Ok: #{os.time ()}.
-(Under the hood, it use #{plume._LUA_VERSION})
+Need for more advanced math? Ok: sin(0.2) = #{math.sin(0.2)}
+
+Need for custom macros? Fine.
+\def double[content prefix=before suffix=after] {#prefix #content #content #suffix}//
+
+Like that? \raw{\double[suffix=end] {Hi!}} --> \double[suffix=end] {Hi!}
+
         </textarea>
     </div>
     <div >
