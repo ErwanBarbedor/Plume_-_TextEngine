@@ -171,3 +171,10 @@ Traceback :
     2
     
 // End
+
+// Test 'Nested for'
+\def foo[x] {#x}//
+\for {j=1,2} {\foo {\for {i=1, 2} {#i}}}
+// Result
+1212
+// End

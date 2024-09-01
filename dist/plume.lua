@@ -1264,7 +1264,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     -- Load and create the coroutine
     -- plume.push_scope ()
     local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
-    plume.setfenv (iterator_coroutine, plume.current_scope ())
+    plume.setfenv (iterator_coroutine, calling_token.context or plume.current_scope ())
     local co = iterator_coroutine ()
     -- plume.pop_scope ()
     
@@ -1276,7 +1276,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     while true do
 
         -- Each iteration have it's own local scope
-        plume.push_scope ()
+        plume.push_scope (args.body.context)
 
         -- Update and check loop limit
         iteration_count = iteration_count + 1
@@ -1313,11 +1313,10 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            plume.scope_set_local (variables_list[i], values_list[i], calling_token.context)
+            plume.scope_set_local (variables_list[i], values_list[i], args.body.context)
         end
 
         -- Render the body of the loop and add it to the result
-
         table.insert(result, args.body:render())
 
         -- exit local scope
