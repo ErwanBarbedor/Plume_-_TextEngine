@@ -109,6 +109,12 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Changelog
 
+### 0.3.2
+
+- Fix scope error in macro for.
+- Fix a very specific scope error.
+
+
 ### 0.3.1
 
 #### Fixes

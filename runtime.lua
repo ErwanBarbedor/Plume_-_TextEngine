@@ -183,7 +183,7 @@ function plume.create_scope (parent, source)
             -- Register new value
             -- if has parent and do not have the key,
             -- send value to parent. Else, register it.
-            if parent and not (source and source[key])then
+            if parent and not (source and rawget(source, key))then
                 parent[key] = value
             else
                 rawset(source or self, key, value)

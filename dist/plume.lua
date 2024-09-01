@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.3.1
+Plume - TextEngine 0.3.2
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local plume = {}
-plume._VERSION = "Plume - TextEngine 0.3.1"
+plume._VERSION = "Plume - TextEngine 0.3.2"
 
 
 -- ## config.lua ##
@@ -2088,7 +2088,7 @@ return setmetatable(scope, {
             -- Register new value
             -- if has parent and do not have the key,
             -- send value to parent. Else, register it.
-            if parent and not (source and source[key])then
+            if parent and not (source and rawget(source, key))then
                 parent[key] = value
             else
                 rawset(source or self, key, value)
@@ -2339,7 +2339,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.3.1
+Plume - TextEngine 0.3.2
 Plume is a templating langage with advanced scripting features.
 
 Usage:
