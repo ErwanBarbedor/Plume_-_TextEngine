@@ -91,6 +91,7 @@ local function def (def_args, redef, redef_forced, calling_token)
     
     plume.register_macro(name, def_args.__args, opt_args, function(args)
         -- Insert closure
+        -- print(":: parent ->", plume.current_scope ())
         plume.push_scope (closure)
 
         -- Copy all tokens. Then, give each of them
@@ -107,7 +108,7 @@ local function def (def_args, redef, redef_forced, calling_token)
             args.__args[k] = v:copy ()
             args.__args[k]:set_context (last_scope)
         end
-
+        -- print(":: closure ->", plume.current_scope ())
         -- argument are variable local to the macro
         plume.push_scope ()
 

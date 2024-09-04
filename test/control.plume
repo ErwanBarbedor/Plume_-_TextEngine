@@ -178,3 +178,17 @@ Traceback :
 // Result
 1212
 // End
+
+// Test 'For locals'
+\def foo[x] {#x}//
+\for {i=1, 2} {//
+    \foo {//
+        \setl x  1//
+        #i : #x
+    }//
+}//
+// Result
+1 : 1
+    2 : 1
+    
+// End
