@@ -211,13 +211,17 @@ function plume.tokenlist (x)
 
         --- Freezes the scope for all tokens in the list
         -- @param scope table The scope to freeze
-        set_context = function (self, scope)
+        set_context = function (self, scope, forced)
             -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
                 if token.__type == "tokenlist" then
-                    token:set_context (scope)
+                    token:set_context (scope, forced)
                 end
-                token.context = token.context or scope
+                if forced then
+                    token.context = scope
+                else
+                    token.context = token.context or scope
+                end
             end
         end,
     

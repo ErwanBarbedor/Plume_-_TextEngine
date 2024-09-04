@@ -73,10 +73,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     local up_limit = plume.running_api.config.max_loop_size
     local iteration_count  = 0
 
-   
-
-
-    args.body:set_context(plume.current_scope())
+    
     -- Main iteration loop
     while true do
         -- Update and check loop limit
@@ -85,8 +82,8 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
             plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
-         -- Iteration scope
-        -- plume.push_scope (args.body.context)
+        -- Iteration scope
+        plume.push_scope (args.body.context)
 
         -- Resume the coroutine to get the next set of values
         local values_list = { coroutine.resume(co) }
@@ -97,7 +94,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         -- Break the loop if there are no more values
         if not first_value then
             -- exit iteration scope
-            -- plume.pop_scope ()
+            plume.pop_scope ()
             break
         end
 
@@ -117,15 +114,17 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            plume.scope_set_local (variables_list[i], values_list[i], args.body.context)
+            plume.scope_set_local (variables_list[i], values_list[i])
         end
 
         -- print("::", plume.current_scope ())
         -- Render the body of the loop and add it to the result
-        table.insert(result, args.body:render())
+        local body = args.body:copy ()
+        body:set_context(plume.current_scope(), true)
+        table.insert(result, body:render())
 
         -- exit iteration scope
-        -- plume.pop_scope ()
+        plume.pop_scope ()
     end
 
     

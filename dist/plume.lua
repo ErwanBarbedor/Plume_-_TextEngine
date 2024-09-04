@@ -567,13 +567,17 @@ function plume.tokenlist (x)
 
         --- Freezes the scope for all tokens in the list
         -- @param scope table The scope to freeze
-        set_context = function (self, scope)
+        set_context = function (self, scope, forced)
             -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
                 if token.__type == "tokenlist" then
-                    token:set_context (scope)
+                    token:set_context (scope, forced)
                 end
-                token.context = token.context or scope
+                if forced then
+                    token.context = scope
+                else
+                    token.context = token.context or scope
+                end
             end
         end,
     
@@ -747,7 +751,16 @@ function plume.tokenize (code, file)
         pos = pos + 1
     end
     write ()
-return result
+
+    -- <DEV>
+    if plume.show_token then
+        for _, token in ipairs(result) do
+            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+        end
+    end
+    -- </DEV>
+
+    return result
 end
 
 -- ## parse.lua ##
@@ -1272,10 +1285,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     local up_limit = plume.running_api.config.max_loop_size
     local iteration_count  = 0
 
-   
-
-
-    args.body:set_context(plume.current_scope())
+    
     -- Main iteration loop
     while true do
         -- Update and check loop limit
@@ -1284,8 +1294,8 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
             plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
-         -- Iteration scope
-        -- plume.push_scope (args.body.context)
+        -- Iteration scope
+        plume.push_scope (args.body.context)
 
         -- Resume the coroutine to get the next set of values
         local values_list = { coroutine.resume(co) }
@@ -1296,7 +1306,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         -- Break the loop if there are no more values
         if not first_value then
             -- exit iteration scope
-            -- plume.pop_scope ()
+            plume.pop_scope ()
             break
         end
 
@@ -1316,15 +1326,17 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            plume.scope_set_local (variables_list[i], values_list[i], args.body.context)
+            plume.scope_set_local (variables_list[i], values_list[i])
         end
 
         -- print("::", plume.current_scope ())
         -- Render the body of the loop and add it to the result
-        table.insert(result, args.body:render())
+        local body = args.body:copy ()
+        body:set_context(plume.current_scope(), true)
+        table.insert(result, body:render())
 
         -- exit iteration scope
-        -- plume.pop_scope ()
+        plume.pop_scope ()
     end
 
     
@@ -1925,7 +1937,46 @@ plume.register_macro("t", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\t"):rep(count)
+end) 
+-- <DEV>
+
+-- ## macros/debug.lua ##
+-- Tools for debuging during developpement.
+
+plume.register_macro("stop", {}, {}, function(args, calling_token)
+    plume.error(calling_token, "Program ends by macro.")
 end)
+
+local function print_env(env, indent)
+    indent = indent or ""
+    print(indent .. tostring(env))
+    print(indent .. "Variables :")
+    for k, v in pairs(env) do
+        if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
+            local source = ""
+            local context = ""
+            if type(v) == "table" and v.source then
+                source = ": source='" .. v:source():gsub('\n', '\\n') .. "'"
+            end
+            if type(v) == "table" and v.context then
+                context = ": context='" .. tostring(v.context) .. "'"
+            end
+
+            print(indent.."\t".. k .. " : ", v, source, context)
+        end
+    end
+    print(indent .. "Sub-envs :")
+    for _, child in ipairs(env.__childs) do
+        print_env (child, indent.."\t")
+    end
+end
+
+plume.register_macro("print_env", {}, {}, function(args, calling_token)
+    print("=== Environnement informations ===")
+    print_env (plume.scopes[1])
+end) 
+-- </DEV>
+
 -- Save predifined macro to permit reset of plume
 plume.std_macros = {}
 for k, v in pairs(plume.macros) do
@@ -2079,7 +2130,16 @@ function plume.create_scope (parent, source)
     local scope = {}
     -- Add a self-reference
     scope.__scope = scope
-return setmetatable(scope, {
+
+    -- <DEV>
+    if parent then
+        scope.__parent = parent
+        table.insert(parent.__childs, scope)
+    end
+    scope.__childs = {}
+    -- </DEV>
+
+    return setmetatable(scope, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
@@ -2309,6 +2369,36 @@ function plume.init_api ()
         scope.plume.config[k] = v
     end
 end
+
+-- <DEV>
+plume.show_token = false
+local function print_tokens(t, indent)
+    local function print_token_info (token)
+        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
+    end
+
+    indent = indent or ""
+    for _, token in ipairs(t) do
+        if token.kind == "block" or token.kind == "opt_block" then
+            print_token_info(token)
+            print_tokens(token, "\t"..indent)
+        
+        elseif token.kind == "block_text" then
+            local value = ""
+            for _, txt in ipairs(token) do
+                value = value .. txt.value
+            end
+            print_token_info(token)
+        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
+            print_token_info (token)
+            print_tokens(token, "\t"..indent)
+        else
+            print_token_info(token)
+        end
+    end
+end
+-- </DEV>
+
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
 -- @param file string The name used to track the code
@@ -2318,7 +2408,13 @@ function plume.render (code, file)
     
     tokens = plume.tokenize(code, file)
     tokens = plume.parse(tokens)
-result = tokens:render()
+    -- <DEV>
+    if plume.show_token then
+        print "--------"
+        print_tokens(tokens)
+    end
+    -- </DEV>
+    result = tokens:render()
     
     return result
 end
