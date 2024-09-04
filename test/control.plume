@@ -205,3 +205,14 @@ Traceback :
 left
 right
 // End
+
+// Test 'For and closures 2'
+\for {align in ("center left right"):gmatch('%S+')} {//
+    \def[content] {#align} {//
+        <#align> #content </#align>//
+    }//
+}//
+\left foo
+// Result
+<left> foo </left>
+// End
