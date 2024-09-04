@@ -111,8 +111,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### 0.3.2
 
-- Fix scope error in macro for.
-- Fix a very specific scope error.
+#### Fixes
+- A lot of scope error fixes
 
 
 ### 0.3.1
