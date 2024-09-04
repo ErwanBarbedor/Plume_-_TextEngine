@@ -142,9 +142,11 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     local up_limit = plume.running_api.config.max_loop_size
     while plume.eval_lua_expression (args.condition) do
         -- Each iteration have it's own local scope
-        plume.push_scope ()
+        plume.push_scope (args.body.context)
         
-        table.insert(result, args.body:render())
+        local body = args.body:copy ()
+        body:set_context(plume.current_scope(), true)
+        table.insert(result, body:render())
         i = i + 1
         if i > up_limit then
             plume.error(args.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
