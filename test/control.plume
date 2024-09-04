@@ -192,3 +192,16 @@ Traceback :
     2 : 1
     
 // End
+
+// Test 'For and closures'
+\for {align in ("center left right"):gmatch('%S+')} {//
+    \def {#align} {//
+        #align//
+    }//  
+}//
+\left
+\right
+// Result
+left
+right
+// End
