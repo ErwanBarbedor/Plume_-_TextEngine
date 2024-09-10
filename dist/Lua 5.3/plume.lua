@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.3.2
+5.3
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local plume = {}
-plume._VERSION = "Plume - TextEngine 0.3.2"
+plume._VERSION = "5.3"
 
 
 -- ## config.lua ##
@@ -752,15 +752,8 @@ function plume.tokenize (code, file)
     end
     write ()
 
-    -- <DEV>
-    if plume.show_token then
-        for _, token in ipairs(result) do
-            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
-        end
-    end
-    -- </DEV>
-
-    return result
+    
+return result
 end
 
 -- ## parse.lua ##
@@ -1940,44 +1933,6 @@ plume.register_macro("t", {}, {}, function(args)
     end
     return ("\t"):rep(count)
 end) 
--- <DEV>
-
--- ## macros/debug.lua ##
--- Tools for debuging during developpement.
-
-plume.register_macro("stop", {}, {}, function(args, calling_token)
-    plume.error(calling_token, "Program ends by macro.")
-end)
-
-local function print_env(env, indent)
-    indent = indent or ""
-    print(indent .. tostring(env))
-    print(indent .. "Variables :")
-    for k, v in pairs(env) do
-        if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
-            local source = ""
-            local context = ""
-            if type(v) == "table" and v.source then
-                source = ": source='" .. v:source():gsub('\n', '\\n') .. "'"
-            end
-            if type(v) == "table" and v.context then
-                context = ": context='" .. tostring(v.context) .. "'"
-            end
-
-            print(indent.."\t".. k .. " : ", v, source, context)
-        end
-    end
-    print(indent .. "Sub-envs :")
-    for _, child in ipairs(env.__childs) do
-        print_env (child, indent.."\t")
-    end
-end
-
-plume.register_macro("print_env", {}, {}, function(args, calling_token)
-    print("=== Environnement informations ===")
-    print_env (plume.scopes[1])
-end) 
--- </DEV>
 
 -- Save predifined macro to permit reset of plume
 plume.std_macros = {}
@@ -2133,15 +2088,8 @@ function plume.create_scope (parent, source)
     -- Add a self-reference
     scope.__scope = scope
 
-    -- <DEV>
-    if parent then
-        scope.__parent = parent
-        table.insert(parent.__childs, scope)
-    end
-    scope.__childs = {}
-    -- </DEV>
-
-    return setmetatable(scope, {
+    
+return setmetatable(scope, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
@@ -2204,19 +2152,9 @@ end
 plume._LUA_VERSION = _VERSION
 -- Save all lua standard functions to be available from "eval" macros
 local lua_std_functions
-if _VERSION == "Lua 5.1" then
-    if jit then
-        plume._LUA_VERSION = "Lua jit"
-        lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
-    else
-        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
-    end
-else -- Assume version is 5.4
-    if _VERSION ~= "Lua 5.4" then
-        print("Warning : unsuported version '" .. _VERSION .. "'.")
-    end
-    lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
-end
+
+
+lua_std_functions = "coroutine print loadfile assert dofile next io setmetatable string os ipairs require getmetatable rawequal select type pcall collectgarbage _VERSION pairs bit32 debug package rawlen math error load rawset rawget table utf8 tonumber tostring xpcall"
 
 plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
@@ -2372,34 +2310,6 @@ function plume.init_api ()
     end
 end
 
--- <DEV>
-plume.show_token = false
-local function print_tokens(t, indent)
-    local function print_token_info (token)
-        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
-    end
-
-    indent = indent or ""
-    for _, token in ipairs(t) do
-        if token.kind == "block" or token.kind == "opt_block" then
-            print_token_info(token)
-            print_tokens(token, "\t"..indent)
-        
-        elseif token.kind == "block_text" then
-            local value = ""
-            for _, txt in ipairs(token) do
-                value = value .. txt.value
-            end
-            print_token_info(token)
-        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
-            print_token_info (token)
-            print_tokens(token, "\t"..indent)
-        else
-            print_token_info(token)
-        end
-    end
-end
--- </DEV>
 
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
@@ -2410,13 +2320,8 @@ function plume.render (code, file)
     
     tokens = plume.tokenize(code, file)
     tokens = plume.parse(tokens)
-    -- <DEV>
-    if plume.show_token then
-        print "--------"
-        print_tokens(tokens)
-    end
-    -- </DEV>
-    result = tokens:render()
+    
+result = tokens:render()
     
     return result
 end
@@ -2444,7 +2349,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.3.2
+5.3
 Plume is a templating langage with advanced scripting features.
 
 Usage:

@@ -95,7 +95,7 @@ Traceback :
 
 // Test 'Eval syntax error 5.4'
 \set a #{a+}
-// Error Lua 5.4
+// Error Lua 5.2 Lua 5.3 Lua 5.4
 File 'string', line 1 : (lua error) unexpected symbol near <eof>
     a+
     ^^
@@ -106,9 +106,9 @@ Traceback :
                             ^^^^
 // End
 
-// Test 'Eval lua error 5.1 and jit'
+// Test 'Eval lua error 5.1, 5.2, 5.3'
 \set a #{""+1}
-// Error Lua 5.1 Lua jit
+// Error Lua 5.1 Lua 5.2 Lua 5.3
 File 'string', line 1 : (lua error) attempt to perform arithmetic on a string value
     ""+1
     ^^^^
@@ -183,7 +183,7 @@ Traceback :
 
 // Test 'Error in control implicit block 5.1'
 \if #opt==0 #{print(#opt)}
-// Error Lua 5.1 Lua jit
+// Error Lua 5.1 Lua 5.2 Lua jit
 File 'string', line 1 : (lua error) attempt to get length of global 'opt' (a nil value)
     #opt
     ^^^^
@@ -196,7 +196,7 @@ Traceback :
 
 // Test 'Error in control implicit block 5.4'
 \if #opt==0 #{print(#opt)}
-// Error Lua 5.4
+// Error Lua 5.3 Lua 5.4
 File 'string', line 1 : (lua error) attempt to get length of a nil value (global 'opt')
     #opt
     ^^^^

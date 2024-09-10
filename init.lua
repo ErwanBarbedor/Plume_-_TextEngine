@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License along with Plu
 plume._LUA_VERSION = _VERSION
 -- Save all lua standard functions to be available from "eval" macros
 local lua_std_functions
+
+-- <Lua 5.1>
 if _VERSION == "Lua 5.1" then
     if jit then
         plume._LUA_VERSION = "Lua jit"
@@ -24,12 +26,23 @@ if _VERSION == "Lua 5.1" then
     else
         lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
     end
-else -- Assume version is 5.4
-    if _VERSION ~= "Lua 5.4" then
-        print("Warning : unsuported version '" .. _VERSION .. "'.")
-    end
+end
+-- </Lua 5.1>
+-- <Lua 5.2>
+if _VERSION == "Lua 5.2" then
+    lua_std_functions = "setmetatable print unpack type table bit32 error loadstring pairs package select require io module debug math tonumber loadfile dofile os rawequal rawget next collectgarbage rawlen assert rawset pcall coroutine xpcall tostring ipairs string load getmetatable _VERSION"
+end
+-- </Lua 5.2>
+-- <Lua 5.3>
+if _VERSION == "Lua 5.3" then
+    lua_std_functions = "coroutine print loadfile assert dofile next io setmetatable string os ipairs require getmetatable rawequal select type pcall collectgarbage _VERSION pairs bit32 debug package rawlen math error load rawset rawget table utf8 tonumber tostring xpcall"
+end
+-- </Lua 5.3>
+-- <Lua 5.4>
+if _VERSION == "Lua 5.4" then
     lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
 end
+-- </Lua 5.4>
 
 plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do

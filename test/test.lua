@@ -1,12 +1,16 @@
 
 local print_error_detail
+
+local plume
 if arg[1] == "dist" then
-    package.path = package.path .. ";../dist/?.lua"
+    package.path = package.path .. ";dist/".._VERSION.."/?.lua"
+    plume = require "plume"
 else
     package.path = package.path .. ";../?.lua"
+    plume = require "main"
     print_error_detail = true
 end
-local plume = require "plume"
+
 local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optargs", "scope"}
 
 local function readFile(filename)
@@ -40,7 +44,6 @@ local function runTests(tests)
     local testNumber = 0
     local testFailed = 0
     local _VERSION = _VERSION
-    if jit then _VERSION = "Lua jit" end
 
     for _, test in ipairs(tests) do
         local kind, versions = test.outputInfos:match('(%S*)(.*)')

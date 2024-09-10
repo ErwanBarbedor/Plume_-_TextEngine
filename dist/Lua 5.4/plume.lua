@@ -1,165 +1,5 @@
-<head>
-    <style>
-        /* Positionning% */
-* {
-  box-sizing: border-box;
-}
-body {
-    display: flex;
-}
-
-body div {
-  width:45vw;
-  height: 70vh;
-  margin: 5vw;
-}
-
-#input, #output {
-  width: 100%;
-  height: 60vh;
-  margin: 0;
-}
-
-/* General styles for the page body */
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f4f7f9;
-  color: #333;
-  padding: 20px;
-  line-height: 1.6;
-}
-
-#input {
-  background-color: #ffffff;
-  border: 2px solid #e0e6ed;
-  border-radius: 8px;
-  padding: 15px;
-  font-size: 16px;
-  color: #444;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  resize: none;
-  overflow-y: auto;
-}
-
-#input:focus {
-  border-color: #007bff;
-  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.1);
-  outline: none;
-}
-
-#output {
-  background-color: #ffffff;
-  border: 2px solid #e0e6ed;
-  border-radius: 8px;
-  padding: 15px;
-  font-size: 16px;
-  color: #444;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-  overflow-y: auto;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-
-h1 {
-  position: absolute;
-  top:10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-weight: bold;
-  display: flex;
-  text-align: center;
-  flex-direction: column;
-}
-
-h1 p {
-  font-size: 50%;
-}
-
-h2 {
-  text-align: center;
-}
-
-#github-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: inline-block;
-  background-color: #24292e;
-  color: #ffffff;
-  text-decoration: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 500;
-  text-align: center;
-  transition: background-color 0.3s ease;
-  margin-top: 20px; /* Space above the button */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-#github-button:hover {
-  background-color: #444c56; /* Darker shade on hover */
-}
-    </style>
-    <title>Plume - TextEngine</title>
-</head>
-
-<body>
-    <div>
-        <h2>Enter your code here</h2>
-        <textarea id="input">Welcome to #{plume._VERSION}!
-
-Need to revise your table of 7? Here it is:
-\for {i=1,10} {
-    #i * 7 = #{i*7}//
-}
-
-Need for more advanced math? Ok: sin(0.2) = #{math.sin(0.2)}
-
-Need for custom macros? Fine.
-\def double[content prefix=before suffix=after] {#prefix #content #content #suffix}//
-
-Like that? \raw{\double[suffix=end] {Hi!}} --> \double[suffix=end] {Hi!}
-
-        </textarea>
-    </div>
-    <div >
-        <h2>Output</h2>
-        <pre id="output"></pre>
-    </div>
-    <h1>
-        <img src="plume.png" width="200" height="100">
-        <p>Version 5.3</p>
-    </h1>
-    <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
-        View on GitHub
-    </a>
-</body>
-
-<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
-
-<script type="application/lua">
-    --[[
-5.3
+--[[
+5.4
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -178,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-plume = {}
-plume._VERSION = "5.3"
+local plume = {}
+plume._VERSION = "5.4"
 
 
 -- ## config.lua ##
@@ -2314,7 +2154,7 @@ plume._LUA_VERSION = _VERSION
 local lua_std_functions
 
 
-lua_std_functions = "coroutine print loadfile assert dofile next io setmetatable string os ipairs require getmetatable rawequal select type pcall collectgarbage _VERSION pairs bit32 debug package rawlen math error load rawset rawget table utf8 tonumber tostring xpcall"
+lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
 
 plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
@@ -2509,7 +2349,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-5.3
+5.4
 Plume is a templating langage with advanced scripting features.
 
 Usage:
@@ -2681,47 +2521,3 @@ if arg and debug.getinfo(3, "S")==nil then
 end
 
 return plume
-</script>
-
-<script type="application/lua">
-js = require("js")
-global = js.global
-local document = global.document
-
-local function updateOutput()
-    plume.init()
-
-    local inputElement = document:getElementById("input")
-    local outputElement = document:getElementById("output")
-
-    local sucess, result = pcall(plume.render, inputElement.value)
-
-    outputElement.innerHTML = result
-end
-
-local inputElement = document:getElementById("input")
-
-inputElement:addEventListener("input", updateOutput)
-
-local function handle_tab(self, event)
-    if event.key == "Tab" then
-        event:preventDefault()
-
-        local input = document:getElementById("input")
-        local start = input.selectionStart
-        local finish = input.selectionEnd
-        
-        -- Add the tab character
-        input.value = input.value:sub(1, start) .. "\t" .. input.value:sub(finish + 1)
-
-        -- Move the cursor to the correct position after the tab
-        input.selectionStart = start + 1
-        input.selectionEnd = start + 1
-    end
-end
-
-document:getElementById("input"):addEventListener("keydown", handle_tab)
-
-updateOutput()
-
-</script>
