@@ -453,16 +453,6 @@ local metamethods_unary_string = {
 }
 
 -- Use load to avoid syntax error in prior versions of Lua.
-if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
-    metamethods_binary_numeric.idiv = load("return function (x, y) return x//y end")()
-    metamethods_binary_numeric.band = load("return function (x, y) return x&y end")()
-    metamethods_binary_numeric.bor  = load("return function (x, y) return x|y end")()
-    metamethods_binary_numeric.bxor = load("return function (x, y) return x~y end")()
-    metamethods_binary_numeric.shl  = load("return function (x, y) return x>>y end")()
-    metamethods_binary_numeric.shr  = load("return function (x, y) return x<<y end")()
-
-    metamethods_unary_numeric.bnot = load("return function (x) return ~x end")()
-end
 
 --- Creates a new tokenlist.
 -- @param x string|table Either a kind string or a table of tokens
@@ -1944,45 +1934,9 @@ end
 -- Manage scopes and runtime lua executions
 
 
-if _VERSION == "Lua 5.1" or jit then
-    plume.load_lua_chunk  = loadstring
-    plume.setfenv = setfenv
-else
-    plume.load_lua_chunk = load
 
-    --- Sets the environment of a given function.
-    -- Uses the debug library to achieve setfenv functionality
-    -- by modifying the _ENV upvalue of the function.
-    -- @param func function The function whose environment is to be set.
-    -- @param env table The new environment table to be set for the function.
-    -- @return The function with the modified environment.
-    function plume.setfenv(func, env)
-        -- Initialize the upvalue index to 1
-        local i = 1
-
-        -- Iterate through the upvalues of the function
-        while true do
-            -- Retrieve the name of the upvalue at index i
-            local name = debug.getupvalue(func, i)
-
-            -- Check if the current upvalue is _ENV
-            if name == "_ENV" then
-                -- Use debug.upvaluejoin to set the new environment for _ENV
-                debug.upvaluejoin(func, i, (function() return env end), 1)
-                break
-            -- If there are no more upvalues to check, break the loop
-            elseif not name then
-                break
-            end
-
-            -- Increment the upvalue index
-            i = i + 1
-        end
-
-        -- Return the function with the updated environment
-        return func
-    end
-end
+plume.load_lua_chunk  = loadstring
+plume.setfenv = setfenv
 
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression

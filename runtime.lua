@@ -15,10 +15,14 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Manage scopes and runtime lua executions
 
 
-if _VERSION == "Lua 5.1" or jit then
+-- <Lua 5.1>
+if _VERSION == "Lua 5.1" then
     plume.load_lua_chunk  = loadstring
     plume.setfenv = setfenv
-else
+end
+-- </Lua>
+-- <Lua 5.2 5.2 5.3 5.4>
+if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
     plume.load_lua_chunk = load
 
     --- Sets the environment of a given function.
@@ -54,6 +58,7 @@ else
         return func
     end
 end
+-- </Lua>
 
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression

@@ -26,7 +26,7 @@ To illustrate, consider the task of generating ten files, each containing a mult
 
 You can test plume in [your browser](https://app.barbedor.bzh/plume.html). 
 
-Plume requires Lua to run. It has been tested with Lua versions 5.1, 5.4, and LuaJIT. You just need to download the file [dist/plume.lua](dist/plume.lua).
+Plume requires Lua to run. It has been tested with Lua versions 5.x and LuaJIT. You just need to download the file corresponding to your installed Lua version. For example, for Lua 5.4: [dist/Lua 5.4/plume.lua](dist/5.4/plume.lua).
 
 Write the following in a file `input.plume`:
 
@@ -108,6 +108,11 @@ For exemple, in LaTeX, you can define a macro like this: `\newcommand {\foo} {ba
 This doesn't work in Plume because `foo` will be expanded first.
 
 ## Changelog
+
+### 0.4.0
+
+#### Changes
+- Make one `plume.lua` file per lua version.
 
 ### 0.3.2
 
