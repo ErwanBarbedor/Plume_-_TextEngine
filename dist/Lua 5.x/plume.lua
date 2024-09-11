@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.3.2 (Lua 5.3)
+Plume - TextEngine 0.3.2 (Lua 5.x)
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local plume = {}
-plume._VERSION = "Plume - TextEngine 0.3.2 (Lua 5.3)"
+plume._VERSION = "Plume - TextEngine 0.3.2 (Lua 5.x)"
 
 
 -- ## config.lua ##
@@ -462,15 +462,18 @@ local metamethods_unary_string = {
 }
 
 -- Use load to avoid syntax error in prior versions of Lua.
+-- <Lua 5.3 5.4>
+if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+    metamethods_binary_numeric.idiv = load("return function (x, y) return x//y end")()
+    metamethods_binary_numeric.band = load("return function (x, y) return x&y end")()
+    metamethods_binary_numeric.bor  = load("return function (x, y) return x|y end")()
+    metamethods_binary_numeric.bxor = load("return function (x, y) return x~y end")()
+    metamethods_binary_numeric.shl  = load("return function (x, y) return x>>y end")()
+    metamethods_binary_numeric.shr  = load("return function (x, y) return x<<y end")()
 
-metamethods_binary_numeric.idiv = load("return function (x, y) return x//y end")()
-metamethods_binary_numeric.band = load("return function (x, y) return x&y end")()
-metamethods_binary_numeric.bor  = load("return function (x, y) return x|y end")()
-metamethods_binary_numeric.bxor = load("return function (x, y) return x~y end")()
-metamethods_binary_numeric.shl  = load("return function (x, y) return x>>y end")()
-metamethods_binary_numeric.shr  = load("return function (x, y) return x<<y end")()
-
-metamethods_unary_numeric.bnot = load("return function (x) return ~x end")()
+    metamethods_unary_numeric.bnot = load("return function (x) return ~x end")()
+end
+-- </Lua>
 
 --- Creates a new tokenlist.
 -- @param x string|table Either a kind string or a table of tokens
@@ -2012,41 +2015,50 @@ end
 -- Manage scopes and runtime lua executions
 
 
+-- <Lua 5.1>
+if _VERSION == "Lua 5.1" then
+    plume.load_lua_chunk  = loadstring
+    plume.setfenv = setfenv
+end
+-- </Lua>
+-- <Lua 5.2 5.3 5.4>
+if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+    plume.load_lua_chunk = load
 
-plume.load_lua_chunk = load
+    --- Sets the environment of a given function.
+    -- Uses the debug library to achieve setfenv functionality
+    -- by modifying the _ENV upvalue of the function.
+    -- @param func function The function whose environment is to be set.
+    -- @param env table The new environment table to be set for the function.
+    -- @return The function with the modified environment.
+    function plume.setfenv(func, env)
+        -- Initialize the upvalue index to 1
+        local i = 1
 
---- Sets the environment of a given function.
--- Uses the debug library to achieve setfenv functionality
--- by modifying the _ENV upvalue of the function.
--- @param func function The function whose environment is to be set.
--- @param env table The new environment table to be set for the function.
--- @return The function with the modified environment.
-function plume.setfenv(func, env)
-    -- Initialize the upvalue index to 1
-    local i = 1
+        -- Iterate through the upvalues of the function
+        while true do
+            -- Retrieve the name of the upvalue at index i
+            local name = debug.getupvalue(func, i)
 
-    -- Iterate through the upvalues of the function
-    while true do
-        -- Retrieve the name of the upvalue at index i
-        local name = debug.getupvalue(func, i)
+            -- Check if the current upvalue is _ENV
+            if name == "_ENV" then
+                -- Use debug.upvaluejoin to set the new environment for _ENV
+                debug.upvaluejoin(func, i, (function() return env end), 1)
+                break
+            -- If there are no more upvalues to check, break the loop
+            elseif not name then
+                break
+            end
 
-        -- Check if the current upvalue is _ENV
-        if name == "_ENV" then
-            -- Use debug.upvaluejoin to set the new environment for _ENV
-            debug.upvaluejoin(func, i, (function() return env end), 1)
-            break
-        -- If there are no more upvalues to check, break the loop
-        elseif not name then
-            break
+            -- Increment the upvalue index
+            i = i + 1
         end
 
-        -- Increment the upvalue index
-        i = i + 1
+        -- Return the function with the updated environment
+        return func
     end
-
-    -- Return the function with the updated environment
-    return func
 end
+-- </Lua>
 
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression
@@ -2139,8 +2151,16 @@ function plume.call_lua_chunk(token, code)
         plume.error(token, result[1], true)
     end
 
-        
-    return table.unpack (result)
+    -- <Lua 5.1>
+    if _VERSION == "Lua 5.1" then
+        return unpack(result)
+    end
+    -- </Lua>
+    -- <Lua 5.2 5.3 5.4>
+    if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+        return table.unpack (result)
+    end
+    -- </Lua>
 end
 
 --- Creates a new scope with the given parent.
@@ -2217,8 +2237,31 @@ plume._LUA_VERSION = _VERSION
 -- Save all lua standard functions to be available from "eval" macros
 local lua_std_functions
 
-
-lua_std_functions = "coroutine print loadfile assert dofile next io setmetatable string os ipairs require getmetatable rawequal select type pcall collectgarbage _VERSION pairs bit32 debug package rawlen math error load rawset rawget table utf8 tonumber tostring xpcall"
+-- <Lua 5.1>
+if _VERSION == "Lua 5.1" then
+    if jit then
+        plume._LUA_VERSION = "Lua jit"
+        lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
+    else
+        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
+    end
+end
+-- </Lua 5.1>
+-- <Lua 5.2>
+if _VERSION == "Lua 5.2" then
+    lua_std_functions = "setmetatable print unpack type table bit32 error loadstring pairs package select require io module debug math tonumber loadfile dofile os rawequal rawget next collectgarbage rawlen assert rawset pcall coroutine xpcall tostring ipairs string load getmetatable _VERSION"
+end
+-- </Lua 5.2>
+-- <Lua 5.3>
+if _VERSION == "Lua 5.3" then
+    lua_std_functions = "coroutine print loadfile assert dofile next io setmetatable string os ipairs require getmetatable rawequal select type pcall collectgarbage _VERSION pairs bit32 debug package rawlen math error load rawset rawget table utf8 tonumber tostring xpcall"
+end
+-- </Lua 5.3>
+-- <Lua 5.4>
+if _VERSION == "Lua 5.4" then
+    lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
+end
+-- </Lua 5.4>
 
 plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do
@@ -2413,7 +2456,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.3.2 (Lua 5.3)
+Plume - TextEngine 0.3.2 (Lua 5.x)
 Plume is a templating langage with advanced scripting features.
 
 Usage:
