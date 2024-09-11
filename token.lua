@@ -43,15 +43,24 @@ end
 --- Convert one element into number
 -- @param x tokenlist|number|string Element to convert
 -- @return number The converted numbers
-local function tokens2number(x, y)
-    
+local function tokens2number(x)
+    local nx, rx
     if type(x) == "table" and x.render then
-        x = tonumber(x:render())
+        rx  = x:render()
+        nx = tonumber(rx)
     else
-        x = tonumber (x)
+        nx = tonumber (x)
     end
 
-    return x
+    if not nx then
+        if type(x) == "table" and x.__type == "tokenlist" then
+            plume.internal_error ("Cannot convert a token rendered as '".. rx .."' into number.")
+        else
+            error ("Cannot convert '" .. x .. "' (" .. type(x) .. ") into number.")
+        end
+    end
+
+    return nx
 end
 
 --- Convert one element into string
@@ -150,7 +159,6 @@ function plume.tokenlist (x)
     end
 
     function metatable.__index (self, key)
-        -- Table except n+1 value to be nil
         if tonumber (key) then
             return rawget(self, key)
         end

@@ -559,15 +559,24 @@ end
 --- Convert one element into number
 -- @param x tokenlist|number|string Element to convert
 -- @return number The converted numbers
-local function tokens2number(x, y)
-    
+local function tokens2number(x)
+    local nx, rx
     if type(x) == "table" and x.render then
-        x = tonumber(x:render())
+        rx  = x:render()
+        nx = tonumber(rx)
     else
-        x = tonumber (x)
+        nx = tonumber (x)
     end
 
-    return x
+    if not nx then
+        if type(x) == "table" and x.__type == "tokenlist" then
+            plume.internal_error ("Cannot convert a token rendered as '".. rx .."' into number.")
+        else
+            error ("Cannot convert '" .. x .. "' (" .. type(x) .. ") into number.")
+        end
+    end
+
+    return nx
 end
 
 --- Convert one element into string
@@ -663,7 +672,6 @@ function plume.tokenlist (x)
     end
 
     function metatable.__index (self, key)
-        -- Table except n+1 value to be nil
         if tonumber (key) then
             return rawget(self, key)
         end
@@ -1015,6 +1023,57 @@ end
 plume.last_error = nil
 plume.traceback = {}
 
+--- Compute Damerau-Levenshtein distance
+-- @param s1 string first word to compare
+-- @param s2 string second word to compare
+-- @return int Damerau-Levenshtein distance bewteen s1 and s2
+local function word_distance(s1, s2)
+    
+    local len1, len2 = #s1, #s2
+    local matrix = {}
+
+    for i = 0, len1 do
+        matrix[i] = {[0] = i}
+    end
+    for j = 0, len2 do
+        matrix[0][j] = j
+    end
+
+    for i = 1, len1 do
+        for j = 1, len2 do
+            local cost = (s1:sub(i,i) ~= s2:sub(j,j)) and 1 or 0
+            matrix[i][j] = math.min(
+                matrix[i-1][j] + 1,
+                matrix[i][j-1] + 1,
+                matrix[i-1][j-1] + cost
+            )
+            if i > 1 and j > 1 and s1:sub(i,i) == s2:sub(j-1,j-1) and s1:sub(i-1,i-1) == s2:sub(j,j) then
+                matrix[i][j] = math.min(matrix[i][j], matrix[i-2][j-2] + cost)
+            end
+        end
+    end
+
+    return matrix[len1][len2]
+end
+
+--- Convert an associative table to an alphabetically sorted one.
+-- @param t table The associative table to sort
+-- @return table The table containing sorted keys
+local function sort(t)
+    -- Create an empty table to store the sorted keys
+    local sortedTable = {}
+    
+    -- Extract keys from the associative table
+    for k in pairs(t) do
+        table.insert(sortedTable, k)
+    end
+
+    -- Sort the keys alphabetically
+    table.sort(sortedTable)
+    
+    return sortedTable
+end
+
 --- Retrieves a line by its line number in the source code.
 -- @param source string The source code
 -- @param noline number The line number to retrieve
@@ -1160,7 +1219,7 @@ function plume.make_error_message (token, error_message, is_lua_error)
                     local infos = lua_info (line)
                     table.insert(error_lines_infos, lua_info (line))
                     -- check if we arn't last line
-                    if line:match('^[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
+                    if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
                         break
                     end
                 end
@@ -1250,76 +1309,40 @@ function plume.make_error_message (token, error_message, is_lua_error)
     
     return error_message
 end
---- Make error message and throw it
--- @param token table The token that caused the error (optional)
--- @param error_message string The raised error message
--- @param is_lua_error boolean Whether the error is due to lua script
+--- Create and throw an error message.
+-- @param token table The token that caused the error (optional).
+-- @param error_message string The error message to be raised.
+-- @param is_lua_error boolean Indicates if the error is related to Lua script.
 function plume.error (token, error_message, is_lua_error)
-    -- If it is already an error, throw it.
+    -- If there is already an existing error, throw it.
     if plume.last_error then
         error(plume.last_error, -1)
     end
 
+    -- Create a formatted error message.
     local error_message = plume.make_error_message (token, error_message, is_lua_error)
 
-    -- Save the error
+    -- Save the error message.
     plume.last_error = error_message
 
-    -- And throw it
+    -- Throw the error message.
     error(error_message, -1)
 end
 
---- Compute Damerau-Levenshtein distance
--- @param s1 string first word to compare
--- @param s2 string second word to compare
--- @return int Damerau-Levenshtein distance bewteen s1 and s2
-local function word_distance(s1, s2)
-    
-    local len1, len2 = #s1, #s2
-    local matrix = {}
-
-    for i = 0, len1 do
-        matrix[i] = {[0] = i}
-    end
-    for j = 0, len2 do
-        matrix[0][j] = j
-    end
-
-    for i = 1, len1 do
-        for j = 1, len2 do
-            local cost = (s1:sub(i,i) ~= s2:sub(j,j)) and 1 or 0
-            matrix[i][j] = math.min(
-                matrix[i-1][j] + 1,
-                matrix[i][j-1] + 1,
-                matrix[i-1][j-1] + cost
-            )
-            if i > 1 and j > 1 and s1:sub(i,i) == s2:sub(j-1,j-1) and s1:sub(i-1,i-1) == s2:sub(j,j) then
-                matrix[i][j] = math.min(matrix[i][j], matrix[i-2][j-2] + cost)
-            end
+--- Generates error message for error occuring in plume internal functions
+-- @param error_message string The error message
+function plume.internal_error (error_message)
+    -- Get the plume line that caused the error
+    for line in debug.traceback ():gmatch('[^\n]+') do
+        local line_error = line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]:[0-9]+:')
+        if line_error then
+            error_message = line_error .. " " .. error_message
+            break
         end
     end
 
-    return matrix[len1][len2]
+    plume.error(plume.lua_cache[#plume.lua_cache], error_message, true)
 end
-
---- Convert an associative table to an alphabetically sorted one.
--- @param t table The associative table to sort
--- @return table The table containing sorted keys
-local function sort(t)
-    -- Create an empty table to store the sorted keys
-    local sortedTable = {}
-    
-    -- Extract keys from the associative table
-    for k in pairs(t) do
-        table.insert(sortedTable, k)
-    end
-
-    -- Sort the keys alphabetically
-    table.sort(sortedTable)
-    
-    return sortedTable
-end
-
 
 --- Generates error message for macro not found.
 -- @param token table The token that caused the error (optional)
