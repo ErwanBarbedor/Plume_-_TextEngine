@@ -117,7 +117,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Fixes
 - Fix implicit rendering not working with string methods.
-- Fix token.\_\_unm not working.
+- Fix `token.__unm` not working.
 
 ### 0.3.2
 
