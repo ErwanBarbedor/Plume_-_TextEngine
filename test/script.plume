@@ -39,3 +39,13 @@ Traceback :
     File 'string', line 1 : \script{return 5}
                             ^^^^^^^
 // End
+
+// Test 'script implicit render'
+\def foo[x] {//
+    #{x:match(".$")}//
+}//
+//
+\foo bar
+// Result
+r
+// End

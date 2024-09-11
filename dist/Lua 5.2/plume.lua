@@ -440,7 +440,7 @@ local metamethods_binary_numeric = {
 }
 
 local metamethods_unary_numeric = {
-    unm = function (x, y) return x+y end
+    unm = function (x) return -x end
 }
 
 local metamethods_binary_string = {
@@ -498,7 +498,25 @@ function plume.tokenlist (x)
         if tonumber (key) then
             return rawget(self, key)
         end
-        return rawget(self, key) or rawget(self:renderLua (), key)
+
+        local result = rawget(self, key)
+        if result then
+            return result
+        end
+
+        local rendered = self:renderLua ()
+        if type(rendered) == "string" then
+            -- Handle both token:method and token.method call.
+            return function (caller, ...)
+                if caller == self then
+                    return string[key] (rendered, ...)
+                else
+                    return string[key] (caller, ...)
+                end
+            end
+        end
+
+        return rawget(rendered, key)
     end
 
     local tokenlist = setmetatable({

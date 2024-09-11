@@ -113,6 +113,11 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Make one `plume.lua` file per lua version.
+- New error messages when wrong type in opperation on token with implicit rendering.
+
+#### Fixes
+- Fix implicit rendering not working with string methods.
+- Fix token.\_\_unm not working.
 
 ### 0.3.2
 
