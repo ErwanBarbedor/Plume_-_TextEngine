@@ -2139,8 +2139,8 @@ function plume.call_lua_chunk(token, code)
         plume.error(token, result[1], true)
     end
 
-    -- Lua 5.1 compatibility
-    return (table.unpack or unpack)(result)
+        
+    return table.unpack (result)
 end
 
 --- Creates a new scope with the given parent.

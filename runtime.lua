@@ -21,7 +21,7 @@ if _VERSION == "Lua 5.1" then
     plume.setfenv = setfenv
 end
 -- </Lua>
--- <Lua 5.2 5.2 5.3 5.4>
+-- <Lua 5.2 5.3 5.4>
 if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
     plume.load_lua_chunk = load
 
@@ -151,8 +151,16 @@ function plume.call_lua_chunk(token, code)
         plume.error(token, result[1], true)
     end
 
-    -- Lua 5.1 compatibility
-    return (table.unpack or unpack)(result)
+    -- <Lua 5.1>
+    if _VERSION == "Lua 5.1" then
+        return unpack(result)
+    end
+    -- </Lua>
+    -- <Lua 5.2 5.3 5.4>
+    if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+        return table.unpack (result)
+    end
+    -- </Lua>
 end
 
 --- Creates a new scope with the given parent.

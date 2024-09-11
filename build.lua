@@ -32,7 +32,7 @@ for version in ("5.1 5.2 5.3 5.4"):gmatch('%S+') do
 
     code = code:gsub('%-%- <DEV>.-</DEV>%s*', '\n')
 
-    code = code:gsub('%-%- <Lua (.-)>\r\n%s*if _VERSION == ".-" then(.-)end\r\n%-%- </Lua[^\n]*\r\n', function (v, m)
+    code = code:gsub('%-%- <Lua (.-)>\r*\n%s*if .- then(.-)end\r\n%s*%-%- </Lua[^\n]*\r\n', function (v, m)
         if v:match(version) then
             return m:gsub('\n    ', '\n')
         else
