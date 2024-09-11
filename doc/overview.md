@@ -255,6 +255,7 @@ If an expression in `#{...}` returns a number, you can format it.
 #{1/3}[.4f]
 #{10000}[thousand_separator=,]
 #{5/2}[decimal_separator=+0.]
+#{5327}[%.2s]
 ```
 Output:
 ```
@@ -262,6 +263,7 @@ Output:
 0.3333
 10,000
 2+0.5
+5.32E3
 ```
 
 ## Default Values

@@ -1829,19 +1829,40 @@ plume.register_macro("script", {"body"}, {}, function(args)
     return result
 end)
 
-plume.register_macro("eval", {"expr"}, {}, function(args)
-    --Eval lua expression and return the result
-    -- \eval{1+1} or #{1+1}
-    -- If the result is a number, format it : #{1/3}[.2f]
-    -- Other format options:
-    -- #{1000+2500}[thousand_separator=,]
-    -- #{1/5}[decimal_separator=,]
-    -- #{1+1.0}[remove_zeros] -> 2 instead of 2.0.
-    -- Only work when no format specified
+local function scientific_notation (x, n, sep)
+    local n = n or 0
+    local sep = sep or "."
+    local mantissa = x
+    local exposant  = 0
 
+    while mantissa / 10 > 1 do
+        mantissa = mantissa / 10
+        exposant = exposant + 1
+    end
+
+    while mantissa < 1 do
+        mantissa = mantissa * 10
+        exposant = exposant - 1
+    end
+
+    local int_mantissa = math.floor (mantissa)
+    local dec_mantissa = mantissa - int_mantissa 
+    dec_mantissa = tostring(dec_mantissa):sub(3, n+2)
+
+    mantissa = int_mantissa
+
+    if dec_mantissa ~= "" then
+        mantissa = mantissa .. sep .. dec_mantissa
+    end
+
+    return mantissa.. "e10^" .. exposant
+end
+
+plume.register_macro("eval", {"expr"}, {}, function(args)
     -- Get optionnals args
     local remove_zeros
     local format
+    local scinot
 
     for i, arg in ipairs(args.__args) do
         local arg_render = arg:render ()
@@ -1850,6 +1871,8 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
             remove_zeros = true
         elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
             format = arg_render
+        elseif not scinot and arg_render:match('%.[0-9]+s') then
+            scinot = arg_render:match('%.([0-9]+)s')
         else
             plume.error(arg, "Unknow arg '" .. arg_render .. "'.")
         end
@@ -1881,25 +1904,30 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
             result = string.format("%"..format, result)
         end
 
-        local int, dec = tostring(result):match('^(.-)%.(.+)')
-        if not dec then
-            int = tostring(result)
-        end
-
         
-        if t_sep then
-            local e_t_sep = t_sep:gsub('.', '%%%1')--escaped for matching pattern
 
-            int = int:gsub('([0-9])([0-9][0-9][0-9])$', '%1' .. t_sep .. '%2')
-            while int:match('[0-9][0-9][0-9][0-9]' .. e_t_sep) do
-                int = int:gsub('([0-9])([0-9][0-9][0-9])' .. e_t_sep, '%1' .. t_sep .. '%2' .. t_sep)
-            end
-        end
-
-        if dec and not (remove_zeros and dec:match('^0+$')) then
-            result = int .. d_sep .. dec
+        if scinot then
+            result = scientific_notation (result, scinot, t_sep)
         else
-            result = int
+            local int, dec = tostring(result):match('^(.-)%.(.+)')
+            if not dec then
+                int = tostring(result)
+            end
+
+            if t_sep then
+                local e_t_sep = t_sep:gsub('.', '%%%1')--escaped for matching pattern
+
+                int = int:gsub('([0-9])([0-9][0-9][0-9])$', '%1' .. t_sep .. '%2')
+                while int:match('[0-9][0-9][0-9][0-9]' .. e_t_sep) do
+                    int = int:gsub('([0-9])([0-9][0-9][0-9])' .. e_t_sep, '%1' .. t_sep .. '%2' .. t_sep)
+                end
+            end
+
+            if dec and not (remove_zeros and dec:match('^0+$')) then
+                result = int .. d_sep .. dec
+            else
+                result = int
+            end
         end
     end
     
