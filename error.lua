@@ -149,6 +149,9 @@ local function lua_info (lua_message)
     local chunk_id = tonumber(file:match('^string "%-%-chunk([0-9]-)%.%.%."'))
     
     local token = plume.lua_cache[chunk_id]
+    if not token then
+        plume.error(nil, "Internal error : " .. lua_message .. "\nPlease report it on #GITHUB#")
+    end
 
     -- If error occuring from extern file
     if token.lua_cache.filename then
