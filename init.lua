@@ -71,9 +71,6 @@ function plume.init ()
     -- To assign a number of each
     -- of them.
     plume.chunk_count = 0
-
-    -- Stack of executed files
-    plume.file_stack = {}
         
     -- Add all std function into
     -- global scope

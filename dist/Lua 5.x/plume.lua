@@ -1797,7 +1797,6 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     local file, filepath = plume.open (args["$path"], formats, path)
 
     -- file scope
-    table.insert(plume.file_stack, filepath)
     plume.push_scope ()
 
         -- Add arguments to file scope
@@ -1819,7 +1818,6 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
 
     -- Exit from file scope
     plume.pop_scope ()
-    table.remove(plume.file_stack)
 
     return result
 end)
@@ -2290,9 +2288,6 @@ function plume.init ()
     -- To assign a number of each
     -- of them.
     plume.chunk_count = 0
-
-    -- Stack of executed files
-    plume.file_stack = {}
         
     -- Add all std function into
     -- global scope
@@ -2442,13 +2437,7 @@ function plume.renderFile(filename)
         local content = file:read("*all")
     file:close()
     
-    -- Track the file we are currently in
-    table.insert(plume.file_stack, filename)
-    
     local result = plume.render(content, filename)
-    
-    -- Remove file from stack
-    table.remove(plume.file_stack)
 
     return result
 end

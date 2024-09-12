@@ -91,13 +91,7 @@ function plume.renderFile(filename)
         local content = file:read("*all")
     file:close()
     
-    -- Track the file we are currently in
-    table.insert(plume.file_stack, filename)
-    
     local result = plume.render(content, filename)
-    
-    -- Remove file from stack
-    table.remove(plume.file_stack)
 
     return result
 end

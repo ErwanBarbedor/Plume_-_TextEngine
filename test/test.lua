@@ -52,7 +52,6 @@ local function runTests(tests)
             testNumber = testNumber + 1
             
             plume.init ()
-            table.insert(plume.file_stack, "/")
 
             local sucess, result = pcall (plume.render, test.input)
             local err = ""

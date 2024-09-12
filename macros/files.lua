@@ -122,7 +122,6 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     local file, filepath = plume.open (args["$path"], formats, path)
 
     -- file scope
-    table.insert(plume.file_stack, filepath)
     plume.push_scope ()
 
         -- Add arguments to file scope
@@ -144,7 +143,6 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
 
     -- Exit from file scope
     plume.pop_scope ()
-    table.remove(plume.file_stack)
 
     return result
 end)
