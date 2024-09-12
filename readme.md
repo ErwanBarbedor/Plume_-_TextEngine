@@ -113,7 +113,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Make one `plume.lua` file per lua version.
-- New error messages when wrong type in opperation on token with implicit rendering.
+- Add error message (instead of crash) when wrong type in opperation on token with implicit rendering.
+- Add error message (instead of crash) when error occuring in extern lua file.
 
 #### Fixes
 - Fix implicit rendering not working with string methods.

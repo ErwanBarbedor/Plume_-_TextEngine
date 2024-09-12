@@ -42,3 +42,31 @@ Traceback :
     File 'string', line 1 : \include test/lib_error.plume
                             ^^^^^^^^
 // End
+
+// Test 'Error in extern file'
+\require test/lib
+#{foo()} 
+// Error Lua 5.1 Lua 5.2
+File 'test/lib.lua', line 4 : (lua error) attempt to perform arithmetic on global 'b' (a nil value)
+    return b+1
+    ^^^^^^^^^^^
+Traceback :
+    File 'string', line 2 : #{foo()} 
+                             ^^^^^^^
+    File 'string', line 2 : #{foo()} 
+                            ^
+// End
+
+// Test 'Error in extern file'
+\require test/lib
+#{foo()} 
+// Error Lua 5.3 Lua 5.4
+File 'test/lib.lua', line 4 : (lua error) attempt to perform arithmetic on a nil value (global 'b')
+    return b+1
+    ^^^^^^^^^^^
+Traceback :
+    File 'string', line 2 : #{foo()} 
+                             ^^^^^^^
+    File 'string', line 2 : #{foo()} 
+                            ^
+// End

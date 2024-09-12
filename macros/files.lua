@@ -104,7 +104,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
 
     local file, filepath = plume.open (args.path, formats, path)
 
-    local f = plume.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
+    local f = plume.eval_lua_expression (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
     return f()
 end)

@@ -57,6 +57,8 @@ local function runTests(tests)
             local err = ""
             if not sucess then
                 err = result:gsub('\t', '    ')
+                err = err:gsub('\r*\n', '\n')
+                test.expectedOutput = test.expectedOutput:gsub('\r*\n', '\n')
             end
             if kind == "Error" then
                 if not err then
@@ -71,7 +73,14 @@ local function runTests(tests)
                     testFailed = testFailed + 1
 
                     if print_error_detail then
-                        print("\tExpected Error:\n\t\t>" .. format_code(test.expectedOutput) .. "\n\tObtained Error: \n\t\t>" .. format_code(err))
+                        print("\tExpected Error:\n\t\t>" .. format_code(test.expectedOutput):gsub(' ', '_') .. "\n\tObtained Error: \n\t\t>" .. format_code(err):gsub(' ', '_'))
+
+                        for i = 1, math.min(#test.expectedOutput, #err) do
+                            if test.expectedOutput:sub(i, i) ~= err:sub(i, i) then
+                                print("\tFirst missmatch a pos " .. i .. ", '" .. test.expectedOutput:sub(i, i):gsub('\n', '\\n'):gsub('\r', '\\r') .. "' vs '" .. err:sub(i, i):gsub('\n', '\\n'):gsub('\r', '\\r').."'")
+                                break
+                            end
+                        end
                     end
                 end
             else

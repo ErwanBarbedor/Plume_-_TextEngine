@@ -150,15 +150,16 @@ local function lua_info (lua_message)
     
     local token = plume.lua_cache[chunk_id]
 
-    -- Error handling from other lua files is
-    -- not supported, so placeholder.
-    if not token then
+    -- If error occuring from extern file
+    if token.lua_cache.filename then
+        local line = get_line (token.lua_cache.code, noline+1)
+
         return {
-            file     = file,
-            noline   = noline,
-            line     = "",
-            beginpos = 0,
-            endpos   = -1
+            file     = token.lua_cache.filename,
+            noline   = noline-1,
+            line     = line,
+            beginpos = #line:match('^%s*'),
+            endpos   = #line,
         }
     end
 

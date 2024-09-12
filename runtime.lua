@@ -63,20 +63,22 @@ end
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression
 -- @param code string The Lua code to evaluate (optional)
+-- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of the evaluation
-function plume.eval_lua_expression (token, code)
+function plume.eval_lua_expression (token, code, filename)
     code = code or token:source ()
     code = 'return ' .. code
 
-    return plume.call_lua_chunk (token, code)
+    return plume.call_lua_chunk (token, code, filename)
 end
 
 --- Call Lua Statements
 -- This function executes Lua statements provided in a token or code string.
 -- @param token table The token containing the source Lua code.
 -- @param code string Optional. The Lua code to be executed. If not provided, the code will be extracted from the token's source.
+-- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of executing the Lua chunk.
-function plume.call_lua_statements (token, code)
+function plume.call_lua_statements (token, code, filename)
     code = code or token:source()
 
     -- Script cannot return value
@@ -89,7 +91,7 @@ function plume.call_lua_statements (token, code)
     code = code .. "\nplume.capture_local()"
 
     -- Call the modified Lua chunk using the plume module.
-    return plume.call_lua_chunk(token, code)
+    return plume.call_lua_chunk(token, code, filename)
 end
 
 
@@ -97,8 +99,9 @@ end
 -- @param token table The token containing the code
 -- or, if code is given, token used to throw error
 -- @param code string The Lua code to execute (optional)
+-- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of the execution
-function plume.call_lua_chunk(token, code)
+function plume.call_lua_chunk(token, code, filename)
     code = code or token:source ()
 
     if not token.lua_cache then
@@ -119,13 +122,14 @@ function plume.call_lua_chunk(token, code)
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            token.lua_cache = {code=code}
+            token.lua_cache = {code=code, filename=filename}
             table.insert(plume.lua_cache, token)
             plume.error(token, load_err, true)
         end
 
         local chunck = setmetatable({
-            code=code
+            code=code,
+            filename=filename
         },{
             __call = function ()
                 -- If the token is locked in a specific
