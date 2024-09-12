@@ -115,6 +115,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Make one `plume.lua` file per lua version.
 - Add error message (instead of crash) when wrong type in opperation on token with implicit rendering.
 - Add error message (instead of crash) when error occuring in extern lua file.
+- Rename `api.getl` to `api.lget`, to avoid confusion with `api.setl`. (`l` stands for "lua" for one, "local" for the other)
 
 #### Fixes
 - Fix implicit rendering not working with string methods.

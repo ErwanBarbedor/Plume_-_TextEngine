@@ -36,13 +36,13 @@ Output
 ### `plume.getr ()`
 **Description:** Alias to `plume.get_render`
 
-### `plume.get_lua ()`
+### `plume.lua_get ()`
 **Description:** If the variable has a renderLua method, call it and return the result. Otherwise, return the variable.
 
 **Parameters:**
 - _name_: Variable name
 
-**Alias** : `plume.getl`
+**Alias** : `plume.lget`
 
 ### `plume.getl ()`
 **Description:** Alias to `plume.get_renderLua`

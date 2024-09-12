@@ -2291,7 +2291,7 @@ api.getr = api.get_render
 --- Shortcut for api.get(key):renderLua ()
 -- @param key string
 -- @param value string
-function api.get_lua (key)
+function api.lua_get (key)
     local result = plume.current_scope()[key]
     if type(result) == table and result.renderLua then
         return result:renderLua ()
@@ -2300,7 +2300,7 @@ function api.get_lua (key)
     end
 end
 --- Alias to api.get_renderLua
-api.getl = api.get_lua
+api.lget = api.lua_get
 
 --- Alias for api.set_local
 -- @see api.set_local
