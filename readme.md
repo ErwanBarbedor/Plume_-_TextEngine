@@ -117,6 +117,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Add error message (instead of crash) for errors in external Lua files.
 - Add error message (instead of crash) for unexpected errors inside plume code.
 - Prevent implicit rendering from calling keys on numbers, or non-string methods on strings.
+- Add an error if user try to render a nil code.
 - Rename `api.getl` to `api.lget` to avoid confusion with `api.setl`. (`l` stands for "Lua" for one, "local" for the other).
 - New `token:is_empty()`
 

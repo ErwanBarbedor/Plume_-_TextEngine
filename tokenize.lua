@@ -12,12 +12,15 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
---- Tokenizes the given code.
+--- Get the plume code as raw string, and return a list of token.
 -- @param code string The code to tokenize
 -- @param file string The name of the file being tokenized, for debuging purpose. May be any string.
 -- @return table A list of tokens
 function plume.tokenize (code, file)
-    -- Get the plume code as raw string, and return a list of token.
+    if code == nil then
+        plume.error(nil, "Given code is nil.")
+    end
+
     local result  = plume.tokenlist("render-block")
     local acc     = {}
     local noline  = 1
