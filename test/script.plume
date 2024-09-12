@@ -55,7 +55,7 @@ r
     #{x.bar}//
 }//
 //
-\foo bar
+\foo 1
 // Result
 
 // End

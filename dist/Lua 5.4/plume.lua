@@ -522,15 +522,21 @@ function plume.tokenlist (x)
         end
 
         local rendered = self:renderLua ()
-        if type(rendered) == "string" and string[key] then
-            -- Handle both token:method and token.method call.
-            return function (caller, ...)
-                if caller == self then
-                    return string[key] (rendered, ...)
-                else
-                    return string[key] (caller, ...)
+        if type(rendered) == "string" then
+            if string[key] then
+                -- Handle both token:method and token.method call.
+                return function (caller, ...)
+                    if caller == self then
+                        return string[key] (rendered, ...)
+                    else
+                        return string[key] (caller, ...)
+                    end
                 end
+            else
+                return
             end
+        elseif type(rendered) ~= "table" then
+            return
         end
 
         return rawget(rendered, key)
