@@ -49,3 +49,13 @@ Traceback :
 // Result
 r
 // End
+
+// Test 'script implicit render - nil key'
+\def foo[x] {//
+    #{x.bar}//
+}//
+//
+\foo bar
+// Result
+
+// End

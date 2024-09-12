@@ -169,7 +169,7 @@ function plume.tokenlist (x)
         end
 
         local rendered = self:renderLua ()
-        if type(rendered) == "string" then
+        if type(rendered) == "string" and string[key] then
             -- Handle both token:method and token.method call.
             return function (caller, ...)
                 if caller == self then

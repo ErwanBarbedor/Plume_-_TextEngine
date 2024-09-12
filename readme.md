@@ -116,6 +116,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Add error message (instead of crash) when wrong type in opperation on token with implicit rendering.
 - Add error message (instead of crash) when error occuring in extern lua file.
 - Add error message (instead of crash) when unexpected error occuring inside plume code.
+- Implicit rendering will call only string method on string.
 - Rename `api.getl` to `api.lget`, to avoid confusion with `api.setl`. (`l` stands for "lua" for one, "local" for the other)
 
 #### Fixes
