@@ -157,3 +157,8 @@ Output:
 Source   : #{1+1}
 Rendered : 2
 ```
+
+
+## `tokenlist:is_empty ()`
+
+**Description:** Renders token list and checks if its length is 0.

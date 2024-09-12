@@ -118,6 +118,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Add error message (instead of crash) for unexpected errors inside plume code.
 - Prevent implicit rendering from calling keys on numbers, or non-string methods on strings.
 - Rename `api.getl` to `api.lget` to avoid confusion with `api.setl`. (`l` stands for "Lua" for one, "local" for the other).
+- New `token:is_empty()`
 
 #### Fixes
 - Fix implicit rendering not working with string methods.

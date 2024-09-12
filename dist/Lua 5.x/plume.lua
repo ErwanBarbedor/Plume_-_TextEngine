@@ -637,6 +637,12 @@ function plume.tokenlist (x)
 
             return table.concat(result, "")
         end,
+
+        --- Render the tokenlist and check if empty
+        -- @return bool
+        is_empty = function (self)
+            return #self:render() == 0
+        end,
         render    = plume.renderToken,
         renderLua = plume.renderTokenLua
     }, metatable)
