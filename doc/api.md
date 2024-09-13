@@ -69,12 +69,34 @@ _open_mode (boolean)_ : Defaut "r". Mode to open the file.
 
 **Notes:** Mainly internal use, you shouldn't use this function.
 
+### `plume.export()`
+
+**Description:** Export a lua function as a macro. If not name provided, try to get it using debug.
+
+**Parameters:**
+_name (string)_ Name of the macro
+_arg_number (number)_Number of arguments to capture
+_f (function)_
+```
+\script{
+    function add(x, y)
+        return x+y
+    end
+
+    plume.export("add", 2, add)
+}
+
+\add{1}{2}
+```
+
+Output `3`
+
 ## `plume` variables
 
 | Name                   |  Notes |
 | ---------------------  | ----------- |
 | input_file             | input path given to plume, if any |
-| output_file            | input path given to plume, if any |
+| output_file            | output path given to plume, if any |
 | _VERSION               | plume version |
 | _LUA\_VERSION          | lua version. |
 

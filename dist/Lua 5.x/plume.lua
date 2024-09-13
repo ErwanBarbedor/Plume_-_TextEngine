@@ -2417,6 +2417,34 @@ function api.require (path)
     end
 end
 
+--- Export a lua function as a macro.
+-- @param name string Name of the macro (optionnal)
+-- @param arg_number Number of arguments to capture
+-- @param f function
+
+function api.export(name, arg_number, f)
+    local def_args = {}
+    for i=1, arg_number do
+        table.insert(def_args, "x"..i)
+    end
+    plume.register_macro(name, def_args, {}, function (args)
+        local rargs = {}
+        for i=1, arg_number do
+            rargs[i] = args['x' .. i]:render()
+        end
+        -- <Lua 5.1>
+        if _VERSION == "Lua 5.1" then
+            return f(unpack(rargs))
+        end
+        -- </Lua>
+        -- <Lua 5.2 5.3 5.4>
+        if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+            return f(table.unpack(rargs))
+        end
+        -- </Lua>
+    end)
+end
+
 --- Initializes the API methods visible to the user.
 function plume.init_api ()
     local scope = plume.current_scope ()

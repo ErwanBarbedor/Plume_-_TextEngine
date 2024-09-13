@@ -2338,6 +2338,26 @@ function api.require (path)
     end
 end
 
+--- Export a lua function as a macro.
+-- @param name string Name of the macro (optionnal)
+-- @param arg_number Number of arguments to capture
+-- @param f function
+
+function api.export(name, arg_number, f)
+    local def_args = {}
+    for i=1, arg_number do
+        table.insert(def_args, "x"..i)
+    end
+    plume.register_macro(name, def_args, {}, function (args)
+        local rargs = {}
+        for i=1, arg_number do
+            rargs[i] = args['x' .. i]:render()
+        end
+        
+        return f(unpack(rargs))
+                end)
+end
+
 --- Initializes the API methods visible to the user.
 function plume.init_api ()
     local scope = plume.current_scope ()
