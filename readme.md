@@ -125,6 +125,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 #### Fixes
 - Fix implicit rendering not working with string methods.
 - Fix `token.__unm` not working.
+- Fix an error occurring when there are comments between `\if` and `\else`.
 
 ### 0.3.2
 

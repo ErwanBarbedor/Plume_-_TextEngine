@@ -22,6 +22,13 @@ foo
 foo 
 // End
 
+// Test 'if true else 2'
+\if {1==1} foo//
+\else bar
+// Result
+foo
+// End
+
 // Test 'if elseif'
 \if {1==2} foo \elseif {1==1} bar \else baz
 // Result

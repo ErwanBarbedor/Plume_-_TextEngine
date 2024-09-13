@@ -165,7 +165,7 @@ function plume.renderToken (self)
         local token = self[pos]
 
         -- Break the chain if encounter non macro non space token
-        if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" then
+        if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" and token.kind ~= "comment" then
             chain_sender  = nil
             chain_message = nil
         end
@@ -341,7 +341,7 @@ function plume.renderToken (self)
     return table.concat(result)
 end
 
---- If the tokenlist starts with `#`, ``eval` or ``script`
+--- If the tokenlist starts with `#`, `eval` or `script`
 -- evaluate this macro and return the result as a lua object,
 -- without conversion to string.
 -- Otherwise, render the tokenlist.
