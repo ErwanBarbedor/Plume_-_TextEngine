@@ -148,7 +148,7 @@ Like that? \raw{\double[suffix=end] {Hi!}} --> \double[suffix=end] {Hi!}
     </div>
     <h1>
         <img src="plume.png" width="200" height="100">
-        <p>Version 5.3</p>
+        <p>Version 0.4.0</p>
     </h1>
     <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
         View on GitHub
@@ -159,7 +159,7 @@ Like that? \raw{\double[suffix=end] {Hi!}} --> \double[suffix=end] {Hi!}
 
 <script type="application/lua">
     --[[
-5.3
+Plume - TextEngine 0.4.0 (Lua 5.3)
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -179,7 +179,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 plume = {}
-plume._VERSION = "5.3"
+plume._VERSION = "Plume - TextEngine 0.4.0 (Lua 5.3)"
 
 
 -- ## config.lua ##
@@ -325,7 +325,7 @@ function plume.renderToken (self)
         local token = self[pos]
 
         -- Break the chain if encounter non macro non space token
-        if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" then
+        if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" and token.kind ~= "comment" then
             chain_sender  = nil
             chain_message = nil
         end
@@ -501,7 +501,7 @@ function plume.renderToken (self)
     return table.concat(result)
 end
 
---- If the tokenlist starts with `#`, ``eval` or ``script`
+--- If the tokenlist starts with `#`, `eval` or `script`
 -- evaluate this macro and return the result as a lua object,
 -- without conversion to string.
 -- Otherwise, render the tokenlist.
@@ -683,14 +683,20 @@ function plume.tokenlist (x)
 
         local rendered = self:renderLua ()
         if type(rendered) == "string" then
-            -- Handle both token:method and token.method call.
-            return function (caller, ...)
-                if caller == self then
-                    return string[key] (rendered, ...)
-                else
-                    return string[key] (caller, ...)
+            if string[key] then
+                -- Handle both token:method and token.method call.
+                return function (caller, ...)
+                    if caller == self then
+                        return string[key] (rendered, ...)
+                    else
+                        return string[key] (caller, ...)
+                    end
                 end
+            else
+                return
             end
+        elseif type(rendered) ~= "table" then
+            return
         end
 
         return rawget(rendered, key)
@@ -788,6 +794,12 @@ function plume.tokenlist (x)
 
             return table.concat(result, "")
         end,
+
+        --- Render the tokenlist and check if empty
+        -- @return bool
+        is_empty = function (self)
+            return #self:render() == 0
+        end,
         render    = plume.renderToken,
         renderLua = plume.renderTokenLua
     }, metatable)
@@ -801,12 +813,15 @@ end
 
 
 -- ## tokenize.lua ##
---- Tokenizes the given code.
+--- Get the plume code as raw string, and return a list of token.
 -- @param code string The code to tokenize
 -- @param file string The name of the file being tokenized, for debuging purpose. May be any string.
 -- @return table A list of tokens
 function plume.tokenize (code, file)
-    -- Get the plume code as raw string, and return a list of token.
+    if code == nil then
+        plume.error(nil, "Given code is nil.")
+    end
+
     local result  = plume.tokenlist("render-block")
     local acc     = {}
     local noline  = 1
@@ -1157,16 +1172,20 @@ local function lua_info (lua_message)
     local chunk_id = tonumber(file:match('^string "%-%-chunk([0-9]-)%.%.%."'))
     
     local token = plume.lua_cache[chunk_id]
-
-    -- Error handling from other lua files is
-    -- not supported, so placeholder.
     if not token then
+        plume.error(nil, "Internal error : " .. lua_message .. "\nPlease report it on https://github.com/ErwanBarbedor/Plume_-_TextEngine")
+    end
+
+    -- If error occuring from extern file
+    if token.lua_cache.filename then
+        local line = get_line (token.lua_cache.code, noline+1)
+
         return {
-            file     = file,
-            noline   = noline,
-            line     = "",
-            beginpos = 0,
-            endpos   = -1
+            file     = token.lua_cache.filename,
+            noline   = noline-1,
+            line     = line,
+            beginpos = #line:match('^%s*'),
+            endpos   = #line,
         }
     end
 
@@ -1936,7 +1955,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
 
     local file, filepath = plume.open (args.path, formats, path)
 
-    local f = plume.eval_lua_expression (args.path, " function ()" .. file:read("*a") .. "\n end")
+    local f = plume.eval_lua_expression (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
     return f()
 end)
@@ -1954,7 +1973,6 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     local file, filepath = plume.open (args["$path"], formats, path)
 
     -- file scope
-    table.insert(plume.file_stack, filepath)
     plume.push_scope ()
 
         -- Add arguments to file scope
@@ -1976,7 +1994,6 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
 
     -- Exit from file scope
     plume.pop_scope ()
-    table.remove(plume.file_stack)
 
     return result
 end)
@@ -2211,20 +2228,22 @@ end
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression
 -- @param code string The Lua code to evaluate (optional)
+-- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of the evaluation
-function plume.eval_lua_expression (token, code)
+function plume.eval_lua_expression (token, code, filename)
     code = code or token:source ()
     code = 'return ' .. code
 
-    return plume.call_lua_chunk (token, code)
+    return plume.call_lua_chunk (token, code, filename)
 end
 
 --- Call Lua Statements
 -- This function executes Lua statements provided in a token or code string.
 -- @param token table The token containing the source Lua code.
 -- @param code string Optional. The Lua code to be executed. If not provided, the code will be extracted from the token's source.
+-- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of executing the Lua chunk.
-function plume.call_lua_statements (token, code)
+function plume.call_lua_statements (token, code, filename)
     code = code or token:source()
 
     -- Script cannot return value
@@ -2237,7 +2256,7 @@ function plume.call_lua_statements (token, code)
     code = code .. "\nplume.capture_local()"
 
     -- Call the modified Lua chunk using the plume module.
-    return plume.call_lua_chunk(token, code)
+    return plume.call_lua_chunk(token, code, filename)
 end
 
 
@@ -2245,8 +2264,9 @@ end
 -- @param token table The token containing the code
 -- or, if code is given, token used to throw error
 -- @param code string The Lua code to execute (optional)
+-- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of the execution
-function plume.call_lua_chunk(token, code)
+function plume.call_lua_chunk(token, code, filename)
     code = code or token:source ()
 
     if not token.lua_cache then
@@ -2267,13 +2287,14 @@ function plume.call_lua_chunk(token, code)
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
-            token.lua_cache = {code=code}
+            token.lua_cache = {code=code, filename=filename}
             table.insert(plume.lua_cache, token)
             plume.error(token, load_err, true)
         end
 
         local chunck = setmetatable({
-            code=code
+            code=code,
+            filename=filename
         },{
             __call = function ()
                 -- If the token is locked in a specific
@@ -2407,9 +2428,6 @@ function plume.init ()
     -- To assign a number of each
     -- of them.
     plume.chunk_count = 0
-
-    -- Stack of executed files
-    plume.file_stack = {}
         
     -- Add all std function into
     -- global scope
@@ -2487,7 +2505,7 @@ api.getr = api.get_render
 --- Shortcut for api.get(key):renderLua ()
 -- @param key string
 -- @param value string
-function api.get_lua (key)
+function api.lua_get (key)
     local result = plume.current_scope()[key]
     if type(result) == table and result.renderLua then
         return result:renderLua ()
@@ -2496,7 +2514,7 @@ function api.get_lua (key)
     end
 end
 --- Alias to api.get_renderLua
-api.getl = api.get_lua
+api.lget = api.lua_get
 
 --- Alias for api.set_local
 -- @see api.set_local
@@ -2514,6 +2532,26 @@ function api.require (path)
     else
         error(error_message, 2)
     end
+end
+
+--- Export a lua function as a macro.
+-- @param name string Name of the macro (optionnal)
+-- @param arg_number Number of arguments to capture
+-- @param f function
+
+function api.export(name, arg_number, f)
+    local def_args = {}
+    for i=1, arg_number do
+        table.insert(def_args, "x"..i)
+    end
+    plume.register_macro(name, def_args, {}, function (args)
+        local rargs = {}
+        for i=1, arg_number do
+            rargs[i] = args['x' .. i]:render()
+        end
+                
+        return f(table.unpack(rargs))
+        end)
 end
 
 --- Initializes the API methods visible to the user.
@@ -2559,13 +2597,7 @@ function plume.renderFile(filename)
         local content = file:read("*all")
     file:close()
     
-    -- Track the file we are currently in
-    table.insert(plume.file_stack, filename)
-    
     local result = plume.render(content, filename)
-    
-    -- Remove file from stack
-    table.remove(plume.file_stack)
 
     return result
 end
@@ -2573,7 +2605,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-5.3
+Plume - TextEngine 0.4.0 (Lua 5.3)
 Plume is a templating langage with advanced scripting features.
 
 Usage:

@@ -51,7 +51,7 @@ for lua_version in ("5.1 5.2 5.3 5.4 5.x"):gmatch('%S+') do
     print("Building " .. version .. " on Lua " .. lua_version .. " done." )
 
     -- Make the standalone html (5.3 for fengari)
-    if version == "5.3" then
+    if lua_version == "5.3" then
         file = io.open("web/plume.html")
             local html = file:read "*a"
         file:close ()
