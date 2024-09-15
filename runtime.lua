@@ -252,11 +252,17 @@ function plume.create_scope (parent, source)
     end
 
     --- Registers a variable locally in the given scope.
-    -- If not given scope, will use the current scope.
     -- @param key string The key to set
     -- @param value any The value to set
     function scope.set_local(self, field, key, value)
         rawset (scope[field], key, value)
+    end
+
+    --- Registers a variable globaly
+    -- @param key string The key to set
+    -- @param value any The value to set
+    function scope.set(self, field, key, value)
+        scope[field][key] = value
     end
 
     return scope

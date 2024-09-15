@@ -161,7 +161,7 @@ local function set(args, calling_token, is_local)
     if is_local then
         plume.current_scope (calling_token.context):set_local("variables", key, value)
     else
-        plume.current_scope (calling_token.context).variables[key] = value 
+        plume.current_scope (calling_token.context):set("variables", key, value) 
     end
 end
 
