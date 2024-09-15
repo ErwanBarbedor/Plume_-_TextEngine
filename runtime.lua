@@ -214,9 +214,6 @@ function plume.create_scope (parent, source)
         end,
     })
 
-    -- Add a self-reference
-    scope.variables.__scope = scope.variables
-
     return scope
 end
 

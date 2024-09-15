@@ -2195,9 +2195,6 @@ scope.variables = setmetatable({}, {
         end,
     })
 
-    -- Add a self-reference
-    scope.variables.__scope = scope.variables
-
     return scope
 end
 
