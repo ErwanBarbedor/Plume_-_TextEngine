@@ -2164,6 +2164,45 @@ function plume.call_lua_chunk(token, code, filename)
     return table.unpack (result)
 end
 
+--- Creates a scope field
+-- @param scope table The scope where the field is created.
+-- @param field_name string The name of the field to create.
+-- @param parent table The parent table for inheritance.
+-- @param source table The source table for raw field access.
+local function make_field(scope, field_name, parent, source)
+    scope[field_name] = setmetatable({}, {
+        __index = function (self, key)
+            -- Return the registered value.
+            -- If the value is nil, recursively call the parent.
+            local value
+            if source then
+                value = rawget(source[field_name], key)
+            else
+                value = rawget(self, key)
+            end
+
+            if value then
+                return value
+            elseif parent then
+                return parent[field_name][key]
+            end
+        end,
+        __newindex = function (self, key, value)
+            -- Register a new value.
+            -- If there is a parent and the key does not exist in the source,
+            -- send the value to the parent. Otherwise, register it.
+            if parent and not (source and rawget(source.variables, key)) then
+                parent[field_name][key] = value
+            elseif source then
+                rawset(source[field_name], key, value)
+            else
+                rawset(self, key, value)
+            end
+        end,
+    })
+end
+
+
 --- Creates a new scope with the given parent.
 -- @param parent scope The parent scope
 -- @param source scope An optionnal scope to copy
@@ -2172,37 +2211,8 @@ function plume.create_scope (parent, source)
     local scope = {}
 
     
-scope.variables = setmetatable({}, {
-        __index = function (self, key)
-            -- Return registered value.
-            -- If value is nil, recursively
-            -- call parent
-            local value
-            if source then
-                value = rawget(source.variables, key)
-            else
-                value = rawget(self, key)
-            end
-
-            if value then
-                return value
-            elseif parent then
-                return parent.variables[key]
-            end
-        end,
-        __newindex = function (self, key, value)
-            -- Register new value
-            -- if has parent and do not have the key,
-            -- send value to parent. Else, register it.
-            if parent and not (source and rawget(source.variables, key)) then
-                parent.variables[key] = value
-            elseif source then
-                rawset(source.variables, key, value)
-            else
-                rawset(self, key, value)
-            end
-        end,
-    })
+make_field (scope, "variables", parent, source)
+    make_field (scope, "macros", parent, source)
 
     return scope
 end
