@@ -114,7 +114,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            plume.scope_set_local ("variables", variables_list[i], values_list[i])
+            (calling_token.context or plume.current_scope ()):set_local ("variables", variables_list[i], values_list[i])
         end
 
         -- print("::", plume.current_scope ())

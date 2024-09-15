@@ -251,6 +251,14 @@ function plume.create_scope (parent, source)
         return t
     end
 
+    --- Registers a variable locally in the given scope.
+    -- If not given scope, will use the current scope.
+    -- @param key string The key to set
+    -- @param value any The value to set
+    function scope.set_local(self, field, key, value)
+        rawset (scope[field], key, value)
+    end
+
     return scope
 end
 
@@ -266,18 +274,6 @@ end
 --- Removes the last created scope.
 function plume.pop_scope ()
     table.remove(plume.scopes)
-end
-
---- Registers a variable locally in the given scope.
--- If not given scope, will use the current scope.
--- @param key string The key to set
--- @param value any The value to set
--- @param scope table The scope to set the variable in (optional)
-function plume.scope_set_local (field, key, value, scope)
-    -- Register a variable locally
-    -- If not provided, "scope" is the last created.
-    local scope = scope or plume.current_scope ()
-    rawset (scope[field], key, value)
 end
 
 --- Returns the current scope.

@@ -26,7 +26,7 @@ function api.capture_local()
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.scope_set_local("variables", key, value, calling_token.context)
+            (calling_token.context or plume.current_scope ()):set_local("variables", key, value)
         else
             break
         end

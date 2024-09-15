@@ -1272,7 +1272,7 @@ function plume.register_macro (name, args, default_opt_args, macro, token, is_lo
     scope = scope or plume.current_scope()
 
     if is_local then
-        plume.scope_set_local ("macros", name, macro, tscope)
+        tscope.set_local ("macros", name, macro)
     else
         scope.macros[name] = macro
     end
@@ -1393,7 +1393,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            plume.scope_set_local ("variables", variables_list[i], values_list[i])
+            (calling_token.context or plume.current_scope ()):set_local ("variables", variables_list[i], values_list[i])
         end
 
         -- print("::", plume.current_scope ())
@@ -1597,7 +1597,7 @@ local function def (def_args, redef, redef_forced, calling_token)
 
         -- add all args in the current scope
         for k, v in pairs(args) do
-            plume.scope_set_local("variables", k, v)
+            plume.current_scope():set_local("variables", k, v)
         end
 
         local body = def_args["$body"]:copy ()
@@ -1642,7 +1642,7 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
     
     if is_local then
-        plume.scope_set_local ("variables", key, value, calling_token.context)
+        (calling_token.context or plume.current_scope ()):set_local("variables", key, value)
     else
         (calling_token.context or plume.current_scope()).variables[key] = value 
     end
@@ -1847,7 +1847,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
             end
         end
 
-        plume.scope_set_local("variables", "__file_args", file_args)
+        (calling_token.context or plume.current_scope ()):set_local("variables", "__file_args", file_args)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)
@@ -2257,6 +2257,14 @@ make_field (scope, "variables", parent, source)
         return t
     end
 
+    --- Registers a variable locally in the given scope.
+    -- If not given scope, will use the current scope.
+    -- @param key string The key to set
+    -- @param value any The value to set
+    function scope.set_local(self, field, key, value)
+        rawset (scope[field], key, value)
+    end
+
     return scope
 end
 
@@ -2272,18 +2280,6 @@ end
 --- Removes the last created scope.
 function plume.pop_scope ()
     table.remove(plume.scopes)
-end
-
---- Registers a variable locally in the given scope.
--- If not given scope, will use the current scope.
--- @param key string The key to set
--- @param value any The value to set
--- @param scope table The scope to set the variable in (optional)
-function plume.scope_set_local (field, key, value, scope)
-    -- Register a variable locally
-    -- If not provided, "scope" is the last created.
-    local scope = scope or plume.current_scope ()
-    rawset (scope[field], key, value)
 end
 
 --- Returns the current scope.
@@ -2360,7 +2356,7 @@ function api.capture_local()
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.scope_set_local("variables", key, value, calling_token.context)
+            (calling_token.context or plume.current_scope ()):set_local("variables", key, value)
         else
             break
         end
