@@ -135,7 +135,7 @@ function plume.call_lua_chunk(token, code, filename)
                 -- If the token is locked in a specific
                 -- scope, execute inside it.
                 -- Else, execute inside current scope.
-                local chunk_scope = token.context or plume.current_scope ()
+                local chunk_scope = plume.current_scope (token.context)
                 plume.setfenv (loaded_function, chunk_scope.variables)
 
                 return { xpcall (loaded_function, plume.error_handler) }
@@ -277,8 +277,9 @@ function plume.pop_scope ()
 end
 
 --- Returns the current scope.
+-- @param scope table Return this scope if not nil
 -- @return table The current scope
-function plume.current_scope ()
-    return plume.scopes[#plume.scopes]
+function plume.current_scope (scope)
+    return scope or plume.scopes[#plume.scopes]
 end
 

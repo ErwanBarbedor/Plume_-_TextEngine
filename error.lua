@@ -348,7 +348,7 @@ function plume.error_macro_not_found (token, macro_name)
     --Use a table to avoid duplicate names
     local suggestions_table = {}
 
-    local scope = ((token and token.context) or plume.current_scope())
+    local scope = plume.current_scope(token and token.context)
     -- Hardcoded suggestions
     if macro_name == "import" then
         if scope.macros.require then

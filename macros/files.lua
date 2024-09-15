@@ -136,7 +136,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
             end
         end
 
-        (calling_token.context or plume.current_scope ()):set_local("variables", "__file_args", file_args)
+        plume.current_scope (calling_token.context):set_local("variables", "__file_args", file_args)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)

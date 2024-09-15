@@ -238,7 +238,7 @@ function plume.renderToken (self)
                 plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
             end
 
-            local macro = (self.context or plume.current_scope()).macros[name]
+            local macro = plume.current_scope(self.context).macros[name]
             if not macro then
                 plume.error_macro_not_found(token, name)
             end
@@ -1211,7 +1211,7 @@ function plume.error_macro_not_found (token, macro_name)
     --Use a table to avoid duplicate names
     local suggestions_table = {}
 
-    local scope = ((token and token.context) or plume.current_scope())
+    local scope = plume.current_scope(token and token.context)
     -- Hardcoded suggestions
     if macro_name == "import" then
         if scope.macros.require then
@@ -1265,11 +1265,7 @@ function plume.register_macro (name, args, default_opt_args, macro, token, is_lo
         token            = token
     }
 
-    local scope
-    if token then
-        scope = token.context
-    end
-    scope = scope or plume.current_scope()
+    local scope = plume.current_scope(token and token.context)
 
     if is_local then
         tscope.set_local ("macros", name, macro)
@@ -1344,7 +1340,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     -- Load and create the coroutine
     -- plume.push_scope ()
     local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
-    plume.setfenv (iterator_coroutine, (calling_token.context or plume.current_scope ()).variables)
+    plume.setfenv (iterator_coroutine, plume.current_scope (calling_token.context).variables)
     local co = iterator_coroutine ()
     -- plume.pop_scope ()
     
@@ -1503,7 +1499,7 @@ end, nil, false, true)
 -- @param redef_forced boolean Whether to force redefinition of standard macros
 local function test_macro_name_available (name, redef, redef_forced, calling_token)
     local std_macro = plume.std_macros[name]
-    local macro     = (calling_token.context or plume.current_scope()).macros[name]
+    local macro     = plume.current_scope(calling_token.context).macros[name]
     -- Test if the name is taken by standard macro
     if std_macro then
         if not redef_forced then
@@ -1642,9 +1638,9 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
     
     if is_local then
-        (calling_token.context or plume.current_scope ()):set_local("variables", key, value)
+        plume.current_scope (calling_token.context):set_local("variables", key, value)
     else
-        (calling_token.context or plume.current_scope()).variables[key] = value 
+        plume.current_scope (calling_token.context).variables[key] = value 
     end
 end
 
@@ -1673,7 +1669,7 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_tok
         plume.error(args.name2, msg)
     end
 
-    local scope = calling_token.context or plume.current_scope ()
+    local scope =  plume.current_scope (calling_token.context)
     scope.macros[name2] = scope.macros[name1]
     return ""
 end, nil, false, true)
@@ -1683,7 +1679,7 @@ plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
     -- Get the provided macro name
     local name = args["$name"]:render()
 
-    local scope = ((calling_token.context) or plume.current_scope())
+    local scope = plume.current_scope(calling_token.context)
 
     -- Check if this macro exists
     if not scope.macros[name] then
@@ -1847,7 +1843,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
             end
         end
 
-        (calling_token.context or plume.current_scope ()):set_local("variables", "__file_args", file_args)
+        plume.current_scope (calling_token.context):set_local("variables", "__file_args", file_args)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)
@@ -2156,7 +2152,7 @@ function plume.call_lua_chunk(token, code, filename)
                 -- If the token is locked in a specific
                 -- scope, execute inside it.
                 -- Else, execute inside current scope.
-                local chunk_scope = token.context or plume.current_scope ()
+                local chunk_scope = plume.current_scope (token.context)
                 plume.setfenv (loaded_function, chunk_scope.variables)
 
                 return { xpcall (loaded_function, plume.error_handler) }
@@ -2283,9 +2279,10 @@ function plume.pop_scope ()
 end
 
 --- Returns the current scope.
+-- @param scope table Return this scope if not nil
 -- @return table The current scope
-function plume.current_scope ()
-    return plume.scopes[#plume.scopes]
+function plume.current_scope (scope)
+    return scope or plume.scopes[#plume.scopes]
 end
 
 
@@ -2356,7 +2353,7 @@ function api.capture_local()
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            (calling_token.context or plume.current_scope ()):set_local("variables", key, value)
+            plume.current_scope (calling_token.context):set_local("variables", key, value)
         else
             break
         end

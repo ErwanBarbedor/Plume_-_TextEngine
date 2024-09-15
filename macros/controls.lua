@@ -65,7 +65,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     -- Load and create the coroutine
     -- plume.push_scope ()
     local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
-    plume.setfenv (iterator_coroutine, (calling_token.context or plume.current_scope ()).variables)
+    plume.setfenv (iterator_coroutine, plume.current_scope (calling_token.context).variables)
     local co = iterator_coroutine ()
     -- plume.pop_scope ()
     

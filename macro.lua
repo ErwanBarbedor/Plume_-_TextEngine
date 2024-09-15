@@ -31,11 +31,7 @@ function plume.register_macro (name, args, default_opt_args, macro, token, is_lo
         token            = token
     }
 
-    local scope
-    if token then
-        scope = token.context
-    end
-    scope = scope or plume.current_scope()
+    local scope = plume.current_scope(token and token.context)
 
     if is_local then
         tscope.set_local ("macros", name, macro)

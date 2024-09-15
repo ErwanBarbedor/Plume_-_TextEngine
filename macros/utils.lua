@@ -20,7 +20,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param redef_forced boolean Whether to force redefinition of standard macros
 local function test_macro_name_available (name, redef, redef_forced, calling_token)
     local std_macro = plume.std_macros[name]
-    local macro     = (calling_token.context or plume.current_scope()).macros[name]
+    local macro     = plume.current_scope(calling_token.context).macros[name]
     -- Test if the name is taken by standard macro
     if std_macro then
         if not redef_forced then
@@ -159,9 +159,9 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
     
     if is_local then
-        (calling_token.context or plume.current_scope ()):set_local("variables", key, value)
+        plume.current_scope (calling_token.context):set_local("variables", key, value)
     else
-        (calling_token.context or plume.current_scope()).variables[key] = value 
+        plume.current_scope (calling_token.context).variables[key] = value 
     end
 end
 
@@ -190,7 +190,7 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_tok
         plume.error(args.name2, msg)
     end
 
-    local scope = calling_token.context or plume.current_scope ()
+    local scope =  plume.current_scope (calling_token.context)
     scope.macros[name2] = scope.macros[name1]
     return ""
 end, nil, false, true)
@@ -200,7 +200,7 @@ plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
     -- Get the provided macro name
     local name = args["$name"]:render()
 
-    local scope = ((calling_token.context) or plume.current_scope())
+    local scope = plume.current_scope(calling_token.context)
 
     -- Check if this macro exists
     if not scope.macros[name] then
