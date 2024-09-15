@@ -131,7 +131,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     
     
     return table.concat(result, "")
-end)
+end, nil, false, true)
 
 plume.register_macro("while", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua while control structure.
@@ -157,7 +157,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     end
 
     return table.concat(result, "")
-end)
+end, nil, false, true)
 
 plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua if control structure.
@@ -169,7 +169,7 @@ plume.register_macro("if", {"condition", "body"}, {}, function(args)
         return args.body:render()
     end
     return "", not condition
-end)
+end, nil, false, true)
 
 plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
@@ -184,7 +184,7 @@ plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_send
     end
 
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
@@ -204,7 +204,7 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
         condition = true
     end
     return "", not condition
-end)
+end, nil, false, true)
 
 plume.register_macro("do", {"body"}, {}, function(args, self_token)
     
@@ -213,4 +213,4 @@ plume.register_macro("do", {"body"}, {}, function(args, self_token)
     plume.pop_scope ()
 
     return result
-end)
+end, nil, false, true)

@@ -24,7 +24,7 @@ plume.register_macro("script", {"body"}, {}, function(args)
     end
     
     return result
-end)
+end, nil, false, true)
 
 local function scientific_notation (x, n, sep)
     local n = n or 0
@@ -129,4 +129,4 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
     end
     
     return result
-end)
+end, nil, false, true)

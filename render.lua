@@ -190,7 +190,7 @@ function plume.renderToken (self)
                 plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
             end
 
-            local macro = plume.get_macro (name)
+            local macro = (self.context or plume.current_scope()).macros[name]
             if not macro then
                 plume.error_macro_not_found(token, name)
             end

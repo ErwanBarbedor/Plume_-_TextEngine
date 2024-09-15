@@ -107,7 +107,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     local f = plume.eval_lua_expression (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
     return f()
-end)
+end, nil, false, true)
 
 plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     --  Execute the given file and return the output
@@ -145,7 +145,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     plume.pop_scope ()
 
     return result
-end)
+end, nil, false, true)
 
 plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     -- Include a file without execute it
@@ -159,7 +159,7 @@ plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     local file, filepath = plume.open (args.path, formats, path)
 
     return file:read("*a")
-end)
+end, nil, false, true)
 
 plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
     -- Capture content and save it in a file.
@@ -179,4 +179,4 @@ plume.register_macro("file", {"path", "content"}, {}, function (args, calling_to
 
     return ""
 
-end)
+end, nil, false, true)

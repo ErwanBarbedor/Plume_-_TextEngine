@@ -45,4 +45,4 @@ end
 plume.register_macro("print_env", {}, {}, function(args, calling_token)
     print("=== Environnement informations ===")
     print_env (plume.scopes[1])
-end)
+end, nil, false, true)

@@ -224,6 +224,33 @@ function plume.create_scope (parent, source)
     make_field (scope, "variables", parent, source)
     make_field (scope, "macros", parent, source)
 
+    --- Returns all variables of the given field that are visible from this scope.
+    -- @param self table The current scope.
+    -- @param field string The field from which to retrieve variables.
+    -- @return table A table containing all variables from the given field.
+    function scope.get_all(self, field)
+        local t = {}
+        
+        if source then
+            for _, k in ipairs(source:get_all(field)) do
+                table.insert(t, k)
+            end
+        else
+            for k, _ in pairs(self[field]) do
+                table.insert(t, k)
+            end
+        end
+
+        -- If a parent scope exists, recursively get variables from the parent's field
+        if parent then
+            for  _, k in ipairs(parent:get_all(field)) do
+                table.insert(t, k)
+            end
+        end
+
+        return t
+    end
+
     return scope
 end
 
@@ -258,3 +285,4 @@ end
 function plume.current_scope ()
     return plume.scopes[#plume.scopes]
 end
+

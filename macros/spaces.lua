@@ -20,7 +20,7 @@ plume.register_macro("n", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\n"):rep(count)
-end)
+end, nil, false, true)
 
 plume.register_macro("s", {}, {}, function(args)
     local count = 1
@@ -28,7 +28,7 @@ plume.register_macro("s", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return (" "):rep(count)
-end)
+end, nil, false, true)
 
 plume.register_macro("t", {}, {}, function(args)
     local count = 1
@@ -36,4 +36,4 @@ plume.register_macro("t", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\t"):rep(count)
-end)
+end, nil, false, true)

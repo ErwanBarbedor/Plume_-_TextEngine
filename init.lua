@@ -77,14 +77,8 @@ function plume.init ()
     for k, v in pairs(plume.lua_std_functions) do
         plume.scopes[1].variables[k] = v
     end
-
-    -- Add all std macros to
-    -- the macro table
-    plume.macros = {}
-    for k, v in pairs(plume.std_macros) do
-        v.user_opt_args = {}
-        plume.macros[k] = v
-    end
+    
+    plume.load_macros()
 
     -- Initialise error tracing
     plume.last_error = nil

@@ -18,19 +18,21 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param name string the name to test
 -- @param redef boolean Whether this is a redefinition
 -- @param redef_forced boolean Whether to force redefinition of standard macros
-local function test_macro_name_available (name, redef, redef_forced)
+local function test_macro_name_available (name, redef, redef_forced, calling_token)
+    local std_macro = plume.std_macros[name]
+    local macro     = (calling_token.context or plume.current_scope()).macros[name]
     -- Test if the name is taken by standard macro
-    if plume.std_macros[name] then
+    if std_macro then
         if not redef_forced then
             local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
             return false, msg
         end
 
     -- Test if this macro already exists
-    elseif plume.macros[name] then
+    elseif macro then
         if not redef then
             local msg = "The macro '" .. name .. "' already exist"
-            local first_definition = plume.macros[name].token
+            local first_definition = macro.token
 
             if first_definition then
                 msg = msg
@@ -67,7 +69,7 @@ local function def (def_args, redef, redef_forced, calling_token)
         plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
-    local available, msg = test_macro_name_available (name, redef, redef_forced)
+    local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
     if not available then
         plume.error(def_args["$name"], msg)
     end
@@ -133,17 +135,17 @@ plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_t
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, calling_token)
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, calling_token)
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, true, calling_token)
     return ""
-end)
+end, nil, false, true)
 
 local function set(args, calling_token, is_local)
     -- A macro to set variable to a value
@@ -166,21 +168,21 @@ end
 plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, args.__args["local"])
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, true)
     return ""
-end)
+end, nil, false, true)
 
 
-plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
+plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
     -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
 
     -- Test if name2 is available
-    local available, msg = test_macro_name_available (name2)
+    local available, msg = test_macro_name_available (name2, false, false, calling_token)
     if not available then
         -- Remove the last sentence of the error message
         -- (the reference to redef)
@@ -188,36 +190,39 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
         plume.error(args.name2, msg)
     end
 
-    plume.macros[name2] = plume.macros[name1]
+    local scope = calling_token.context or plume.current_scope ()
+    scope.macros[name2] = scope.macros[name1]
     return ""
-end)
+end, nil, false, true)
 
 
-plume.register_macro("default", {"$name"}, {}, function(args)
+plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
     -- Get the provided macro name
     local name = args["$name"]:render()
 
+    local scope = ((calling_token.context) or plume.current_scope())
+
     -- Check if this macro exists
-    if not plume.macros[name] then
+    if not scope.macros[name] then
         plume.error_macro_not_found(args["name"], name)
     end
 
     -- Add all arguments (except name) in user_opt_args
     for k, v in pairs(args) do
         if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            plume.macros[name].user_opt_args[k] = v
+            scope.macros[name].user_opt_args[k] = v
         end
     end
     for k, v in ipairs(args.__args) do
-        plume.macros[name].user_opt_args[k] = v
+        scope.macros[name].user_opt_args[k] = v
     end
 
-end)
+end, nil, false, true)
 
 plume.register_macro("raw", {"body"}, {}, function(args)
     -- Return content without execute it
     return args['body']:source ()
-end)
+end, nil, false, true)
 
 plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
     -- Edit configuration
@@ -232,4 +237,4 @@ plume.register_macro("config", {"name", "value"}, {}, function(args, calling_tok
     end
 
     config[name] = value
-end)
+end, nil, false, true)

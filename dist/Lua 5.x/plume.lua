@@ -238,7 +238,7 @@ function plume.renderToken (self)
                 plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
             end
 
-            local macro = plume.get_macro (name)
+            local macro = (self.context or plume.current_scope()).macros[name]
             if not macro then
                 plume.error_macro_not_found(token, name)
             end
@@ -1214,18 +1214,19 @@ function plume.error_macro_not_found (token, macro_name)
     --Use a table to avoid duplicate names
     local suggestions_table = {}
 
+    local scope = ((token and token.context) or plume.current_scope())
     -- Hardcoded suggestions
     if macro_name == "import" then
-        if plume.macros.require then
+        if scope.macros.require then
             suggestions_table["require"] = true
         end
-        if plume.macros.include then
+        if scope.macros.include then
             suggestions_table["include"] = true
         end
     end
 
     -- Suggestions for possible typing errors
-    for name, _ in pairs(plume.macros) do
+    for _, name in ipairs(scope:get_all("macros")) do
         if word_distance (name, macro_name) < 3 then
             suggestions_table[name] = true
         end
@@ -1250,16 +1251,16 @@ end
 -- ## macro.lua ##
 -- Implement macro behavior
 
-plume.macros = {}
-
 --- Registers a new macro.
 -- @param name string The name of the macro
 -- @param args table The arguments names of the macro
 -- @param default_opt_args table Default names and values for optional arguments
 -- @param macro function The function to call when the macro is used
--- @param token token The token where the macro was declared (optional). Used for debuging.
-function plume.register_macro (name, args, default_opt_args, macro, token)
-    plume.macros[name] = {
+-- @param token token The token where the macro was declared. Used for debuging.
+-- @param is_local bool Register globaly or localy? (optionnal - defaults false)
+-- @param std bool It is a standard macro? (optionnal - defaults false)
+function plume.register_macro (name, args, default_opt_args, macro, token, is_local, std)
+    local macro = {
         args             = args,
         default_opt_args = default_opt_args,
         user_opt_args    = {},
@@ -1267,17 +1268,31 @@ function plume.register_macro (name, args, default_opt_args, macro, token)
         token            = token
     }
 
-    return plume.macros[name]
+    local scope
+    if token then
+        scope = token.context
+    end
+    scope = scope or plume.current_scope()
+
+    if is_local then
+        plume.scope_set_local ("macros", name, macro, tscope)
+    else
+        scope.macros[name] = macro
+    end
+
+    if std then
+        plume.std_macros[name] = macro
+    end
+
+    return macro
 end
 
---- Retrieves a macro by name.
--- @param name string The name of the macro
--- @return table The macro object
-function plume.get_macro(name)
-    return plume.macros[name]
-end
+function plume.load_macros()
+    
+-- save the name of predefined macros
+    plume.std_macros = {}
 
-
+    
 -- ## macros/controls.lua ##
 -- Define for, while, if, elseif, else control structures
 
@@ -1398,7 +1413,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     
     
     return table.concat(result, "")
-end)
+end, nil, false, true)
 
 plume.register_macro("while", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua while control structure.
@@ -1424,7 +1439,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     end
 
     return table.concat(result, "")
-end)
+end, nil, false, true)
 
 plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua if control structure.
@@ -1436,7 +1451,7 @@ plume.register_macro("if", {"condition", "body"}, {}, function(args)
         return args.body:render()
     end
     return "", not condition
-end)
+end, nil, false, true)
 
 plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
@@ -1451,7 +1466,7 @@ plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_send
     end
 
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
@@ -1471,7 +1486,7 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
         condition = true
     end
     return "", not condition
-end)
+end, nil, false, true)
 
 plume.register_macro("do", {"body"}, {}, function(args, self_token)
     
@@ -1480,8 +1495,8 @@ plume.register_macro("do", {"body"}, {}, function(args, self_token)
     plume.pop_scope ()
 
     return result
-end) 
-
+end, nil, false, true) 
+    
 -- ## macros/utils.lua ##
 -- Define some useful macro like def, set, alias...
 
@@ -1489,19 +1504,21 @@ end)
 -- @param name string the name to test
 -- @param redef boolean Whether this is a redefinition
 -- @param redef_forced boolean Whether to force redefinition of standard macros
-local function test_macro_name_available (name, redef, redef_forced)
+local function test_macro_name_available (name, redef, redef_forced, calling_token)
+    local std_macro = plume.std_macros[name]
+    local macro     = (calling_token.context or plume.current_scope()).macros[name]
     -- Test if the name is taken by standard macro
-    if plume.std_macros[name] then
+    if std_macro then
         if not redef_forced then
             local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
             return false, msg
         end
 
     -- Test if this macro already exists
-    elseif plume.macros[name] then
+    elseif macro then
         if not redef then
             local msg = "The macro '" .. name .. "' already exist"
-            local first_definition = plume.macros[name].token
+            local first_definition = macro.token
 
             if first_definition then
                 msg = msg
@@ -1538,7 +1555,7 @@ local function def (def_args, redef, redef_forced, calling_token)
         plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
-    local available, msg = test_macro_name_available (name, redef, redef_forced)
+    local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
     if not available then
         plume.error(def_args["$name"], msg)
     end
@@ -1604,17 +1621,17 @@ plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_t
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, calling_token)
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, calling_token)
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, true, calling_token)
     return ""
-end)
+end, nil, false, true)
 
 local function set(args, calling_token, is_local)
     -- A macro to set variable to a value
@@ -1637,21 +1654,21 @@ end
 plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, args.__args["local"])
     return ""
-end)
+end, nil, false, true)
 
 plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, true)
     return ""
-end)
+end, nil, false, true)
 
 
-plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
+plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
     -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
 
     -- Test if name2 is available
-    local available, msg = test_macro_name_available (name2)
+    local available, msg = test_macro_name_available (name2, false, false, calling_token)
     if not available then
         -- Remove the last sentence of the error message
         -- (the reference to redef)
@@ -1659,36 +1676,39 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args)
         plume.error(args.name2, msg)
     end
 
-    plume.macros[name2] = plume.macros[name1]
+    local scope = calling_token.context or plume.current_scope ()
+    scope.macros[name2] = scope.macros[name1]
     return ""
-end)
+end, nil, false, true)
 
 
-plume.register_macro("default", {"$name"}, {}, function(args)
+plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
     -- Get the provided macro name
     local name = args["$name"]:render()
 
+    local scope = ((calling_token.context) or plume.current_scope())
+
     -- Check if this macro exists
-    if not plume.macros[name] then
+    if not scope.macros[name] then
         plume.error_macro_not_found(args["name"], name)
     end
 
     -- Add all arguments (except name) in user_opt_args
     for k, v in pairs(args) do
         if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            plume.macros[name].user_opt_args[k] = v
+            scope.macros[name].user_opt_args[k] = v
         end
     end
     for k, v in ipairs(args.__args) do
-        plume.macros[name].user_opt_args[k] = v
+        scope.macros[name].user_opt_args[k] = v
     end
 
-end)
+end, nil, false, true)
 
 plume.register_macro("raw", {"body"}, {}, function(args)
     -- Return content without execute it
     return args['body']:source ()
-end)
+end, nil, false, true)
 
 plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
     -- Edit configuration
@@ -1703,8 +1723,8 @@ plume.register_macro("config", {"name", "value"}, {}, function(args, calling_tok
     end
 
     config[name] = value
-end) 
-
+end, nil, false, true) 
+    
 -- ## macros/files.lua ##
 -- Define macro related to files
 
@@ -1801,7 +1821,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     local f = plume.eval_lua_expression (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
     return f()
-end)
+end, nil, false, true)
 
 plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     --  Execute the given file and return the output
@@ -1839,7 +1859,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     plume.pop_scope ()
 
     return result
-end)
+end, nil, false, true)
 
 plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     -- Include a file without execute it
@@ -1853,7 +1873,7 @@ plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     local file, filepath = plume.open (args.path, formats, path)
 
     return file:read("*a")
-end)
+end, nil, false, true)
 
 plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
     -- Capture content and save it in a file.
@@ -1873,8 +1893,8 @@ plume.register_macro("file", {"path", "content"}, {}, function (args, calling_to
 
     return ""
 
-end) 
-
+end, nil, false, true) 
+    
 -- ## macros/script.lua ##
 -- Define script-related macro
 
@@ -1888,7 +1908,7 @@ plume.register_macro("script", {"body"}, {}, function(args)
     end
     
     return result
-end)
+end, nil, false, true)
 
 local function scientific_notation (x, n, sep)
     local n = n or 0
@@ -1993,8 +2013,8 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
     end
     
     return result
-end) 
-
+end, nil, false, true) 
+    
 -- ## macros/spaces.lua ##
 -- Define spaces-related macros
 
@@ -2004,7 +2024,7 @@ plume.register_macro("n", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\n"):rep(count)
-end)
+end, nil, false, true)
 
 plume.register_macro("s", {}, {}, function(args)
     local count = 1
@@ -2012,7 +2032,7 @@ plume.register_macro("s", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return (" "):rep(count)
-end)
+end, nil, false, true)
 
 plume.register_macro("t", {}, {}, function(args)
     local count = 1
@@ -2020,12 +2040,8 @@ plume.register_macro("t", {}, {}, function(args)
         count = args.__args[1]:render()
     end
     return ("\t"):rep(count)
-end) 
-
--- Save predifined macro to permit reset of plume
-plume.std_macros = {}
-for k, v in pairs(plume.macros) do
-    plume.std_macros[k] = v
+end, nil, false, true) 
+    
 end
 
 -- ## runtime.lua ##
@@ -2234,6 +2250,33 @@ function plume.create_scope (parent, source)
 make_field (scope, "variables", parent, source)
     make_field (scope, "macros", parent, source)
 
+    --- Returns all variables of the given field that are visible from this scope.
+    -- @param self table The current scope.
+    -- @param field string The field from which to retrieve variables.
+    -- @return table A table containing all variables from the given field.
+    function scope.get_all(self, field)
+        local t = {}
+        
+        if source then
+            for _, k in ipairs(source:get_all(field)) do
+                table.insert(t, k)
+            end
+        else
+            for k, _ in pairs(self[field]) do
+                table.insert(t, k)
+            end
+        end
+
+        -- If a parent scope exists, recursively get variables from the parent's field
+        if parent then
+            for  _, k in ipairs(parent:get_all(field)) do
+                table.insert(t, k)
+            end
+        end
+
+        return t
+    end
+
     return scope
 end
 
@@ -2268,6 +2311,8 @@ end
 function plume.current_scope ()
     return plume.scopes[#plume.scopes]
 end
+
+
 
 -- ## init.lua ##
 -- Initialisation of Plume - TextEngine
@@ -2335,14 +2380,8 @@ function plume.init ()
     for k, v in pairs(plume.lua_std_functions) do
         plume.scopes[1].variables[k] = v
     end
-
-    -- Add all std macros to
-    -- the macro table
-    plume.macros = {}
-    for k, v in pairs(plume.std_macros) do
-        v.user_opt_args = {}
-        plume.macros[k] = v
-    end
+    
+    plume.load_macros()
 
     -- Initialise error tracing
     plume.last_error = nil
