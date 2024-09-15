@@ -75,7 +75,7 @@ function plume.init ()
     -- Add all std function into
     -- global scope
     for k, v in pairs(plume.lua_std_functions) do
-        plume.scopes[1][k] = v
+        plume.scopes[1].variables[k] = v
     end
 
     -- Add all std macros to

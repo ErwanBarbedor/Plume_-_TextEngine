@@ -148,8 +148,8 @@ function plume.cli_main ()
     -- Initialize with the input file
     local currentDirectory = getCurrentDirectory ()
     plume.init (input)
-    plume.current_scope().plume.input_file  = absolutePath(currentDirectory, input)
-    plume.current_scope().plume.output_file = absolutePath(currentDirectory, output)
+    plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input)
+    plume.current_scope().variables.plume.output_file = absolutePath(currentDirectory, output)
 
     -- Render the file and capture success or error
     success, result = pcall(plume.renderFile, input)

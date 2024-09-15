@@ -112,7 +112,7 @@ local function def (def_args, redef, redef_forced, calling_token)
 
         -- add all args in the current scope
         for k, v in pairs(args) do
-            plume.scope_set_local(k, v)
+            plume.scope_set_local("variables", k, v)
         end
 
         local body = def_args["$body"]:copy ()
@@ -157,9 +157,9 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
     
     if is_local then
-        plume.scope_set_local (key, value, calling_token.context)
+        plume.scope_set_local ("variables", key, value, calling_token.context)
     else
-        (calling_token.context or plume.current_scope())[key] = value 
+        (calling_token.context or plume.current_scope()).variables[key] = value 
     end
 end
 

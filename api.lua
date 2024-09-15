@@ -26,7 +26,7 @@ function api.capture_local()
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.scope_set_local(key, value, calling_token.context)
+            plume.scope_set_local("variables", key, value, calling_token.context)
         else
             break
         end
@@ -48,14 +48,14 @@ end
 -- @param key string
 -- @param value string
 function api.get (key)
-    return plume.current_scope()[key]
+    return plume.current_scope().variables[key]
 end
 
 --- Shortcut for api.get(key):render ()
 -- @param key string
 -- @param value string
 function api.get_render (key)
-    local result = plume.current_scope()[key]
+    local result = plume.current_scope().variables[key]
     if type(result) == table and result.render then
         return result:render ()
     else
@@ -69,7 +69,7 @@ api.getr = api.get_render
 -- @param key string
 -- @param value string
 function api.lua_get (key)
-    local result = plume.current_scope()[key]
+    local result = plume.current_scope().variables[key]
     if type(result) == table and result.renderLua then
         return result:renderLua ()
     else
@@ -127,7 +127,7 @@ end
 
 --- Initializes the API methods visible to the user.
 function plume.init_api ()
-    local scope = plume.current_scope ()
+    local scope = plume.current_scope ().variables
     scope.plume = {}
 
     -- keep a reference

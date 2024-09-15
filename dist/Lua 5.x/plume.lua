@@ -1332,7 +1332,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     -- Load and create the coroutine
     -- plume.push_scope ()
     local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
-    plume.setfenv (iterator_coroutine, calling_token.context or plume.current_scope ())
+    plume.setfenv (iterator_coroutine, (calling_token.context or plume.current_scope ()).variables)
     local co = iterator_coroutine ()
     -- plume.pop_scope ()
     
@@ -1381,7 +1381,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Set local variables in the current scope
         for i=1, #variables_list do
-            plume.scope_set_local (variables_list[i], values_list[i])
+            plume.scope_set_local ("variables", variables_list[i], values_list[i])
         end
 
         -- print("::", plume.current_scope ())
@@ -1583,7 +1583,7 @@ local function def (def_args, redef, redef_forced, calling_token)
 
         -- add all args in the current scope
         for k, v in pairs(args) do
-            plume.scope_set_local(k, v)
+            plume.scope_set_local("variables", k, v)
         end
 
         local body = def_args["$body"]:copy ()
@@ -1628,9 +1628,9 @@ local function set(args, calling_token, is_local)
     value = tonumber(value) or value
     
     if is_local then
-        plume.scope_set_local (key, value, calling_token.context)
+        plume.scope_set_local ("variables", key, value, calling_token.context)
     else
-        (calling_token.context or plume.current_scope())[key] = value 
+        (calling_token.context or plume.current_scope()).variables[key] = value 
     end
 end
 
@@ -1830,7 +1830,7 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
             end
         end
 
-        plume.scope_set_local("__file_args", file_args)
+        plume.scope_set_local("variables", "__file_args", file_args)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)
@@ -2153,7 +2153,7 @@ function plume.call_lua_chunk(token, code, filename)
                 -- scope, execute inside it.
                 -- Else, execute inside current scope.
                 local chunk_scope = token.context or plume.current_scope ()
-                plume.setfenv (loaded_function, chunk_scope)
+                plume.setfenv (loaded_function, chunk_scope.variables)
 
                 return { xpcall (loaded_function, plume.error_handler) }
             end
@@ -2190,33 +2190,44 @@ end
 -- @return table The new scope
 function plume.create_scope (parent, source)
     local scope = {}
-    -- Add a self-reference
-    scope.__scope = scope
 
     
-return setmetatable(scope, {
+scope.variables = setmetatable({}, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
             -- call parent
-            local value = rawget(source or self, key)
+            local value
+            if source then
+                value = rawget(source.variables, key)
+            else
+                value = rawget(self, key)
+            end
+
             if value then
                 return value
             elseif parent then
-                return parent[key]
+                return parent.variables[key]
             end
         end,
         __newindex = function (self, key, value)
             -- Register new value
             -- if has parent and do not have the key,
             -- send value to parent. Else, register it.
-            if parent and not (source and rawget(source, key))then
-                parent[key] = value
+            if parent and not (source and rawget(source.variables, key)) then
+                parent.variables[key] = value
+            elseif source then
+                rawset(source.variables, key, value)
             else
-                rawset(source or self, key, value)
+                rawset(self, key, value)
             end
         end,
     })
+
+    -- Add a self-reference
+    scope.variables.__scope = scope.variables
+
+    return scope
 end
 
 --- Creates a new scope with the penultimate scope as parent.
@@ -2238,11 +2249,11 @@ end
 -- @param key string The key to set
 -- @param value any The value to set
 -- @param scope table The scope to set the variable in (optional)
-function plume.scope_set_local (key, value, scope)
+function plume.scope_set_local (field, key, value, scope)
     -- Register a variable locally
     -- If not provided, "scope" is the last created.
     local scope = scope or plume.current_scope ()
-    rawset (scope, key, value)
+    rawset (scope[field], key, value)
 end
 
 --- Returns the current scope.
@@ -2315,7 +2326,7 @@ function plume.init ()
     -- Add all std function into
     -- global scope
     for k, v in pairs(plume.lua_std_functions) do
-        plume.scopes[1][k] = v
+        plume.scopes[1].variables[k] = v
     end
 
     -- Add all std macros to
@@ -2346,7 +2357,7 @@ function api.capture_local()
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.scope_set_local(key, value, calling_token.context)
+            plume.scope_set_local("variables", key, value, calling_token.context)
         else
             break
         end
@@ -2368,14 +2379,14 @@ end
 -- @param key string
 -- @param value string
 function api.get (key)
-    return plume.current_scope()[key]
+    return plume.current_scope().variables[key]
 end
 
 --- Shortcut for api.get(key):render ()
 -- @param key string
 -- @param value string
 function api.get_render (key)
-    local result = plume.current_scope()[key]
+    local result = plume.current_scope().variables[key]
     if type(result) == table and result.render then
         return result:render ()
     else
@@ -2389,7 +2400,7 @@ api.getr = api.get_render
 -- @param key string
 -- @param value string
 function api.lua_get (key)
-    local result = plume.current_scope()[key]
+    local result = plume.current_scope().variables[key]
     if type(result) == table and result.renderLua then
         return result:renderLua ()
     else
@@ -2447,7 +2458,7 @@ end
 
 --- Initializes the API methods visible to the user.
 function plume.init_api ()
-    local scope = plume.current_scope ()
+    local scope = plume.current_scope ().variables
     scope.plume = {}
 
     -- keep a reference
@@ -2631,8 +2642,8 @@ function plume.cli_main ()
     -- Initialize with the input file
     local currentDirectory = getCurrentDirectory ()
     plume.init (input)
-    plume.current_scope().plume.input_file  = absolutePath(currentDirectory, input)
-    plume.current_scope().plume.output_file = absolutePath(currentDirectory, output)
+    plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input)
+    plume.current_scope().variables.plume.output_file = absolutePath(currentDirectory, output)
 
     -- Render the file and capture success or error
     success, result = pcall(plume.renderFile, input)

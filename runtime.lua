@@ -136,7 +136,7 @@ function plume.call_lua_chunk(token, code, filename)
                 -- scope, execute inside it.
                 -- Else, execute inside current scope.
                 local chunk_scope = token.context or plume.current_scope ()
-                plume.setfenv (loaded_function, chunk_scope)
+                plume.setfenv (loaded_function, chunk_scope.variables)
 
                 return { xpcall (loaded_function, plume.error_handler) }
             end
@@ -173,8 +173,6 @@ end
 -- @return table The new scope
 function plume.create_scope (parent, source)
     local scope = {}
-    -- Add a self-reference
-    scope.__scope = scope
 
     -- <DEV>
     if parent then
@@ -184,29 +182,42 @@ function plume.create_scope (parent, source)
     scope.__childs = {}
     -- </DEV>
 
-    return setmetatable(scope, {
+    scope.variables = setmetatable({}, {
         __index = function (self, key)
             -- Return registered value.
             -- If value is nil, recursively
             -- call parent
-            local value = rawget(source or self, key)
+            local value
+            if source then
+                value = rawget(source.variables, key)
+            else
+                value = rawget(self, key)
+            end
+
             if value then
                 return value
             elseif parent then
-                return parent[key]
+                return parent.variables[key]
             end
         end,
         __newindex = function (self, key, value)
             -- Register new value
             -- if has parent and do not have the key,
             -- send value to parent. Else, register it.
-            if parent and not (source and rawget(source, key))then
-                parent[key] = value
+            if parent and not (source and rawget(source.variables, key)) then
+                parent.variables[key] = value
+            elseif source then
+                rawset(source.variables, key, value)
             else
-                rawset(source or self, key, value)
+                rawset(self, key, value)
             end
         end,
     })
+
+    -- Add a self-reference
+    scope.variables.__scope = scope.variables
+
+    return scope
 end
 
 --- Creates a new scope with the penultimate scope as parent.
@@ -228,11 +239,11 @@ end
 -- @param key string The key to set
 -- @param value any The value to set
 -- @param scope table The scope to set the variable in (optional)
-function plume.scope_set_local (key, value, scope)
+function plume.scope_set_local (field, key, value, scope)
     -- Register a variable locally
     -- If not provided, "scope" is the last created.
     local scope = scope or plume.current_scope ()
-    rawset (scope, key, value)
+    rawset (scope[field], key, value)
 end
 
 --- Returns the current scope.
