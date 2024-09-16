@@ -264,6 +264,10 @@ a b baz
 bar
 ```
 
+### `\ldef`
+
+**Description:** Defines a new macro, local to the current scope. Dont do any check.
+
 ### `\set`
 
 **Description:** Sets a variable to a value.
