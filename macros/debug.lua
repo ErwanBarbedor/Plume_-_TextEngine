@@ -14,15 +14,15 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Tools for debuging during developpement.
 
-plume.register_macro("stop", {}, {}, function(args, calling_token)
+plume.register_macro("stop", {""}, {}, function(args, calling_token)
     plume.error(calling_token, "Program ends by macro.")
 end)
 
-local function print_env(env, indent)
+local function print_env(env, field, indent)
     indent = indent or ""
     print(indent .. tostring(env))
     print(indent .. "Variables :")
-    for k, v in pairs(env) do
+    for k, v in pairs(env[field]) do
         if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
             local source = ""
             local context = ""
@@ -38,11 +38,11 @@ local function print_env(env, indent)
     end
     print(indent .. "Sub-envs :")
     for _, child in ipairs(env.__childs) do
-        print_env (child, indent.."\t")
+        print_env (child, field, indent.."\t")
     end
 end
 
-plume.register_macro("print_env", {}, {}, function(args, calling_token)
+plume.register_macro("print_env", {"field"}, {}, function(args, calling_token)
     print("=== Environnement informations ===")
-    print_env (plume.scopes[1])
+    print_env (plume.scopes[1], args.field:render())
 end, nil, false, true)
