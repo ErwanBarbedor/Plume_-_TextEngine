@@ -30,7 +30,7 @@ for lua_version in ("5.1 5.2 5.3 5.4 5.x"):gmatch('%S+') do
         end)
     end
 
-    code = code:gsub('%-%- <DEV>.-</DEV>%s*', '\n')
+    -- code = code:gsub('%-%- <DEV>.-</DEV>%s*', '\n')
 
     if lua_version ~= "5.x" then
         code = code:gsub('%-%- <Lua (.-)>\r*\n%s*if .- then(.-)end\r\n%s*%-%- </Lua[^\n]*\r\n', function (v, m)

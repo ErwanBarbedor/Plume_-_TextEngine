@@ -114,6 +114,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 #### Changes
 - Macros now use scopes, like variables. (but cannot be accessed from plume script)
 - New macro `\ldef`.
+- Remove access to macro local variables from other macros called inside.
+
 
 
 ### 0.4.0

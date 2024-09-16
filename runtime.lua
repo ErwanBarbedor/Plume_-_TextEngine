@@ -271,7 +271,7 @@ end
 --- Creates a new scope with the penultimate scope as parent.
 function plume.push_scope (scope)
     local last_scope = plume.current_scope ()
-    local new_scope = plume.create_scope (last_scope, scope)
+    local new_scope = plume.create_scope (scope or last_scope)
 
     table.insert(plume.scopes, new_scope)
 end

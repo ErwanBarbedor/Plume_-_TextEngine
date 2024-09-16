@@ -792,8 +792,15 @@ function plume.tokenize (code, file)
     end
     write ()
 
-    
-return result
+    -- <DEV>
+    if plume.show_token then
+        for _, token in ipairs(result) do
+            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
+        end
+    end
+    -- </DEV>
+
+    return result
 end
 
 -- ## parse.lua ##
@@ -1281,8 +1288,14 @@ function plume.register_macro (name, args, default_opt_args, macro, token, is_lo
 end
 
 function plume.load_macros()
-    
--- save the name of predefined macros
+    -- <DEV>
+    -- Clear cached packages
+    for m in ("controls utils files script spaces debug"):gmatch('%S+') do
+         package.loaded["macros/"..m] = nil
+    end
+    -- </DEV>
+
+    -- save the name of predefined macros
     plume.std_macros = {}
 
     
@@ -2044,7 +2057,44 @@ plume.register_macro("t", {}, {}, function(args)
     end
     return ("\t"):rep(count)
 end, nil, false, true) 
+    -- <DEV>
     
+-- ## macros/debug.lua ##
+-- Tools for debuging during developpement.
+
+plume.register_macro("stop", {""}, {}, function(args, calling_token)
+    plume.error(calling_token, "Program ends by macro.")
+end)
+
+local function print_env(env, field, indent)
+    indent = indent or ""
+    print(indent .. tostring(env))
+    print(indent .. "Variables :")
+    for k, v in pairs(env[field]) do
+        if k ~= "__scope" and k ~= "__parent" and k ~= "__childs" and not plume.lua_std_functions[k] then
+            local source = ""
+            local context = ""
+            if type(v) == "table" and v.source then
+                source = ": source='" .. v:source():gsub('\n', '\\n') .. "'"
+            end
+            if type(v) == "table" and v.context then
+                context = ": context='" .. tostring(v.context) .. "'"
+            end
+
+            print(indent.."\t".. k .. " : ", v, source, context)
+        end
+    end
+    print(indent .. "Sub-envs :")
+    for _, child in ipairs(env.__childs) do
+        print_env (child, field, indent.."\t")
+    end
+end
+
+plume.register_macro("print_env", {"field"}, {}, function(args, calling_token)
+    print("=== Environnement informations ===")
+    print_env (plume.scopes[1], args.field:render())
+end, nil, false, true) 
+    -- </DEV>
 end
 
 -- ## runtime.lua ##
@@ -2232,8 +2282,15 @@ end
 function plume.create_scope (parent, source)
     local scope = {}
 
-    
-make_field (scope, "variables", parent, source)
+    -- <DEV>
+    if parent then
+        scope.__parent = parent
+        table.insert(parent.__childs, scope)
+    end
+    scope.__childs = {}
+    -- </DEV>
+
+    make_field (scope, "variables", parent, source)
     make_field (scope, "macros", parent, source)
 
     --- Returns all variables of the given field that are visible from this scope.
@@ -2283,7 +2340,7 @@ end
 --- Creates a new scope with the penultimate scope as parent.
 function plume.push_scope (scope)
     local last_scope = plume.current_scope ()
-    local new_scope = plume.create_scope (last_scope, scope)
+    local new_scope = plume.create_scope (scope or last_scope)
 
     table.insert(plume.scopes, new_scope)
 end
@@ -2478,6 +2535,34 @@ function plume.init_api ()
     end
 end
 
+-- <DEV>
+plume.show_token = false
+local function print_tokens(t, indent)
+    local function print_token_info (token)
+        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
+    end
+
+    indent = indent or ""
+    for _, token in ipairs(t) do
+        if token.kind == "block" or token.kind == "opt_block" then
+            print_token_info(token)
+            print_tokens(token, "\t"..indent)
+        
+        elseif token.kind == "block_text" then
+            local value = ""
+            for _, txt in ipairs(token) do
+                value = value .. txt.value
+            end
+            print_token_info(token)
+        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
+            print_token_info (token)
+            print_tokens(token, "\t"..indent)
+        else
+            print_token_info(token)
+        end
+    end
+end
+-- </DEV>
 
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
@@ -2488,8 +2573,13 @@ function plume.render (code, file)
     
     tokens = plume.tokenize(code, file)
     tokens = plume.parse(tokens)
-    
-result = tokens:render()
+    -- <DEV>
+    if plume.show_token then
+        print "--------"
+        print_tokens(tokens)
+    end
+    -- </DEV>
+    result = tokens:render()
     
     return result
 end
