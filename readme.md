@@ -113,7 +113,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Macros now use scopes, like variables. (but cannot be accessed from plume script)
-- New macros `\ldef`, `\lredef`, `\lredef_forced`
+- New macro `\ldef`.
 
 
 ### 0.4.0

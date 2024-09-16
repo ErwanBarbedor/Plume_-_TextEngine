@@ -1271,7 +1271,7 @@ function plume.register_macro (name, args, default_opt_args, macro, token, is_lo
     local scope = plume.current_scope(token and token.context)
 
     if is_local then
-        tscope.set_local ("macros", name, macro)
+        scope:set_local ("macros", name, macro)
     else
         scope.macros[name] = macro
     end
@@ -1541,8 +1541,10 @@ end
 -- @param def_args table The arguments for the macro definition
 -- @param redef boolean Whether this is a redefinition
 -- @param redef_forced boolean Whether to force redefinition of standard macros
+-- @param is_local boolean Whether the macro is local
 -- @param calling_token token The token where the macro is being defined
-local function def (def_args, redef, redef_forced, calling_token)
+local function def (def_args, redef, redef_forced, is_local, calling_token)
+
     -- Get the provided macro name
     local name = def_args["$name"]:render()
 
@@ -1551,9 +1553,11 @@ local function def (def_args, redef, redef_forced, calling_token)
         plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
     end
 
-    local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
-    if not available then
-        plume.error(def_args["$name"], msg)
+    if not is_local then
+        local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
+        if not available then
+            plume.error(def_args["$name"], msg)
+        end
     end
 
     -- All args (except $name, $body and __args) are optional args
@@ -1615,19 +1619,25 @@ end
 
 plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_args, false, false, calling_token)
+    def (def_args, false, false, false, calling_token)
     return ""
 end, nil, false, true)
 
 plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
-    def (def_args, true, false, calling_token)
+    def (def_args, true, false, false, calling_token)
     return ""
 end, nil, false, true)
 
 plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
-    def (def_args, true, true, calling_token)
+    def (def_args, true, true, false, calling_token)
     return ""
 end, nil, false, true)
+
+plume.register_macro("ldef", {"$name", "$body"}, {}, function(def_args, calling_token)
+    -- '$' in arg name, so they cannot be erased by user
+    def (def_args, false, false, true, calling_token)
+    return ""
+end, nil, true, true)
 
 local function set(args, calling_token, is_local)
     -- A macro to set variable to a value
