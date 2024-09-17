@@ -1031,7 +1031,6 @@ local function lua_info (lua_message)
     end
 
     local line = get_line (token:source (), noline)
-    print(lua_message)
 
     return {
         file     = token:info().file,
@@ -1736,7 +1735,7 @@ plume.register_macro("config", {"name", "value"}, {}, function(args, calling_tok
     config[name] = value
 end, nil, false, true)
 
-function plume.deprecate(name, version, alternative)
+function plume.deprecate (name, version, alternative)
     local macro = plume.current_scope()["macros"][name]
 
     if not macro then
@@ -1744,8 +1743,6 @@ function plume.deprecate(name, version, alternative)
     end
 
     local macro_f = macro.macro
-
-
 
     macro.macro = function (args, calling_token)
         if plume.config.show_deprecation_warnings then
@@ -2437,8 +2434,15 @@ function plume.init ()
     for k, v in pairs(plume.lua_std_functions) do
         plume.scopes[1].variables[k] = v
     end
-    
+
+
     plume.load_macros()
+
+    -- Deprecate set, setl and script
+    for name in ("set setl script"):gmatch('%S+') do
+        plume.deprecate(name, "1.0", "#")
+    end
+    
 
     -- Initialise error tracing
     plume.last_error = nil

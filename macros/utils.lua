@@ -249,7 +249,7 @@ plume.register_macro("config", {"name", "value"}, {}, function(args, calling_tok
     config[name] = value
 end, nil, false, true)
 
-function plume.deprecate(name, version, alternative)
+function plume.deprecate (name, version, alternative)
     local macro = plume.current_scope()["macros"][name]
 
     if not macro then
@@ -257,8 +257,6 @@ function plume.deprecate(name, version, alternative)
     end
 
     local macro_f = macro.macro
-
-
 
     macro.macro = function (args, calling_token)
         if plume.config.show_deprecation_warnings then

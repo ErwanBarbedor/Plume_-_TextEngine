@@ -77,8 +77,15 @@ function plume.init ()
     for k, v in pairs(plume.lua_std_functions) do
         plume.scopes[1].variables[k] = v
     end
-    
+
+
     plume.load_macros()
+
+    -- Deprecate set, setl and script
+    for name in ("set setl script"):gmatch('%S+') do
+        plume.deprecate(name, "1.0", "#")
+    end
+    
 
     -- Initialise error tracing
     plume.last_error = nil
