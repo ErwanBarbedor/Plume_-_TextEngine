@@ -7,7 +7,7 @@
 // End
 
 // Test 'Variable block scope 2'
-\def bar[x] {\set[local] y 1 #x}//
+\def bar[x] {#{local y = 1} #x}//
 \def foo {\bar #y}//
 \foo
 // Result
@@ -18,7 +18,7 @@
 \def foo[x] {#x}//
 \def bar[x] {#x}//
 \foo {//
-    \set x 3//
+    #{x=3}//
     \bar{#x}//
 }//
 // Result
@@ -46,7 +46,7 @@ baz
 // End
 
 // Test 'Variable block scope 6'
-\def foo[x]{#x}\def bar[x]{#x}\bar {\foo {\setl x 0 #x}}
+\def foo[x]{#x}\def bar[x]{#x}\bar {\foo {#{local x=0} #x}}
 // Result
  0
 // End
@@ -59,7 +59,7 @@ baz
 // End
 
 // Test 'global 1'
-\def foo {\set x 0}//
+\def foo {#{x=0}}//
 \foo//
 #x//
 // Result
@@ -67,8 +67,8 @@ baz
 // End
 
 // Test 'global 2'
-\def foo {\set x 0}//
-\set x 1//
+\def foo {#{x=0}}//
+#{x=1}//
 \foo//
 #x//
 // Result
@@ -110,7 +110,7 @@ baz
 // End
 
 // Test 'Local test 1'
-\script{
+#{
     local a = 4
 }//
 #a
@@ -123,7 +123,7 @@ baz
 //
 \def bar {//
     \foo {//
-        \script{local x=5}//
+        #{local x=5}//
         #x//
     }//
 }//

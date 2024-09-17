@@ -11,25 +11,25 @@
 // End
 
 // Test 'eval and set'
-\set a #{1+1}#a
+#{a = 1+1}#a
 // Result
 2
 // End
 
 // Test 'var'
-\set a 4 #a
+#{a = 4} #a
 // Result
  4
 // End
 
 // Test 'type 2'
-\set a 2#{type(a)}
+#{a = 2}#{type(a)}
 // Result
 number
 // End
 
 // Test 'type 3'
-\set a #{2}
+#{a = 2}
 #{type(a)}
 // Result
 
@@ -37,19 +37,13 @@ number
 // End
 
 // Test 'type 4'
-\set a #{\{\}}#{type(a)}
-// Result
-table
-// End
-
-// Test 'type 5'
-\set a #{{}}#{type(a)}
+#{a={}}#{type(a)}
 // Result
 table
 // End
 
 // Test 'type 6'
-\set a #{function (x) return 2*x end}
+#{a = function (x) return 2*x end}
 #{a(5)}
 // Result
 
@@ -57,13 +51,13 @@ table
 // End
 
 // Test 'Capture 1'
-\set a #{10}#a+1
+#{a = 10}#a+1
 // Result
 10+1
 // End
 
 // Test 'Capture 2'
-\set a #{10}#{a+1}
+#{a = 10}#{a+1}
 // Result
 11
 // End
@@ -81,60 +75,60 @@ table
 // End
 
 // Test 'Eval syntax error 5.1 and jit'
-\set a #{a+}
+#{a = a+}
 // Error Lua 5.1 Lua jit
 File 'string', line 1 : (lua error) unexpected symbol near '<eof>'
-    a+
-    ^^
+    a = a+
+    ^^^^^^
 Traceback :
-    File 'string', line 1 : \set a #{a+}
-                                    ^^^^
-    File 'string', line 1 : \set a #{a+}
-                            ^^^^
+    File 'string', line 1 : #{a = a+}
+                             ^^^^^^^^
+    File 'string', line 1 : #{a = a+}
+                            ^
 // End
 
 // Test 'Eval syntax error 5.4'
-\set a #{a+}
+#{a = a+}
 // Error Lua 5.2 Lua 5.3 Lua 5.4
 File 'string', line 1 : (lua error) unexpected symbol near <eof>
-    a+
-    ^^
+    a = a+
+    ^^^^^^
 Traceback :
-    File 'string', line 1 : \set a #{a+}
-                                    ^^^^
-    File 'string', line 1 : \set a #{a+}
-                            ^^^^
+    File 'string', line 1 : #{a = a+}
+                             ^^^^^^^^
+    File 'string', line 1 : #{a = a+}
+                            ^
 // End
 
 // Test 'Eval lua error 5.1, 5.2, 5.3'
-\set a #{""+1}
+#{a = ""+1}
 // Error Lua 5.1 Lua 5.2 Lua 5.3
 File 'string', line 1 : (lua error) attempt to perform arithmetic on a string value
-    ""+1
-    ^^^^
+    a = ""+1
+    ^^^^^^^^
 Traceback :
-    File 'string', line 1 : \set a #{""+1}
-                                    ^^^^^^
-    File 'string', line 1 : \set a #{""+1}
-                            ^^^^
+    File 'string', line 1 : #{a = ""+1}
+                             ^^^^^^^^^^
+    File 'string', line 1 : #{a = ""+1}
+                            ^
 // End
 
 // Test 'Eval lua error 5.4'
-\set a #{""+1}
+#{a = ""+1}
 // Error Lua 5.4
 File 'string', line 1 : (lua error) attempt to add a 'string' with a 'number'
-    ""+1
-    ^^^^
+    a = ""+1
+    ^^^^^^^^
 Traceback :
-    File 'string', line 1 : \set a #{""+1}
-                                    ^^^^^^
-    File 'string', line 1 : \set a #{""+1}
-                            ^^^^
+    File 'string', line 1 : #{a = ""+1}
+                             ^^^^^^^^^^
+    File 'string', line 1 : #{a = ""+1}
+                            ^
 // End
 
 
 // Test 'Chain errors (eval) 5.1 and jit'
-\script{
+#{
     function foo()
         bar()
     end
@@ -158,7 +152,7 @@ Traceback :
 // End
 
 // Test 'Chain errors (eval) 5.4'
-\script{
+#{
     function foo()
         bar()
     end

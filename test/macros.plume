@@ -30,7 +30,7 @@ foo foo
 
 // Test 'macro args are local'
 \def foo[x]{This is x:#x}//
-\set x 0//
+#{x = 0}//
 This is x:#x
 \foo{5}
 This is x:#x

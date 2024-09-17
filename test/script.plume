@@ -1,5 +1,5 @@
 // Test 'script 1'
-\script{
+#{
     a = 5
     b = 3
 }
@@ -8,7 +8,7 @@
 // End
 
 // Test 'script 2'
-\script{
+#{
     a = 5
     b = 3
 }#a
@@ -18,7 +18,7 @@
 
 // Test 'script 3'
 \def foo {//
-    \script{
+    #{
         local a = 5
         b = 3
     }//
@@ -30,14 +30,14 @@
 // End
 
 // Test 'script cannot return value'
-\script{return 5}
+#{return 5}
 // Error
 File 'string', line 1 : \script cannot return value.
-    \script{return 5}
-           ^^^^^^^^^^
+    #{return 5}
+     ^^^^^^^^^^
 Traceback :
-    File 'string', line 1 : \script{return 5}
-                            ^^^^^^^
+    File 'string', line 1 : #{return 5}
+                            ^
 // End
 
 // Test 'script implicit render'

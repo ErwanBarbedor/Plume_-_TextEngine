@@ -36,21 +36,21 @@ foo
 // End
 
 // Test 'Simple while'
-\set a 0//
-\while a<10 {\set a #{a+1} #a}
+#{a=0}//
+\while a<10 {#{a = a+1} #a}
 // Result
  1 2 3 4 5 6 7 8 9 10
 // End
 
 // Test 'To many loops'
-\set a 0//
-\while a<10000 {\set a #{a+1} #a}
+#{a=0}//
+\while a<10000 {#{a = a+1} #a}
 // Error
 File 'string', line 2 : To many loop repetition (over the configurated limit of 1000).
-    \while a<10000 {\set a #{a+1} #a}
+    \while a<10000 {#{a = a+1} #a}
            ^^^^^^^
 Traceback :
-    File 'string', line 2 : \while a<10000 {\set a #{a+1} #a}
+    File 'string', line 2 : \while a<10000 {#{a = a+1} #a}
                             ^^^^^^
 // End
 
@@ -66,7 +66,7 @@ Ligne 3
 // End
 
 // Test 'less simple for'
-\set x 6//
+#{x = 6}//
 \for i=1,x,2 {//
     Ligne #i
 }
@@ -78,7 +78,7 @@ Ligne 5
 // End
 
 // Test 'for throught table'
-\set t #{{1, 4, 9}}//
+#{t = {1, 4, 9}}//
 \for {k, v in ipairs(t)} {//
     #k:#v
 }
@@ -129,7 +129,7 @@ Traceback :
 // End
 
 // Test 'for - wrong variable number'
-\set t #{{1, 4, 9}}//
+#{t = {1, 4, 9}}//
 \for {i, j, k in pairs(t)} foo
 // Error
 File 'string', line 2 : Wrong number of variables, 3 instead of 2.
@@ -153,14 +153,14 @@ Traceback :
 
 // Test 'do'
 \do {//
-    \setl x 0//
+    #{local x = 0}//
     \def foo {//
-        \set x #{x+1}//
+        #{x = x+1}//
         #x
     }//
 }//
 \foo//
-\set x 5//
+#{x = 5}//
 \foo//
 // Result
 1
@@ -179,7 +179,7 @@ Traceback :
 \def foo[x] {#x}//
 \for {i=1, 2} {//
     \foo {//
-        \setl x  1//
+        #{local x = 1}//
         #i : #x
     }//
 }//

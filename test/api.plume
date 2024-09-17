@@ -1,26 +1,26 @@
 // Test 'get'
-\set a 1//
+#{a = 1}//
 #{plume.get "a"}
 // Result
 1
 // End
 
 // Test 'get local'
-\setl a 1//
+#{local a = 1}//
 #{plume.get "a"}
 // Result
 1
 // End
 
 // Test 'lget'
-\set a #{{21}}//
+#{a = {21}}//
 #{plume.lget "a"[1]}
 // Result
 21
 // End
 
 // Test 'export'
-\script{
+#{
     function add(x, y)
         return math.floor(x+y)
     end

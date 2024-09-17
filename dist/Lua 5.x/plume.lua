@@ -1040,6 +1040,7 @@ local function lua_info (lua_message)
     end
 
     local line = get_line (token:source (), noline)
+    print(lua_message)
 
     return {
         file     = token:info().file,
@@ -2149,6 +2150,33 @@ if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
 end
 -- </Lua>
 
+-- This function checks if a given string represents a Lua expression or statement based on its initial keywords.
+-- It returns true for expressions and false for statements.
+-- @param s The string to check
+-- @return boolean
+local function is_lua_expression(s)
+    local statement_keywords = {
+        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do"
+    }
+    local first_word = s:match("%s*(%S+)")
+
+    for _, keyword in ipairs(statement_keywords) do
+        if first_word == keyword then
+            return false
+        end
+    end
+
+    if s:match("^%s*[%w_%.]+%s*=%s*[^=]") then
+        return false
+    end
+
+    if s:match("^%s*function%s*[a-zA-Z]") then
+        return false
+    end
+
+    return true
+end
+
 --- Evaluates a Lua expression and returns the result.
 -- @param token table The token containing the expression
 -- @param code string The Lua code to evaluate (optional)
@@ -2156,9 +2184,15 @@ end
 -- @return any The result of the evaluation
 function plume.eval_lua_expression (token, code, filename)
     code = code or token:source ()
-    code = 'return ' .. code
 
-    return plume.call_lua_chunk (token, code, filename)
+    if is_lua_expression (code) then
+        code = 'return ' .. code
+        return plume.call_lua_chunk (token, code, filename)
+    else
+        return plume.call_lua_statements (token, code, filename)
+    end
+
+    
 end
 
 --- Call Lua Statements

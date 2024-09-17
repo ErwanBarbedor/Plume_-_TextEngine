@@ -167,6 +167,7 @@ local function lua_info (lua_message)
     end
 
     local line = get_line (token:source (), noline)
+    print(lua_message)
 
     return {
         file     = token:info().file,
