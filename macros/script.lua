@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License along with Plu
 
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = plume.call_lua_statements(args.body)
+    local result = plume.call_lua_chunck(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -55,7 +55,7 @@ local function scientific_notation (x, n, sep)
     return mantissa.. "e10^" .. exposant
 end
 
-plume.register_macro("eval", {"expr"}, {}, function(args)
+plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     -- Get optionnals args
     local remove_zeros
     local format
@@ -89,7 +89,8 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
         d_sep = "."
     end
 
-    local result = plume.eval_lua_expression(args.expr)
+
+    local result = plume.call_lua_chunk(args.expr)
 
     -- if result is a token, render it
     if type(result) == "table" and result.render then
@@ -100,8 +101,6 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
         if format then
             result = string.format("%"..format, result)
         end
-
-        
 
         if scinot then
             result = scientific_notation (result, scinot, t_sep)

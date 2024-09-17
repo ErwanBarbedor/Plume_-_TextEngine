@@ -359,7 +359,7 @@ function plume.renderTokenLua (self)
     end
 
     if is_lua then
-        local result = plume.eval_lua_expression(self[2])
+        local result = plume.call_lua_chunk(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then
             result = result:render ()
         end
@@ -1434,7 +1434,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     local result = {}
     local i = 0
     local up_limit = plume.running_api.config.max_loop_size
-    while plume.eval_lua_expression (args.condition) do
+    while plume.call_lua_chunk (args.condition) do
         -- Each iteration have it's own local scope
         plume.push_scope (args.body.context)
         
@@ -1458,7 +1458,7 @@ plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = plume.eval_lua_expression(args.condition)
+    local condition = plume.call_lua_chunk(args.condition)
     if condition then
         return args.body:render()
     end
@@ -1490,7 +1490,7 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
 
     local condition
     if chain_message then
-        condition = plume.eval_lua_expression(args.condition)
+        condition = plume.call_lua_chunk(args.condition)
         if condition then
             return args.body:render()
         end
@@ -1871,7 +1871,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
 
     local file, filepath = plume.open (args.path, formats, path)
 
-    local f = plume.eval_lua_expression (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
+    local f = plume.call_lua_chunk (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
     return f()
 end, nil, false, true)
@@ -1953,7 +1953,7 @@ end, nil, false, true)
 
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = plume.call_lua_statements(args.body)
+    local result = plume.call_lua_chunck(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
@@ -1992,7 +1992,7 @@ local function scientific_notation (x, n, sep)
     return mantissa.. "e10^" .. exposant
 end
 
-plume.register_macro("eval", {"expr"}, {}, function(args)
+plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     -- Get optionnals args
     local remove_zeros
     local format
@@ -2026,7 +2026,8 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
         d_sep = "."
     end
 
-    local result = plume.eval_lua_expression(args.expr)
+
+    local result = plume.call_lua_chunk(args.expr)
 
     -- if result is a token, render it
     if type(result) == "table" and result.render then
@@ -2037,8 +2038,6 @@ plume.register_macro("eval", {"expr"}, {}, function(args)
         if format then
             result = string.format("%"..format, result)
         end
-
-        
 
         if scinot then
             result = scientific_notation (result, scinot, t_sep)
@@ -2210,47 +2209,6 @@ local function is_lua_expression(s)
     return true
 end
 
---- Evaluates a Lua expression and returns the result.
--- @param token table The token containing the expression
--- @param code string The Lua code to evaluate (optional)
--- @param filename string If is extern lua code, name of the source file (optionnal)
--- @return any The result of the evaluation
-function plume.eval_lua_expression (token, code, filename)
-    code = code or token:source ()
-
-    if is_lua_expression (code) then
-        code = 'return ' .. code
-        return plume.call_lua_chunk (token, code, filename)
-    else
-        return plume.call_lua_statements (token, code, filename)
-    end
-
-    
-end
-
---- Call Lua Statements
--- This function executes Lua statements provided in a token or code string.
--- @param token table The token containing the source Lua code.
--- @param code string Optional. The Lua code to be executed. If not provided, the code will be extracted from the token's source.
--- @param filename string If is extern lua code, name of the source file (optionnal)
--- @return any The result of executing the Lua chunk.
-function plume.call_lua_statements (token, code, filename)
-    code = code or token:source()
-
-    -- Script cannot return value
-    local end_code = code:gsub('%s+$', ''):match('[^;\n]-$')
-    if end_code and end_code:match('^%s*return') then
-        plume.error(token, "\\script cannot return value.")
-    end
-
-    -- Add function to capture local variables at the end of the provided code.
-    code = code .. "\nplume.capture_local()"
-
-    -- Call the modified Lua chunk using the plume module.
-    return plume.call_lua_chunk(token, code, filename)
-end
-
-
 --- Loads, caches, and executes Lua code.
 -- @param token table The token containing the code
 -- or, if code is given, token used to throw error
@@ -2261,19 +2219,32 @@ function plume.call_lua_chunk(token, code, filename)
     code = code or token:source ()
 
     if not token.lua_cache then
-        -- Put the chunk number in the code,
-        -- to retrieve it in case of error.
-        -- A bit messy, but each chunk executes
-        -- in its own environment, even if they
-        -- share the same code. A more elegant
-        -- solution certainly exists,
+        -- Edit the code to add a "return", in case of an expression,
+        -- or plume.capture_local() at the end in case of statement.
+        -- Also put the chunk number in the code, to retrieve it in case of error.
+        -- A bit messy, but each chunk executes in its own environment, even if they
+        -- share the same code. A more elegant solution certainly exists,
         -- but this does the trick for now.
         plume.chunk_count = plume.chunk_count + 1
-        code = "--chunk" .. plume.chunk_count .. "\n" .. code
-        
-        -- Load the code
-        local loaded_function, load_err = plume.load_lua_chunk(code)
+        local plume_code
+        if is_lua_expression (code) then
+            code = "--chunk" .. plume.chunk_count .. '\nreturn ' .. code
+            plume_code = code
+        else
+             -- Script cannot return value
+            local end_code = code:gsub('%s+$', ''):match('[^;\n]-$')
+            if end_code and end_code:match('^%s*return') then
+                plume.error(token, "\\script cannot return value.")
+            end
 
+            code = "--chunk" .. plume.chunk_count .. '\n' .. code
+            -- Add function to capture local variables at the end of the provided code.
+            plume_code = code .. "\nplume.capture_local()"
+        end
+        
+        -- Load the given code, without any change
+        -- to keep syntax error message
+        local loaded_function, load_err = plume.load_lua_chunk(code)
         -- In case of syntax error
         if not loaded_function then
             -- save it in the cache anyway, so
@@ -2283,14 +2254,21 @@ function plume.call_lua_chunk(token, code, filename)
             plume.error(token, load_err, true)
         end
 
+        -- If no syntax error, load the edited code
+        if code ~= plume_code then
+            loaded_function, load_err = plume.load_lua_chunk(plume_code)
+        end
+            
+
         local chunck = setmetatable({
-            code=code,
+            code=plume_code,
             filename=filename
         },{
             __call = function ()
                 -- If the token is locked in a specific
                 -- scope, execute inside it.
                 -- Else, execute inside current scope.
+
                 local chunk_scope = plume.current_scope (token.context)
                 plume.setfenv (loaded_function, chunk_scope.variables)
 

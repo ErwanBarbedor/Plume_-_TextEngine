@@ -308,7 +308,7 @@ function plume.renderTokenLua (self)
     end
 
     if is_lua then
-        local result = plume.eval_lua_expression(self[2])
+        local result = plume.call_lua_chunk(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then
             result = result:render ()
         end

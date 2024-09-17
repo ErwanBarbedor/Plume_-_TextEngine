@@ -140,7 +140,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     local result = {}
     local i = 0
     local up_limit = plume.running_api.config.max_loop_size
-    while plume.eval_lua_expression (args.condition) do
+    while plume.call_lua_chunk (args.condition) do
         -- Each iteration have it's own local scope
         plume.push_scope (args.body.context)
         
@@ -164,7 +164,7 @@ plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = plume.eval_lua_expression(args.condition)
+    local condition = plume.call_lua_chunk(args.condition)
     if condition then
         return args.body:render()
     end
@@ -196,7 +196,7 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
 
     local condition
     if chain_message then
-        condition = plume.eval_lua_expression(args.condition)
+        condition = plume.call_lua_chunk(args.condition)
         if condition then
             return args.body:render()
         end
