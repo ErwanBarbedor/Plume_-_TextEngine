@@ -338,6 +338,7 @@ Output:
 | max_callstack_size    | 100           | Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\def foo {\foo}`|
 | max_loop_size         | 1000          | Maximum number of loop iterations for `\while` and `\for` macros.|
 | ignore_spaces         | false         | New lines and leading spaces in the processed file will be ignored. Consecutive spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab), and `\n` (newline) macros. |
+| show_deprecation_warnings | true ||
 
 ### `\default`
 **Description:** Edits the default value of optional macro arguments.

@@ -23,3 +23,6 @@ plume.config.max_loop_size      = 1000
 
 -- Ignore majority of spaces from input
 plume.config.ignore_spaces  = false
+
+-- Show deprecation warnings
+plume.config.show_deprecation_warnings  = true

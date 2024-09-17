@@ -248,3 +248,36 @@ plume.register_macro("config", {"name", "value"}, {}, function(args, calling_tok
 
     config[name] = value
 end, nil, false, true)
+
+function plume.deprecate(name, version, alternative)
+    local macro = plume.current_scope()["macros"][name]
+
+    if not macro then
+        return nil
+    end
+
+    local macro_f = macro.macro
+
+
+
+    macro.macro = function (args, calling_token)
+        if plume.config.show_deprecation_warnings then
+            print("Warning : macro '" .. name .. "' (used in file '" .. calling_token.file .. "', line ".. calling_token.line .. ") is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
+        end
+
+        return macro_f (args, calling_token)
+    end
+
+    return true
+end
+
+plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(args, calling_token)
+    local name        = args.name:render ()
+    local version     = args.version:render ()
+    local alternative = args.alternative:render ()
+
+    if not plume.deprecate(name, version, alternative) then
+        plume.error_macro_not_found (args.name, name)
+    end
+
+end, nil, false, true)
