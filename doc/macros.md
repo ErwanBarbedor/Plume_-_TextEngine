@@ -218,9 +218,9 @@ _Generated from source._
 
 **Note:** Doesn't work if the name is available or isn't a predefined macro.
 
-### ldef
+### defl
 
-**Usage:** `\ldef[...] {name} {body}`
+**Usage:** `\defl[...] {name} {body}`
 
 **Description:** Define a new macro locally.
 

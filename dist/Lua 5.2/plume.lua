@@ -1666,13 +1666,13 @@ plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, 
     return ""
 end, nil, false, true)
 
---- \ldef
+--- \defl
 -- Define a new macro locally.
 -- @param name Name must be a valid lua identifier
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Contrary to `\def`, can erase another macro without error.
-plume.register_macro("ldef", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("defl", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, true, calling_token)
     return ""
