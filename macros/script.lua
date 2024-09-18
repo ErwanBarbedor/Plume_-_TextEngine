@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Deprecated and will be removed in 1.0. You should use '#{...}' instead.
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = plume.call_lua_chunck(args.body)
+    local result = plume.call_lua_chunk(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
