@@ -87,15 +87,16 @@ function plume.open (token, formats, path, mode, silent_fail)
     return file, filepath
 end
 
+--- \require
+-- Execute a Lua file in the current scope.
+-- @param path Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
+-- @note Unlike the Lua `require` function, `\require` macro does not perform any caching.
 plume.register_macro("require", {"path"}, {}, function(args, calling_token)
-    -- Execute a lua file in the current context
-    -- Instead of lua require function, no caching.
-
     local path = args.path:render ()
 
     local formats = {}
     
-    if is_extern or path:match('%.[^/][^/]-$') then
+    if path:match('%.[^/][^/]-$') then
         table.insert(formats, "?")
     else
         table.insert(formats, "?.lua")
@@ -109,6 +110,10 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     return f()
 end, nil, false, true)
 
+--- \include
+-- Execute a plume file in the current scope.
+-- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
+-- @other_options Any argument will be accessible from the included file, in the field `__file_args`.
 plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     --  Execute the given file and return the output
     local path = args["$path"]:render ()
@@ -147,6 +152,9 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     return result
 end, nil, false, true)
 
+--- \extern
+-- Insert content of the file without execution. Quite similar to `\raw`, but for a file.
+-- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... 
 plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     -- Include a file without execute it
 
@@ -161,6 +169,10 @@ plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     return file:read("*a")
 end, nil, false, true)
 
+--- \file
+-- Render a plume chunck and save the output in the given file.
+-- @param path Name of the file to write.
+-- @param note Content to write in the file.
 plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
     -- Capture content and save it in a file.
     -- Return nothing.

@@ -135,22 +135,46 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
     end, calling_token)
 end
 
+--- \def
+-- Define a new macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is already taken by another macro.
 plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, false, calling_token)
     return ""
 end, nil, false, true)
 
+--- \redef
+-- Redefine a macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is available.
 plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, false, calling_token)
     return ""
 end, nil, false, true)
 
+--- \redef_forced
+-- Redefined a predefined macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is available or isn't a predefined macro.
 plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, true, false, calling_token)
     return ""
 end, nil, false, true)
 
+--- \ldef
+-- Define a new macro locally.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Contrary to `\def`, can erase another macro without error.
 plume.register_macro("ldef", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, true, calling_token)
@@ -175,19 +199,25 @@ local function set(args, calling_token, is_local)
     end
 end
 
+--- \set
+-- Deprecated and will be removed in 1.0. You should use '#' instead.
 plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, args.__args["local"])
     return ""
 end, nil, false, true)
 
+--- \setl
+-- Deprecated and will be removed in 1.0. You should use '#' instead.
 plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, true)
     return ""
 end, nil, false, true)
 
-
+--- \alias
+-- name2 will be a new way to call name1.
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
 plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
-    -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
 
@@ -205,7 +235,10 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_tok
     return ""
 end, nil, false, true)
 
-
+--- \default
+-- set (or reset) default args of a given macro.
+-- @param name Name of an existing macro.
+-- @other_options Any parameters used by the given macro.
 plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
     -- Get the provided macro name
     local name = args["$name"]:render()
@@ -229,15 +262,19 @@ plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
 
 end, nil, false, true)
 
+--- \raw
+-- Return the given body without render it.
+-- @param body
 plume.register_macro("raw", {"body"}, {}, function(args)
-    -- Return content without execute it
     return args['body']:source ()
 end, nil, false, true)
 
+--- \config
+-- Edit plume configuration.
+-- @param key Name of the paramter.
+-- @param value New value to save.
+-- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
 plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
-    -- Edit configuration
-    -- Warning : value will be converted
-
     local name   = args.name:render ()
     local value  = args.value:renderLua ()
     local config = plume.running_api.config
@@ -269,13 +306,18 @@ function plume.deprecate (name, version, alternative)
     return true
 end
 
+--- \deprecate
+-- Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
+-- @param name Name of an existing macro.
+-- @param version Version where the macro will be deleted.
+-- @param alternative Give an alternative to replace this macro.
 plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(args, calling_token)
-    local name        = args.name:render ()
-    local version     = args.version:render ()
-    local alternative = args.alternative:render ()
+    local name        = args.name:render()
+    local version     = args.version:render()
+    local alternative = args.alternative:render()
 
     if not plume.deprecate(name, version, alternative) then
-        plume.error_macro_not_found (args.name, name)
+        plume.error_macro_not_found(args.name, name)
     end
 
 end, nil, false, true)

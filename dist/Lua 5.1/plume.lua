@@ -26,16 +26,16 @@ plume._VERSION = "Plume - TextEngine 0.5.0 (Lua 5.1)"
 -- Configuration settings
 plume.config = {}
 
--- Maximum number of nested macros
+-- Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\def foo {\foo}`.
 plume.config.max_callstack_size = 100
 
--- Maximum of loop iteration for macro "\while" and "\for"
+-- Maximum of loop iteration for macro "\while" and "\for".
 plume.config.max_loop_size      = 1000
 
--- Ignore majority of spaces from input
+-- New lines and leading spaces in the processed file will be ignored. Consecutive spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab), and `\n` (newline) macros.
 plume.config.ignore_spaces  = false
 
--- Show deprecation warnings
+-- Show deprecation warnings created with [deprecate](macros.md#deprecate).
 plume.config.show_deprecation_warnings  = true
 
 -- ## syntax.lua ##
@@ -1296,18 +1296,11 @@ function plume.load_macros()
 -- ## macros/controls.lua ##
 -- Define for, while, if, elseif, else control structures
 
---- for control structure
--- This 'for' macro implements a custom iteration mechanism
--- that mimics Lua's for loop behavior.
--- It supports both numeric and generic for loop syntaxes:
---    - Numeric: for i = start, end, step do ... end
---    - Generic: for k, v in pairs(t) do ... end
--- @param iterator A string representing the loop initialization
--- @param body The content to be executed for each iteration
--- @usage
---    \for{i = 1, 10}{ Iteration #i }
---    \for{k, v in pairs(table)}{ #k : #v }
-
+--- \for
+-- Implements a custom iteration mechanism that mimics Lua's for loop behavior.
+-- @param iterator Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
+-- @param body A block that will be repeated.
+-- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
 plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
@@ -1409,12 +1402,14 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         plume.pop_scope ()
     end
 
-    
-    
-    
     return table.concat(result, "")
 end, nil, false, true)
 
+--- \while
+-- Implements a custom iteration mechanism that mimics Lua's while loop behavior.
+-- @param condition Anything that follow syntax of a lua expression, to evaluate.
+-- @param body A block that will be rendered while the condition is verified.
+-- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
 plume.register_macro("while", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua while control structure.
     -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
@@ -1441,6 +1436,10 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     return table.concat(result, "")
 end, nil, false, true)
 
+--- \if
+-- Implements a custom mechanism that mimics Lua's if behavior.
+-- @param condition Anything that follow syntax of a lua expression, to evaluate.
+-- @param body A block that will be rendered, only if the condition is verified.
 plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
@@ -1453,6 +1452,10 @@ plume.register_macro("if", {"condition", "body"}, {}, function(args)
     return "", not condition
 end, nil, false, true)
 
+--- \else
+-- Implements a custom mechanism that mimics Lua's else behavior.
+-- @param body A block that will be rendered, only if the last condition isn't verified.
+-- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
 plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
 
@@ -1468,6 +1471,11 @@ plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_send
     return ""
 end, nil, false, true)
 
+--- \elseif
+-- Implements a custom mechanism that mimics Lua's elseif behavior.
+-- @param condition Anything that follow syntax of a lua expression, to evaluate.
+-- @param body A block that will be rendered, only if the last condition isn't verified and the current condition is verified.
+-- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
 plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
     
@@ -1488,6 +1496,9 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
     return "", not condition
 end, nil, false, true)
 
+--- \do
+-- Implements a custom mechanism that mimics Lua's do behavior.
+-- @param body A block that will be rendered in a new scope.
 plume.register_macro("do", {"body"}, {}, function(args, self_token)
     
     plume.push_scope ()
@@ -1621,22 +1632,46 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
     end, calling_token)
 end
 
+--- \def
+-- Define a new macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is already taken by another macro.
 plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, false, calling_token)
     return ""
 end, nil, false, true)
 
+--- \redef
+-- Redefine a macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is available.
 plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, false, calling_token)
     return ""
 end, nil, false, true)
 
+--- \redef_forced
+-- Redefined a predefined macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is available or isn't a predefined macro.
 plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
     def (def_args, true, true, false, calling_token)
     return ""
 end, nil, false, true)
 
+--- \ldef
+-- Define a new macro locally.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Contrary to `\def`, can erase another macro without error.
 plume.register_macro("ldef", {"$name", "$body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, true, calling_token)
@@ -1661,19 +1696,25 @@ local function set(args, calling_token, is_local)
     end
 end
 
+--- \set
+-- Deprecated and will be removed in 1.0. You should use '#' instead.
 plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, args.__args["local"])
     return ""
 end, nil, false, true)
 
+--- \setl
+-- Deprecated and will be removed in 1.0. You should use '#' instead.
 plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     set(args, calling_token, true)
     return ""
 end, nil, false, true)
 
-
+--- \alias
+-- name2 will be a new way to call name1.
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
 plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
-    -- Copie macro "name1" to name2
     local name1 = args.name1:render()
     local name2 = args.name2:render()
 
@@ -1691,7 +1732,10 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_tok
     return ""
 end, nil, false, true)
 
-
+--- \default
+-- set (or reset) default args of a given macro.
+-- @param name Name of an existing macro.
+-- @other_options Any parameters used by the given macro.
 plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
     -- Get the provided macro name
     local name = args["$name"]:render()
@@ -1715,15 +1759,19 @@ plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
 
 end, nil, false, true)
 
+--- \raw
+-- Return the given body without render it.
+-- @param body
 plume.register_macro("raw", {"body"}, {}, function(args)
-    -- Return content without execute it
     return args['body']:source ()
 end, nil, false, true)
 
+--- \config
+-- Edit plume configuration.
+-- @param key Name of the paramter.
+-- @param value New value to save.
+-- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
 plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
-    -- Edit configuration
-    -- Warning : value will be converted
-
     local name   = args.name:render ()
     local value  = args.value:renderLua ()
     local config = plume.running_api.config
@@ -1755,16 +1803,22 @@ function plume.deprecate (name, version, alternative)
     return true
 end
 
+--- \deprecate
+-- Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
+-- @param name Name of an existing macro.
+-- @param version Version where the macro will be deleted.
+-- @param alternative Give an alternative to replace this macro.
 plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(args, calling_token)
-    local name        = args.name:render ()
-    local version     = args.version:render ()
-    local alternative = args.alternative:render ()
+    local name        = args.name:render()
+    local version     = args.version:render()
+    local alternative = args.alternative:render()
 
     if not plume.deprecate(name, version, alternative) then
-        plume.error_macro_not_found (args.name, name)
+        plume.error_macro_not_found(args.name, name)
     end
 
-end, nil, false, true) 
+end, nil, false, true)
+ 
     
 -- ## macros/files.lua ##
 -- Define macro related to files
@@ -1842,15 +1896,16 @@ function plume.open (token, formats, path, mode, silent_fail)
     return file, filepath
 end
 
+--- \require
+-- Execute a Lua file in the current scope.
+-- @param path Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
+-- @note Unlike the Lua `require` function, `\require` macro does not perform any caching.
 plume.register_macro("require", {"path"}, {}, function(args, calling_token)
-    -- Execute a lua file in the current context
-    -- Instead of lua require function, no caching.
-
     local path = args.path:render ()
 
     local formats = {}
     
-    if is_extern or path:match('%.[^/][^/]-$') then
+    if path:match('%.[^/][^/]-$') then
         table.insert(formats, "?")
     else
         table.insert(formats, "?.lua")
@@ -1864,6 +1919,10 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
     return f()
 end, nil, false, true)
 
+--- \include
+-- Execute a plume file in the current scope.
+-- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
+-- @other_options Any argument will be accessible from the included file, in the field `__file_args`.
 plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     --  Execute the given file and return the output
     local path = args["$path"]:render ()
@@ -1902,6 +1961,9 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     return result
 end, nil, false, true)
 
+--- \extern
+-- Insert content of the file without execution. Quite similar to `\raw`, but for a file.
+-- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... 
 plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     -- Include a file without execute it
 
@@ -1916,6 +1978,10 @@ plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
     return file:read("*a")
 end, nil, false, true)
 
+--- \file
+-- Render a plume chunck and save the output in the given file.
+-- @param path Name of the file to write.
+-- @param note Content to write in the file.
 plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
     -- Capture content and save it in a file.
     -- Return nothing.
@@ -1939,6 +2005,8 @@ end, nil, false, true)
 -- ## macros/script.lua ##
 -- Define script-related macro
 
+--- \script
+-- Deprecated and will be removed in 1.0. You should use '#{...}' instead.
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
     local result = plume.call_lua_chunck(args.body)
@@ -1980,6 +2048,16 @@ local function scientific_notation (x, n, sep)
     return mantissa.. "e10^" .. exposant
 end
 
+--- \eval
+-- Evaluate the given expression or execute the given statement.
+-- @param code The code to evaluate or execute.
+-- @option remove_zeros={} If set to anything not empty and the result is a number, remove useless zeros. (ex: 1.0 becomes 1)
+-- @option thousand_separator={} Symbol used between groups of 3 digits.
+-- @option decimal_separator=. Symbol used between the integer and the decimal part.
+-- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the comma. If set to `.3s`, it will be output using scientific notation, with 3 digits after the comma.
+-- @alias `#{1+1}` is the same as `\eval{1+1}`
+-- @note If the given code is the statement, it cannot return any value.
+
 plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     -- Get optionnals args
     local remove_zeros
@@ -2013,7 +2091,6 @@ plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     else
         d_sep = "."
     end
-
 
     local result = plume.call_lua_chunk(args.expr)
 
@@ -2058,6 +2135,10 @@ end, nil, false, true)
 -- ## macros/spaces.lua ##
 -- Define spaces-related macros
 
+--- \n
+-- Output a newline.
+-- @option_nokw n=1 Number of newlines to output.
+-- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
 plume.register_macro("n", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
@@ -2066,6 +2147,10 @@ plume.register_macro("n", {}, {}, function(args)
     return ("\n"):rep(count)
 end, nil, false, true)
 
+--- \s
+-- Output a space.
+-- @option_nokw n=1 Number of spaces to output.
+-- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
 plume.register_macro("s", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
@@ -2074,6 +2159,10 @@ plume.register_macro("s", {}, {}, function(args)
     return (" "):rep(count)
 end, nil, false, true)
 
+--- \t
+-- Output a tabulation.
+-- @option_nokw n=1 Number of tabs to output.
+-- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
 plume.register_macro("t", {}, {}, function(args)
     local count = 1
     if args.__args[1] then

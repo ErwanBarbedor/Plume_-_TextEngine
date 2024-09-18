@@ -14,18 +14,11 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define for, while, if, elseif, else control structures
 
---- for control structure
--- This 'for' macro implements a custom iteration mechanism
--- that mimics Lua's for loop behavior.
--- It supports both numeric and generic for loop syntaxes:
---    - Numeric: for i = start, end, step do ... end
---    - Generic: for k, v in pairs(t) do ... end
--- @param iterator A string representing the loop initialization
--- @param body The content to be executed for each iteration
--- @usage
---    \for{i = 1, 10}{ Iteration #i }
---    \for{k, v in pairs(table)}{ #k : #v }
-
+--- \for
+-- Implements a custom iteration mechanism that mimics Lua's for loop behavior.
+-- @param iterator Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
+-- @param body A block that will be repeated.
+-- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
 plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
@@ -127,12 +120,14 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         plume.pop_scope ()
     end
 
-    
-    
-    
     return table.concat(result, "")
 end, nil, false, true)
 
+--- \while
+-- Implements a custom iteration mechanism that mimics Lua's while loop behavior.
+-- @param condition Anything that follow syntax of a lua expression, to evaluate.
+-- @param body A block that will be rendered while the condition is verified.
+-- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
 plume.register_macro("while", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua while control structure.
     -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
@@ -159,6 +154,10 @@ plume.register_macro("while", {"condition", "body"}, {}, function(args)
     return table.concat(result, "")
 end, nil, false, true)
 
+--- \if
+-- Implements a custom mechanism that mimics Lua's if behavior.
+-- @param condition Anything that follow syntax of a lua expression, to evaluate.
+-- @param body A block that will be rendered, only if the condition is verified.
 plume.register_macro("if", {"condition", "body"}, {}, function(args)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
@@ -171,6 +170,10 @@ plume.register_macro("if", {"condition", "body"}, {}, function(args)
     return "", not condition
 end, nil, false, true)
 
+--- \else
+-- Implements a custom mechanism that mimics Lua's else behavior.
+-- @param body A block that will be rendered, only if the last condition isn't verified.
+-- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
 plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
 
@@ -186,6 +189,11 @@ plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_send
     return ""
 end, nil, false, true)
 
+--- \elseif
+-- Implements a custom mechanism that mimics Lua's elseif behavior.
+-- @param condition Anything that follow syntax of a lua expression, to evaluate.
+-- @param body A block that will be rendered, only if the last condition isn't verified and the current condition is verified.
+-- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
 plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
     
@@ -206,6 +214,9 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
     return "", not condition
 end, nil, false, true)
 
+--- \do
+-- Implements a custom mechanism that mimics Lua's do behavior.
+-- @param body A block that will be rendered in a new scope.
 plume.register_macro("do", {"body"}, {}, function(args, self_token)
     
     plume.push_scope ()

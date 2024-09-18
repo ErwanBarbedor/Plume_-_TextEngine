@@ -192,7 +192,7 @@ Output `bar`, even though `name` and `body` are variables local to the `mydef` b
 
 By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.
 
-See `\config` macro to edit this number.
+See [config](config.md) to edit this number.
 
 ## Lua Scope
 
@@ -233,5 +233,5 @@ Gives
 foo bar
 ```
 
-You can also edit the `ignore_spaces` parameter (see `\config` macro) to remove almost all spaces from input file.
+You can also edit the `ignore_spaces` parameter (see [config](config.md)) to remove almost all spaces from input file.
 Then, you have to add it yourself with `\n` for new line (or `\n[5]` for five new lines), `\s` for space and `\t` for tabulation.

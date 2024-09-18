@@ -15,12 +15,14 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Merge all code into a single file.
 -- Quite dirty, but do the job
 
-local version = "Plume - TextEngine 0.5.0"
-local github  = 'https://github.com/ErwanBarbedor/Plume_-_TextEngine'
+local version   = "Plume - TextEngine 0.5.0"
+local github    = 'https://github.com/ErwanBarbedor/Plume_-_TextEngine'
+local build_doc = require 'build_doc'
+
+build_doc ()
 
 for lua_version in ("5.1 5.2 5.3 5.4 5.x"):gmatch('%S+') do
     local code = io.open("main.lua"):read "*a"
-
 
     code = code:gsub('(plume = {}[\r\n]+)', 'local %1')
 

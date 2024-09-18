@@ -95,7 +95,7 @@ Options:
 To find out more about Plume, you can consult:
 - [An overview of its main functions](doc/overview.md)
 - [More advanced points](doc/advanced.md)
-- Full documentation on predefined [macros](doc/predefined_macros.md) and  [functions/tables](doc/api.md).
+- Full documentation on predefined [macros](doc/macros.md) and  [functions/tables](doc/api.md).
 
 You can also [read more about lua](https://www.lua.org/pil/1.html)
 
@@ -118,6 +118,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Remove access to macro local variables from other macros called inside.
 - `#` can now be use for statement, not only for expression.
 - Macros `set`, `setl` and `script` deprecated. Will be removed in `1.0`.
+- Documentation for predefined macros and documentation is now generated from source.
 
 ### 0.4.0
 

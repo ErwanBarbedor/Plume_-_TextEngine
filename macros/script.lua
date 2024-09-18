@@ -14,6 +14,8 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define script-related macro
 
+--- \script
+-- Deprecated and will be removed in 1.0. You should use '#{...}' instead.
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
     local result = plume.call_lua_chunck(args.body)
@@ -55,6 +57,16 @@ local function scientific_notation (x, n, sep)
     return mantissa.. "e10^" .. exposant
 end
 
+--- \eval
+-- Evaluate the given expression or execute the given statement.
+-- @param code The code to evaluate or execute.
+-- @option remove_zeros={} If set to anything not empty and the result is a number, remove useless zeros. (ex: 1.0 becomes 1)
+-- @option thousand_separator={} Symbol used between groups of 3 digits.
+-- @option decimal_separator=. Symbol used between the integer and the decimal part.
+-- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the comma. If set to `.3s`, it will be output using scientific notation, with 3 digits after the comma.
+-- @alias `#{1+1}` is the same as `\eval{1+1}`
+-- @note If the given code is the statement, it cannot return any value.
+
 plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     -- Get optionnals args
     local remove_zeros
@@ -88,7 +100,6 @@ plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     else
         d_sep = "."
     end
-
 
     local result = plume.call_lua_chunk(args.expr)
 

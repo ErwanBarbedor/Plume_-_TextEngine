@@ -14,6 +14,10 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define spaces-related macros
 
+--- \n
+-- Output a newline.
+-- @option_nokw n=1 Number of newlines to output.
+-- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
 plume.register_macro("n", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
@@ -22,6 +26,10 @@ plume.register_macro("n", {}, {}, function(args)
     return ("\n"):rep(count)
 end, nil, false, true)
 
+--- \s
+-- Output a space.
+-- @option_nokw n=1 Number of spaces to output.
+-- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
 plume.register_macro("s", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
@@ -30,6 +38,10 @@ plume.register_macro("s", {}, {}, function(args)
     return (" "):rep(count)
 end, nil, false, true)
 
+--- \t
+-- Output a tabulation.
+-- @option_nokw n=1 Number of tabs to output.
+-- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
 plume.register_macro("t", {}, {}, function(args)
     local count = 1
     if args.__args[1] then

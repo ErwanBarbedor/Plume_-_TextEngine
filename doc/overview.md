@@ -244,7 +244,7 @@ Like for `\if`, the `\while` limit may be any expression, and the `\for` iterato
 
 ### Loop Limit
 
-Plume is configured to stop loops after 1000 iterations, to prevent infinite loops. See configuration to edit this number. Lua loops are not affected
+Plume is configured to stop loops after 1000 iterations, to prevent infinite loops. See [config](config.md) to edit this number. Lua loops are not affected
 
 ## Number Formatting
 
