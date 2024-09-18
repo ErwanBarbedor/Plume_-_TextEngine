@@ -64,7 +64,7 @@ end
 -- @option thousand_separator={} Symbol used between groups of 3 digits.
 -- @option decimal_separator=. Symbol used between the integer and the decimal part.
 -- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the comma. If set to `.3s`, it will be output using scientific notation, with 3 digits after the comma.
--- @option_nkw silent Execute the code without returning anything. Usefull for filtering unwanted function return : `#{table.remove(t)}[silent]`
+-- @option_nokw silent Execute the code without returning anything. Usefull for filtering unwanted function return : `#{table.remove(t)}[silent]`
 -- @alias `#{1+1}` is the same as `\eval{1+1}`
 -- @note If the given code is the statement, it cannot return any value.
 

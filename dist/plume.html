@@ -1904,7 +1904,7 @@ end
 -- name2 will be a new way to call name1.
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
--- @option_nkw local={} Is the new macro local to the current scope.
+-- @option_nokw local={} Is the new macro local to the current scope.
 -- @alias `\aliasl` is equivalent as `\alias[local]`
 plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
     local name1 = args.name1:render()

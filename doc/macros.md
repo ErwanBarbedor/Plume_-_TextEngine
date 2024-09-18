@@ -246,13 +246,16 @@ _Generated from source._
 
 ### alias
 
-**Usage:** `\alias {name1} {name2}`
+**Usage:** `\alias[local] {name1} {name2}`
 
 **Description:** name2 will be a new way to call name1.
 
 **Parameters:**
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
+
+**Optionnal parameters:**
+- `local` Is the new macro local to the current scope.. It is not a keyword argument, you should use `\alias[{}]` and not `\alias[local={}]`Default value : `{}`
 
 **Alias:** `\aliasl` is equivalent as `\alias[local]`
 
