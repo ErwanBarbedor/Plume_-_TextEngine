@@ -254,6 +254,20 @@ _Generated from source._
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
+**Alias:** `\aliasl` is equivalent as `\alias[local]`
+
+### aliasl
+
+**Usage:** `\aliasl {name1} {name2}`
+
+**Description:** Make an alias locally
+
+**Parameters:**
+- `name1` Name of an existing macro.
+- `name2` Any valid lua identifier.
+
+**Alias:** `\aliasl` is equivalent as `\alias[local]`
+
 ### default
 
 **Usage:** `\default[...] {name}`

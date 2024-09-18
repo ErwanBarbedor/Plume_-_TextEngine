@@ -1710,14 +1710,9 @@ plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
     return ""
 end, nil, false, true)
 
---- \alias
--- name2 will be a new way to call name1.
--- @param name1 Name of an existing macro.
--- @param name2 Any valid lua identifier.
-plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
-    local name1 = args.name1:render()
-    local name2 = args.name2:render()
 
+--- Create alias of a function
+local function alias (name1, name2, calling_token, is_local)
     -- Test if name2 is available
     local available, msg = test_macro_name_available (name2, false, false, calling_token)
     if not available then
@@ -1728,8 +1723,35 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_tok
     end
 
     local scope =  plume.current_scope (calling_token.context)
-    scope.macros[name2] = scope.macros[name1]
-    return ""
+
+    if is_local then
+        plume.current_scope (calling_token.context):set_local("macros", name2, scope.macros[name1])
+    else
+        plume.current_scope (calling_token.context):set("macros", name2, scope.macros[name1]) 
+    end
+end
+
+--- \alias
+-- name2 will be a new way to call name1.
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
+-- @option_nkw local={} Is the new macro local to the current scope.
+-- @alias `\aliasl` is equivalent as `\alias[local]`
+plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
+    local name1 = args.name1:render()
+    local name2 = args.name2:render()
+    alias (name1, name2, calling_token, args.__args["local"])
+end, nil, false, true)
+
+--- \aliasl
+-- Make an alias locally
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
+-- @alias `\aliasl` is equivalent as `\alias[local]`
+plume.register_macro("aliasl", {"name1", "name2"}, {}, function(args, calling_token)
+    local name1 = args.name1:render()
+    local name2 = args.name2:render()
+    alias (name1, name2, calling_token, true)
 end, nil, false, true)
 
 --- \default
