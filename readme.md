@@ -118,6 +118,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Remove access to macro local variables from other macros called inside.
 - `#` can now be use for statement, not only for expression.
 - Macros `set`, `setl` and `script` deprecated. Will be removed in `1.0`.
+- New option `silent` for `#`.
 - Documentation for predefined macros and documentation is now generated from source.
 
 ### 0.4.0

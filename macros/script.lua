@@ -64,6 +64,7 @@ end
 -- @option thousand_separator={} Symbol used between groups of 3 digits.
 -- @option decimal_separator=. Symbol used between the integer and the decimal part.
 -- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the comma. If set to `.3s`, it will be output using scientific notation, with 3 digits after the comma.
+-- @option_nkw silent Execute the code without returning anything. Usefull for filtering unwanted function return : `#{table.remove(t)}[silent]`
 -- @alias `#{1+1}` is the same as `\eval{1+1}`
 -- @note If the given code is the statement, it cannot return any value.
 
@@ -72,12 +73,15 @@ plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     local remove_zeros
     local format
     local scinot
+    local silent
 
     for i, arg in ipairs(args.__args) do
         local arg_render = arg:render ()
 
         if not remove_zeros and arg_render == "remove_zeros" then
             remove_zeros = true
+        elseif not silents and arg_render == "silent" then
+            silent = true
         elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
             format = arg_render
         elseif not scinot and arg_render:match('%.[0-9]+s') then
@@ -138,5 +142,7 @@ plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
         end
     end
     
-    return result
+    if not silent then
+        return result
+    end
 end, nil, false, true)
