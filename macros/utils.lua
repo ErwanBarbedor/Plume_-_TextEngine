@@ -296,7 +296,7 @@ function plume.deprecate (name, version, alternative)
     local macro_f = macro.macro
 
     macro.macro = function (args, calling_token)
-        if plume.config.show_deprecation_warnings then
+        if plume.running_api.config.show_deprecation_warnings then
             print("Warning : macro '" .. name .. "' (used in file '" .. calling_token.file .. "', line ".. calling_token.line .. ") is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 

@@ -1802,7 +1802,7 @@ function plume.deprecate (name, version, alternative)
     local macro_f = macro.macro
 
     macro.macro = function (args, calling_token)
-        if plume.config.show_deprecation_warnings then
+        if plume.running_api.config.show_deprecation_warnings then
             print("Warning : macro '" .. name .. "' (used in file '" .. calling_token.file .. "', line ".. calling_token.line .. ") is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 
@@ -2018,7 +2018,7 @@ end, nil, false, true)
 -- Deprecated and will be removed in 1.0. You should use '#{...}' instead.
 plume.register_macro("script", {"body"}, {}, function(args)
     --Execute a lua chunk and return the result, if any
-    local result = plume.call_lua_chunck(args.body)
+    local result = plume.call_lua_chunk(args.body)
 
     --if result is a token, render it
     if type(result) == "table" and result.render then
