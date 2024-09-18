@@ -68,11 +68,30 @@ table
 1
 // End
 
-// Test 'Format eval'
+// Test 'Format eval 1'
 #{1/3}[.2f]
 // Result
 0.33
 // End
+
+// Test 'Format eval 2'
+#{7/3}[i]
+// Result
+2
+// End
+
+// Test 'Format eval 3'
+#{52134}[.3s]
+// Result
+5.213e10^4
+// End
+
+// Test 'Format eval 4'
+#{5213}[silent]
+// Result
+
+// End
+
 
 // Test 'Eval syntax error 5.1 and jit'
 #{a = a+}

@@ -2116,7 +2116,9 @@ plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
     end
     
     if tonumber(result) then
-        if format then
+        if format == "i" then
+            result = math.floor(result)
+        elseif format then
             result = string.format("%"..format, result)
         end
 
