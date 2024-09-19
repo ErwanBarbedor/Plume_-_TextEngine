@@ -18,10 +18,10 @@ plume.config = {}
 -- Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\def foo {\foo}`.
 plume.config.max_callstack_size = 100
 
--- Maximum of loop iteration for macro "\while" and "\for".
+-- Maximum of loop iteration for macro `\while` and `\for`.
 plume.config.max_loop_size      = 1000
 
--- New lines and leading spaces in the processed file will be ignored. Consecutive spaces are rendered as one. To add spaces in the final file in this case, use the `\s` (space), `\t` (tab), and `\n` (newline) macros.
+-- New lines and leading spaces in the processed file will be ignored. Consecutive spaces are rendered as one. To add spaces in the final file in this case, see [spaces macros](macros.md#spaces).
 plume.config.ignore_spaces  = false
 
 -- Show deprecation warnings created with [deprecate](macros.md#deprecate).
