@@ -28,31 +28,31 @@ world!
 Hello...world!
 // End
 
-// Test 'No space 1'
-#{plume.config.ignore_spaces = true}
+// Test 'Space mode - no_spaces 1'
+\set_space_mode no_spaces
 Foo!
     Bar!
 // Result
 Foo!Bar!
 // End
 
-// Test 'No space 2'
-#{plume.config.ignore_spaces = true}
+// Test 'Space mode - no_spaces 2'
+\set_space_mode no_spaces
 Foo!             Bar!
 // Result
-Foo! Bar!
+Foo!Bar!
 // End
 
-// Test 'No space 3'
-\config ignore_spaces true
+// Test 'Space mode - no_spaces 3'
+\set_space_mode no_spaces
 Foo!{\n}Bar!
 // Result
 Foo!
 Bar!
 // End
 
-// Test 'No space 4'
-#{plume.config.ignore_spaces = true}
+// Test 'Space mode - no_spaces 4'
+\set_space_mode no_spaces
 Foo!{\n[3]}
 Bar!
 // Result
@@ -60,6 +60,16 @@ Foo!
 
 
 Bar!
+// End
+
+// Test 'Space mode - light'
+\set_space_mode light//
+Foo!
+
+
+Bar!
+// Result
+Foo! Bar!
 // End
 
 // Test 'No need to escape "[]" outside of macro call'

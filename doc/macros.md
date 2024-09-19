@@ -150,7 +150,7 @@ _Generated from source._
 **Optionnal parameters:**
 - `n` Number of newlines to output.. It is not a keyword argument, you should use `\n[1]` and not `\n[n=1]`Default value : `1`
 
-**Note:** Usefull if `plume.config.ignore_spaces` is set to `true`.
+**Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
 ### s
 
@@ -161,7 +161,7 @@ _Generated from source._
 **Optionnal parameters:**
 - `n` Number of spaces to output.. It is not a keyword argument, you should use `\s[1]` and not `\s[n=1]`Default value : `1`
 
-**Note:** Usefull if `plume.config.ignore_spaces` is set to `true`.
+**Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
 ### t
 
@@ -172,7 +172,16 @@ _Generated from source._
 **Optionnal parameters:**
 - `n` Number of tabs to output.. It is not a keyword argument, you should use `\t[1]` and not `\t[n=1]`Default value : `1`
 
-**Note:** Usefull if `plume.config.ignore_spaces` is set to `true`.
+**Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
+
+### config_spaces
+
+**Usage:** `\config_spaces {mode}`
+
+**Description:** Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
+
+**Parameters:**
+- `mode` Can be `normal` (take all spaces), `no_spaces` (ignore all spaces) and `light` (replace all space sequence with " ")
 
 ## Utils
 

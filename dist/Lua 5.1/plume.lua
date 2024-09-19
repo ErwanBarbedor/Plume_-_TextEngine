@@ -32,11 +32,18 @@ plume.config.max_callstack_size = 100
 -- Maximum of loop iteration for macro `\while` and `\for`.
 plume.config.max_loop_size      = 1000
 
--- New lines and leading spaces in the processed file will be ignored. Consecutive spaces are rendered as one. To add spaces in the final file in this case, see [spaces macros](macros.md#spaces).
+-- Deprecated. Will be removed in 1.0.
 plume.config.ignore_spaces  = false
+
+-- If set to false, no effect. If set to `x`, the `x` character will replace any group of spaces (except spaces beginning a line). See [spaces macros](macros.md#spaces) for more details about space control.
+plume.config.filter_spaces = false
+
+-- If set to false, no effect. If set to `x`, the `x` character will replace any group of newlines. See [spaces macros](macros.md#spaces) for more details about space control.
+plume.config.filter_newlines = false
 
 -- Show deprecation warnings created with [deprecate](macros.md#deprecate).
 plume.config.show_deprecation_warnings  = true
+
 
 -- ## syntax.lua ##
 plume.syntax = {
@@ -173,7 +180,7 @@ function plume.renderToken (self)
             chain_message = nil
         end
 
-        if token.kind ~= "space" then
+        if token.kind ~= "space" and token.kind ~= "newline" then
             last_is_newline = false
         end
 
@@ -199,25 +206,42 @@ function plume.renderToken (self)
             table.insert(result, token.value)
         
         elseif token.kind == "newline" then
-            if not plume.running_api.config.ignore_spaces then
-                if token.__type == "token" then
+            -- To be removed in 1.0 --
+            if plume.running_api.config.ignore_spaces then
+                last_is_newline = true
+            --------------------------
+            else
+                if plume.running_api.config.filter_newlines then
+                    if not last_is_newline then
+                        table.insert(result, plume.running_api.config.filter_newlines)
+                        last_is_newline = true
+                    end
+                elseif token.__type == "token" then
                     table.insert(result, token.value)
                 else
                     table.insert(result, token:render())
                 end
-            else
-                last_is_newline = true
             end
         
         elseif token.kind == "space" then
+            -- To be removed in 1.0 --
             if plume.running_api.config.ignore_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
                     table.insert(result, " ")
                 end
+            --------------------------
             else
-                table.insert(result, token.value)
+                if plume.running_api.config.filter_spaces then
+                    if last_is_newline then
+                        last_is_newline = false
+                    else
+                        table.insert(result, plume.running_api.config.filter_spaces)
+                    end
+                else
+                    table.insert(result, token.value)
+                end
             end
 
         elseif token.kind == "macro" then
@@ -2153,9 +2177,9 @@ end, nil, false, true)
 -- Define spaces-related macros
 
 --- \n
--- Output a newline.
+-- Output a newline. 
 -- @option_nokw n=1 Number of newlines to output.
--- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
+-- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 plume.register_macro("n", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
@@ -2167,7 +2191,7 @@ end, nil, false, true)
 --- \s
 -- Output a space.
 -- @option_nokw n=1 Number of spaces to output.
--- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
+-- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 plume.register_macro("s", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
@@ -2179,14 +2203,34 @@ end, nil, false, true)
 --- \t
 -- Output a tabulation.
 -- @option_nokw n=1 Number of tabs to output.
--- @note Usefull if `plume.config.ignore_spaces` is set to `true`.
+-- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 plume.register_macro("t", {}, {}, function(args)
     local count = 1
     if args.__args[1] then
         count = args.__args[1]:render()
     end
     return ("\t"):rep(count)
-end, nil, false, true) 
+end, nil, false, true)
+
+--- \config_spaces
+-- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
+-- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces) and `light` (replace all space sequence with " ")
+plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_token)
+    local mode = args.mode:render ()
+
+    if mode == "normal" then
+        plume.running_api.config.config.filter_spaces = false
+        plume.running_api.config.config.filter_newlines = false
+    elseif mode == "no_spaces" then
+        plume.running_api.config.filter_spaces = ""
+        plume.running_api.config.filter_newlines = ""
+    elseif mode == "light" then
+        plume.running_api.config.filter_spaces = " "
+        plume.running_api.config.filter_newlines = " "
+    else
+        plume.error(args.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
+    end
+end) 
     
 end
 

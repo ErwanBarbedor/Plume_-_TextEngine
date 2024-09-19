@@ -121,6 +121,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Macros `set`, `setl` and `script` deprecated. Will be removed in `1.0`.
 - New option `silent` for `#`.
 - Documentation for predefined macros and documentation is now generated from source.
+- Configuration `plume.config.ignore_spaces` deprecated.
+- New configuration `plume.config.filter_spaces`, and `plume.config.filter_newlines`.
+- New macro `set_space_mode`
 
 ### 0.4.0
 

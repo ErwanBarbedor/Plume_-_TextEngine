@@ -233,5 +233,4 @@ Gives
 foo bar
 ```
 
-You can also edit the `ignore_spaces` parameter (see [config](config.md)) to remove almost all spaces from input file.
-Then, you have to add it yourself with `\n` for new line (or `\n[5]` for five new lines), `\s` for space and `\t` for tabulation.
+You can also see [spaces macros](macros.md#spaces)) to have more controls over spaces.

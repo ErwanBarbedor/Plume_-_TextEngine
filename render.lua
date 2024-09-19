@@ -122,7 +122,7 @@ function plume.renderToken (self)
             chain_message = nil
         end
 
-        if token.kind ~= "space" then
+        if token.kind ~= "space" and token.kind ~= "newline" then
             last_is_newline = false
         end
 
@@ -148,25 +148,42 @@ function plume.renderToken (self)
             table.insert(result, token.value)
         
         elseif token.kind == "newline" then
-            if not plume.running_api.config.ignore_spaces then
-                if token.__type == "token" then
+            -- To be removed in 1.0 --
+            if plume.running_api.config.ignore_spaces then
+                last_is_newline = true
+            --------------------------
+            else
+                if plume.running_api.config.filter_newlines then
+                    if not last_is_newline then
+                        table.insert(result, plume.running_api.config.filter_newlines)
+                        last_is_newline = true
+                    end
+                elseif token.__type == "token" then
                     table.insert(result, token.value)
                 else
                     table.insert(result, token:render())
                 end
-            else
-                last_is_newline = true
             end
         
         elseif token.kind == "space" then
+            -- To be removed in 1.0 --
             if plume.running_api.config.ignore_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
                     table.insert(result, " ")
                 end
+            --------------------------
             else
-                table.insert(result, token.value)
+                if plume.running_api.config.filter_spaces then
+                    if last_is_newline then
+                        last_is_newline = false
+                    else
+                        table.insert(result, plume.running_api.config.filter_spaces)
+                    end
+                else
+                    table.insert(result, token.value)
+                end
             end
 
         elseif token.kind == "macro" then
