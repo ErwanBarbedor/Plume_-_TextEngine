@@ -66,7 +66,7 @@ end
 -- @return boolean
 local function is_lua_expression(s)
     local statement_keywords = {
-        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do"
+        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do", "--"
     }
     local first_word = s:match("%s*(%S+)")
 

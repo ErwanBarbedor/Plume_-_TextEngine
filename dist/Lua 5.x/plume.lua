@@ -2104,6 +2104,7 @@ end
 -- @alias `#{1+1}` is the same as `\eval{1+1}`
 -- @note If the given code is a statement, it cannot return any value.
 -- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
+-- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
 plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
 
     local remove_zeros, format, scinot, silent
@@ -2306,7 +2307,7 @@ end
 -- @return boolean
 local function is_lua_expression(s)
     local statement_keywords = {
-        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do"
+        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do", "--"
     }
     local first_word = s:match("%s*(%S+)")
 

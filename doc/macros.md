@@ -147,6 +147,7 @@ _Generated from source._
 **Notes:**
 - If the given code is a statement, it cannot return any value.
 - If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
+- In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
 
 **Alias:** `#{1+1}` is the same as `\eval{1+1}`
 
