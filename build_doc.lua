@@ -23,7 +23,10 @@ return function ()
             local params_names = {}
             local options = {}
             local options_names = {}
-            local note, desc, alias, other_options
+            local notes = {}
+            local flags = {}
+            local options_nokw = {}
+            local desc, alias, other_options
 
             doc = doc:gsub('\n%-%-%s*', '\n')
             if doc:match('@') then
@@ -45,13 +48,18 @@ return function ()
 
                     table.insert(options, "`" .. name .. "` " .. desc .. "Default value : `"..default.."`")
                     table.insert(options_names, name.."="..default)
+                elseif command == "flag" then
+                    local name, desc = line:match('(%S+)%s(.*)')
+
+                    table.insert(flags, "`" .. name .. "` " .. desc)
+                    table.insert(options_names, name)
                 elseif command == "option_nokw" then
                     local name, default, desc = line:match('(%S-)=(%S+)%s+(.*)')
 
-                    table.insert(options, "`" .. name .. "` " .. desc .. ". It is not a keyword argument, you should use `\\".. macro_name.."["..default.."]` and not `\\".. macro_name.."["..name.."="..default.."]`Default value : `"..default.."`")
-                    table.insert(options_names, name)
+                    table.insert(options_nokw, "`" .. name .. "` " .. desc .. ".")
+                    table.insert(options_names, "<"..name..">")
                 elseif command == "note" then
-                    note = line
+                    table.insert(notes, line)
                 elseif command == "alias" then
                     alias = line
                 elseif command == "other_options" then
@@ -84,15 +92,25 @@ return function ()
             end
 
             if #options > 0 then
-                table.insert(result, "**Optionnal parameters:**\n- " .. table.concat(options, "\n- "))
+                table.insert(result, "**Optional keyword parameters:** _Theses argument are used with a keyword, like this : `\\foo[bar=baz]`._\n- " .. table.concat(options, "\n- "))
+            end
+
+            if #options_nokw > 0 then
+                table.insert(result, "**Optional positional parameters:**\n\n _Theses argument are used without keywords, like this : `\\foo[bar]`._\n- " .. table.concat(options_nokw, "\n- "))
+            end
+
+            if #flags > 0 then
+                table.insert(result, "**Flags:**\n\n _Flags are optional positional arguments with one value. Behavior occurs when this argument is present._\n- " .. table.concat(flags, "\n- "))
             end
 
             if other_options then
-                table.insert(result, "**Other parameters:** " .. other_options)
+                table.insert(result, "**Other optional parameters:** " .. other_options)
             end
 
-            if note then
-                table.insert(result, "**Note:** " .. note)
+            if #notes == 1 then
+                table.insert(result, "**Note:** " .. notes[1])
+            elseif #notes > 1 then
+                table.insert(result, "**Notes:**\n- " .. table.concat(notes, '\n- '))
             end
 
             if alias then

@@ -91,7 +91,7 @@ _Generated from source._
 **Parameters:**
 - `path` Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
 
-**Other parameters:** Any argument will be accessible from the included file, in the field `__file_args`.
+**Other optional parameters:** Any argument will be accessible from the included file, in the field `__file_args`.
 
 ### extern
 
@@ -122,20 +122,31 @@ _Generated from source._
 
 ### eval
 
-**Usage:** `\eval[remove_zeros={} thousand_separator={} decimal_separator=. format={}] {code}`
+**Usage:** `\eval[thousand_separator={} decimal_separator=. <format> remove_zeros silent] {code}`
 
 **Description:** Evaluate the given expression or execute the given statement.
 
 **Parameters:**
 - `code` The code to evaluate or execute.
 
-**Optionnal parameters:**
-- `remove_zeros` If set to anything not empty and the result is a number, remove useless zeros (e.g., 1.0 becomes 1).Default value : `{}`
+**Optional keyword parameters:** _Theses argument are used with a keyword, like this : `\foo[bar=baz]`._
 - `thousand_separator` Symbol used between groups of 3 digits.Default value : `{}`
 - `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
-- `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.Default value : `{}`
 
-**Note:** If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
+**Optional positional parameters:**
+
+ _Theses argument are used without keywords, like this : `\foo[bar]`._
+- `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
+
+**Flags:**
+
+ _Flags are optional positional arguments with one value. Behavior occurs when this argument is present._
+- `remove_zeros` Remove useless zeros (e.g., `1.0` becomes `1`).
+- `silent` Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
+
+**Notes:**
+- If the given code is a statement, it cannot return any value.
+- If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 
 **Alias:** `#{1+1}` is the same as `\eval{1+1}`
 
@@ -143,34 +154,40 @@ _Generated from source._
 
 ### n
 
-**Usage:** `\n[n]`
+**Usage:** `\n[<n>]`
 
 **Description:** Output a newline.
 
-**Optionnal parameters:**
-- `n` Number of newlines to output.. It is not a keyword argument, you should use `\n[1]` and not `\n[n=1]`Default value : `1`
+**Optional positional parameters:**
+
+ _Theses argument are used without keywords, like this : `\foo[bar]`._
+- `n` Number of newlines to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
 ### s
 
-**Usage:** `\s[n]`
+**Usage:** `\s[<n>]`
 
 **Description:** Output a space.
 
-**Optionnal parameters:**
-- `n` Number of spaces to output.. It is not a keyword argument, you should use `\s[1]` and not `\s[n=1]`Default value : `1`
+**Optional positional parameters:**
+
+ _Theses argument are used without keywords, like this : `\foo[bar]`._
+- `n` Number of spaces to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
 ### t
 
-**Usage:** `\t[n]`
+**Usage:** `\t[<n>]`
 
 **Description:** Output a tabulation.
 
-**Optionnal parameters:**
-- `n` Number of tabs to output.. It is not a keyword argument, you should use `\t[1]` and not `\t[n=1]`Default value : `1`
+**Optional positional parameters:**
+
+ _Theses argument are used without keywords, like this : `\foo[bar]`._
+- `n` Number of tabs to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -195,7 +212,7 @@ _Generated from source._
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
-**Other parameters:** Macro arguments names.
+**Other optional parameters:** Macro arguments names.
 
 **Note:** Doesn't work if the name is already taken by another macro.
 
@@ -209,7 +226,7 @@ _Generated from source._
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
-**Other parameters:** Macro arguments names.
+**Other optional parameters:** Macro arguments names.
 
 **Note:** Doesn't work if the name is available.
 
@@ -223,7 +240,7 @@ _Generated from source._
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
-**Other parameters:** Macro arguments names.
+**Other optional parameters:** Macro arguments names.
 
 **Note:** Doesn't work if the name is available or isn't a predefined macro.
 
@@ -237,7 +254,7 @@ _Generated from source._
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
-**Other parameters:** Macro arguments names.
+**Other optional parameters:** Macro arguments names.
 
 **Note:** Contrary to `\def`, can erase another macro without error.
 
@@ -263,8 +280,10 @@ _Generated from source._
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
-**Optionnal parameters:**
-- `local` Is the new macro local to the current scope.. It is not a keyword argument, you should use `\alias[{}]` and not `\alias[local={}]`Default value : `{}`
+**Flags:**
+
+ _Flags are optional positional arguments with one value. Behavior occurs when this argument is present._
+- `local` Is the new macro local to the current scope.
 
 **Alias:** `\aliasl` is equivalent as `\alias[local]`
 
@@ -289,7 +308,7 @@ _Generated from source._
 **Parameters:**
 - `name` Name of an existing macro.
 
-**Other parameters:** Any parameters used by the given macro.
+**Other optional parameters:** Any parameters used by the given macro.
 
 ### raw
 

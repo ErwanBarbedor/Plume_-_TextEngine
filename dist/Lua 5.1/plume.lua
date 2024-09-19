@@ -1746,7 +1746,7 @@ end
 -- name2 will be a new way to call name1.
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
--- @option_nokw local={} Is the new macro local to the current scope.
+-- @flag local Is the new macro local to the current scope.
 -- @alias `\aliasl` is equivalent as `\alias[local]`
 plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
     local name1 = args.name1:render()
@@ -2084,11 +2084,11 @@ end
 --- \eval
 -- Evaluate the given expression or execute the given statement.
 -- @param code The code to evaluate or execute.
--- @option remove_zeros={} If set to anything not empty and the result is a number, remove useless zeros (e.g., 1.0 becomes 1).
 -- @option thousand_separator={} Symbol used between groups of 3 digits.
 -- @option decimal_separator=. Symbol used between the integer and the decimal part.
--- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
--- @option_kw silent Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
+-- @option_nokw format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
+-- @flag remove_zeros Remove useless zeros (e.g., `1.0` becomes `1`).
+-- @flag silent Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
 -- @alias `#{1+1}` is the same as `\eval{1+1}`
 -- @note If the given code is a statement, it cannot return any value.
 -- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
