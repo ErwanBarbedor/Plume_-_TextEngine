@@ -125,6 +125,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 - New configuration `plume.config.filter_spaces`, and `plume.config.filter_newlines`.
 - New macro `set_space_mode`
 
+#### Fixes
+- Preventing somme infinite loop when use `#` inside `\default eval`
+
 ### 0.4.0
 
 #### Changes

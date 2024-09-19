@@ -2253,35 +2253,40 @@ end
 --- \eval
 -- Evaluate the given expression or execute the given statement.
 -- @param code The code to evaluate or execute.
--- @option remove_zeros={} If set to anything not empty and the result is a number, remove useless zeros. (ex: 1.0 becomes 1)
+-- @option remove_zeros={} If set to anything not empty and the result is a number, remove useless zeros (e.g., 1.0 becomes 1).
 -- @option thousand_separator={} Symbol used between groups of 3 digits.
 -- @option decimal_separator=. Symbol used between the integer and the decimal part.
--- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the comma. If set to `.3s`, it will be output using scientific notation, with 3 digits after the comma.
--- @option_kw silent Execute the code without returning anything. Usefull for filtering unwanted function return : `#{table.remove(t)}[silent]`
+-- @option format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
+-- @option_kw silent Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
 -- @alias `#{1+1}` is the same as `\eval{1+1}`
--- @note If the given code is the statement, it cannot return any value.
-
+-- @note If the given code is a statement, it cannot return any value.
+-- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
-    -- Get optionnals args
-    local remove_zeros
-    local format
-    local scinot
-    local silent
 
-    for i, arg in ipairs(args.__args) do
-        local arg_render = arg:render ()
+    local remove_zeros, format, scinot, silent
 
-        if not remove_zeros and arg_render == "remove_zeros" then
-            remove_zeros = true
-        elseif not silents and arg_render == "silent" then
-            silent = true
-        elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
-            format = arg_render
-        elseif not scinot and arg_render:match('%.[0-9]+s') then
-            scinot = arg_render:match('%.([0-9]+)s')
-        else
-            plume.error(arg, "Unknow arg '" .. arg_render .. "'.")
+    -- Used to prevent infinite loop when '#' is used inside default eval args value
+    if not plume.is_inside_eval then
+        plume.is_inside_eval = true
+
+        -- Get optionnals args
+        for i, arg in ipairs(args.__args) do
+            local arg_render = arg:render ()
+
+            if not remove_zeros and arg_render == "remove_zeros" then
+                remove_zeros = true
+            elseif not silents and arg_render == "silent" then
+                silent = true
+            elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
+                format = arg_render
+            elseif not scinot and arg_render:match('%.[0-9]+s') then
+                scinot = arg_render:match('%.([0-9]+)s')
+            else
+                plume.error(arg, "Unknow arg '" .. arg_render .. "'.")
+            end
         end
+
+        plume.is_inside_eval = false
     end
 
     -- Get separator if provided

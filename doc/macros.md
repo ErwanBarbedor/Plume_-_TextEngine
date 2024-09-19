@@ -130,12 +130,12 @@ _Generated from source._
 - `code` The code to evaluate or execute.
 
 **Optionnal parameters:**
-- `remove_zeros` If set to anything not empty and the result is a number, remove useless zeros. (ex: 1.0 becomes 1)Default value : `{}`
+- `remove_zeros` If set to anything not empty and the result is a number, remove useless zeros (e.g., 1.0 becomes 1).Default value : `{}`
 - `thousand_separator` Symbol used between groups of 3 digits.Default value : `{}`
 - `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
-- `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the comma. If set to `.3s`, it will be output using scientific notation, with 3 digits after the comma.Default value : `{}`
+- `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.Default value : `{}`
 
-**Note:** If the given code is the statement, it cannot return any value.
+**Note:** If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 
 **Alias:** `#{1+1}` is the same as `\eval{1+1}`
 

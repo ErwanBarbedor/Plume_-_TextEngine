@@ -92,6 +92,13 @@ table
 
 // End
 
+// Test 'Default eval'
+#{format = ".2f"}//
+\default eval[{#format}]//
+#{5/3}
+// Result
+1.67
+// End
 
 // Test 'Eval syntax error 5.1 and jit'
 #{a = a+}
