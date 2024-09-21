@@ -50,7 +50,7 @@ plume.register_macro("t", {}, {}, function(args)
     return ("\t"):rep(count)
 end, nil, false, true)
 
---- \config_spaces
+--- \set_space_mode
 -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces) and `light` (replace all space sequence with " ")
 plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_token)
