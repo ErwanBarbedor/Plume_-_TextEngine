@@ -99,9 +99,9 @@ function plume.parse_opt_args (macro, args, opt_args)
     end
 end
 
---- Main Plume - TextEngine function, that builds the output.
--- @param self tokenlist The token list to render
--- @return string The rendered output
+--- @api_method Get tokenlist rendered.
+-- @name render
+-- @return output The string rendered tokenlist.
 function plume.renderToken (self)
     local pos = 1
     local result = {}
@@ -310,18 +310,17 @@ function plume.renderToken (self)
     return table.concat(result)
 end
 
---- If the tokenlist starts with `#`, `eval` or `script`
--- evaluate this macro and return the result as a lua object,
--- without conversion to string.
--- Otherwise, render the tokenlist.
--- @param self tokenlist The token list to render
+--- @api_method Get tokenlist rendered. If the tokenlist first child is an eval block, evaluate it and return the result as a lua object. Otherwise, render the tokenlist.
+-- @name renderLua
 -- @return lua_objet Result of evaluation
 function plume.renderTokenLua (self)
     local is_lua
     if #self == 2 and self[1].kind == "macro" then
         is_lua = is_lua or self[1].value == "#"
         is_lua = is_lua or self[1].value == "eval"
+        --          To be removed in 1.0          --
         is_lua = is_lua or self[1].value == "script"
+        --------------------------------------------
     end
 
     if is_lua then

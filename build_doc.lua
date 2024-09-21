@@ -11,75 +11,87 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
+local function capture_api_method_doc (result, doc, method_name, usage)
+    local params  = {}
+    local params_names = {}
+    local notes   = {}
+    local returns = {}
+    local returns_names = {}
+    local alias
 
-local function capture_api_doc (result, source)
-    for doc, method_name in source:gmatch("%-%-%- @api_method(.-)function api%.([A-Za-z0-9_]+)") do
-        local params  = {}
-        local params_names = {}
-        local notes   = {}
-        local returns = {}
-        local returns_names = {}
-        local alias
+    for name, typ, desc in doc:gmatch('%-%- @param ([A-Za-z0-9_]+) ([A-Za-z0-9_]+) ([^\n\r]*)') do
+        table.insert(params_names, name)
+        table.insert(params, "`" .. name .. "` _" .. typ .. "_  " .. desc)
+    end
 
-        for name, typ, desc in doc:gmatch('%-%- @param ([A-Za-z0-9_]+) ([A-Za-z0-9_]+) ([^\n\r]*)') do
-            table.insert(params_names, name)
-            table.insert(params, "`" .. name .. "` _" .. typ .. "_  " .. desc)
-        end
+    for name, def, typ, desc in doc:gmatch('%-%- @param ([A-Za-z0-9_]+)=(%S+) ([A-Za-z0-9_]+) ([^\n\r]*)') do
+        table.insert(params_names, name)
+        table.insert(params, "`" .. name .. "` _" .. typ .. "_ " .. desc .. " _(optional, default `"..def.."`)_")
+    end
 
-        for name, def, typ, desc in doc:gmatch('%-%- @param ([A-Za-z0-9_]+)=(%S+) ([A-Za-z0-9_]+) ([^\n\r]*)') do
-            table.insert(params_names, name)
-            table.insert(params, "`" .. name .. "` _" .. typ .. "_ " .. desc .. " _(optional, default `"..def.."`)_")
-        end
+    for name, desc in doc:gmatch('%-%- @return ([A-Za-z0-9_]+) ([^\n\r]*)') do
+        table.insert(returns, "`" .. name .. "`" .. desc)
+        table.insert(returns_names, name)
+    end
 
-        for name, desc in doc:gmatch('%-%- @return ([A-Za-z0-9_]+) ([^\n\r]*)') do
-            table.insert(returns, "`" .. name .. "`" .. desc)
-            table.insert(returns_names, name)
-        end
+    for name in doc:gmatch('%-%- @alias ([A-Za-z0-9_]+)') do
+        alias = name
+    end
 
-        for name, desc in doc:gmatch('%-%- @alias ([A-Za-z0-9_]+)') do
-            alias = name
-        end
+    for name in doc:gmatch('%-%- @name ([A-Za-z0-9_]+)') do
+        method_name = name
+    end
 
-        for desc in doc:gmatch('%-%- @note ([^\n\r]*)') do
-            table.insert(notes, desc)
-        end
+    for desc in doc:gmatch('%-%- @note ([^\n\r]*)') do
+        table.insert(notes, desc)
+    end
 
-        table.insert(result, "### " .. method_name )
+    table.insert(result, "### " .. method_name )
 
-        if #returns == 0 then
-            table.insert(result, "**Usage :** `plume." .. method_name .. "(" .. table.concat(params_names, ", ") .. ")`")
-        else
-            table.insert(result, "**Usage :** `".. table.concat(returns_names, ", ") .. " = plume." .. method_name .. "(" .. table.concat(params_names, ", ") .. ")`")
-        end
+    if #returns == 0 then
+        table.insert(result, "**Usage :** `" .. usage .. method_name .. "(" .. table.concat(params_names, ", ") .. ")`")
+    else
+        table.insert(result, "**Usage :** `".. table.concat(returns_names, ", ") .. " = " .. usage .. method_name .. "(" .. table.concat(params_names, ", ") .. ")`")
+    end
 
-        doc = doc:match('([^\n\r]+)')
-        if doc and #doc>0 then
-            table.insert(result, "**Description:** " .. doc)
-        end
+    doc = doc:match('([^\n\r]+)')
+    if doc and #doc>0 then
+        table.insert(result, "**Description:** " .. doc)
+    end
 
-        if #params>0 then
-            table.insert(result, '**Parameters :**\n- ' .. table.concat(params, "\n- "))
-        end
+    if #params>0 then
+        table.insert(result, '**Parameters :**\n- ' .. table.concat(params, "\n- "))
+    end
 
-        if #returns == 1 then
-            table.insert(result, "**Return:** " .. returns[1])
-        elseif #returns > 1 then
-            table.insert(result, "**Return:**\n- " .. table.concat(returns, '\n- '))
-        end
+    if #returns == 1 then
+        table.insert(result, "**Return:** " .. returns[1])
+    elseif #returns > 1 then
+        table.insert(result, "**Return:**\n- " .. table.concat(returns, '\n- '))
+    end
 
-        if #notes == 1 then
-            table.insert(result, "**Note:** " .. notes[1])
-        elseif #notes > 1 then
-            table.insert(result, "**Notes:**\n- " .. table.concat(notes, '\n- '))
-        end
+    if #notes == 1 then
+        table.insert(result, "**Note:** " .. notes[1])
+    elseif #notes > 1 then
+        table.insert(result, "**Notes:**\n- " .. table.concat(notes, '\n- '))
+    end
 
-        if alias then
-            table.insert(result, '**Alias :** `plume.' .. alias .. '`')
-        end
+    if alias then
+        table.insert(result, '**Alias :** `plume.' .. alias .. '`')
     end
 end
 
-local function caputre_macro_doc (result, source)
+local function capture_api_doc (result, source, usage, capture)
+    for doc, method_name in source:gmatch("%-%-%- @"..capture.."(.-)function ([%.A-Za-z0-9_]+)") do
+        method_name = method_name:match('[A-Za-z0-9_]+$')
+        capture_api_method_doc (result, doc, method_name, usage)
+    end
+
+    for doc, method_name in source:gmatch("%-%-%- @"..capture.."(.-)[\n\r]+%s*([A-Za-z0-9_]+) = function") do
+        capture_api_method_doc (result, doc, method_name, usage)
+    end
+end
+
+local function capture_macro_doc (result, source)
     for macro_name, doc in source:gmatch("%-%-%- \\([A-Za-z0-9_]+)(.-)plume%.register_macro") do    
         local params = {}
         local params_names = {}
@@ -191,7 +203,7 @@ return function ()
     for categorie in ("Controls Files Script Spaces Utils"):gmatch('%S+') do
         table.insert(result, "## " .. categorie)
         local script = io.open("macros/" .. categorie .. ".lua"):read "*a"
-        caputre_macro_doc (result, script)
+        capture_macro_doc (result, script)
     end
 
     io.open("doc/macros.md", "w"):write(table.concat(result, "\n\n"))
@@ -220,11 +232,27 @@ return function ()
 
     table.insert(result, "## Methods\n\n")
 
-    capture_api_doc (result, script)
+    capture_api_doc (result, script, "plume.", "api_method")
 
-    table.insert(result, "## Tokenlist\n\nTokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.")
+    local script1 = io.open("token.lua"):read ("*a"):match('local tokenlist = setmetatable(.*)')
+    local script2 = io.open("render.lua"):read ("*a")
 
-    local script = io.open("token.lua"):read ("*a")
+    table.insert(result, "## Tokenlist\n\nTokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.\n\nIn addition to the methods listed below, all operations that can be supercharged have also been supercharged. So, if `x` and `y` are two tokenlists, `x + y` is equivalent to `x:render() + y:render()`.\n\nIn the same way, if you call all `string` methods on a tokenlist, the call to `render` will be implicit: `tokenlist:match(...)` is equivalent to `tokenlist:render():match(...)`.")
+
+    local members = {}
+    for name, value, doc in script1:gmatch("(%S+)%s*=%s*([^\n\r]-)%-%-%-([^\n\r]+)") do
+        if not value:match('^%s*function') then
+            table.insert(members, "\n- `tokenlist." .. name .. "` : " .. doc)
+        end
+    end
+    table.insert(result, "### Members" .. table.concat(members))
+
+    capture_api_doc (result, script2, "tokenlist:", "api_method")
+    capture_api_doc (result, script1, "tokenlist:", "api_method")
+
+    table.insert(result, "## Tokenlist - intern methods\n\nThe user have access to theses methods, but shouldn't use it.")
+
+    capture_api_doc (result, script1, "tokenlist:", "intern_method")
 
     io.open("doc/api.md", "w"):write(table.concat(result, "\n\n"))
     print('Documentation for API generated.')

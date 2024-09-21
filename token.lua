@@ -190,16 +190,18 @@ function plume.tokenlist (x)
     end
 
     local tokenlist = setmetatable({
-        __type  = "tokenlist",-- used for debugging
-        kind      = kind,
-        context   = false,
+        __type    = "tokenlist", --- Type of the table. Value : `"tokenlist"`
+        kind      = kind,        --- Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
+        context   = false,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
+        lua_cache = false,       --- For eval tokens, cached loaded lua code.
+
+        -- To be removed --
         first     = false,
         last      = false,
-        lua_cache = false,
+        -------------------
         
-        --- Get information (line, file, ...) about the tokenlist
-        -- The line will be the line of the first token
-        -- @return table
+        --- @intern_method Return debug informations about the tokenlist.
+        -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
         info = function (self)
             local first = self.first or self[1]
             local last = self.last or self[#self]
@@ -221,8 +223,8 @@ function plume.tokenlist (x)
             }
         end,
 
-        --- @api_method Copy the tokenlist
-        -- @return tokenlist
+        --- @itern_method Copy the tokenlist.
+        -- @return tokenlist The copied tokenlist.
         copy = function (self)
             local token_copy     = plume.tokenlist ()
             token_copy.kind      = self.kind
@@ -243,8 +245,9 @@ function plume.tokenlist (x)
 
         end,
 
-        --- Freezes the scope for all tokens in the list
-        -- @param scope table The scope to freeze
+        --- @intern_method Freezes the scope for all tokens in the list.
+        -- @param scope table The scope to freeze.
+        -- @param forced boolean Force to re-freeze already frozen children?
         set_context = function (self, scope, forced)
             -- Each token keeps a reference to given scope
             for _, token in ipairs(self) do
@@ -259,7 +262,7 @@ function plume.tokenlist (x)
             end
         end,
     
-        --- @api_method Returns the source code of the tokenlist
+        --- @api_method Returns the raw code of the tokenlist, as is writed in the source file.
         -- @return string The source code
         source = function (self)
             -- "detokenize" the tokens, to retrieve the
@@ -282,8 +285,8 @@ function plume.tokenlist (x)
             return table.concat(result, "")
         end,
 
-        --- @api_method Render the tokenlist and check if empty
-        -- @return bool
+        --- @api_method Render the tokenlist and return true if it is empty
+        -- @return bool Is the tokenlist empty?
         is_empty = function (self)
             return #self:render() == 0
         end,

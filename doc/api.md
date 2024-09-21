@@ -58,7 +58,7 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 **Usage :** `value = plume.get_render(key)`
 
-**Description:**  Get a variable value by name in the current scope. If the variable has a render method (see [render](#tokenlist.render)), call it and return the result. Otherwise, return the variable.
+**Description:**  Get a variable value by name in the current scope. If the variable has a render method (see [render](#render)), call it and return the result. Otherwise, return the variable.
 
 **Parameters :**
 - `key` _string_  The variable name
@@ -71,7 +71,7 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 **Usage :** `value = plume.lua_get(key)`
 
-**Description:**  Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#tokenlist.renderLua)), call it and return the result. Otherwise, return the variable.
+**Description:**  Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#renderLua)), call it and return the result. Otherwise, return the variable.
 
 **Parameters :**
 - `key` _string_  The variable name
@@ -104,3 +104,67 @@ Méthodes et variables Lua accessibles in any `#` macro.
 ## Tokenlist
 
 Tokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.
+
+In addition to the methods listed below, all operations that can be supercharged have also been supercharged. So, if `x` and `y` are two tokenlists, `x + y` is equivalent to `x:render() + y:render()`.
+
+In the same way, if you call all `string` methods on a tokenlist, the call to `render` will be implicit: `tokenlist:match(...)` is equivalent to `tokenlist:render():match(...)`.
+
+### Members
+- `tokenlist.__type` :  Type of the table. Value : `"tokenlist"`
+- `tokenlist.kind` :  Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
+- `tokenlist.context` :  The scope of the tokenlist. If set to false (default), search vars in the current scope.
+- `tokenlist.lua_cache` :  For eval tokens, cached loaded lua code.
+
+### render
+
+**Usage :** `output = tokenlist:render()`
+
+**Description:**  Get tokenlist rendered.
+
+**Return:** `output`The string rendered tokenlist.
+
+### renderLua
+
+**Usage :** `lua_objet = tokenlist:renderLua()`
+
+**Description:**  Get tokenlist rendered. If the tokenlist first child is an eval block, evaluate it and return the result as a lua object. Otherwise, render the tokenlist.
+
+**Return:** `lua_objet`Result of evaluation
+
+### source
+
+**Usage :** `string = tokenlist:source()`
+
+**Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
+
+**Return:** `string`The source code
+
+### is_empty
+
+**Usage :** `bool = tokenlist:is_empty()`
+
+**Description:**  Render the tokenlist and return true if it is empty
+
+**Return:** `bool`Is the tokenlist empty?
+
+## Tokenlist - intern methods
+
+The user have access to theses methods, but shouldn't use it.
+
+### info
+
+**Usage :** `debug_info = tokenlist:info()`
+
+**Description:**  Return debug informations about the tokenlist.
+
+**Return:** `debug_info`A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
+
+### set_context
+
+**Usage :** `tokenlist:set_context(scope, forced)`
+
+**Description:**  Freezes the scope for all tokens in the list.
+
+**Parameters :**
+- `scope` _table_  The scope to freeze.
+- `forced` _boolean_  Force to re-freeze already frozen children?

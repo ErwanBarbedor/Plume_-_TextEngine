@@ -54,7 +54,7 @@ function api.get (key)
     return plume.current_scope().variables[key]
 end
 
---- @api_method Get a variable value by name in the current scope. If the variable has a render method (see [render](#tokenlist.render)), call it and return the result. Otherwise, return the variable.
+--- @api_method Get a variable value by name in the current scope. If the variable has a render method (see [render](#render)), call it and return the result. Otherwise, return the variable.
 -- @param key string The variable name
 -- @alias getr
 -- @return value The required variable.
@@ -68,7 +68,7 @@ function api.get_render (key)
 end
 api.getr = api.get_render
 
---- @api_method Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#tokenlist.renderLua)), call it and return the result. Otherwise, return the variable.
+--- @api_method Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#renderLua)), call it and return the result. Otherwise, return the variable.
 -- @param key string The variable name
 -- @alias lget
 -- @return value The required variable.
