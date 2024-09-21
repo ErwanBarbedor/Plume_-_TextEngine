@@ -182,9 +182,9 @@ _Generated from source._
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
-### config_spaces
+### set_space_mode
 
-**Usage:** `\config_spaces {mode}`
+**Usage:** `\set_space_mode {mode}`
 
 **Description:** Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 
