@@ -1,186 +1,106 @@
-# Predefined functions
+# Plume API
+_Generated from source._
+
+Méthodes et variables Lua accessibles in any `#` macro.
+
+## Variables
+
+| Name |  Description |
+| ----- | ----- |
+| `__args` | When inside a macro, contain all macro-given parameters, use `ipairs` to iterate over them. Contain also provided flags as keys.|
+| `__file_args` | Work as `__args`, but inside a file imported by using `\include` |
+| `plume._VERSION` |  Version of plume. |
+| `plume._LUA_VERSION` |  Lua version compatible with this plume distribution. |
+| `plume.input_file` |  If use in command line, path of the input file. |
+| `plume.output_file` |  Name of the file to output execution result. If set to none, don't print anything. Can be set by command line. |
+
+## Methods
 
 
-## `plume` functions
 
-`plume` is a global table containing the following functions :
+### capture_local
 
-### `plume.get ()`
+**Usage :** `plume.capture_local()`
 
-**Description:** Get a variable value from current scope by name.
+**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `#` block in statement-mode.
 
-**Parameters:**
-- _name_: Variable name
+**Note:** Mainly internal use, you shouldn't use this function.
 
-**Note** : `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See `plume.get_render` and `plume.get_renderLua`
+### open
 
-```plume
-\script{
-    a = 1
-    return plume.get "a"
-}
-```
-Output
-```
-1
-```
+**Usage :** `file, founded_path = plume.open(path, open_mode, silent_fail)`
 
-### `plume.get_render ()`
-**Description:** If the variable has a render method, call it and return the result. Otherwise, return the variable.
+**Description:**  Searches for a file using the [plume search system](macros.md#include) and open it in the given mode. Return the opened file and the full path of the file.
 
-**Parameters:**
-- _name_: Variable name
+**Parameters :**
+- `path` _string_  The path where to search for the file.
+- `open_mode` _string_ Mode to open the file. _(optional, default `"r"`)_
+- `silent_fail` _boolean_ If true, the search will not raise an error if no file is found. _(optional, default `false`)_
 
-**Alias** : `plume.getr`
+**Return:**
+- `file`The file found during the search, opened in the given mode.
+- `founded_path`The path of the file founded.
 
-### `plume.getr ()`
-**Description:** Alias to `plume.get_render`
+### get
 
-### `plume.lua_get ()`
-**Description:** If the variable has a renderLua method, call it and return the result. Otherwise, return the variable.
+**Usage :** `value = plume.get(key)`
 
-**Parameters:**
-- _name_: Variable name
+**Description:**  Get a variable value by name in the current scope.
 
-**Alias** : `plume.lget`
+**Parameters :**
+- `key` _string_  The variable name.
 
-### `plume.getl ()`
-**Description:** Alias to `plume.get_renderLua`
+**Return:** `value`The required variable.
 
-### `plume.require ()`
+**Note:** `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
+
+### get_render
+
+**Usage :** `value = plume.get_render(key)`
+
+**Description:**  Get a variable value by name in the current scope. If the variable has a render method (see [render](#tokenlist.render)), call it and return the result. Otherwise, return the variable.
+
+**Parameters :**
+- `key` _string_  The variable name
+
+**Return:** `value`The required variable.
+
+**Alias :** `plume.getr`
+
+### lua_get
+
+**Usage :** `value = plume.lua_get(key)`
+
+**Description:**  Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#tokenlist.renderLua)), call it and return the result. Otherwise, return the variable.
+
+**Parameters :**
+- `key` _string_  The variable name
+
+**Return:** `value`The required variable.
+
+**Alias :** `plume.lget`
+
+### require
+
+**Usage :** `lib = plume.require(path)`
 
 **Description:**  Works like Lua's require, but uses Plume's file search system.
 
-**Parameters:**
-- _name_: Name of the lua file to load.
+**Parameters :**
+- `path` _string_  Path of the lua file to load
 
-### `plume.open ()`
+**Return:** `lib`The require lib
 
-**Description:**  Searches for a file using the plume search system and open it in the given mode. Return the opened file and the full path of the file.
+### export
 
-**Parameters:**
-_path (string)_ : The path where to search for the file.
-_safe_mode (boolean)_ : If true, the search will not raise an error if no file is found.
-_open_mode (boolean)_ : Defaut "r". Mode to open the file.
+**Usage :** `plume.export(name, arg_number)`
 
-### `plume.capture_local ()`
+**Description:**  Create a macros from a lua function.
 
-**Description:** Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `\script`.
+**Parameters :**
+- `name` _string_  Name of the macro
+- `arg_number` _Number_  of arguments to capture
 
-**Notes:** Mainly internal use, you shouldn't use this function.
+## Tokenlist
 
-### `plume.export()`
-
-**Description:** Export a lua function as a macro. If not name provided, try to get it using debug.
-
-**Parameters:**
-_name (string)_ Name of the macro
-_arg_number (number)_Number of arguments to capture
-_f (function)_
-```
-\script{
-    function add(x, y)
-        return x+y
-    end
-
-    plume.export("add", 2, add)
-}
-
-\add{1}{2}
-```
-
-Output `3`
-
-## `plume` variables
-
-| Name                   |  Notes |
-| ---------------------  | ----------- |
-| input_file             | input path given to plume, if any |
-| output_file            | output path given to plume, if any |
-| _VERSION               | plume version |
-| _LUA\_VERSION          | lua version. |
-
-## `tokenlist`
-
-`tokenlist` are Lua representations of Plume structures. You can access them in a macro call via variables named after arguments.
-
-Example:
-```plume
-\def foo[x] {
-    #{x.__type}
-}
-\foo 5
-```
-Output:
-```
-tokenlist
-```
-
-## `tokenlist:[method] ()`
-If tokenlist doesn't have the requested method, it implicitly calls tokenlist:renderLua () and tries to call the method on the result. This is particularly useful for calling string methods directly, such as gsub or others.
-
-If `x` is a tokenlist `#{x:gsub ("a", "b")}` is the same as `#{x:render():gsub ("a", "b")}`
-
-## `tokenlist+tokenlist`, `tokenlist-tokenlist`, ...
-
-For all calculation metamethods (including concatenation), Plume will implicitly call `:render()` on each operand and attempt to convert them before performing the calculation.
-
-If `x` and `y` are tokenlists, this allows you to write `#{x+y}` instead of `#{tonumber(x:render()) + tonumber(y:render())}`.
-
-## `tokenlist:render ()`
-
-**Description:**  Renders tokenlist
-
-Example:
-```plume
-\def foo[x] {
-    x=#{x:render()}
-}
-\foo 5
-```
-Output:
-```
-x=5
-```
-
-## `tokenlist:renderLua ()`
-
-**Description:** If the tokenlist starts with `#`, `eval` or `script`, evaluate this macro and return the result as a lua object, without conversion to string.
-Otherwise, render the tokenlist.
-
-```plume
-\def foo[x] {
-    Render : #{type(x:render())}
-    RenderLua : #{type(x:renderLua())}
-}
-
-\foo #{{}}
-```
-Output :
-```
-Render : string
-RenderLua : table
-```
-
-## `tokenlist:source ()`
-
-**Description:** Get tokenlist string representation
-
-Example:
-```plume
-\def foo[x] {
-    Source   : #{x:source ()}
-    Rendered : #{x:render()}
-}
-\foo #{1+1}
-```
-Output:
-```
-Source   : #{1+1}
-Rendered : 2
-```
-
-
-## `tokenlist:is_empty ()`
-
-**Description:** Renders token list and checks if its length is 0.
+Tokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.

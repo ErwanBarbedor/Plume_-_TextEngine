@@ -592,7 +592,7 @@ function plume.tokenlist (x)
             }
         end,
 
-        --- Copy the tokenlist
+        --- @api_method Copy the tokenlist
         -- @return tokenlist
         copy = function (self)
             local token_copy     = plume.tokenlist ()
@@ -630,7 +630,7 @@ function plume.tokenlist (x)
             end
         end,
     
-        --- Returns the source code of the tokenlist
+        --- @api_method Returns the source code of the tokenlist
         -- @return string The source code
         source = function (self)
             -- "detokenize" the tokens, to retrieve the
@@ -653,7 +653,7 @@ function plume.tokenlist (x)
             return table.concat(result, "")
         end,
 
-        --- Render the tokenlist and check if empty
+        --- @api_method Render the tokenlist and check if empty
         -- @return bool
         is_empty = function (self)
             return #self:render() == 0
@@ -2567,14 +2567,16 @@ function plume.init ()
 end
 
 -- ## api.lua ##
--- Manage methods that are visible from user (not much for now)
+-- Manage methods that are visible from user
 local api = {}
 
+--- @api_variable Version of plume.
 api._VERSION = plume._VERSION
+--- @api_variable Lua version compatible with this plume distribution.
 api._LUA_VERSION = plume._LUA_VERSION
 
---- Captures and stores all local variables
--- in the current scope.
+--- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `#` block in statement-mode.
+-- @note Mainly internal use, you shouldn't use this function.
 function api.capture_local()
     local index = 1
     local calling_token = plume.traceback[#plume.traceback]
@@ -2589,26 +2591,28 @@ function api.capture_local()
     end
 end
 
---- Searches for a file in the given path and open it in the given mode.
+--- @api_method Searches for a file using the [plume search system](macros.md#include) and open it in the given mode. Return the opened file and the full path of the file.
 -- @param path string The path where to search for the file.
--- @param safe_mode boolean If true, the search will not raise an error if no file is found.
--- @param open_mode boolean Defaut "r". Mode to open the file.
--- @return file The file found during the search.
--- @return fpath string The path of the file found.
+-- @param open_mode="r" string Mode to open the file.
+-- @param silent_fail=false boolean If true, the search will not raise an error if no file is found.
+-- @return file The file found during the search, opened in the given mode.
+-- @return founded_path The path of the file founded.
 function api.open (path, open_mode, silent_fail)
     return plume.open (nil, {"?"}, path, open_mode, silent_fail)
 end
 
---- Get a variable value by name
--- @param key string
--- @param value string
+--- @api_method Get a variable value by name in the current scope.
+-- @param key string The variable name.
+-- @return value The required variable.
+-- @note `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
 function api.get (key)
     return plume.current_scope().variables[key]
 end
 
---- Shortcut for api.get(key):render ()
--- @param key string
--- @param value string
+--- @api_method Get a variable value by name in the current scope. If the variable has a render method (see [render](#tokenlist.render)), call it and return the result. Otherwise, return the variable.
+-- @param key string The variable name
+-- @alias getr
+-- @return value The required variable.
 function api.get_render (key)
     local result = plume.current_scope().variables[key]
     if type(result) == table and result.render then
@@ -2617,12 +2621,12 @@ function api.get_render (key)
         return result
     end
 end
---- Alias to api.get_render
 api.getr = api.get_render
 
---- Shortcut for api.get(key):renderLua ()
--- @param key string
--- @param value string
+--- @api_method Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#tokenlist.renderLua)), call it and return the result. Otherwise, return the variable.
+-- @param key string The variable name
+-- @alias lget
+-- @return value The required variable.
 function api.lua_get (key)
     local result = plume.current_scope().variables[key]
     if type(result) == table and result.renderLua then
@@ -2631,16 +2635,15 @@ function api.lua_get (key)
         return result
     end
 end
---- Alias to api.get_renderLua
 api.lget = api.lua_get
 
---- Alias for api.set_local
--- @see api.set_local
+-- To remove in 1.0   --
 api.setl = api.set_local
+------------------------
 
---- Require a lua file
--- @param path string
--- @return table|bool|nil
+--- @api_method Works like Lua's require, but uses Plume's file search system.
+-- @param path string Path of the lua file to load
+-- @return lib The require lib
 function api.require (path)
     local file, filepath, error_message = plume.open (nil, {"?.lua", "?/init.lua"}, path, "r", true)
     if file then
@@ -2652,11 +2655,10 @@ function api.require (path)
     end
 end
 
---- Export a lua function as a macro.
--- @param name string Name of the macro (optionnal)
+--- @api_method Create a macros from a lua function.
+-- @param name string Name of the macro
 -- @param arg_number Number of arguments to capture
 -- @param f function
-
 function api.export(name, arg_number, f)
     local def_args = {}
     for i=1, arg_number do
@@ -2858,7 +2860,9 @@ function plume.cli_main ()
     -- Initialize with the input file
     local currentDirectory = getCurrentDirectory ()
     plume.init (input)
+    --- @api_variable If use in command line, path of the input file.
     plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input)
+    --- @api_variable Name of the file to output execution result. If set to none, don't print anything. Can be set by command line.
     plume.current_scope().variables.plume.output_file = absolutePath(currentDirectory, output)
 
     -- Render the file and capture success or error

@@ -46,7 +46,11 @@ return function ()
                 elseif command == "option" then
                     local name, default, desc = line:match('(%S-)=(%S+)%s+(.*)')
 
-                    table.insert(options, "`" .. name .. "` " .. desc .. "Default value : `"..default.."`")
+                    if default == "{}" then
+                        table.insert(options, "`" .. name .. "` " .. desc .. "Default value : empty")
+                    else
+                        table.insert(options, "`" .. name .. "` " .. desc .. "Default value : `"..default.."`")
+                    end
                     table.insert(options_names, name.."="..default)
                 elseif command == "flag" then
                     local name, desc = line:match('(%S+)%s(.*)')
@@ -56,7 +60,7 @@ return function ()
                 elseif command == "option_nokw" then
                     local name, default, desc = line:match('(%S-)=(%S+)%s+(.*)')
 
-                    table.insert(options_nokw, "`" .. name .. "` " .. desc .. ".")
+                    table.insert(options_nokw, "\n" .. (#options_nokw+1).. ". `" .. name .. "` " .. desc .. ".")
                     table.insert(options_names, "<"..name..">")
                 elseif command == "note" then
                     table.insert(notes, line)
@@ -92,15 +96,15 @@ return function ()
             end
 
             if #options > 0 then
-                table.insert(result, "**Optional keyword parameters:** _Theses argument are used with a keyword, like this : `\\foo[bar=baz]`._\n- " .. table.concat(options, "\n- "))
+                table.insert(result, "**Optional keyword parameters** (_Theses argument are used with a keyword, like this : `\\foo[bar=baz]`._)\n- " .. table.concat(options, "\n- "))
             end
 
             if #options_nokw > 0 then
-                table.insert(result, "**Optional positional parameters:**\n\n _Theses argument are used without keywords, like this : `\\foo[bar]`._\n- " .. table.concat(options_nokw, "\n- "))
+                table.insert(result, "**Optional positional parameters** (_Theses argument are used without keywords, like this : `\\foo[bar]`._) " .. table.concat(options_nokw, ""))
             end
 
             if #flags > 0 then
-                table.insert(result, "**Flags:**\n\n _Flags are optional positional arguments with one value. Behavior occurs when this argument is present._\n- " .. table.concat(flags, "\n- "))
+                table.insert(result, "**Flags** (_Flags are optional positional arguments with one value. Behavior occurs when this argument is present._)\n- " .. table.concat(flags, "\n- "))
             end
 
             if other_options then
@@ -131,5 +135,91 @@ return function ()
 
     io.open("doc/config.md", "w"):write(table.concat(result, "\n"))
     print('Documentation for configuration generated.')
+
+    local result = {"# Plume API\n_Generated from source._\n\nMéthodes et variables Lua accessibles in any `#` macro.\n\n## Variables\n\n| Name |  Description |\n| ----- | ----- |"}
+
+    table.insert(result, "| `__args` | When inside a macro, contain all macro-given parameters, use `ipairs` to iterate over them. Contain also provided flags as keys.|")
+    table.insert(result, "| `__file_args` | Work as `__args`, but inside a file imported by using `\\include` |")
+
+    local script = io.open("api.lua"):read ("*a") .. "\n" .. io.open("cli.lua"):read ("*a")
+    for doc, name in script:gmatch("%-%-%- @api_variable([^\n\r]+).-([A-Za-z0-9_]+)%s*=") do
+        table.insert(result, "| `plume." .. name .. "` | " .. doc .. " |")
+    end
+
+    result = {table.concat(result, "\n")}
+
+    table.insert(result, "## Methods\n\n")
+
+    for doc, method_name in script:gmatch("%-%-%- @api_method(.-)function api%.([A-Za-z0-9_]+)") do
+        local params  = {}
+        local params_names = {}
+        local notes   = {}
+        local returns = {}
+        local returns_names = {}
+        local alias
+
+        for name, typ, desc in doc:gmatch('%-%- @param ([A-Za-z0-9_]+) ([A-Za-z0-9_]+) ([^\n\r]*)') do
+            table.insert(params_names, name)
+            table.insert(params, "`" .. name .. "` _" .. typ .. "_  " .. desc)
+        end
+
+        for name, def, typ, desc in doc:gmatch('%-%- @param ([A-Za-z0-9_]+)=(%S+) ([A-Za-z0-9_]+) ([^\n\r]*)') do
+            table.insert(params_names, name)
+            table.insert(params, "`" .. name .. "` _" .. typ .. "_ " .. desc .. " _(optional, default `"..def.."`)_")
+        end
+
+        for name, desc in doc:gmatch('%-%- @return ([A-Za-z0-9_]+) ([^\n\r]*)') do
+            table.insert(returns, "`" .. name .. "`" .. desc)
+            table.insert(returns_names, name)
+        end
+
+        for name, desc in doc:gmatch('%-%- @alias ([A-Za-z0-9_]+)') do
+            alias = name
+        end
+
+        for desc in doc:gmatch('%-%- @note ([^\n\r]*)') do
+            table.insert(notes, desc)
+        end
+
+        table.insert(result, "### " .. method_name )
+
+        if #returns == 0 then
+            table.insert(result, "**Usage :** `plume." .. method_name .. "(" .. table.concat(params_names, ", ") .. ")`")
+        else
+            table.insert(result, "**Usage :** `".. table.concat(returns_names, ", ") .. " = plume." .. method_name .. "(" .. table.concat(params_names, ", ") .. ")`")
+        end
+
+        doc = doc:match('([^\n\r]+)')
+        if doc and #doc>0 then
+            table.insert(result, "**Description:** " .. doc)
+        end
+
+        if #params>0 then
+            table.insert(result, '**Parameters :**\n- ' .. table.concat(params, "\n- "))
+        end
+
+        if #returns == 1 then
+            table.insert(result, "**Return:** " .. returns[1])
+        elseif #returns > 1 then
+            table.insert(result, "**Return:**\n- " .. table.concat(returns, '\n- '))
+        end
+
+        if #notes == 1 then
+            table.insert(result, "**Note:** " .. notes[1])
+        elseif #notes > 1 then
+            table.insert(result, "**Notes:**\n- " .. table.concat(notes, '\n- '))
+        end
+
+        if alias then
+            table.insert(result, '**Alias :** `plume.' .. alias .. '`')
+        end
+    end
+
+    table.insert(result, "## Tokenlist\n\nTokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.")
+
+    local script = io.open("token.lua"):read ("*a")
+
+    io.open("doc/api.md", "w"):write(table.concat(result, "\n\n"))
+    print('Documentation for API generated.')
 
 end

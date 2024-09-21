@@ -221,7 +221,7 @@ function plume.tokenlist (x)
             }
         end,
 
-        --- Copy the tokenlist
+        --- @api_method Copy the tokenlist
         -- @return tokenlist
         copy = function (self)
             local token_copy     = plume.tokenlist ()
@@ -259,7 +259,7 @@ function plume.tokenlist (x)
             end
         end,
     
-        --- Returns the source code of the tokenlist
+        --- @api_method Returns the source code of the tokenlist
         -- @return string The source code
         source = function (self)
             -- "detokenize" the tokens, to retrieve the
@@ -282,7 +282,7 @@ function plume.tokenlist (x)
             return table.concat(result, "")
         end,
 
-        --- Render the tokenlist and check if empty
+        --- @api_method Render the tokenlist and check if empty
         -- @return bool
         is_empty = function (self)
             return #self:render() == 0

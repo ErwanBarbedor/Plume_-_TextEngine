@@ -122,6 +122,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - New option `silent` for `#`.
 - Documentation for predefined macros is now generated from source.
 - Documentation for configuration is now generated from source.
+- Documentation for api is now generated from source.
 - Configuration `plume.config.ignore_spaces` deprecated. Will be removed in `1.0`.
 - New configuration `plume.config.filter_spaces`, and `plume.config.filter_newlines`.
 - New macro `set_space_mode`

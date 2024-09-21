@@ -129,18 +129,14 @@ _Generated from source._
 **Parameters:**
 - `code` The code to evaluate or execute.
 
-**Optional keyword parameters:** _Theses argument are used with a keyword, like this : `\foo[bar=baz]`._
-- `thousand_separator` Symbol used between groups of 3 digits.Default value : `{}`
+**Optional keyword parameters** (_Theses argument are used with a keyword, like this : `\foo[bar=baz]`._)
+- `thousand_separator` Symbol used between groups of 3 digits.Default value : empty
 - `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
 
-**Optional positional parameters:**
+**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
+1. `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
 
- _Theses argument are used without keywords, like this : `\foo[bar]`._
-- `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
-
-**Flags:**
-
- _Flags are optional positional arguments with one value. Behavior occurs when this argument is present._
+**Flags** (_Flags are optional positional arguments with one value. Behavior occurs when this argument is present._)
 - `remove_zeros` Remove useless zeros (e.g., `1.0` becomes `1`).
 - `silent` Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
 
@@ -159,10 +155,8 @@ _Generated from source._
 
 **Description:** Output a newline.
 
-**Optional positional parameters:**
-
- _Theses argument are used without keywords, like this : `\foo[bar]`._
-- `n` Number of newlines to output..
+**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
+1. `n` Number of newlines to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -172,10 +166,8 @@ _Generated from source._
 
 **Description:** Output a space.
 
-**Optional positional parameters:**
-
- _Theses argument are used without keywords, like this : `\foo[bar]`._
-- `n` Number of spaces to output..
+**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
+1. `n` Number of spaces to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -185,10 +177,8 @@ _Generated from source._
 
 **Description:** Output a tabulation.
 
-**Optional positional parameters:**
-
- _Theses argument are used without keywords, like this : `\foo[bar]`._
-- `n` Number of tabs to output..
+**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
+1. `n` Number of tabs to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -281,9 +271,7 @@ _Generated from source._
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
-**Flags:**
-
- _Flags are optional positional arguments with one value. Behavior occurs when this argument is present._
+**Flags** (_Flags are optional positional arguments with one value. Behavior occurs when this argument is present._)
 - `local` Is the new macro local to the current scope.
 
 **Alias:** `\aliasl` is equivalent as `\alias[local]`
