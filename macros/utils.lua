@@ -280,8 +280,8 @@ end, nil, false, true)
 -- @param value New value to save.
 -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
 plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
-    local name   = args.name:render ()
-    local value  = args.value:renderLua ()
+    local name   = args.positionnals.name:render ()
+    local value  = args.positionnals.value:renderLua ()
     local config = plume.running_api.config
 
     if config[name] == nil then
