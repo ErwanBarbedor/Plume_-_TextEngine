@@ -81,9 +81,9 @@ function plume.init ()
 
     plume.load_macros()
 
-    -- Deprecate set, setl and script
-    for name in ("set setl script"):gmatch('%S+') do
-        plume.deprecate(name, "1.0", "#")
+    -- Deprecate
+    for name in (""):gmatch('%S+') do
+        plume.deprecate(name, "version", "alternative")
     end
     
 

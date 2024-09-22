@@ -245,6 +245,18 @@ _Generated from source._
 
 **Note:** Contrary to `\def`, can erase another macro without error.
 
+### set
+
+**Usage:** `\set`
+
+**Description:** Deprecated and will be removed in 1.0. You should use '#' instead.
+
+### setl
+
+**Usage:** `\setl`
+
+**Description:** Deprecated and will be removed in 1.0. You should use '#' instead.
+
 ### alias
 
 **Usage:** `\alias[local] {name1} {name2}`

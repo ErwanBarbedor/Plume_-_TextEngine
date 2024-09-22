@@ -1803,6 +1803,37 @@ local function alias (name1, name2, calling_token, is_local)
     end
 end
 
+--- Affect a value to a variable
+local function set(params, calling_token, is_local)
+    -- A macro to set variable to a value
+    local key = params.positionnals.key:render()
+    if not plume.is_identifier(key) then
+        plume.error(params.positionnals.key, "'" .. key .. "' is an invalid name for a variable.")
+    end
+
+    local value = params.positionnals.value:render ()
+    
+    if is_local then
+        plume.current_scope (calling_token.context):set_local("variables", key, value)
+    else
+        plume.current_scope (calling_token.context):set("variables", key, value) 
+    end
+end
+
+--- \set
+-- Deprecated and will be removed in 1.0. You should use '#' instead.
+plume.register_macro("set", {"key", "value"}, {}, function(params, calling_token)
+    set(params, calling_token, false)
+    return ""
+end, nil, false, true)
+
+--- \setl
+-- Deprecated and will be removed in 1.0. You should use '#' instead.
+plume.register_macro("setl", {"key", "value"}, {}, function(params, calling_token)
+    set(params, calling_token, true)
+    return ""
+end, nil, false, true)
+
 --- \alias
 -- name2 will be a new way to call name1.
 -- @param name1 Name of an existing macro.
@@ -2621,9 +2652,9 @@ function plume.init ()
 
     plume.load_macros()
 
-    -- Deprecate set, setl and script
-    for name in ("set setl script"):gmatch('%S+') do
-        plume.deprecate(name, "1.0", "#")
+    -- Deprecate
+    for name in (""):gmatch('%S+') do
+        plume.deprecate(name, "version", "alternative")
     end
     
 

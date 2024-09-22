@@ -114,7 +114,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 #### Changes
 - Rework macros parameters.
 - Use an unknow paramter name will now raise an error.
-- Due to change, remove `set`, `setl` and `script` without waiting for `1.0`.
+- Due to change, remove `script` without waiting for `1.0`.
+- The functions `set` and `setl` are no longer deprecated.
+- `set` and `setl` dont do implicit conversion on the fly.
 - `light` space mode became `compact`. New space mode `light`.
 - Add new error when using wrong syntax inside optional parameters declaration, instead of crash.
 
