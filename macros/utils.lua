@@ -64,6 +64,7 @@ end
 local function def (def_args, redef, redef_forced, is_local, calling_token)
     -- Get the provided macro name
     local name = def_args.positionnals.name:render()
+    local varags = false
 
     -- Check if the name is a valid identifier
     if not plume.is_identifier(name) then
@@ -86,18 +87,22 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
 
     local parameters_names = {}
     for _, name in ipairs(def_args.others.flags) do
-        local flag = false
-        if name:sub(1, 1) == "?" then
-            name = name:sub(2, -1)
-            flag = true
-        end
-        if not plume.is_identifier(name) then
-            plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
-        end
-        if flag then
-            def_args.others.keywords[name] = false
+        if name == "..." then
+            varags = true
         else
-            table.insert(parameters_names, name)
+            local flag = false
+            if name:sub(1, 1) == "?" then
+                name = name:sub(2, -1)
+                flag = true
+            end
+            if not plume.is_identifier(name) then
+                plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
+            end
+            if flag then
+                def_args.others.keywords[name] = false
+            else
+                table.insert(parameters_names, name)
+            end
         end
     end
 
@@ -124,6 +129,19 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
                 args.keywords[k]:set_context (last_scope)
             end
         end
+
+        -- A table to store excedent args
+        local __params = {}
+        for k, v in pairs(args.others.keywords) do
+            if type(args.others.keywords[k]) == "table" then
+                 __params[k] = v:copy ()
+                 __params[k]:set_context (last_scope)
+            end
+        end
+        for _, k in ipairs(args.others.flags) do
+            __params[k] = true
+        end
+
         
         -- argument are variable local to the macro
         plume.push_scope ()
@@ -139,6 +157,8 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
             plume.current_scope():set_local("variables", k, true)
         end
 
+        plume.current_scope():set_local("variables", "__params", __params)
+
         local body = def_args.positionnals.body:copy ()
         body:set_context (plume.current_scope (), true)
         local result = body:render()
@@ -150,7 +170,7 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
         plume.pop_scope ()
 
         return result
-    end, calling_token)
+    end, calling_token, false, false, varags)
 end
 
 --- \def

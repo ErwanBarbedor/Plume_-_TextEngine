@@ -92,7 +92,7 @@ By default, Plume will raise an error if you use unknown flags or keyword parame
 You can modify this behavior:
 
 ```plume
-\def foo[*] {
+\def foo[...] {
     #{__params.bar} -> baz
     #{__params.flag} -> true
 }
