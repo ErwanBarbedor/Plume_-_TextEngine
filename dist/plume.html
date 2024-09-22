@@ -148,7 +148,7 @@ Like that? \raw{\double[suffix=end] {Hi!}} --> \double[suffix=end] {Hi!}
     </div>
     <h1>
         <img src="plume.png" width="200" height="100">
-        <p>Version 0.5.0</p>
+        <p>Version 0.6.0</p>
     </h1>
     <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
         View on GitHub
@@ -159,7 +159,7 @@ Like that? \raw{\double[suffix=end] {Hi!}} --> \double[suffix=end] {Hi!}
 
 <script type="application/lua">
     --[[
-Plume - TextEngine 0.5.0 (Lua 5.3)
+Plume - TextEngine 0.6.0 (Lua 5.3)
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -179,7 +179,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.5.0 (Lua 5.3)"
+plume._VERSION = "Plume - TextEngine 0.6.0 (Lua 5.3)"
 
 
 -- ## config.lua ##
@@ -2389,7 +2389,7 @@ plume.register_macro("t", {}, {}, function(args)
     return ("\t"):rep(count)
 end, nil, false, true)
 
---- \config_spaces
+--- \set_space_mode
 -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces) and `light` (replace all space sequence with " ")
 plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_token)
@@ -2896,7 +2896,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.5.0 (Lua 5.3)
+Plume - TextEngine 0.6.0 (Lua 5.3)
 Plume is a templating langage with advanced scripting features.
 
 Usage:
