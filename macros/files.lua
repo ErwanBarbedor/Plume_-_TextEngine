@@ -91,8 +91,8 @@ end
 -- Execute a Lua file in the current scope.
 -- @param path Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
 -- @note Unlike the Lua `require` function, `\require` macro does not perform any caching.
-plume.register_macro("require", {"path"}, {}, function(args, calling_token)
-    local path = args.positionnals.path:render ()
+plume.register_macro("require", {"path"}, {}, function(params, calling_token)
+    local path = params.positionnals.path:render ()
 
     local formats = {}
     
@@ -103,7 +103,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?/init.lua") 
     end
 
-    local file, filepath = plume.open (args.positionnals.path, formats, path)
+    local file, filepath = plume.open (params.positionnals.path, formats, path)
 
     local f = plume.call_lua_chunk (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
@@ -113,10 +113,10 @@ end, nil, false, true)
 --- \include
 -- Execute a plume file in the current scope.
 -- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
--- @other_options Any argument will be accessible from the included file, in the field `__file_args`.
-plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
+-- @other_options Any argument will be accessible from the included file, in the field `__file_params`.
+plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
     --  Execute the given file and return the output
-    local path = args.positionnals["$path"]:render ()
+    local path = params.positionnals["$path"]:render ()
 
     local formats = {}
     
@@ -124,15 +124,15 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     table.insert(formats, "?.plume")
     table.insert(formats, "?/init.plume")  
 
-    local file, filepath = plume.open (args.positionnals["$path"], formats, path)
+    local file, filepath = plume.open (params.positionnals["$path"], formats, path)
 
     -- file scope
     plume.push_scope ()
 
         -- Add arguments to file scope
-        local file_args = {}
+        local file_params = {}
 
-        plume.current_scope (calling_token.context):set_local("variables", "__file_args", file_args)
+        plume.current_scope (calling_token.context):set_local("variables", "__file_params", file_params)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)
@@ -146,16 +146,16 @@ end, nil, false, true)
 --- \extern
 -- Insert content of the file without execution. Quite similar to `\raw`, but for a file.
 -- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... 
-plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
+plume.register_macro("extern", {"path"}, {}, function(params, calling_token)
     -- Include a file without execute it
 
-    local path = args.positionnals.path:render ()
+    local path = params.positionnals.path:render ()
 
     local formats = {}
     
     table.insert(formats, "?")
 
-    local file, filepath = plume.open (args.positionnals.path, formats, path)
+    local file, filepath = plume.open (params.positionnals.path, formats, path)
 
     return file:read("*a")
 end, nil, false, true)
@@ -164,18 +164,18 @@ end, nil, false, true)
 -- Render a plume chunck and save the output in the given file.
 -- @param path Name of the file to write.
 -- @param note Content to write in the file.
-plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
+plume.register_macro("file", {"path", "content"}, {}, function (params, calling_token)
     -- Capture content and save it in a file.
     -- Return nothing.
     -- \file {foo.txt} {...}
-    local path = args.positionnals.path:render ()
+    local path = params.positionnals.path:render ()
     local file = io.open(path, "w")
 
         if not file then
             plume.error (calling_token, "Cannot write file '" .. path .. "'")
         end
 
-        local content = args.content:render ()
+        local content = params.content:render ()
         file:write(content)
 
     file:close ()

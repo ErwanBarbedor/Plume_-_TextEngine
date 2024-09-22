@@ -7,8 +7,8 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 | Name |  Description |
 | ----- | ----- |
-| `__args` | When inside a macro, contain all macro-given parameters, use `ipairs` to iterate over them. Contain also provided flags as keys.|
-| `__file_args` | Work as `__args`, but inside a file imported by using `\include` |
+| `__params` | When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them.|
+| `__file_params` | Work as `__params`, but inside a file imported by using `\include` |
 | `plume._VERSION` |  Version of plume. |
 | `plume._LUA_VERSION` |  Lua version compatible with this plume distribution. |
 | `plume.input_file` |  If use in command line, path of the input file. |
@@ -99,7 +99,7 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 **Parameters :**
 - `name` _string_  Name of the macro
-- `arg_number` _Number_  of arguments to capture
+- `arg_number` _Number_  of paramters to capture
 
 ## Tokenlist
 

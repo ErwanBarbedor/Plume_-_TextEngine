@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Tools for debuging during developpement.
 
-plume.register_macro("stop", {""}, {}, function(args, calling_token)
+plume.register_macro("stop", {""}, {}, function(params, calling_token)
     plume.error(calling_token, "Program ends by macro.")
 end)
 
@@ -42,7 +42,7 @@ local function print_env(env, field, indent)
     end
 end
 
-plume.register_macro("print_env", {"field"}, {}, function(args, calling_token)
+plume.register_macro("print_env", {"field"}, {}, function(params, calling_token)
     print("=== Environnement informations ===")
-    print_env (plume.scopes[1], args.field:render())
+    print_env (plume.scopes[1], params.field:render())
 end, nil, false, true)

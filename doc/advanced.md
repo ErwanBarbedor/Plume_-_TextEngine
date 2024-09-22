@@ -102,15 +102,15 @@ You can modify this behavior:
 By using `*`, all other parameters will be stored in a table named `__params`.
 
 
-## File arguments
-You can supply arguments to included files. They will be stored in the `__file_args` table.
+## File parameters
+You can supply parameters to included files. They will be stored in the `__file_params` table.
 
 Example:
 ```plume
 \include[foo=bar baz] lib
 // lib.plume
-#{__file_args.foo}
-#{__file_args[1]}
+#{__file_params.foo}
+#{__file_params[1]}
 ```
 Output:
 ```
@@ -124,31 +124,6 @@ baz
 ## `\def`, `\redef`, and `\redef_forced`
 
 You can define a new macro with `\def`. But if the name is already taken, you must use `\redef`. If the name is taken by a predefined macro, use `\redef_forced`.
-
-## `\set` Behavior
-
-When calling `\set x {value}`, Plume will render the value before saving it as a string. So:
-
-```plume
-\def foo {bar}
-\set x \foo
-#x
-\redef foo baz
-#x
-```
-
-Gives `bar bar`, and not `bar baz`.
-
-If the value is an `\eval` block, `\set` will save it as a Lua object.
-
-```plume
-\set x 1+1
-\set y #{1+1}
-
-#{type(x)}, #{type(y)}
-```
-
-Gives `string, number`.
 
 ## Scopes
 ### Variables Scope
@@ -221,31 +196,6 @@ Output `bar`, even though `name` and `body` are variables local to the `mydef` b
 By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.
 
 See [config](config.md) to edit this number.
-
-## Lua Scope
-
-Global and local _lua_ variables are seamlessly equivalent to global and local _plume_ variables.
-Example:
-
-```plume
-\def foo {
-    \script {
-        local a = 0
-        b = 1
-    }
-    a: #a, b: #b
-}
-\set a 20
-\set b 30
-\foo
-a: #a, b: #b
-```
-Gives:
-
-```
-a: 0, b: 1
-a: 20, b: 1
-```
 
 ## Spacing
 By default, Plume retains all spaces. If you want to remove them, use comments.

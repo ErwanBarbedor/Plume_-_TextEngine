@@ -16,22 +16,22 @@ You should have received a copy of the GNU General Public License along with Plu
 
 --- Registers a new macro.
 -- @param name string The name of the macro
--- @param args table The arguments names of the macro
--- @param default_opt_args table Default names and values for optional arguments
+-- @param params table The arguments names of the macro
+-- @param default_opt_params table Default names and values for optional arguments
 -- @param macro function The function to call when the macro is used
 -- @param token token The token where the macro was declared. Used for debuging.
 -- @param is_local bool Register globaly or localy? (optionnal - defaults false)
 -- @param std bool It is a standard macro? (optionnal - defaults false)
--- @param varargs bool Accept unknow parameters? (optionnal - defaults false)
-function plume.register_macro (name, args, default_opt_args, macro, token, is_local, std, varargs)
+-- @param variable_parameters_number bool Accept unknow parameters? (optionnal - defaults false)
+function plume.register_macro (name, params, default_opt_params, macro, token, is_local, std, variable_parameters_number)
     local macro = {
-        name             = name,
-        args             = args,
-        default_opt_args = default_opt_args,
-        user_opt_args    = {},
-        macro            = macro,
-        token            = token,
-        varargs          = varargs
+        name                       = name,
+        params                       = params,
+        default_opt_params           = default_opt_params,
+        user_opt_params              = {},
+        macro                      = macro,
+        token                      = token,
+        variable_parameters_number = variable_parameters_number
     }
 
     local scope = plume.current_scope(token and token.context)

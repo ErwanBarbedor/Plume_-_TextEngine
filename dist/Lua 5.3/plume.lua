@@ -72,37 +72,37 @@ end
 -- ## render.lua ##
 --- Parses optional arguments when calling a macro.
 -- @param macro table The macro being called
--- @param args table The arguments table to be filled
--- @param opt_args table The optional arguments to parse
-function plume.parse_opt_args (macro, args, opt_args)
+-- @param params table The arguments table to be filled
+-- @param opt_params table The optional arguments to parse
+function plume.parse_opt_params (macro, params, opt_params)
 
     local key, eq, space
     local flags = {}
 
     local function capture_keyword(key, value)
         local name = key:render ()
-        if macro.varargs then
-            args.others.keywords[name] = value
-        elseif macro.default_opt_args[name] == nil then
+        if macro.variable_parameters_number then
+            params.others.keywords[name] = value
+        elseif macro.default_opt_params[name] == nil then
             plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
         else
-            args.keywords[name] = value
+            params.keywords[name] = value
         end
     end
 
     local function capture_flag (key)
         local name = key:render ()
-        if macro.varargs then
-            table.insert(args.others.flags, name)
-        elseif macro.default_opt_args[name] == nil then
+        if macro.variable_parameters_number then
+            table.insert(params.others.flags, name)
+        elseif macro.default_opt_params[name] == nil then
             plume.error(key, "Unknow flag named '" .. name .. "' for macro '" .. macro.name .. "'.")
         else
             flags[name] = true
-            table.insert(args.flags, name)
+            table.insert(params.flags, name)
         end
     end
 
-    for _, token in ipairs(opt_args) do
+    for _, token in ipairs(opt_params) do
         if token.kind ~= "opt_assign"
             and token.kind ~= "block" and token.kind ~= "block_text"
             and token.kind  ~= "space" and token.kind  ~= "newline" then
@@ -136,22 +136,22 @@ function plume.parse_opt_args (macro, args, opt_args)
         capture_flag(key)
     end
 
-    for k, v in pairs(macro.user_opt_args) do
-        if not args.keywords[k] and not flags[k] then
-            if macro.default_opt_args[k] == nil then
+    for k, v in pairs(macro.user_opt_params) do
+        if not params.keywords[k] and not flags[k] then
+            if macro.default_opt_params[k] == nil then
                 if v == true then
-                    table.insert(args.others.flags, k)
+                    table.insert(params.others.flags, k)
                 else
-                    args.others.keywords[k] = v
+                    params.others.keywords[k] = v
                 end
             else
-                args.keywords[k] = v
+                params.keywords[k] = v
             end
         end
     end
-    for k, v in pairs(macro.default_opt_args) do
-        if not args.keywords[k] and not flags[k] then
-            args.keywords[k] = v
+    for k, v in pairs(macro.default_opt_params) do
+        if not params.keywords[k] and not flags[k] then
+            params.keywords[k] = v
         end
     end
 end
@@ -269,14 +269,14 @@ function plume.renderToken (self)
                 plume.error_macro_not_found(token, name)
             end
 
-            local args = {}
-            local opt_args
+            local params = {}
+            local opt_params
 
-            while #args < #macro.args do
+            while #params < #macro.params do
                 pos = pos+1
                 if not self[pos] then
                     -- End reached, but not enough arguments
-                    plume.error(token, "End of block reached, not enough arguments for macro '" .. token.value.."'. " .. #args.." instead of " .. #macro.args .. ".")
+                    plume.error(token, "End of block reached, not enough arguments for macro '" .. token.value.."'. " .. #params.." instead of " .. #macro.params .. ".")
                 
                 elseif self[pos].kind == "macro" then
                     -- Raise an error. (except for '#') 
@@ -288,35 +288,35 @@ function plume.renderToken (self)
                         local eval = plume.tokenlist ()
                         table.insert(eval, self[pos])
                         table.insert(eval, self[pos+1])
-                        table.insert(args, eval)
+                        table.insert(params, eval)
                         pos = pos + 1
                     else
-                        plume.error(self[pos], "Macro call cannot be a parameter (here, parameter #"..(#args+1).." of the macro '\\" .. name .."', line" .. token.line .. ") without being surrounded by braces.")
+                        plume.error(self[pos], "Macro call cannot be a parameter (here, parameter #"..(#params+1).." of the macro '\\" .. name .."', line" .. token.line .. ") without being surrounded by braces.")
                     end
                 
                 elseif self[pos].kind == "opt_block" then
                     -- Register an opt arg, or raise an error if too many.
-                    if opt_args then
+                    if opt_params then
                         plume.error(self[pos], "To many optional blocks given for macro '\\" .. name .. "'")
                     else
-                        opt_args = self[pos]
+                        opt_params = self[pos]
                     end
                     
                 elseif self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
                     -- If it is not a space, add the current block
                     -- to the argument list
-                    table.insert(args, self[pos])
+                    table.insert(params, self[pos])
                 end
             end
 
             -- Try to capture optional block,
             -- Even after parameters.
-            if not opt_args then
+            if not opt_params then
                 local test_pos = pos
                 while self[test_pos+1] do
                     test_pos = test_pos+1
                     if self[test_pos].kind == "opt_block" then
-                        opt_args = self[test_pos]
+                        opt_params = self[test_pos]
                         pos = test_pos
                         break
                     elseif self[test_pos].kind ~= "space" and self[test_pos].kind ~= "newline" then
@@ -325,7 +325,7 @@ function plume.renderToken (self)
                 end
             end
 
-            local macro_args = {
+            local macro_params = {
                 positionnals={},
                 keywords={},
                 flags={},
@@ -334,23 +334,23 @@ function plume.renderToken (self)
                     flags={}
                 }
             }
-            for k, v in ipairs(args) do
-                macro_args.positionnals[macro.args[k]] = v
+            for k, v in ipairs(params) do
+                macro_params.positionnals[macro.params[k]] = v
             end
-            -- for k, v in pairs(args) do
+            -- for k, v in pairs(params) do
             --     if type(k) ~= "number" then
-            --         macro_args[k] = v
+            --         macro_params[k] = v
             --     end
             -- end
 
-            -- Parse optionnal args
-            plume.parse_opt_args(macro, macro_args, opt_args or {})
+            -- Parse optionnal params
+            plume.parse_opt_params(macro, macro_params, opt_params or {})
 
             -- Update traceback, call the macro and add is result
             table.insert(plume.traceback, token)
                 local success, macro_call_result = pcall(function ()
                     return { macro.macro (
-                        macro_args,
+                        macro_params,
                         token, -- send self token to throw error, if any
                         chain_sender,
                         chain_message
@@ -401,9 +401,9 @@ function plume.renderTokenLua (self)
 end
 
 -- <DEV>
-function plume.print_args(args)
+function plume.print_params(params)
     print('-------')
-    for k, v in pairs(args) do
+    for k, v in pairs(params) do
         print(k)
 
         if k == "others" then
@@ -1316,22 +1316,22 @@ end
 
 --- Registers a new macro.
 -- @param name string The name of the macro
--- @param args table The arguments names of the macro
--- @param default_opt_args table Default names and values for optional arguments
+-- @param params table The arguments names of the macro
+-- @param default_opt_params table Default names and values for optional arguments
 -- @param macro function The function to call when the macro is used
 -- @param token token The token where the macro was declared. Used for debuging.
 -- @param is_local bool Register globaly or localy? (optionnal - defaults false)
 -- @param std bool It is a standard macro? (optionnal - defaults false)
--- @param varargs bool Accept unknow parameters? (optionnal - defaults false)
-function plume.register_macro (name, args, default_opt_args, macro, token, is_local, std, varargs)
+-- @param variable_parameters_number bool Accept unknow parameters? (optionnal - defaults false)
+function plume.register_macro (name, params, default_opt_params, macro, token, is_local, std, variable_parameters_number)
     local macro = {
-        name             = name,
-        args             = args,
-        default_opt_args = default_opt_args,
-        user_opt_args    = {},
-        macro            = macro,
-        token            = token,
-        varargs          = varargs
+        name                       = name,
+        params                       = params,
+        default_opt_params           = default_opt_params,
+        user_opt_params              = {},
+        macro                      = macro,
+        token                      = token,
+        variable_parameters_number = variable_parameters_number
     }
 
     local scope = plume.current_scope(token and token.context)
@@ -1379,11 +1379,11 @@ function plume.load_macros()
 -- @param iterator Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
 -- @param body A block that will be repeated.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
+plume.register_macro("for", {"iterator", "body"}, {}, function(params, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
-    local iterator_source = args.positionnals.iterator:source ()
+    local iterator_source = params.positionnals.iterator:source ()
     local var, var1, var2, first, last
 
     local mode = 1
@@ -1401,7 +1401,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     
     -- If both attempts fail, raise an error
     if not var then
-        plume.error(args.positionnals.iterator, "Non valid syntax for iterator.")
+        plume.error(params.positionnals.iterator, "Non valid syntax for iterator.")
     end
 
     -- Extract all variable names from the iterator
@@ -1432,11 +1432,11 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         -- Update and check loop limit
         iteration_count = iteration_count + 1
         if iteration_count > up_limit then
-            plume.error(args.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- Iteration scope
-        plume.push_scope (args.positionnals.body.context)
+        plume.push_scope (params.positionnals.body.context)
 
         -- Resume the coroutine to get the next set of values
         local values_list = { coroutine.resume(co) }
@@ -1453,12 +1453,12 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Check for Lua errors in the coroutine
         if not sucess or not co then
-            plume.error(args.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+            plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
         end
 
         -- Verify that the number of variables matches the number of values
         if #values_list ~= #variables_list then
-            plume.error(args.positionnals.iterator,
+            plume.error(params.positionnals.iterator,
                 "Wrong number of variables, "
                 .. #variables_list
                 .. " instead of "
@@ -1471,7 +1471,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         end
 
         -- Render the body of the loop and add it to the result
-        local body = args.positionnals.body:copy ()
+        local body = params.positionnals.body:copy ()
         body:set_context(plume.current_scope(), true)
         table.insert(result, body:render())
 
@@ -1487,23 +1487,23 @@ end, nil, false, true)
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered while the condition is verified.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("while", {"condition", "body"}, {}, function(args)
+plume.register_macro("while", {"condition", "body"}, {}, function(params)
     -- Have the same behavior of the lua while control structure.
     -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
 
     local result = {}
     local i = 0
     local up_limit = plume.running_api.config.max_loop_size
-    while plume.call_lua_chunk (args.positionnals.condition) do
+    while plume.call_lua_chunk (params.positionnals.condition) do
         -- Each iteration have it's own local scope
-        plume.push_scope (args.positionnals.body.context)
+        plume.push_scope (params.positionnals.body.context)
         
-        local body = args.positionnals.body:copy ()
+        local body = params.positionnals.body:copy ()
         body:set_context(plume.current_scope(), true)
         table.insert(result, body:render())
         i = i + 1
         if i > up_limit then
-            plume.error(args.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- exit local scope
@@ -1517,14 +1517,14 @@ end, nil, false, true)
 -- Implements a custom mechanism that mimics Lua's if behavior.
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered, only if the condition is verified.
-plume.register_macro("if", {"condition", "body"}, {}, function(args)
+plume.register_macro("if", {"condition", "body"}, {}, function(params)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = plume.call_lua_chunk(args.positionnals.condition)
+    local condition = plume.call_lua_chunk(params.positionnals.condition)
     if condition then
-        return args.positionnals.body:render()
+        return params.positionnals.body:render()
     end
     return "", not condition
 end, nil, false, true)
@@ -1533,7 +1533,7 @@ end, nil, false, true)
 -- Implements a custom mechanism that mimics Lua's else behavior.
 -- @param body A block that will be rendered, only if the last condition isn't verified.
 -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
-plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("else", {"body"}, {}, function(params, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
 
     -- Must receive a message from preceding if
@@ -1542,7 +1542,7 @@ plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_send
     end
 
     if chain_message then
-        return args.positionnals.body:render()
+        return params.positionnals.body:render()
     end
 
     return ""
@@ -1553,7 +1553,7 @@ end, nil, false, true)
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered, only if the last condition isn't verified and the current condition is verified.
 -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
-plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
     
     -- Must receive a message from preceding if
@@ -1563,9 +1563,9 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
 
     local condition
     if chain_message then
-        condition = plume.call_lua_chunk(args.positionnals.condition)
+        condition = plume.call_lua_chunk(params.positionnals.condition)
         if condition then
-            return args.positionnals.body:render()
+            return params.positionnals.body:render()
         end
     else
         condition = true
@@ -1576,10 +1576,10 @@ end, nil, false, true)
 --- \do
 -- Implements a custom mechanism that mimics Lua's do behavior.
 -- @param body A block that will be rendered in a new scope.
-plume.register_macro("do", {"body"}, {}, function(args, self_token)
+plume.register_macro("do", {"body"}, {}, function(params, self_token)
     
     plume.push_scope ()
-        local result = args.positionnals.body:render ()
+        local result = params.positionnals.body:render ()
     plume.pop_scope ()
 
     return result
@@ -1630,39 +1630,39 @@ local function test_macro_name_available (name, redef, redef_forced, calling_tok
 end
 
 --- Defines a new macro or redefines an existing one.
--- @param def_args table The arguments for the macro definition
+-- @param def_parameters table The arguments for the macro definition
 -- @param redef boolean Whether this is a redefinition
 -- @param redef_forced boolean Whether to force redefinition of standard macros
 -- @param is_local boolean Whether the macro is local
 -- @param calling_token token The token where the macro is being defined
-local function def (def_args, redef, redef_forced, is_local, calling_token)
+local function def (def_parameters, redef, redef_forced, is_local, calling_token)
     -- Get the provided macro name
-    local name = def_args.positionnals.name:render()
-    local varags = false
+    local name = def_parameters.positionnals.name:render()
+    local variable_parameters_number = false
 
     -- Check if the name is a valid identifier
     if not plume.is_identifier(name) then
-        plume.error(def_args.positionnals.name, "'" .. name .. "' is an invalid name for a macro.")
+        plume.error(def_parameters.positionnals.name, "'" .. name .. "' is an invalid name for a macro.")
     end
 
     if not is_local then
         local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
         if not available then
-            plume.error(def_args.positionnals.name, msg)
+            plume.error(def_parameters.positionnals.name, msg)
         end
     end
 
     -- Check if parameters names are valid and register flags
-    for name, _ in pairs(def_args.others.keywords) do
+    for name, _ in pairs(def_parameters.others.keywords) do
         if not plume.is_identifier(name) then
             plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
         end
     end
 
     local parameters_names = {}
-    for _, name in ipairs(def_args.others.flags) do
+    for _, name in ipairs(def_parameters.others.flags) do
         if name == "..." then
-            varags = true
+            variable_parameters_number = true
         else
             local flag = false
             if name:sub(1, 1) == "?" then
@@ -1673,7 +1673,7 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
                 plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
             end
             if flag then
-                def_args.others.keywords[name] = false
+                def_parameters.others.keywords[name] = false
             else
                 table.insert(parameters_names, name)
             end
@@ -1684,35 +1684,34 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
     local closure = plume.current_scope ()
 
     
-    plume.register_macro(name, parameters_names, def_args.others.keywords, function(args)
+    plume.register_macro(name, parameters_names, def_parameters.others.keywords, function(params)
         -- Insert closure
         plume.push_scope (closure)
-        -- plume.print_args(args)
 
         -- Copy all tokens. Then, give each of them
         -- a reference to current lua scope
         -- (affect only scripts and evals tokens)
         local last_scope = plume.current_scope ()
-        for k, v in pairs(args.positionnals) do
-            args.positionnals[k] = v:copy ()
-            args.positionnals[k]:set_context (last_scope)
+        for k, v in pairs(params.positionnals) do
+            params.positionnals[k] = v:copy ()
+            params.positionnals[k]:set_context (last_scope)
         end
-        for k, v in pairs(args.keywords) do
-            if type(args.keywords[k]) == "table" then
-                args.keywords[k] = v:copy ()
-                args.keywords[k]:set_context (last_scope)
+        for k, v in pairs(params.keywords) do
+            if type(params.keywords[k]) == "table" then
+                params.keywords[k] = v:copy ()
+                params.keywords[k]:set_context (last_scope)
             end
         end
 
-        -- A table to store excedent args
+        -- A table to store excedent params
         local __params = {}
-        for k, v in pairs(args.others.keywords) do
-            if type(args.others.keywords[k]) == "table" then
+        for k, v in pairs(params.others.keywords) do
+            if type(params.others.keywords[k]) == "table" then
                  __params[k] = v:copy ()
                  __params[k]:set_context (last_scope)
             end
         end
-        for _, k in ipairs(args.others.flags) do
+        for _, k in ipairs(params.others.flags) do
             __params[k] = true
         end
 
@@ -1720,20 +1719,20 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
         -- argument are variable local to the macro
         plume.push_scope ()
 
-        -- add all args in the current scope
-        for k, v in pairs(args.positionnals) do
+        -- add all params in the current scope
+        for k, v in pairs(params.positionnals) do
             plume.current_scope():set_local("variables", k, v)
         end
-        for k, v in pairs(args.keywords) do
+        for k, v in pairs(params.keywords) do
             plume.current_scope():set_local("variables", k, v)
         end
-        for _, k in pairs(args.flags) do
+        for _, k in pairs(params.flags) do
             plume.current_scope():set_local("variables", k, true)
         end
 
         plume.current_scope():set_local("variables", "__params", __params)
 
-        local body = def_args.positionnals.body:copy ()
+        local body = def_parameters.positionnals.body:copy ()
         body:set_context (plume.current_scope (), true)
         local result = body:render()
 
@@ -1744,18 +1743,18 @@ local function def (def_args, redef, redef_forced, is_local, calling_token)
         plume.pop_scope ()
 
         return result
-    end, calling_token, false, false, varags)
+    end, calling_token, false, false, variable_parameters_number)
 end
 
 --- \def
 -- Define a new macro.
 -- @param name Name must be a valid lua identifier
 -- @param body Body of the macro, that will be render at each call.
--- @other_options Macro arguments names.
+-- @other_options Macro arguments names. See [more about](advanced.md#macro-parameters)
 -- @note Doesn't work if the name is already taken by another macro.
-plume.register_macro("def", {"name", "body"}, {}, function(def_args, calling_token)
+plume.register_macro("def", {"name", "body"}, {}, function(def_parameters, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_args, false, false, false, calling_token)
+    def (def_parameters, false, false, false, calling_token)
     return ""
 end, nil, false, true, true)
 
@@ -1765,8 +1764,8 @@ end, nil, false, true, true)
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Doesn't work if the name is available.
-plume.register_macro("redef", {"name", "body"}, {}, function(def_args, calling_token)
-    def (def_args, true, false, false, calling_token)
+plume.register_macro("redef", {"name", "body"}, {}, function(def_parameters, calling_token)
+    def (def_parameters, true, false, false, calling_token)
     return ""
 end, nil, false, true, true)
 
@@ -1776,8 +1775,8 @@ end, nil, false, true, true)
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Doesn't work if the name is available or isn't a predefined macro.
-plume.register_macro("redef_forced", {"name", "body"}, {["*"]=true}, function(def_args, calling_token)
-    def (def_args, true, true, false, calling_token)
+plume.register_macro("redef_forced", {"name", "body"}, {["*"]=true}, function(def_parameters, calling_token)
+    def (def_parameters, true, true, false, calling_token)
     return ""
 end, nil, false, true, true)
 
@@ -1787,9 +1786,9 @@ end, nil, false, true, true)
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Contrary to `\def`, can erase another macro without error.
-plume.register_macro("defl", {"name", "body"}, {}, function(def_args, calling_token)
+plume.register_macro("defl", {"name", "body"}, {}, function(def_parameters, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_args, false, false, true, calling_token)
+    def (def_parameters, false, false, true, calling_token)
     return ""
 end, nil, true, true)
 
@@ -1801,7 +1800,7 @@ local function alias (name1, name2, calling_token, is_local)
         -- Remove the last sentence of the error message
         -- (the reference to redef)
         msg = msg:gsub("%.[^%.]-%.$", ".")
-        plume.error(args.name2, msg)
+        plume.error(params.name2, msg)
     end
 
     local scope =  plume.current_scope (calling_token.context)
@@ -1819,9 +1818,9 @@ end
 -- @param name2 Any valid lua identifier.
 -- @flag local Is the new macro local to the current scope.
 -- @alias `\aliasl` is equivalent as `\alias[local]`
-plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
-    local name1 = args.positionnals.name1:render()
-    local name2 = args.positionnals.name2:render()
+plume.register_macro("alias", {"name1", "name2"}, {}, function(params, calling_token)
+    local name1 = params.positionnals.name1:render()
+    local name2 = params.positionnals.name2:render()
     alias (name1, name2, calling_token, false)
 end, nil, false, true)
 
@@ -1830,33 +1829,33 @@ end, nil, false, true)
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
 -- @alias `\aliasl` is equivalent as `\alias[local]`
-plume.register_macro("aliasl", {"name1", "name2"}, {}, function(args, calling_token)
-    local name1 = args.positionnals.name1:render()
-    local name2 = args.positionnals.name2:render()
+plume.register_macro("aliasl", {"name1", "name2"}, {}, function(params, calling_token)
+    local name1 = params.positionnals.name1:render()
+    local name2 = params.positionnals.name2:render()
     alias (name1, name2, calling_token, true)
 end, nil, false, true)
 
 --- \default
--- set (or reset) default args of a given macro.
+-- set (or reset) default params of a given macro.
 -- @param name Name of an existing macro.
 -- @other_options Any parameters used by the given macro.
-plume.register_macro("default", {"name"}, {}, function(args, calling_token)
+plume.register_macro("default", {"name"}, {}, function(params, calling_token)
     -- Get the provided macro name
-    local name = args.positionnals.name:render()
+    local name = params.positionnals.name:render()
 
     local scope = plume.current_scope(calling_token.context)
 
     -- Check if this macro exists
     if not scope.macros[name] then
-        plume.error_macro_not_found(args.positionnals.name, name)
+        plume.error_macro_not_found(params.positionnals.name, name)
     end
 
-    -- Add all arguments (except name) in user_opt_args
-    for k, v in pairs(args.others.keywords) do
-        scope.macros[name].user_opt_args[k] = v
+    -- Add all arguments (except name) in user_opt_params
+    for k, v in pairs(params.others.keywords) do
+        scope.macros[name].user_opt_params[k] = v
     end
-    for _, k in ipairs(args.others.flags) do
-        scope.macros[name].user_opt_args[k] = true
+    for _, k in ipairs(params.others.flags) do
+        scope.macros[name].user_opt_params[k] = true
     end
 
 end, nil, false, true, true)
@@ -1864,8 +1863,8 @@ end, nil, false, true, true)
 --- \raw
 -- Return the given body without render it.
 -- @param body
-plume.register_macro("raw", {"body"}, {}, function(args)
-    return args.positionnals['body']:source ()
+plume.register_macro("raw", {"body"}, {}, function(params)
+    return params.positionnals['body']:source ()
 end, nil, false, true)
 
 --- \config
@@ -1873,9 +1872,9 @@ end, nil, false, true)
 -- @param key Name of the paramter.
 -- @param value New value to save.
 -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
-plume.register_macro("config", {"name", "value"}, {}, function(args, calling_token)
-    local name   = args.positionnals.name:render ()
-    local value  = args.positionnals.value:renderLua ()
+plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
+    local name   = params.positionnals.name:render ()
+    local value  = params.positionnals.value:renderLua ()
     local config = plume.running_api.config
 
     if config[name] == nil then
@@ -1894,12 +1893,12 @@ function plume.deprecate (name, version, alternative)
 
     local macro_f = macro.macro
 
-    macro.macro = function (args, calling_token)
+    macro.macro = function (params, calling_token)
         if plume.running_api.config.show_deprecation_warnings then
             print("Warning : macro '" .. name .. "' (used in file '" .. calling_token.file .. "', line ".. calling_token.line .. ") is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 
-        return macro_f (args, calling_token)
+        return macro_f (params, calling_token)
     end
 
     return true
@@ -1910,13 +1909,13 @@ end
 -- @param name Name of an existing macro.
 -- @param version Version where the macro will be deleted.
 -- @param alternative Give an alternative to replace this macro.
-plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(args, calling_token)
-    local name        = args.name:render()
-    local version     = args.version:render()
-    local alternative = args.alternative:render()
+plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(params, calling_token)
+    local name        = params.name:render()
+    local version     = params.version:render()
+    local alternative = params.alternative:render()
 
     if not plume.deprecate(name, version, alternative) then
-        plume.error_macro_not_found(args.name, name)
+        plume.error_macro_not_found(params.name, name)
     end
 
 end, nil, false, true) 
@@ -2001,8 +2000,8 @@ end
 -- Execute a Lua file in the current scope.
 -- @param path Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
 -- @note Unlike the Lua `require` function, `\require` macro does not perform any caching.
-plume.register_macro("require", {"path"}, {}, function(args, calling_token)
-    local path = args.positionnals.path:render ()
+plume.register_macro("require", {"path"}, {}, function(params, calling_token)
+    local path = params.positionnals.path:render ()
 
     local formats = {}
     
@@ -2013,7 +2012,7 @@ plume.register_macro("require", {"path"}, {}, function(args, calling_token)
         table.insert(formats, "?/init.lua") 
     end
 
-    local file, filepath = plume.open (args.positionnals.path, formats, path)
+    local file, filepath = plume.open (params.positionnals.path, formats, path)
 
     local f = plume.call_lua_chunk (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
 
@@ -2023,10 +2022,10 @@ end, nil, false, true)
 --- \include
 -- Execute a plume file in the current scope.
 -- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
--- @other_options Any argument will be accessible from the included file, in the field `__file_args`.
-plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
+-- @other_options Any argument will be accessible from the included file, in the field `__file_params`.
+plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
     --  Execute the given file and return the output
-    local path = args.positionnals["$path"]:render ()
+    local path = params.positionnals["$path"]:render ()
 
     local formats = {}
     
@@ -2034,15 +2033,15 @@ plume.register_macro("include", {"$path"}, {}, function(args, calling_token)
     table.insert(formats, "?.plume")
     table.insert(formats, "?/init.plume")  
 
-    local file, filepath = plume.open (args.positionnals["$path"], formats, path)
+    local file, filepath = plume.open (params.positionnals["$path"], formats, path)
 
     -- file scope
     plume.push_scope ()
 
         -- Add arguments to file scope
-        local file_args = {}
+        local file_params = {}
 
-        plume.current_scope (calling_token.context):set_local("variables", "__file_args", file_args)
+        plume.current_scope (calling_token.context):set_local("variables", "__file_params", file_params)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)
@@ -2056,16 +2055,16 @@ end, nil, false, true)
 --- \extern
 -- Insert content of the file without execution. Quite similar to `\raw`, but for a file.
 -- @param path Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... 
-plume.register_macro("extern", {"path"}, {}, function(args, calling_token)
+plume.register_macro("extern", {"path"}, {}, function(params, calling_token)
     -- Include a file without execute it
 
-    local path = args.positionnals.path:render ()
+    local path = params.positionnals.path:render ()
 
     local formats = {}
     
     table.insert(formats, "?")
 
-    local file, filepath = plume.open (args.positionnals.path, formats, path)
+    local file, filepath = plume.open (params.positionnals.path, formats, path)
 
     return file:read("*a")
 end, nil, false, true)
@@ -2074,18 +2073,18 @@ end, nil, false, true)
 -- Render a plume chunck and save the output in the given file.
 -- @param path Name of the file to write.
 -- @param note Content to write in the file.
-plume.register_macro("file", {"path", "content"}, {}, function (args, calling_token)
+plume.register_macro("file", {"path", "content"}, {}, function (params, calling_token)
     -- Capture content and save it in a file.
     -- Return nothing.
     -- \file {foo.txt} {...}
-    local path = args.positionnals.path:render ()
+    local path = params.positionnals.path:render ()
     local file = io.open(path, "w")
 
         if not file then
             plume.error (calling_token, "Cannot write file '" .. path .. "'")
         end
 
-        local content = args.content:render ()
+        local content = params.content:render ()
         file:write(content)
 
     file:close ()
@@ -2131,18 +2130,18 @@ end
 -- @param code The code to evaluate or execute.
 -- @option thousand_separator={} Symbol used between groups of 3 digits.
 -- @option decimal_separator=. Symbol used between the integer and the decimal part.
--- @option_nokw format={} Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
+-- @option_nokw format={} Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
 -- @flag remove_zeros Remove useless zeros (e.g., `1.0` becomes `1`).
 -- @flag silent Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
 -- @alias `#{1+1}` is the same as `\eval{1+1}`
 -- @note If the given code is a statement, it cannot return any value.
 -- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 -- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
-plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator="."}, function(args, calling_token)
+plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator="."}, function(params, calling_token)
     
     local remove_zeros, format, scinot, silent
 
-    for _, flag in ipairs(args.others.flags) do
+    for _, flag in ipairs(params.others.flags) do
         if flag == "remove_zeros" then
             remove_zeros = true
         elseif not silents and flag == "silent" then
@@ -2160,11 +2159,11 @@ plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator
     --Get separator if provided
     local t_sep, d_sep
     
-    t_sep = plume.render_if_token(args.keywords.thousand_separator)
+    t_sep = plume.render_if_token(params.keywords.thousand_separator)
     if #t_sep == 0 then t_sep = nil end
-    d_sep = plume.render_if_token(args.keywords.decimal_separator)
+    d_sep = plume.render_if_token(params.keywords.decimal_separator)
 
-    local result = plume.call_lua_chunk(args.positionnals.expr)
+    local result = plume.call_lua_chunk(params.positionnals.expr)
 
     -- if result is a token, render it
     if type(result) == "table" and result.render then
@@ -2215,10 +2214,10 @@ end, nil, false, true, true)
 -- Output a newline. 
 -- @option_nokw n=1 Number of newlines to output.
 -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
-plume.register_macro("n", {}, {}, function(args)
+plume.register_macro("n", {}, {}, function(params)
     local count = 1
-    if args.others.flags[1] then
-        count = args.others.flags[1]
+    if params.others.flags[1] then
+        count = params.others.flags[1]
     end
     return ("\n"):rep(count)
 end, nil, false, true, true)
@@ -2227,10 +2226,10 @@ end, nil, false, true, true)
 -- Output a space.
 -- @option_nokw n=1 Number of spaces to output.
 -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
-plume.register_macro("s", {}, {}, function(args)
+plume.register_macro("s", {}, {}, function(params)
     local count = 1
-    if args.others.flags[1] then
-        count = args.others.flags[1]
+    if params.others.flags[1] then
+        count = params.others.flags[1]
     end
     return (" "):rep(count)
 end, nil, false, true, true)
@@ -2239,10 +2238,10 @@ end, nil, false, true, true)
 -- Output a tabulation.
 -- @option_nokw n=1 Number of tabs to output.
 -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
-plume.register_macro("t", {}, {}, function(args)
+plume.register_macro("t", {}, {}, function(params)
     local count = 1
-    if args.others.flags[1] then
-        count = args.others.flags[1]
+    if params.others.flags[1] then
+        count = params.others.flags[1]
     end
     return ("\t"):rep(count)
 end, nil, false, true, true)
@@ -2250,8 +2249,8 @@ end, nil, false, true, true)
 --- \set_space_mode
 -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
-plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_token)
-    local mode = args.positionnals.mode:render ()
+plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
+    local mode = params.positionnals.mode:render ()
 
     if mode == "normal" then
         plume.running_api.config.config.filter_spaces = false
@@ -2266,7 +2265,7 @@ plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_toke
         plume.running_api.config.filter_spaces = " "
         plume.running_api.config.filter_newlines = "\n"
     else
-        plume.error(args.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
+        plume.error(params.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
     end
 end) 
     -- <DEV>
@@ -2274,7 +2273,7 @@ end)
 -- ## macros/debug.lua ##
 -- Tools for debuging during developpement.
 
-plume.register_macro("stop", {""}, {}, function(args, calling_token)
+plume.register_macro("stop", {""}, {}, function(params, calling_token)
     plume.error(calling_token, "Program ends by macro.")
 end)
 
@@ -2302,9 +2301,9 @@ local function print_env(env, field, indent)
     end
 end
 
-plume.register_macro("print_env", {"field"}, {}, function(args, calling_token)
+plume.register_macro("print_env", {"field"}, {}, function(params, calling_token)
     print("=== Environnement informations ===")
-    print_env (plume.scopes[1], args.field:render())
+    print_env (plume.scopes[1], params.field:render())
 end, nil, false, true) 
     -- </DEV>
 end
@@ -2733,20 +2732,20 @@ end
 
 --- @api_method Create a macros from a lua function.
 -- @param name string Name of the macro
--- @param arg_number Number of arguments to capture
+-- @param arg_number Number of paramters to capture
 -- @param f function
-function api.export(name, arg_number, f)
-    local def_args = {}
-    for i=1, arg_number do
-        table.insert(def_args, "x"..i)
+function api.export(name, params_number, f)
+    local def_params = {}
+    for i=1, params_number do
+        table.insert(def_params, "x"..i)
     end
-    plume.register_macro(name, def_args, {}, function (args)
-        local rargs = {}
-        for i=1, arg_number do
-            rargs[i] = args.positionnals['x' .. i]:render()
+    plume.register_macro(name, def_params, {}, function (params)
+        local rparams = {}
+        for i=1, params_number do
+            rparams[i] = params.positionnals['x' .. i]:render()
         end
                 
-        return f(table.unpack(rargs))
+        return f(table.unpack(rparams))
         end)
 end
 

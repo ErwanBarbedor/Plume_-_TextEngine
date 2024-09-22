@@ -14,37 +14,37 @@ You should have received a copy of the GNU General Public License along with Plu
 
 --- Parses optional arguments when calling a macro.
 -- @param macro table The macro being called
--- @param args table The arguments table to be filled
--- @param opt_args table The optional arguments to parse
-function plume.parse_opt_args (macro, args, opt_args)
+-- @param params table The arguments table to be filled
+-- @param opt_params table The optional arguments to parse
+function plume.parse_opt_params (macro, params, opt_params)
 
     local key, eq, space
     local flags = {}
 
     local function capture_keyword(key, value)
         local name = key:render ()
-        if macro.varargs then
-            args.others.keywords[name] = value
-        elseif macro.default_opt_args[name] == nil then
+        if macro.variable_parameters_number then
+            params.others.keywords[name] = value
+        elseif macro.default_opt_params[name] == nil then
             plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
         else
-            args.keywords[name] = value
+            params.keywords[name] = value
         end
     end
 
     local function capture_flag (key)
         local name = key:render ()
-        if macro.varargs then
-            table.insert(args.others.flags, name)
-        elseif macro.default_opt_args[name] == nil then
+        if macro.variable_parameters_number then
+            table.insert(params.others.flags, name)
+        elseif macro.default_opt_params[name] == nil then
             plume.error(key, "Unknow flag named '" .. name .. "' for macro '" .. macro.name .. "'.")
         else
             flags[name] = true
-            table.insert(args.flags, name)
+            table.insert(params.flags, name)
         end
     end
 
-    for _, token in ipairs(opt_args) do
+    for _, token in ipairs(opt_params) do
         if token.kind ~= "opt_assign"
             and token.kind ~= "block" and token.kind ~= "block_text"
             and token.kind  ~= "space" and token.kind  ~= "newline" then
@@ -78,22 +78,22 @@ function plume.parse_opt_args (macro, args, opt_args)
         capture_flag(key)
     end
 
-    for k, v in pairs(macro.user_opt_args) do
-        if not args.keywords[k] and not flags[k] then
-            if macro.default_opt_args[k] == nil then
+    for k, v in pairs(macro.user_opt_params) do
+        if not params.keywords[k] and not flags[k] then
+            if macro.default_opt_params[k] == nil then
                 if v == true then
-                    table.insert(args.others.flags, k)
+                    table.insert(params.others.flags, k)
                 else
-                    args.others.keywords[k] = v
+                    params.others.keywords[k] = v
                 end
             else
-                args.keywords[k] = v
+                params.keywords[k] = v
             end
         end
     end
-    for k, v in pairs(macro.default_opt_args) do
-        if not args.keywords[k] and not flags[k] then
-            args.keywords[k] = v
+    for k, v in pairs(macro.default_opt_params) do
+        if not params.keywords[k] and not flags[k] then
+            params.keywords[k] = v
         end
     end
 end
@@ -211,14 +211,14 @@ function plume.renderToken (self)
                 plume.error_macro_not_found(token, name)
             end
 
-            local args = {}
-            local opt_args
+            local params = {}
+            local opt_params
 
-            while #args < #macro.args do
+            while #params < #macro.params do
                 pos = pos+1
                 if not self[pos] then
                     -- End reached, but not enough arguments
-                    plume.error(token, "End of block reached, not enough arguments for macro '" .. token.value.."'. " .. #args.." instead of " .. #macro.args .. ".")
+                    plume.error(token, "End of block reached, not enough arguments for macro '" .. token.value.."'. " .. #params.." instead of " .. #macro.params .. ".")
                 
                 elseif self[pos].kind == "macro" then
                     -- Raise an error. (except for '#') 
@@ -230,35 +230,35 @@ function plume.renderToken (self)
                         local eval = plume.tokenlist ()
                         table.insert(eval, self[pos])
                         table.insert(eval, self[pos+1])
-                        table.insert(args, eval)
+                        table.insert(params, eval)
                         pos = pos + 1
                     else
-                        plume.error(self[pos], "Macro call cannot be a parameter (here, parameter #"..(#args+1).." of the macro '\\" .. name .."', line" .. token.line .. ") without being surrounded by braces.")
+                        plume.error(self[pos], "Macro call cannot be a parameter (here, parameter #"..(#params+1).." of the macro '\\" .. name .."', line" .. token.line .. ") without being surrounded by braces.")
                     end
                 
                 elseif self[pos].kind == "opt_block" then
                     -- Register an opt arg, or raise an error if too many.
-                    if opt_args then
+                    if opt_params then
                         plume.error(self[pos], "To many optional blocks given for macro '\\" .. name .. "'")
                     else
-                        opt_args = self[pos]
+                        opt_params = self[pos]
                     end
                     
                 elseif self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
                     -- If it is not a space, add the current block
                     -- to the argument list
-                    table.insert(args, self[pos])
+                    table.insert(params, self[pos])
                 end
             end
 
             -- Try to capture optional block,
             -- Even after parameters.
-            if not opt_args then
+            if not opt_params then
                 local test_pos = pos
                 while self[test_pos+1] do
                     test_pos = test_pos+1
                     if self[test_pos].kind == "opt_block" then
-                        opt_args = self[test_pos]
+                        opt_params = self[test_pos]
                         pos = test_pos
                         break
                     elseif self[test_pos].kind ~= "space" and self[test_pos].kind ~= "newline" then
@@ -267,7 +267,7 @@ function plume.renderToken (self)
                 end
             end
 
-            local macro_args = {
+            local macro_params = {
                 positionnals={},
                 keywords={},
                 flags={},
@@ -276,23 +276,23 @@ function plume.renderToken (self)
                     flags={}
                 }
             }
-            for k, v in ipairs(args) do
-                macro_args.positionnals[macro.args[k]] = v
+            for k, v in ipairs(params) do
+                macro_params.positionnals[macro.params[k]] = v
             end
-            -- for k, v in pairs(args) do
+            -- for k, v in pairs(params) do
             --     if type(k) ~= "number" then
-            --         macro_args[k] = v
+            --         macro_params[k] = v
             --     end
             -- end
 
-            -- Parse optionnal args
-            plume.parse_opt_args(macro, macro_args, opt_args or {})
+            -- Parse optionnal params
+            plume.parse_opt_params(macro, macro_params, opt_params or {})
 
             -- Update traceback, call the macro and add is result
             table.insert(plume.traceback, token)
                 local success, macro_call_result = pcall(function ()
                     return { macro.macro (
-                        macro_args,
+                        macro_params,
                         token, -- send self token to throw error, if any
                         chain_sender,
                         chain_message
@@ -343,9 +343,9 @@ function plume.renderTokenLua (self)
 end
 
 -- <DEV>
-function plume.print_args(args)
+function plume.print_params(params)
     print('-------')
-    for k, v in pairs(args) do
+    for k, v in pairs(params) do
         print(k)
 
         if k == "others" then

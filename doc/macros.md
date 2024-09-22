@@ -9,7 +9,7 @@ _Generated from source._
 
 **Description:** Implements a custom iteration mechanism that mimics Lua's for loop behavior.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `iterator` Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
 - `body` A block that will be repeated.
 
@@ -21,7 +21,7 @@ _Generated from source._
 
 **Description:** Implements a custom iteration mechanism that mimics Lua's while loop behavior.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `condition` Anything that follow syntax of a lua expression, to evaluate.
 - `body` A block that will be rendered while the condition is verified.
 
@@ -33,7 +33,7 @@ _Generated from source._
 
 **Description:** Implements a custom mechanism that mimics Lua's if behavior.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `condition` Anything that follow syntax of a lua expression, to evaluate.
 - `body` A block that will be rendered, only if the condition is verified.
 
@@ -43,7 +43,7 @@ _Generated from source._
 
 **Description:** Implements a custom mechanism that mimics Lua's else behavior.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `body` A block that will be rendered, only if the last condition isn't verified.
 
 **Note:** Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
@@ -54,7 +54,7 @@ _Generated from source._
 
 **Description:** Implements a custom mechanism that mimics Lua's elseif behavior.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `condition` Anything that follow syntax of a lua expression, to evaluate.
 - `body` A block that will be rendered, only if the last condition isn't verified and the current condition is verified.
 
@@ -66,7 +66,7 @@ _Generated from source._
 
 **Description:** Implements a custom mechanism that mimics Lua's do behavior.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `body` A block that will be rendered in a new scope.
 
 ## Files
@@ -77,7 +77,7 @@ _Generated from source._
 
 **Description:** Execute a Lua file in the current scope.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `path` Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
 
 **Note:** Unlike the Lua `require` function, `\require` macro does not perform any caching.
@@ -88,10 +88,10 @@ _Generated from source._
 
 **Description:** Execute a plume file in the current scope.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `path` Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
 
-**Other optional parameters:** Any argument will be accessible from the included file, in the field `__file_args`.
+**Other optional parameters:** Any argument will be accessible from the included file, in the field `__file_params`.
 
 ### extern
 
@@ -99,7 +99,7 @@ _Generated from source._
 
 **Description:** Insert content of the file without execution. Quite similar to `\raw`, but for a file.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `path` Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... 
 
 ### file
@@ -108,7 +108,7 @@ _Generated from source._
 
 **Description:** Render a plume chunck and save the output in the given file.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `path` Name of the file to write.
 - `note` Content to write in the file.
 
@@ -120,17 +120,16 @@ _Generated from source._
 
 **Description:** Evaluate the given expression or execute the given statement.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `code` The code to evaluate or execute.
 
-**Optional keyword parameters** (_Theses argument are used with a keyword, like this : `\foo[bar=baz]`._)
+**Keyword Parameters :** 
 - `thousand_separator` Symbol used between groups of 3 digits.Default value : empty
 - `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
 
-**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
-1. `format` Only works if the code returns a number. If set to `i`, the number is rounded. If set to `.2f`, it will be output with 2 digits after the decimal point. If set to `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
 
-**Flags** (_Flags are optional positional arguments with one value. Behavior occurs when this argument is present._)
+**Flags :**
+- `<format>` Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
 - `remove_zeros` Remove useless zeros (e.g., `1.0` becomes `1`).
 - `silent` Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
 
@@ -149,8 +148,9 @@ _Generated from source._
 
 **Description:** Output a newline.
 
-**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
-1. `n` Number of newlines to output..
+
+**Flags :**
+- `<n>` Number of newlines to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -160,8 +160,9 @@ _Generated from source._
 
 **Description:** Output a space.
 
-**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
-1. `n` Number of spaces to output..
+
+**Flags :**
+- `<n>` Number of spaces to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -171,8 +172,9 @@ _Generated from source._
 
 **Description:** Output a tabulation.
 
-**Optional positional parameters** (_Theses argument are used without keywords, like this : `\foo[bar]`._) 
-1. `n` Number of tabs to output..
+
+**Flags :**
+- `<n>` Number of tabs to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -182,7 +184,7 @@ _Generated from source._
 
 **Description:** Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 
-**Parameters:**
+**Positionnal Parameters:**
 - `mode` Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
 
 ## Utils
@@ -193,11 +195,11 @@ _Generated from source._
 
 **Description:** Define a new macro.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
-**Other optional parameters:** Macro arguments names.
+**Other optional parameters:** Macro arguments names. See [more about](advanced.md#macro-parameters)
 
 **Note:** Doesn't work if the name is already taken by another macro.
 
@@ -207,7 +209,7 @@ _Generated from source._
 
 **Description:** Redefine a macro.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
@@ -221,7 +223,7 @@ _Generated from source._
 
 **Description:** Redefined a predefined macro.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
@@ -235,7 +237,7 @@ _Generated from source._
 
 **Description:** Define a new macro locally.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
 - `body` Body of the macro, that will be render at each call.
 
@@ -249,11 +251,12 @@ _Generated from source._
 
 **Description:** name2 will be a new way to call name1.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
-**Flags** (_Flags are optional positional arguments with one value. Behavior occurs when this argument is present._)
+
+**Flags :**
 - `local` Is the new macro local to the current scope.
 
 **Alias:** `\aliasl` is equivalent as `\alias[local]`
@@ -264,7 +267,7 @@ _Generated from source._
 
 **Description:** Make an alias locally
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
@@ -274,9 +277,9 @@ _Generated from source._
 
 **Usage:** `\default[...] {name}`
 
-**Description:** set (or reset) default args of a given macro.
+**Description:** set (or reset) default params of a given macro.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name` Name of an existing macro.
 
 **Other optional parameters:** Any parameters used by the given macro.
@@ -287,7 +290,7 @@ _Generated from source._
 
 **Description:** Return the given body without render it.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `body` 
 
 ### config
@@ -296,7 +299,7 @@ _Generated from source._
 
 **Description:** Edit plume configuration.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `key` Name of the paramter.
 - `value` New value to save.
 
@@ -308,7 +311,7 @@ _Generated from source._
 
 **Description:** Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
 
-**Parameters:**
+**Positionnal Parameters:**
 - `name` Name of an existing macro.
 - `version` Version where the macro will be deleted.
 - `alternative` Give an alternative to replace this macro.

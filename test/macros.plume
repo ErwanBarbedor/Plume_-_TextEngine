@@ -10,25 +10,25 @@ bar
 bar bar
 // End
 
-// Test 'macro with simple arg'
+// Test 'macro with simpleparams'
 \def double[x] {#x #x}\double{foo}
 // Result
 foo foo
 // End
 
-// Test 'macro with simple args 1'
+// Test 'macro with simple params 1'
 \def add[x y] {#x+#y}\add{1}{2}
 // Result
 1+2
 // End
 
-// Test 'macro with simple args 2'
+// Test 'macro with simple params 2'
 \def add[x y] #{x+y}\add{1}{2}
 // Result
 3
 // End
 
-// Test 'macro args are local'
+// Test 'macro params are local'
 \def foo[x]{This is x:#x}//
 #{x = 0}//
 This is x:#x

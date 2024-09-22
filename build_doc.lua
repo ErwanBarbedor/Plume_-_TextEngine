@@ -134,7 +134,7 @@ local function capture_macro_doc (result, source)
             elseif command == "option_nokw" then
                 local name, default, desc = line:match('(%S-)=(%S+)%s+(.*)')
 
-                table.insert(options_nokw, "\n" .. (#options_nokw+1).. ". `" .. name .. "` " .. desc .. ".")
+                table.insert(flags, "`<" .. name .. ">` " .. desc .. ".")
                 table.insert(options_names, "<"..name..">")
             elseif command == "note" then
                 table.insert(notes, line)
@@ -166,19 +166,15 @@ local function capture_macro_doc (result, source)
         end
 
         if #params > 0 then
-            table.insert(result, "**Parameters:**\n- " .. table.concat(params, "\n- "))
+            table.insert(result, "**Positionnal Parameters:**\n- " .. table.concat(params, "\n- "))
         end
 
         if #options > 0 then
-            table.insert(result, "**Optional keyword parameters** (_Theses argument are used with a keyword, like this : `\\foo[bar=baz]`._)\n- " .. table.concat(options, "\n- "))
-        end
-
-        if #options_nokw > 0 then
-            table.insert(result, "**Optional positional parameters** (_Theses argument are used without keywords, like this : `\\foo[bar]`._) " .. table.concat(options_nokw, ""))
+            table.insert(result, "**Keyword Parameters :** \n- " .. table.concat(options, "\n- "))
         end
 
         if #flags > 0 then
-            table.insert(result, "**Flags** (_Flags are optional positional arguments with one value. Behavior occurs when this argument is present._)\n- " .. table.concat(flags, "\n- "))
+            table.insert(result, "\n**Flags :**\n- " .. table.concat(flags, "\n- "))
         end
 
         if other_options then
@@ -220,8 +216,8 @@ return function ()
 
     local result = {"# Plume API\n_Generated from source._\n\nMéthodes et variables Lua accessibles in any `#` macro.\n\n## Variables\n\n| Name |  Description |\n| ----- | ----- |"}
 
-    table.insert(result, "| `__args` | When inside a macro, contain all macro-given parameters, use `ipairs` to iterate over them. Contain also provided flags as keys.|")
-    table.insert(result, "| `__file_args` | Work as `__args`, but inside a file imported by using `\\include` |")
+    table.insert(result, "| `__params` | When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them.|")
+    table.insert(result, "| `__file_params` | Work as `__params`, but inside a file imported by using `\\include` |")
 
     local script = io.open("api.lua"):read ("*a") .. "\n" .. io.open("cli.lua"):read ("*a")
     for doc, name in script:gmatch("%-%-%- @api_variable([^\n\r]+).-([A-Za-z0-9_]+)%s*=") do

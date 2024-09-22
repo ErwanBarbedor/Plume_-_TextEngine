@@ -102,26 +102,26 @@ end
 
 --- @api_method Create a macros from a lua function.
 -- @param name string Name of the macro
--- @param arg_number Number of arguments to capture
+-- @param arg_number Number of paramters to capture
 -- @param f function
-function api.export(name, arg_number, f)
-    local def_args = {}
-    for i=1, arg_number do
-        table.insert(def_args, "x"..i)
+function api.export(name, params_number, f)
+    local def_params = {}
+    for i=1, params_number do
+        table.insert(def_params, "x"..i)
     end
-    plume.register_macro(name, def_args, {}, function (args)
-        local rargs = {}
-        for i=1, arg_number do
-            rargs[i] = args.positionnals['x' .. i]:render()
+    plume.register_macro(name, def_params, {}, function (params)
+        local rparams = {}
+        for i=1, params_number do
+            rparams[i] = params.positionnals['x' .. i]:render()
         end
         -- <Lua 5.1>
         if _VERSION == "Lua 5.1" then
-            return f(unpack(rargs))
+            return f(unpack(rparams))
         end
         -- </Lua>
         -- <Lua 5.2 5.3 5.4>
         if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
-            return f(table.unpack(rargs))
+            return f(table.unpack(rparams))
         end
         -- </Lua>
     end)

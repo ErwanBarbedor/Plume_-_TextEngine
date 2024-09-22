@@ -19,11 +19,11 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param iterator Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
 -- @param body A block that will be repeated.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_token)
+plume.register_macro("for", {"iterator", "body"}, {}, function(params, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
-    local iterator_source = args.positionnals.iterator:source ()
+    local iterator_source = params.positionnals.iterator:source ()
     local var, var1, var2, first, last
 
     local mode = 1
@@ -41,7 +41,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
     
     -- If both attempts fail, raise an error
     if not var then
-        plume.error(args.positionnals.iterator, "Non valid syntax for iterator.")
+        plume.error(params.positionnals.iterator, "Non valid syntax for iterator.")
     end
 
     -- Extract all variable names from the iterator
@@ -72,11 +72,11 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         -- Update and check loop limit
         iteration_count = iteration_count + 1
         if iteration_count > up_limit then
-            plume.error(args.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- Iteration scope
-        plume.push_scope (args.positionnals.body.context)
+        plume.push_scope (params.positionnals.body.context)
 
         -- Resume the coroutine to get the next set of values
         local values_list = { coroutine.resume(co) }
@@ -93,12 +93,12 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
 
         -- Check for Lua errors in the coroutine
         if not sucess or not co then
-            plume.error(args.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+            plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
         end
 
         -- Verify that the number of variables matches the number of values
         if #values_list ~= #variables_list then
-            plume.error(args.positionnals.iterator,
+            plume.error(params.positionnals.iterator,
                 "Wrong number of variables, "
                 .. #variables_list
                 .. " instead of "
@@ -111,7 +111,7 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(args, calling_tok
         end
 
         -- Render the body of the loop and add it to the result
-        local body = args.positionnals.body:copy ()
+        local body = params.positionnals.body:copy ()
         body:set_context(plume.current_scope(), true)
         table.insert(result, body:render())
 
@@ -127,23 +127,23 @@ end, nil, false, true)
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered while the condition is verified.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("while", {"condition", "body"}, {}, function(args)
+plume.register_macro("while", {"condition", "body"}, {}, function(params)
     -- Have the same behavior of the lua while control structure.
     -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
 
     local result = {}
     local i = 0
     local up_limit = plume.running_api.config.max_loop_size
-    while plume.call_lua_chunk (args.positionnals.condition) do
+    while plume.call_lua_chunk (params.positionnals.condition) do
         -- Each iteration have it's own local scope
-        plume.push_scope (args.positionnals.body.context)
+        plume.push_scope (params.positionnals.body.context)
         
-        local body = args.positionnals.body:copy ()
+        local body = params.positionnals.body:copy ()
         body:set_context(plume.current_scope(), true)
         table.insert(result, body:render())
         i = i + 1
         if i > up_limit then
-            plume.error(args.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- exit local scope
@@ -157,14 +157,14 @@ end, nil, false, true)
 -- Implements a custom mechanism that mimics Lua's if behavior.
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered, only if the condition is verified.
-plume.register_macro("if", {"condition", "body"}, {}, function(args)
+plume.register_macro("if", {"condition", "body"}, {}, function(params)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = plume.call_lua_chunk(args.positionnals.condition)
+    local condition = plume.call_lua_chunk(params.positionnals.condition)
     if condition then
-        return args.positionnals.body:render()
+        return params.positionnals.body:render()
     end
     return "", not condition
 end, nil, false, true)
@@ -173,7 +173,7 @@ end, nil, false, true)
 -- Implements a custom mechanism that mimics Lua's else behavior.
 -- @param body A block that will be rendered, only if the last condition isn't verified.
 -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
-plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("else", {"body"}, {}, function(params, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua else control structure.
 
     -- Must receive a message from preceding if
@@ -182,7 +182,7 @@ plume.register_macro("else", {"body"}, {}, function(args, self_token, chain_send
     end
 
     if chain_message then
-        return args.positionnals.body:render()
+        return params.positionnals.body:render()
     end
 
     return ""
@@ -193,7 +193,7 @@ end, nil, false, true)
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered, only if the last condition isn't verified and the current condition is verified.
 -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
-plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_token, chain_sender, chain_message)
+plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
     
     -- Must receive a message from preceding if
@@ -203,9 +203,9 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(args, self_to
 
     local condition
     if chain_message then
-        condition = plume.call_lua_chunk(args.positionnals.condition)
+        condition = plume.call_lua_chunk(params.positionnals.condition)
         if condition then
-            return args.positionnals.body:render()
+            return params.positionnals.body:render()
         end
     else
         condition = true
@@ -216,10 +216,10 @@ end, nil, false, true)
 --- \do
 -- Implements a custom mechanism that mimics Lua's do behavior.
 -- @param body A block that will be rendered in a new scope.
-plume.register_macro("do", {"body"}, {}, function(args, self_token)
+plume.register_macro("do", {"body"}, {}, function(params, self_token)
     
     plume.push_scope ()
-        local result = args.positionnals.body:render ()
+        local result = params.positionnals.body:render ()
     plume.pop_scope ()
 
     return result

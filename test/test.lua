@@ -11,7 +11,7 @@ else
     print_error_detail = true
 end
 
-local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optargs", "scope"}
+local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optparams", "scope"}
 
 local function readFile(filename)
     local file = io.open("test/"..filename..".plume", "r")
