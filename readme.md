@@ -111,6 +111,10 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### 0.6.0
 
+#### Changes
+- Rework macros parameters.
+- Use an unknow paramter name will now raise an error.
+- Due to change, remove `set`, `setl` and `script` without waiting for `1.0`.
 
 ### 0.5.0
 

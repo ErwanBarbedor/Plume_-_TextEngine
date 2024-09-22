@@ -22,13 +22,16 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param token token The token where the macro was declared. Used for debuging.
 -- @param is_local bool Register globaly or localy? (optionnal - defaults false)
 -- @param std bool It is a standard macro? (optionnal - defaults false)
-function plume.register_macro (name, args, default_opt_args, macro, token, is_local, std)
+-- @param varargs bool Accept unknow parameters? (optionnal - defaults false)
+function plume.register_macro (name, args, default_opt_args, macro, token, is_local, std, varargs)
     local macro = {
+        name             = name,
         args             = args,
         default_opt_args = default_opt_args,
         user_opt_args    = {},
         macro            = macro,
-        token            = token
+        token            = token,
+        varargs          = varargs
     }
 
     local scope = plume.current_scope(token and token.context)
@@ -46,6 +49,16 @@ function plume.register_macro (name, args, default_opt_args, macro, token, is_lo
     return macro
 end
 
+--- Render token or return the given value
+-- @param x
+-- Usefull for macro, that can have no-token default parameters.
+function plume.render_if_token (x)
+    if type(x) == "table" and x.renderLua then
+        return x:renderLua( )
+    end
+    return x
+end
+
 function plume.load_macros()
     -- <DEV>
     -- Clear cached packages
@@ -60,7 +73,7 @@ function plume.load_macros()
     require "macros/controls" 
     require "macros/utils" 
     require "macros/files" 
-    require "macros/script" 
+    require "macros/eval" 
     require "macros/spaces" 
     -- <DEV>
     require "macros/debug" 

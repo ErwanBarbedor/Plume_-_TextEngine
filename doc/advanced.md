@@ -1,62 +1,5 @@
 # Advanced Documentation
 
-## Macros with Arbitrary Numbers of Arguments
-
-You can access the table of all passed arguments in the field `__args`.
-
-Example:
-
-```plume
-\def multiargs {
-    \for {i, args in ipairs(__args)} {
-        Argument #i : #args
-    }
-}
-\multiargs[foo bar baz]
-```
-Gives:
-
-```
-Argument 1 : foo
-Argument 2 : bar
-Argument 3 : baz
-```
-
-You can also easily check if there is an unnamed optionnal argument with a certain value
-```plume
-\def foo {
-    \if {__args.option_a} {
-        Option A
-    }
-    \elseif {__args.option_b} {
-        Option B
-    }
-}
-\foo[option_b]
-```
-Gives:
-
-```
-Option B
-```
-
-## File arguments
-You can supply arguments to included files. They will be stored in the `__file_args` table.
-
-Example:
-```plume
-\include[foo=bar baz] lib
-// lib.plume
-#{__file_args.foo}
-#{__file_args[1]}
-```
-Output:
-```
-bar
-baz
-```
-
-
 ## Tokenlist
 
 Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
@@ -92,6 +35,93 @@ Gives:
 Plume does an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
 
 _If x and y are tokenlists, `#{x+y}` is roughly equivalent to `#{tonumber(x:render())+tonumber(y:render())}`._
+
+## Macro Parameters
+
+A macro can have four kinds of parameters:
+
+### Positional Parameters
+
+```plume
+\def double[x y] {#x #x #y #y}
+\double bar baz
+```
+`x` and `y` are _positional parameters_. They must follow the macro name in the same order as declared. They will not be rendered until the user decides to.
+
+### Keyword Parameters
+
+```plume
+\def hello[name=World salutation=Hello] {#salutation #name}
+\hello
+\hello[salutation=Greeting]
+```
+`name` and `salutation` are _keyword parameters_. The order doesn't matter, and you can omit them if you like. If you use them, you must employ the `=` symbol.
+
+In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro call. However, `Greeting` will not be rendered until the user decides to.
+
+### Flags
+
+```plume
+\def hello[?polite] {
+    \if #polite {
+        Good morning sir.
+    } \else {
+        Hey bro!
+    }
+}
+\hello -> Good morning sir.
+\hello[polite] -> Hey bro!
+```
+`?polite` is a _flag_. It is a shorthand for:
+
+```plume
+\def hello[polite={#{false}}] {
+    #{polite = polite:render()}
+    [...]
+}
+\hello
+\hello[polite={#{true}}]
+```
+
+As you can see and similarly to keyword parameters, `polite` will be rendered during the macro call.
+
+### Other Parameters
+
+By default, Plume will raise an error if you use unknown flags or keyword parameters, and it is impossible to pass more positional parameters than defined, as the overflow will be treated as following blocks.
+
+You can modify this behavior:
+
+```plume
+\def foo[*] {
+    #{__params.bar} -> baz
+    #{__params.flag} -> true
+}
+\foo[bar=baz flag]
+```
+
+By using `*`, all other parameters will be stored in a table named `__params`.
+
+
+
+
+## File arguments
+You can supply arguments to included files. They will be stored in the `__file_args` table.
+
+Example:
+```plume
+\include[foo=bar baz] lib
+// lib.plume
+#{__file_args.foo}
+#{__file_args[1]}
+```
+Output:
+```
+bar
+baz
+```
+
+
+
 
 ## `\def`, `\redef`, and `\redef_forced`
 

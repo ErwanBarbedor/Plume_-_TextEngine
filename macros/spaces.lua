@@ -20,11 +20,11 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 plume.register_macro("n", {}, {}, function(args)
     local count = 1
-    if args.__args[1] then
-        count = args.__args[1]:render()
+    if args.others.flags[1] then
+        count = args.others.flags[1]
     end
     return ("\n"):rep(count)
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \s
 -- Output a space.
@@ -32,11 +32,11 @@ end, nil, false, true)
 -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 plume.register_macro("s", {}, {}, function(args)
     local count = 1
-    if args.__args[1] then
-        count = args.__args[1]:render()
+    if args.others.flags[1] then
+        count = args.others.flags[1]
     end
     return (" "):rep(count)
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \t
 -- Output a tabulation.
@@ -44,17 +44,17 @@ end, nil, false, true)
 -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 plume.register_macro("t", {}, {}, function(args)
     local count = 1
-    if args.__args[1] then
-        count = args.__args[1]:render()
+    if args.others.flags[1] then
+        count = args.others.flags[1]
     end
     return ("\t"):rep(count)
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \set_space_mode
 -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces) and `light` (replace all space sequence with " ")
 plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_token)
-    local mode = args.mode:render ()
+    local mode = args.positionnals.mode:render ()
 
     if mode == "normal" then
         plume.running_api.config.config.filter_spaces = false

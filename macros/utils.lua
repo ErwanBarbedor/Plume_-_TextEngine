@@ -62,66 +62,84 @@ end
 -- @param is_local boolean Whether the macro is local
 -- @param calling_token token The token where the macro is being defined
 local function def (def_args, redef, redef_forced, is_local, calling_token)
-
     -- Get the provided macro name
-    local name = def_args["$name"]:render()
+    local name = def_args.positionnals.name:render()
 
     -- Check if the name is a valid identifier
     if not plume.is_identifier(name) then
-        plume.error(def_args["$name"], "'" .. name .. "' is an invalid name for a macro.")
+        plume.error(def_args.positionnals.name, "'" .. name .. "' is an invalid name for a macro.")
     end
 
     if not is_local then
         local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
         if not available then
-            plume.error(def_args["$name"], msg)
+            plume.error(def_args.positionnals.name, msg)
         end
     end
 
-    -- All args (except $name, $body and __args) are optional args
-    -- with defaut values
-    local opt_args = {}
-    for k, v in pairs(def_args) do
-        if k:sub(1, 1) ~= "$" then
-            opt_args[k] = v
+    -- Check if parameters names are valid and register flags
+    for name, _ in pairs(def_args.others.keywords) do
+        if not plume.is_identifier(name) then
+            plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
         end
     end
 
-    -- Remaining args are the macro args names
-    for k, v in ipairs(def_args.__args) do
-        def_args.__args[k] = v:render()
+    local parameters_names = {}
+    for _, name in ipairs(def_args.others.flags) do
+        local flag = false
+        if name:sub(1, 1) == "?" then
+            name = name:sub(2, -1)
+            flag = true
+        end
+        if not plume.is_identifier(name) then
+            plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
+        end
+        if flag then
+            def_args.others.keywords[name] = false
+        else
+            table.insert(parameters_names, name)
+        end
     end
 
     -- Capture current scope
     local closure = plume.current_scope ()
+
     
-    plume.register_macro(name, def_args.__args, opt_args, function(args)
+    plume.register_macro(name, parameters_names, def_args.others.keywords, function(args)
         -- Insert closure
         plume.push_scope (closure)
+        -- plume.print_args(args)
 
         -- Copy all tokens. Then, give each of them
         -- a reference to current lua scope
         -- (affect only scripts and evals tokens)
         local last_scope = plume.current_scope ()
-        for k, v in pairs(args) do
-            if k ~= "__args" then
-                args[k] = v:copy ()
-                args[k]:set_context (last_scope)
+        for k, v in pairs(args.positionnals) do
+            args.positionnals[k] = v:copy ()
+            args.positionnals[k]:set_context (last_scope)
+        end
+        for k, v in pairs(args.keywords) do
+            if type(args.keywords[k]) == "table" then
+                args.keywords[k] = v:copy ()
+                args.keywords[k]:set_context (last_scope)
             end
         end
-        for k, v in ipairs(args.__args) do
-            args.__args[k] = v:copy ()
-            args.__args[k]:set_context (last_scope)
-        end
+        
         -- argument are variable local to the macro
         plume.push_scope ()
 
         -- add all args in the current scope
-        for k, v in pairs(args) do
+        for k, v in pairs(args.positionnals) do
             plume.current_scope():set_local("variables", k, v)
         end
+        for k, v in pairs(args.keywords) do
+            plume.current_scope():set_local("variables", k, v)
+        end
+        for _, k in pairs(args.flags) do
+            plume.current_scope():set_local("variables", k, true)
+        end
 
-        local body = def_args["$body"]:copy ()
+        local body = def_args.positionnals.body:copy ()
         body:set_context (plume.current_scope (), true)
         local result = body:render()
 
@@ -141,11 +159,11 @@ end
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Doesn't work if the name is already taken by another macro.
-plume.register_macro("def", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("def", {"name", "body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, false, calling_token)
     return ""
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \redef
 -- Redefine a macro.
@@ -153,10 +171,10 @@ end, nil, false, true)
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Doesn't work if the name is available.
-plume.register_macro("redef", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("redef", {"name", "body"}, {}, function(def_args, calling_token)
     def (def_args, true, false, false, calling_token)
     return ""
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \redef_forced
 -- Redefined a predefined macro.
@@ -164,10 +182,10 @@ end, nil, false, true)
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Doesn't work if the name is available or isn't a predefined macro.
-plume.register_macro("redef_forced", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("redef_forced", {"name", "body"}, {["*"]=true}, function(def_args, calling_token)
     def (def_args, true, true, false, calling_token)
     return ""
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \defl
 -- Define a new macro locally.
@@ -175,44 +193,11 @@ end, nil, false, true)
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Contrary to `\def`, can erase another macro without error.
-plume.register_macro("defl", {"$name", "$body"}, {}, function(def_args, calling_token)
+plume.register_macro("defl", {"name", "body"}, {}, function(def_args, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_args, false, false, true, calling_token)
     return ""
 end, nil, true, true)
-
-local function set(args, calling_token, is_local)
-    -- A macro to set variable to a value
-    local key = args.key:render()
-    if not plume.is_identifier(key) then
-        plume.error(args.key, "'" .. key .. "' is an invalid name for a variable.")
-    end
-
-    local value = args.value:renderLua ()
-
-    value = tonumber(value) or value
-    
-    if is_local then
-        plume.current_scope (calling_token.context):set_local("variables", key, value)
-    else
-        plume.current_scope (calling_token.context):set("variables", key, value) 
-    end
-end
-
---- \set
--- Deprecated and will be removed in 1.0. You should use '#' instead.
-plume.register_macro("set", {"key", "value"}, {}, function(args, calling_token)
-    set(args, calling_token, args.__args["local"])
-    return ""
-end, nil, false, true)
-
---- \setl
--- Deprecated and will be removed in 1.0. You should use '#' instead.
-plume.register_macro("setl", {"key", "value"}, {}, function(args, calling_token)
-    set(args, calling_token, true)
-    return ""
-end, nil, false, true)
-
 
 --- Create alias of a function
 local function alias (name1, name2, calling_token, is_local)
@@ -241,9 +226,9 @@ end
 -- @flag local Is the new macro local to the current scope.
 -- @alias `\aliasl` is equivalent as `\alias[local]`
 plume.register_macro("alias", {"name1", "name2"}, {}, function(args, calling_token)
-    local name1 = args.name1:render()
-    local name2 = args.name2:render()
-    alias (name1, name2, calling_token, args.__args["local"])
+    local name1 = args.positionnals.name1:render()
+    local name2 = args.positionnals.name2:render()
+    alias (name1, name2, calling_token, false)
 end, nil, false, true)
 
 --- \aliasl
@@ -252,8 +237,8 @@ end, nil, false, true)
 -- @param name2 Any valid lua identifier.
 -- @alias `\aliasl` is equivalent as `\alias[local]`
 plume.register_macro("aliasl", {"name1", "name2"}, {}, function(args, calling_token)
-    local name1 = args.name1:render()
-    local name2 = args.name2:render()
+    local name1 = args.positionnals.name1:render()
+    local name2 = args.positionnals.name2:render()
     alias (name1, name2, calling_token, true)
 end, nil, false, true)
 
@@ -261,34 +246,32 @@ end, nil, false, true)
 -- set (or reset) default args of a given macro.
 -- @param name Name of an existing macro.
 -- @other_options Any parameters used by the given macro.
-plume.register_macro("default", {"$name"}, {}, function(args, calling_token)
+plume.register_macro("default", {"name"}, {}, function(args, calling_token)
     -- Get the provided macro name
-    local name = args["$name"]:render()
+    local name = args.positionnals.name:render()
 
     local scope = plume.current_scope(calling_token.context)
 
     -- Check if this macro exists
     if not scope.macros[name] then
-        plume.error_macro_not_found(args["name"], name)
+        plume.error_macro_not_found(args.positionnals.name, name)
     end
 
     -- Add all arguments (except name) in user_opt_args
-    for k, v in pairs(args) do
-        if k:sub(1, 1) ~= "$" and k ~= "__args" then
-            scope.macros[name].user_opt_args[k] = v
-        end
-    end
-    for k, v in ipairs(args.__args) do
+    for k, v in pairs(args.others.keywords) do
         scope.macros[name].user_opt_args[k] = v
     end
+    for _, k in ipairs(args.others.flags) do
+        scope.macros[name].user_opt_args[k] = true
+    end
 
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \raw
 -- Return the given body without render it.
 -- @param body
 plume.register_macro("raw", {"body"}, {}, function(args)
-    return args['body']:source ()
+    return args.positionnals['body']:source ()
 end, nil, false, true)
 
 --- \config

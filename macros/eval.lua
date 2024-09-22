@@ -14,20 +14,6 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define script-related macro
 
---- \script
--- Deprecated and will be removed in 1.0. You should use '#{...}' instead.
-plume.register_macro("script", {"body"}, {}, function(args)
-    --Execute a lua chunk and return the result, if any
-    local result = plume.call_lua_chunk(args.body)
-
-    --if result is a token, render it
-    if type(result) == "table" and result.render then
-        result = result:render ()
-    end
-    
-    return result
-end, nil, false, true)
-
 local function scientific_notation (x, n, sep)
     local n = n or 0
     local sep = sep or "."
@@ -69,49 +55,33 @@ end
 -- @note If the given code is a statement, it cannot return any value.
 -- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 -- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
-plume.register_macro("eval", {"expr"}, {}, function(args, calling_token)
-
+plume.register_macro("eval", {"expr"}, {["*"]=true, thousand_separator="", decimal_separator="."}, function(args, calling_token)
+    
     local remove_zeros, format, scinot, silent
 
-    -- Used to prevent infinite loop when '#' is used inside default eval args value
-    if not plume.is_inside_eval then
-        plume.is_inside_eval = true
-
-        -- Get optionnals args
-        for i, arg in ipairs(args.__args) do
-            local arg_render = arg:render ()
-
-            if not remove_zeros and arg_render == "remove_zeros" then
-                remove_zeros = true
-            elseif not silents and arg_render == "silent" then
-                silent = true
-            elseif arg_render:match('%.[0-9]+f') or arg_render == "i" then
-                format = arg_render
-            elseif not scinot and arg_render:match('%.[0-9]+s') then
-                scinot = arg_render:match('%.([0-9]+)s')
-            else
-                plume.error(arg, "Unknow arg '" .. arg_render .. "'.")
-            end
+    for _, flag in ipairs(args.others.flags) do
+        if flag == "remove_zeros" then
+            remove_zeros = true
+        elseif not silents and flag == "silent" then
+            silent = true
+        elseif flag:match('%.[0-9]+f') or flag == "i" then
+            format = flag
+        elseif not scinot and flag:match('%.[0-9]+s') then
+            scinot = flag:match('%.([0-9]+)s')
+        else
+            plume.error(arg, "Unknow arg '" .. flag .. "'.")
         end
-
-        plume.is_inside_eval = false
     end
 
-    -- Get separator if provided
+
+    --Get separator if provided
     local t_sep, d_sep
-    if args.thousand_separator then
-        t_sep = args.thousand_separator:render ()
-        if #t_sep == 0 then
-            t_sep = nil
-        end
-    end
-    if args.decimal_separator then
-        d_sep = args.decimal_separator:render ()
-    else
-        d_sep = "."
-    end
+    
+    t_sep = plume.render_if_token(args.keywords.thousand_separator)
+    if #t_sep == 0 then t_sep = nil end
+    d_sep = plume.render_if_token(args.keywords.decimal_separator)
 
-    local result = plume.call_lua_chunk(args.expr)
+    local result = plume.call_lua_chunk(args.positionnals.expr)
 
     -- if result is a token, render it
     if type(result) == "table" and result.render then

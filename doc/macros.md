@@ -114,12 +114,6 @@ _Generated from source._
 
 ## Script
 
-### script
-
-**Usage:** `\script`
-
-**Description:** Deprecated and will be removed in 1.0. You should use '#{...}' instead.
-
 ### eval
 
 **Usage:** `\eval[thousand_separator={} decimal_separator=. <format> remove_zeros silent] {code}`
@@ -248,18 +242,6 @@ _Generated from source._
 **Other optional parameters:** Macro arguments names.
 
 **Note:** Contrary to `\def`, can erase another macro without error.
-
-### set
-
-**Usage:** `\set`
-
-**Description:** Deprecated and will be removed in 1.0. You should use '#' instead.
-
-### setl
-
-**Usage:** `\setl`
-
-**Description:** Deprecated and will be removed in 1.0. You should use '#' instead.
 
 ### alias
 

@@ -45,7 +45,7 @@ bar
 // End
 
 // Test 'Optional arg (pass eval 1)'
-\def foo {#x}//
+\def foo[x={}] {#x}//
 \foo[x={#{1+1}}]
 // Result
 2
@@ -53,19 +53,24 @@ bar
 
 // Test 'Optional arg (pass eval 2)'
 \def foo bar//
-\def bar {#x}//
+\def bar[x={}] {#x}//
 \bar[x={\foo}]
 // Result
 bar
 // End
 
-// Test 'Optional arg (by name)'
-\def foo {\if __args.bar {Provided args!} \else {not Provided arg.}}//
+// Test 'Flag 1'
+\def foo[?bar] {\if bar {bar} \else {foo}}//
 \foo
+// Result
+ foo
+// End
+
+// Test 'Flag 2'
+\def foo[?bar] {\if bar {bar} \else {foo}}//
 \foo[bar]
 // Result
- not Provided arg.
-Provided args! 
+bar 
 // End
 
 // Test 'set default'
@@ -94,14 +99,6 @@ File 'string', line 1 : Expected parameter value, not '='.
                 ^
 // End
 
-// Test 'Wrong parameter name'
-\def foo [{a}=5] {}
-// Error
-File 'string', line 1 : Optional parameters names must be raw text.
-    \def foo [{a}=5] {}
-              ^^^
-// End
-
 // Test 'Early ='
 \def foo [=a] {}
 // Error
@@ -113,7 +110,10 @@ File 'string', line 1 : Expected parameter name, not '='.
 // Test 'Bad argument name'
 \def foo [@=foo] {}
 // Error
-File 'string', line 1 : '@' is an invalid name for an argument name.
+File 'string', line 1 : '@' is an invalid parameter name.
     \def foo [@=foo] {}
-              ^
+    ^^^^
+Traceback :
+    File 'string', line 1 : \def foo [@=foo] {}
+                            ^^^^
 // End

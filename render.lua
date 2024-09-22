@@ -17,30 +17,49 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param args table The arguments table to be filled
 -- @param opt_args table The optional arguments to parse
 function plume.parse_opt_args (macro, args, opt_args)
+
     local key, eq, space
-    local captured_args = {}
+    local flags = {}
+
+    local function capture_keyword(key, value)
+        local name = key:render ()
+        if macro.varargs then
+            args.others.keywords[name] = value
+        elseif macro.default_opt_args[name] == nil then
+            plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
+        else
+            args.keywords[name] = value
+        end
+    end
+
+    local function capture_flag (key)
+        local name = key:render ()
+        if macro.varargs then
+            table.insert(args.others.flags, name)
+        elseif macro.default_opt_args[name] == nil then
+            plume.error(key, "Unknow flag named '" .. name .. "' for macro '" .. macro.name .. "'.")
+        else
+            flags[name] = true
+            table.insert(args.flags, name)
+        end
+    end
+
     for _, token in ipairs(opt_args) do
         if key then
             if token.kind == "space" or token.kind == "newline" then
             elseif eq then
                 if token.kind == "opt_assign" then
                     plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
-                elseif key.kind ~= "block_text" then
-                    plume.error(key, "Optional parameters names must be raw text.")
                 end
-                local name = key:render ()
                 
-                if not plume.is_identifier(name) then
-                    plume.error(key, "'" .. name .. "' is an invalid name for an argument name.")
-                end
-
-                captured_args[name] = token
+                capture_keyword (key, token)
+                
                 eq = false
                 key = nil
             elseif token.kind == "opt_assign" then
                 eq = true
             else
-                table.insert(captured_args, key)
+                capture_flag(key)
                 key = token
             end
         elseif token.kind == "opt_assign" then
@@ -50,52 +69,13 @@ function plume.parse_opt_args (macro, args, opt_args)
         end
     end
     if key then
-        table.insert(captured_args, key)
+        capture_flag(key)
     end
 
-    -- Add all named arguments to the table args
-    for k, v in pairs(captured_args) do
-        if type(k) ~= "number" then
-            args[k] = v
+    for k, v in pairs(macro.default_opt_args) do
+        if not args.keywords[k] and not flags[k] then
+            args.keywords[k] = v
         end
-    end
-
-    -- Put all remaining args in the field "__args"
-    args.__args = {}
-    for j=1, #captured_args do
-        table.insert(args.__args, captured_args[j])
-    end
-
-    -- set defaut value if not in args but provided by the macro
-    -- or provided by the user
-    for name, value in pairs(macro.user_opt_args) do
-        if tonumber(name) then
-            if not args.__args[name] then
-                args.__args[name] = value
-            end
-        else
-            if not args[name] then
-                args[name] = value
-            end
-        end
-    end
-    for name, value in pairs(macro.default_opt_args) do
-        if tonumber(name) then
-            if not args.__args[name] then
-                args.__args[name] = value
-            end
-        else
-            if not args[name] then
-                args[name] = value
-            end
-        end
-    end
-
-    -- Add __args elements as a key, to simply check for
-    -- the presence of a specific word in optional arguments.
-    -- Use of :source to avoid calling :render in a hidden way.
-    for _, token in ipairs(args.__args) do
-        args.__args[token:source()] = true
     end
 end
 
@@ -268,15 +248,23 @@ function plume.renderToken (self)
                 end
             end
 
-            local macro_args = {}
+            local macro_args = {
+                positionnals={},
+                keywords={},
+                flags={},
+                others={
+                    keywords={},
+                    flags={}
+                }
+            }
             for k, v in ipairs(args) do
-                macro_args[macro.args[k]] = v
+                macro_args.positionnals[macro.args[k]] = v
             end
-            for k, v in pairs(args) do
-                if type(k) ~= "number" then
-                    macro_args[k] = v
-                end
-            end
+            -- for k, v in pairs(args) do
+            --     if type(k) ~= "number" then
+            --         macro_args[k] = v
+            --     end
+            -- end
 
             -- Parse optionnal args
             plume.parse_opt_args(macro, macro_args, opt_args or {})
@@ -334,3 +322,26 @@ function plume.renderTokenLua (self)
         return tonumber(result) or result
     end
 end
+
+-- <DEV>
+function plume.print_args(args)
+    print('-------')
+    for k, v in pairs(args) do
+        print(k)
+
+        if k == "others" then
+            for kk, vv in pairs(v) do
+                print('\t' .. kk)
+                for kkk, vvv in pairs(vv) do
+                print('\t\t' .. kkk, vvv:render())
+            end
+            end
+        else
+            for kk, vv in pairs(v) do
+                print('\t' .. kk, vv:render())
+            end
+        end
+    end
+    print('-------')
+end
+-- </DEV>

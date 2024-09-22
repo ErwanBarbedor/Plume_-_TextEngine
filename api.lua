@@ -112,7 +112,7 @@ function api.export(name, arg_number, f)
     plume.register_macro(name, def_args, {}, function (args)
         local rargs = {}
         for i=1, arg_number do
-            rargs[i] = args['x' .. i]:render()
+            rargs[i] = args.positionnals['x' .. i]:render()
         end
         -- <Lua 5.1>
         if _VERSION == "Lua 5.1" then
