@@ -38,7 +38,7 @@ _If x and y are tokenlists, `#{x+y}` is roughly equivalent to `#{tonumber(x:rend
 
 ## Macro Parameters
 
-A macro can have four kinds of parameters:
+A macro can have 3 kinds of parameters:
 
 ### Positional Parameters
 
@@ -46,7 +46,7 @@ A macro can have four kinds of parameters:
 \def double[x y] {#x #x #y #y}
 \double bar baz
 ```
-`x` and `y` are _positional parameters_. They must follow the macro name in the same order as declared. They will not be rendered until the user decides to.
+`x` and `y` are _positional parameters_. They must follow the macro call in the same order as declared. They will not be rendered until the user decides to.
 
 ### Keyword Parameters
 
@@ -57,7 +57,7 @@ A macro can have four kinds of parameters:
 ```
 `name` and `salutation` are _keyword parameters_. The order doesn't matter, and you can omit them if you like. If you use them, you must employ the `=` symbol.
 
-In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro call. However, `Greeting` will not be rendered until the user decides to.
+In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro call. However, `Greeting` will not be rendered until the user decides to. (So yes, you can use block as parameter name : `\hello[{\gen_name}=bar]`)
 
 ### Flags
 
@@ -100,8 +100,6 @@ You can modify this behavior:
 ```
 
 By using `*`, all other parameters will be stored in a table named `__params`.
-
-
 
 
 ## File arguments
