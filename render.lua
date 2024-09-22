@@ -45,6 +45,12 @@ function plume.parse_opt_args (macro, args, opt_args)
     end
 
     for _, token in ipairs(opt_args) do
+        if token.kind ~= "opt_assign"
+            and token.kind ~= "block" and token.kind ~= "block_text"
+            and token.kind  ~= "space" and token.kind  ~= "newline" then
+            plume.error(token, "Cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
+        end
+
         if key then
             if token.kind == "space" or token.kind == "newline" then
             elseif eq then
