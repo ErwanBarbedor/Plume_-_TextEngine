@@ -52,7 +52,7 @@ end, nil, false, true, true)
 
 --- \set_space_mode
 -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
--- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces) and `light` (replace all space sequence with " ")
+-- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
 plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_token)
     local mode = args.positionnals.mode:render ()
 
@@ -65,6 +65,9 @@ plume.register_macro("set_space_mode", {"mode"}, {}, function(args, calling_toke
     elseif mode == "light" then
         plume.running_api.config.filter_spaces = " "
         plume.running_api.config.filter_newlines = " "
+    elseif mode == "light" then
+        plume.running_api.config.filter_spaces = " "
+        plume.running_api.config.filter_newlines = "\n"
     else
         plume.error(args.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
     end
