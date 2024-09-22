@@ -55,7 +55,7 @@ end
 -- @note If the given code is a statement, it cannot return any value.
 -- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 -- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
-plume.register_macro("eval", {"expr"}, {["*"]=true, thousand_separator="", decimal_separator="."}, function(args, calling_token)
+plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator="."}, function(args, calling_token)
     
     local remove_zeros, format, scinot, silent
 
@@ -123,4 +123,4 @@ plume.register_macro("eval", {"expr"}, {["*"]=true, thousand_separator="", decim
     if not silent then
         return result
     end
-end, nil, false, true)
+end, nil, false, true, true)

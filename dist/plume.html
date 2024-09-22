@@ -290,6 +290,19 @@ function plume.parse_opt_args (macro, args, opt_args)
         capture_flag(key)
     end
 
+    for k, v in pairs(macro.user_opt_args) do
+        if not args.keywords[k] and not flags[k] then
+            if macro.default_opt_args[k] == nil then
+                if v == true then
+                    table.insert(args.others.flags, k)
+                else
+                    args.others.keywords[k] = v
+                end
+            else
+                args.keywords[k] = v
+            end
+        end
+    end
     for k, v in pairs(macro.default_opt_args) do
         if not args.keywords[k] and not flags[k] then
             args.keywords[k] = v
@@ -1503,7 +1516,7 @@ end
 function plume.load_macros()
     -- <DEV>
     -- Clear cached packages
-    for m in ("controls utils files script spaces debug"):gmatch('%S+') do
+    for m in ("controls utils files eval spaces debug"):gmatch('%S+') do
          package.loaded["macros/"..m] = nil
     end
     -- </DEV>
@@ -2215,7 +2228,7 @@ plume.register_macro("file", {"path", "content"}, {}, function (args, calling_to
 
 end, nil, false, true) 
     
--- ## macros/script.lua ##
+-- ## macros/eval.lua ##
 -- Define script-related macro
 
 local function scientific_notation (x, n, sep)
@@ -2259,7 +2272,7 @@ end
 -- @note If the given code is a statement, it cannot return any value.
 -- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 -- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
-plume.register_macro("eval", {"expr"}, {["*"]=true, thousand_separator="", decimal_separator="."}, function(args, calling_token)
+plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator="."}, function(args, calling_token)
     
     local remove_zeros, format, scinot, silent
 
@@ -2327,7 +2340,7 @@ plume.register_macro("eval", {"expr"}, {["*"]=true, thousand_separator="", decim
     if not silent then
         return result
     end
-end, nil, false, true) 
+end, nil, false, true, true) 
     
 -- ## macros/spaces.lua ##
 -- Define spaces-related macros

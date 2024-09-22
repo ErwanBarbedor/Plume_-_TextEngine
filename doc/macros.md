@@ -112,7 +112,7 @@ _Generated from source._
 - `path` Name of the file to write.
 - `note` Content to write in the file.
 
-## Script
+## Eval
 
 ### eval
 

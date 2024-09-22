@@ -72,6 +72,19 @@ function plume.parse_opt_args (macro, args, opt_args)
         capture_flag(key)
     end
 
+    for k, v in pairs(macro.user_opt_args) do
+        if not args.keywords[k] and not flags[k] then
+            if macro.default_opt_args[k] == nil then
+                if v == true then
+                    table.insert(args.others.flags, k)
+                else
+                    args.others.keywords[k] = v
+                end
+            else
+                args.keywords[k] = v
+            end
+        end
+    end
     for k, v in pairs(macro.default_opt_args) do
         if not args.keywords[k] and not flags[k] then
             args.keywords[k] = v

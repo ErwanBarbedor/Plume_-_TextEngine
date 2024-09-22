@@ -200,7 +200,7 @@ end
 
 return function ()
     local result = {"# Macros documentation\n_Generated from source._"}
-    for categorie in ("Controls Files Script Spaces Utils"):gmatch('%S+') do
+    for categorie in ("Controls Files Eval Spaces Utils"):gmatch('%S+') do
         table.insert(result, "## " .. categorie)
         local script = io.open("macros/" .. categorie .. ".lua"):read "*a"
         capture_macro_doc (result, script)

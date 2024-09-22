@@ -62,7 +62,7 @@ end
 function plume.load_macros()
     -- <DEV>
     -- Clear cached packages
-    for m in ("controls utils files script spaces debug"):gmatch('%S+') do
+    for m in ("controls utils files eval spaces debug"):gmatch('%S+') do
          package.loaded["macros/"..m] = nil
     end
     -- </DEV>
