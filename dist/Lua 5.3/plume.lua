@@ -2115,7 +2115,7 @@ plume.register_macro("file", {"path", "content"}, {}, function (params, calling_
             plume.error (calling_token, "Cannot write file '" .. path .. "'")
         end
 
-        local content = params.content:render ()
+        local content = params.positionnals.content:render ()
         file:write(content)
 
     file:close ()

@@ -87,7 +87,7 @@ As you can see and similarly to keyword parameters, `polite` will be rendered du
 
 ### Other Parameters
 
-By default, Plume will raise an error if you use unknown flags or keyword parameters, and it is impossible to pass more positional parameters than defined, as the overflow will be treated as following blocks.
+By default, Plume will raise an error if you use unknown flags or keyword parameters, (and it is impossible to pass more positional parameters than defined, as the overflow will be treated as following blocks).
 
 You can modify this behavior:
 
@@ -99,7 +99,7 @@ You can modify this behavior:
 \foo[bar=baz flag]
 ```
 
-By using `*`, all other parameters will be stored in a table named `__params`.
+By using `...`, all unknown parameters will be stored in a table named `__params`.
 
 
 ## File parameters
