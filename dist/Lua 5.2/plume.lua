@@ -1771,12 +1771,24 @@ plume.register_macro("redef_forced", {"name", "body"}, {["*"]=true}, function(de
     return ""
 end, nil, false, true, true)
 
---- \defl
+--- \def_local
 -- Define a new macro locally.
 -- @param name Name must be a valid lua identifier
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Contrary to `\def`, can erase another macro without error.
+-- @alias `\defl`
+plume.register_macro("def_local", {"name", "body"}, {}, function(def_parameters, calling_token)
+    -- '$' in arg name, so they cannot be erased by user
+    def (def_parameters, false, false, true, calling_token)
+    return ""
+end, nil, true, true)
+
+--- \defl
+-- Alias for [def_local](#def_local)
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
 plume.register_macro("defl", {"name", "body"}, {}, function(def_parameters, calling_token)
     -- '$' in arg name, so they cannot be erased by user
     def (def_parameters, false, false, true, calling_token)
@@ -1821,18 +1833,36 @@ local function set(params, calling_token, is_local)
 end
 
 --- \set
--- Deprecated and will be removed in 1.0. You should use '#' instead.
+-- Affect a value to a variable.
+-- @param key The name of the variable.
+-- @param value The value of the variable.
+-- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
 plume.register_macro("set", {"key", "value"}, {}, function(params, calling_token)
     set(params, calling_token, false)
     return ""
 end, nil, false, true)
 
---- \setl
--- Deprecated and will be removed in 1.0. You should use '#' instead.
+--- \set_local
+-- Affect a value to a variable locally.
+-- @param key The name of the variable.
+-- @param value The value of the variable.
+-- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
+-- @alias `setl`
+plume.register_macro("set_local", {"key", "value"}, {}, function(params, calling_token)
+    set(params, calling_token, true)
+    return ""
+end, nil, false, true)
+
+-- setl
+-- Alias for [set_local](#set_local)
+-- @param key The name of the variable.
+-- @param value The value of the variable.
+-- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
 plume.register_macro("setl", {"key", "value"}, {}, function(params, calling_token)
     set(params, calling_token, true)
     return ""
 end, nil, false, true)
+
 
 --- \alias
 -- name2 will be a new way to call name1.
@@ -1846,11 +1876,21 @@ plume.register_macro("alias", {"name1", "name2"}, {}, function(params, calling_t
     alias (name1, name2, calling_token, false)
 end, nil, false, true)
 
---- \aliasl
+--- \alias_local
 -- Make an alias locally
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
--- @alias `\aliasl` is equivalent as `\alias[local]`
+-- @alias `\aliasl`
+plume.register_macro("alias_local", {"name1", "name2"}, {}, function(params, calling_token)
+    local name1 = params.positionnals.name1:render()
+    local name2 = params.positionnals.name2:render()
+    alias (name1, name2, calling_token, true)
+end, nil, false, true)
+
+--- \aliasl
+-- Alias for [alias_local](#alias_local)
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
 plume.register_macro("aliasl", {"name1", "name2"}, {}, function(params, calling_token)
     local name1 = params.positionnals.name1:render()
     local name2 = params.positionnals.name2:render()

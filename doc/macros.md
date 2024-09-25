@@ -231,9 +231,9 @@ _Generated from source._
 
 **Note:** Doesn't work if the name is available or isn't a predefined macro.
 
-### defl
+### def_local
 
-**Usage:** `\defl[...] {name} {body}`
+**Usage:** `\def_local[...] {name} {body}`
 
 **Description:** Define a new macro locally.
 
@@ -245,17 +245,45 @@ _Generated from source._
 
 **Note:** Contrary to `\def`, can erase another macro without error.
 
+**Alias:** `\defl`
+
+### defl
+
+**Usage:** `\defl[...] {name} {body}`
+
+**Description:** Alias for [def_local](#def_local)
+
+**Positionnal Parameters:**
+- `name` Name must be a valid lua identifier
+- `body` Body of the macro, that will be render at each call.
+
+**Other optional parameters:** Macro arguments names.
+
 ### set
 
-**Usage:** `\set`
+**Usage:** `\set {key} {value}`
 
-**Description:** Deprecated and will be removed in 1.0. You should use '#' instead.
+**Description:** Affect a value to a variable.
 
-### setl
+**Positionnal Parameters:**
+- `key` The name of the variable.
+- `value` The value of the variable.
 
-**Usage:** `\setl`
+**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
 
-**Description:** Deprecated and will be removed in 1.0. You should use '#' instead.
+### set_local
+
+**Usage:** `\set_local {key} {value}`
+
+**Description:** Affect a value to a variable locally.
+
+**Positionnal Parameters:**
+- `key` The name of the variable.
+- `value` The value of the variable.
+
+**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
+
+**Alias:** `setl`
 
 ### alias
 
@@ -273,9 +301,9 @@ _Generated from source._
 
 **Alias:** `\aliasl` is equivalent as `\alias[local]`
 
-### aliasl
+### alias_local
 
-**Usage:** `\aliasl {name1} {name2}`
+**Usage:** `\alias_local {name1} {name2}`
 
 **Description:** Make an alias locally
 
@@ -283,7 +311,17 @@ _Generated from source._
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
-**Alias:** `\aliasl` is equivalent as `\alias[local]`
+**Alias:** `\aliasl`
+
+### aliasl
+
+**Usage:** `\aliasl {name1} {name2}`
+
+**Description:** Alias for [alias_local](#alias_local)
+
+**Positionnal Parameters:**
+- `name1` Name of an existing macro.
+- `name2` Any valid lua identifier.
 
 ### default
 
