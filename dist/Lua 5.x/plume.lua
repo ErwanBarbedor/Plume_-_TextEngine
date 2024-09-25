@@ -2856,11 +2856,12 @@ function api.require (path)
     end
 end
 
---- @api_method Create a macros from a lua function.
+--- @api_method Create a macro from a lua function.
 -- @param name string Name of the macro
 -- @param arg_number Number of paramters to capture
 -- @param f function
-function api.export(name, params_number, f)
+-- @param is_local bool Is the new macro local?
+function api.export(name, params_number, f, is_local)
     local def_params = {}
     for i=1, params_number do
         table.insert(def_params, "x"..i)
@@ -2880,7 +2881,16 @@ function api.export(name, params_number, f)
             return f(table.unpack(rparams))
         end
         -- </Lua>
-    end)
+    end, nil, is_local)
+end
+
+--- @api_method Create a local macro from a lua function.
+-- @param name string Name of the macro
+-- @param arg_number Number of paramters to capture
+-- @param f function
+-- @param is_local bool Is the new macro local?
+function api.export_local(name, params_number, f)
+    api.export(name, params_number, f, true)
 end
 
 --- Initializes the API methods visible to the user.

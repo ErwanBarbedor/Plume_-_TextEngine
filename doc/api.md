@@ -94,13 +94,25 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 ### export
 
-**Usage :** `plume.export(name, arg_number)`
+**Usage :** `plume.export(name, arg_number, is_local)`
 
-**Description:**  Create a macros from a lua function.
+**Description:**  Create a macro from a lua function.
 
 **Parameters :**
 - `name` _string_  Name of the macro
 - `arg_number` _Number_  of paramters to capture
+- `is_local` _bool_  Is the new macro local?
+
+### export_local
+
+**Usage :** `plume.export_local(name, arg_number, is_local)`
+
+**Description:**  Create a local macro from a lua function.
+
+**Parameters :**
+- `name` _string_  Name of the macro
+- `arg_number` _Number_  of paramters to capture
+- `is_local` _bool_  Is the new macro local?
 
 ## Tokenlist
 
