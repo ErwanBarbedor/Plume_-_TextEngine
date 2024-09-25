@@ -2232,6 +2232,14 @@ plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
         -- Add arguments to file scope
         local file_params = {}
 
+        for k, v in pairs(params.others.keywords) do
+            file_params[k] = v
+        end
+
+        for _, k in ipairs(params.others.flags) do
+            file_params[k] = true
+        end
+
         plume.current_scope (calling_token.context):set_local("variables", "__file_params", file_params)
 
         -- Render file content
@@ -2241,7 +2249,7 @@ plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
     plume.pop_scope ()
 
     return result
-end, nil, false, true)
+end, nil, false, true, true)
 
 --- \extern
 -- Insert content of the file without execution. Quite similar to `\raw`, but for a file.

@@ -1,1 +1,2 @@
-\def double[x] {#x #x}\double foo
+\def double[x] {#x #x}//
+\def foo {x = #{__file_params.x}}

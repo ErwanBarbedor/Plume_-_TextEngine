@@ -90,11 +90,18 @@ local function runTests(tests)
                     if print_error_detail then
                         print("\tUnexpected error\n\t\t" .. err:gsub('\r', '\n'))
                     end
-                elseif result ~= test.expectedOutput then
+                elseif result:gsub('\r', '\n') ~= test.expectedOutput:gsub('\r', '\n') then
                     print("\tTest '" .. test.name .. "' failed.")
                     testFailed = testFailed + 1
                     if print_error_detail then
                         print("\tExpected Output\n\t\t" .. test.expectedOutput:gsub('\r', '\n'):gsub('\n', '\n\t\t'):gsub(' ', '_') .. "\n\tObtained Output: \n\t\t" .. result:gsub('\r', '\n'):gsub('\n', '\n\t\t'):gsub(' ', '_'))
+
+                        for i = 1, math.min(#test.expectedOutput, #result) do
+                            if test.expectedOutput:sub(i, i) ~= result:sub(i, i) then
+                                print("\tFirst missmatch a pos " .. i .. ", '" .. test.expectedOutput:sub(i, i):gsub('\n', '\\n'):gsub('\r', '\\r') .. "' vs '" .. result:sub(i, i):gsub('\n', '\\n'):gsub('\r', '\\r').."'")
+                                break
+                            end
+                        end
                     end
 
                     

@@ -21,15 +21,25 @@ Traceback :
 // End
 
 // Test 'include'
-\include test/lib.plume
+\include test/lib.plume//
+\double foo
 // Result
 foo foo
+// End
+
+// Test 'include with params'
+\include[x=bar] test/lib.plume//
+\foo
+// Result
+x = bar
 // End
 
 // Test 'include extern'
 \extern test/lib.plume
 // Result
-\def double[x] {#x #x}\double foo
+\def double[x] {#x #x}//
+
+\def foo {x = #{__file_params.x}}
 // End
 
 // Test 'include error'
