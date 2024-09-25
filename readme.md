@@ -119,6 +119,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - `set` and `setl` dont do implicit conversion on the fly.
 - `light` space mode became `compact`. New space mode `light`.
 - Add new error when using wrong syntax inside optional parameters declaration, instead of crash.
+- `__file_args` became `__file_params`
 
 ### 0.5.0
 
