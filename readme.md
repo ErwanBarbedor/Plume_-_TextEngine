@@ -110,18 +110,20 @@ This doesn't work in Plume because `foo` will be expanded first.
 ## Last version : 0.6.0
 
 ### Changes
-- Rework macros parameters.
-- Use an unknow paramter name will now raise an error.
-- Due to change, remove `script` without waiting for `1.0`.
+- Rework macros parameters into positionals/keywords/flags.
+- Using an unknown parameter name will now raise an error.
+- Due to the change, remove `script` without waiting for `1.0`.
 - The functions `set` and `setl` are no longer deprecated.
-- `set` and `setl` dont longer do implicit conversion on the fly.
-- Remove `local` option for `set` and `alias`, new macro `set_local`, `alias_local`, and `def_local`.
-- New function `plume.export_local` 
+- `set` and `setl` no longer perform implicit conversion on the fly.
+- Remove `local` option for `set` and `alias`.
+- New macros `set_local`, `alias_local`, and `def_local` (alias for `setl`, `aliasl` and `defl`).
+- New function `plume.export_local`
 - `light` space mode became `compact`. New space mode `light`.
-- Add new error when using wrong syntax inside optional parameters declaration, instead of crash.
+- Add new error when using wrong syntax inside optional parameter declarations, instead of crashing.
 - `__file_args` became `__file_params`
 - New macro special variable `__message`
 - New `_G` and `_L` tables.
+
 
 See the [changelog](doc/changelog.md) for older version
 
