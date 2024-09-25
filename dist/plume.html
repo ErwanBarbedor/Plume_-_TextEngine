@@ -241,10 +241,13 @@ function plume.parse_opt_params (macro, params, opt_params)
 
     local function capture_keyword(key, value)
         local name = key:render ()
-        if macro.variable_parameters_number then
-            params.others.keywords[name] = value
-        elseif macro.default_opt_params[name] == nil then
-            plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
+        
+        if macro.default_opt_params[name] == nil then
+            if macro.variable_parameters_number then
+                params.others.keywords[name] = value
+            else 
+                plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
+            end
         else
             params.keywords[name] = value
         end
