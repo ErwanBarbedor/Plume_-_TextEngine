@@ -216,7 +216,10 @@ return function ()
 
     local result = {"# Plume API\n_Generated from source._\n\nMéthodes et variables Lua accessibles in any `#` macro.\n\n## Variables\n\n| Name |  Description |\n| ----- | ----- |"}
 
-    local script = io.open("macros/utils.lua"):read ("*a") .. "\n" .. io.open("macros/files.lua"):read ("*a")
+    local script = io.open("macros/utils.lua"):read ("*a")
+         .. io.open("macros/files.lua"):read ("*a")
+         .. io.open("init.lua"):read ("*a")
+         .. io.open("runtime.lua"):read ("*a")
     for name , doc in script:gmatch("%-%-%- @scope_variable%s*(%S+)%s*([^\n\r]+)") do
         table.insert(result, "| `" .. name .. "` | " .. doc .. " |")
     end

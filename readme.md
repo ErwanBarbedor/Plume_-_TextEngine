@@ -121,6 +121,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Add new error when using wrong syntax inside optional parameters declaration, instead of crash.
 - `__file_args` became `__file_params`
 - New macro special variable `__message`
+- New `_G` and `_L` tables.
 
 See the [changelog](doc/changelog.md) for older version
 

@@ -2392,7 +2392,7 @@ end
 
 plume.register_macro("print_env", {"field"}, {}, function(params, calling_token)
     print("=== Environnement informations ===")
-    print_env (plume.scopes[1], params.field:render())
+    print_env (plume.scopes[1], params.positionnals.field:render())
 end, nil, false, true) 
     -- </DEV>
 end
@@ -2646,6 +2646,9 @@ function plume.create_scope (parent, source)
         scope[field][key] = value
     end
 
+    --- @scope_variable _L Local table of variables.
+    scope.variables._L = scope.variables
+
     return scope
 end
 
@@ -2696,6 +2699,9 @@ function plume.init ()
     -- Create the first local scope
     -- (indeed, the global one)
     plume.push_scope ()
+
+    --- @scope_variable _G Globale table of variables.
+    plume.current_scope ().variables._G = plume.current_scope ().variables
 
     -- Init methods that are visible from user
     plume.init_api ()

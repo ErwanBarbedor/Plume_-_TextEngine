@@ -32,3 +32,23 @@
 // Result
 3
 // End
+
+// Test '_G'
+#{x = 1}//
+#{_G.x}//
+// Result
+1
+// End
+
+// Test '_G & _L'
+#{x = 1}//
+\do {//
+    #{local x = 2}//
+    #{_G.x}
+    #{_L.x}
+}
+// Result
+1
+    2
+
+// End

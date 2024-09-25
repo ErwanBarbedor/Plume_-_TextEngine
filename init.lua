@@ -59,6 +59,9 @@ function plume.init ()
     -- (indeed, the global one)
     plume.push_scope ()
 
+    --- @scope_variable _G Globale table of variables.
+    plume.current_scope ().variables._G = plume.current_scope ().variables
+
     -- Init methods that are visible from user
     plume.init_api ()
 

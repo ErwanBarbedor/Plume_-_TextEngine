@@ -277,6 +277,9 @@ function plume.create_scope (parent, source)
         scope[field][key] = value
     end
 
+    --- @scope_variable _L Local table of variables.
+    scope.variables._L = scope.variables
+
     return scope
 end
 
