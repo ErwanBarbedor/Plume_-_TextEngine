@@ -129,7 +129,7 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
             end
         end
 
-        -- A table to store excedent params
+        --- @scope_variable __params When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them. Flags are both stocked as key=value (`__params.some_flag = true`) and table indice. (`__params[1] = "some_flag"`|
         local __params = {}
         for k, v in pairs(params.others.keywords) do
             if type(params.others.keywords[k]) == "table" then
@@ -157,8 +157,10 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
             plume.current_scope():set_local("variables", k, true)
         end
 
-        -- Insert special macro variables
         plume.current_scope():set_local("variables", "__params", __params)
+
+        --- @scope_variable __message  Used to implement if-like behavior. If you give a value to `__message.send`, the next macro to be called (in the same block) will receive this value in `__message.content`, and the name for the last macro in `__message.sender` 
+        
         plume.current_scope():set_local("variables", "__message", {sender = chain_sender, content = chain_message})
 
         local body = def_parameters.positionnals.body:copy ()

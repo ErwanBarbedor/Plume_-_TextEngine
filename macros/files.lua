@@ -129,18 +129,18 @@ plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
     -- file scope
     plume.push_scope ()
 
-        -- Add arguments to file scope
-        local file_params = {}
+        --- @scope_variable __file_params Work as `__params`, but inside a file imported by using `\\include`
+        local __file_params = {}
 
         for k, v in pairs(params.others.keywords) do
-            file_params[k] = v
+            __file_params[k] = v
         end
 
         for _, k in ipairs(params.others.flags) do
-            file_params[k] = true
+            __file_params[k] = true
         end
 
-        plume.current_scope (calling_token.context):set_local("variables", "__file_params", file_params)
+        plume.current_scope (calling_token.context):set_local("variables", "__file_params", __file_params)
 
         -- Render file content
         local result = plume.render(file:read("*a"), filepath)
