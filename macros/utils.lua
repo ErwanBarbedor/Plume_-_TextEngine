@@ -137,8 +137,9 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
                  __params[k]:set_context (last_scope)
             end
         end
-        for _, k in ipairs(params.others.flags) do
+        for i, k in ipairs(params.others.flags) do
             __params[k] = true
+            __params[i] = k
         end
 
         

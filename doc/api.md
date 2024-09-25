@@ -7,7 +7,7 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 | Name |  Description |
 | ----- | ----- |
-| `__params` | When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them.|
+| `__params` | When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them. Flags are both stocked as key=value (`__params.some_flag = true`) and table indice. (`__params[1] = "some_flag"`|
 | `__file_params` | Work as `__params`, but inside a file imported by using `\include` |
 | `__message` | Used to implement if-like behavior. If you give a value to `__message.send`, the next macro to be called (in the same block) will receive this value in `__message.content`, and the name for the last macro in `__message.sender` |
 | `plume._VERSION` |  Version of plume. |
