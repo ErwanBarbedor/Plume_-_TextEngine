@@ -59,3 +59,15 @@ This is x:0
     barbar
 
 // End
+
+// Test 'Macro message'
+\def foo{//
+    #{__message.sender} : #{__message.content}//
+    #{__message.send = "bar"}//
+}//
+\foo
+\foo
+// Result
+\def : 
+\foo : bar
+// End

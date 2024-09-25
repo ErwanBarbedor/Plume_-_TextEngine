@@ -1675,7 +1675,7 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
     local closure = plume.current_scope ()
 
     
-    plume.register_macro(name, parameters_names, def_parameters.others.keywords, function(params)
+    plume.register_macro(name, parameters_names, def_parameters.others.keywords, function(params, calling_token, chain_sender, chain_message)
         -- Insert closure
         plume.push_scope (closure)
 
@@ -1721,19 +1721,23 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
             plume.current_scope():set_local("variables", k, true)
         end
 
+        -- Insert special macro variables
         plume.current_scope():set_local("variables", "__params", __params)
+        plume.current_scope():set_local("variables", "__message", {sender = chain_sender, content = chain_message})
 
         local body = def_parameters.positionnals.body:copy ()
         body:set_context (plume.current_scope (), true)
         local result = body:render()
 
+        -- Capture message
+        local message = tostring(plume.current_scope().variables.__message.send)
         -- exit macro scope
         plume.pop_scope ()
 
         -- exit closure
         plume.pop_scope ()
 
-        return result
+        return result, message
     end, calling_token, false, false, variable_parameters_number)
 end
 

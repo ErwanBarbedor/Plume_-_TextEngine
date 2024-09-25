@@ -121,6 +121,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - `light` space mode became `compact`. New space mode `light`.
 - Add new error when using wrong syntax inside optional parameters declaration, instead of crash.
 - `__file_args` became `__file_params`
+- New macro special variable `__message`
 
 ### 0.5.0
 

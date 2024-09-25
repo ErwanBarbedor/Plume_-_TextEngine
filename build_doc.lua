@@ -218,6 +218,7 @@ return function ()
 
     table.insert(result, "| `__params` | When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them.|")
     table.insert(result, "| `__file_params` | Work as `__params`, but inside a file imported by using `\\include` |")
+    table.insert(result, "| `__message` | Used to implement if-like behavior. If you give a value to `__message.send`, the next macro to be called (in the same block) will receive this value in `__message.content`, and the name for the last macro in `__message.sender` |")
 
     local script = io.open("api.lua"):read ("*a") .. "\n" .. io.open("cli.lua"):read ("*a")
     for doc, name in script:gmatch("%-%-%- @api_variable([^\n\r]+).-([A-Za-z0-9_]+)%s*=") do
