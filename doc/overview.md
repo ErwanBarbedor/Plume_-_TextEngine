@@ -102,8 +102,17 @@ If you want to apply `#` to the whole expression, use `#{x+1}`.
 You can also define variable with Lua:
 
 ```plume
-\script {x = 5}
+#{x = 5}
 ```
+## `\set k {v}` vs `#{k = v}` vs `\def k {v}`
+These three methods produce similar results. But there are nuances to the way they work.
+
+`def k {v}` is the only one capable of defining a dynamic content. So you shouldn't use it to save a value.
+
+`#{k = v}` is the only one that lets you save lua objects. Use it with numbers, tables, ...
+
+Unlike `#{k = v}`, `set k {...}` can save a block.
+
 
 ## Lua Integration
 
