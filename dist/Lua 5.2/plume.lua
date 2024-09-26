@@ -1356,7 +1356,7 @@ end
 function plume.load_macros()
     -- <DEV>
     -- Clear cached packages
-    for m in ("controls utils files eval spaces debug"):gmatch('%S+') do
+    for m in ("controls utils macros files eval spaces debug"):gmatch('%S+') do
          package.loaded["macros/"..m] = nil
     end
     -- </DEV>
@@ -1579,9 +1579,8 @@ plume.register_macro("do", {"body"}, {}, function(params, self_token)
     return result
 end, nil, false, true) 
     
--- ## macros/utils.lua ##
--- Define some useful macro like def, set, alias...
-
+-- ## macros/macros.lua ##
+-- Define macro-related macros
 --- Test if the given name i available
 -- @param name string the name to test
 -- @param redef boolean Whether this is a redefinition
@@ -1825,55 +1824,6 @@ local function alias (name1, name2, calling_token, is_local)
     end
 end
 
---- Affect a value to a variable
-local function set(params, calling_token, is_local)
-    -- A macro to set variable to a value
-    local key = params.positionnals.key:render()
-    if not plume.is_identifier(key) then
-        plume.error(params.positionnals.key, "'" .. key .. "' is an invalid name for a variable.")
-    end
-
-    local value = params.positionnals.value:render ()
-    
-    if is_local then
-        plume.current_scope (calling_token.context):set_local("variables", key, value)
-    else
-        plume.current_scope (calling_token.context):set("variables", key, value) 
-    end
-end
-
---- \set
--- Affect a value to a variable.
--- @param key The name of the variable.
--- @param value The value of the variable.
--- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
-plume.register_macro("set", {"key", "value"}, {}, function(params, calling_token)
-    set(params, calling_token, false)
-    return ""
-end, nil, false, true)
-
---- \set_local
--- Affect a value to a variable locally.
--- @param key The name of the variable.
--- @param value The value of the variable.
--- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
--- @alias `setl`
-plume.register_macro("set_local", {"key", "value"}, {}, function(params, calling_token)
-    set(params, calling_token, true)
-    return ""
-end, nil, false, true)
-
--- setl
--- Alias for [set_local](#set_local)
--- @param key The name of the variable.
--- @param value The value of the variable.
--- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
-plume.register_macro("setl", {"key", "value"}, {}, function(params, calling_token)
-    set(params, calling_token, true)
-    return ""
-end, nil, false, true)
-
-
 --- \alias
 -- name2 will be a new way to call name1.
 -- @param name1 Name of an existing macro.
@@ -1930,7 +1880,60 @@ plume.register_macro("default", {"name"}, {}, function(params, calling_token)
         scope.macros[name].user_opt_params[k] = true
     end
 
-end, nil, false, true, true)
+end, nil, false, true, true) 
+    
+-- ## macros/utils.lua ##
+-- Define some useful macro like set, raw, config, ...
+
+
+
+--- Affect a value to a variable
+local function set(params, calling_token, is_local)
+    -- A macro to set variable to a value
+    local key = params.positionnals.key:render()
+    if not plume.is_identifier(key) then
+        plume.error(params.positionnals.key, "'" .. key .. "' is an invalid name for a variable.")
+    end
+
+    local value = params.positionnals.value:render ()
+    
+    if is_local then
+        plume.current_scope (calling_token.context):set_local("variables", key, value)
+    else
+        plume.current_scope (calling_token.context):set("variables", key, value) 
+    end
+end
+
+--- \set
+-- Affect a value to a variable.
+-- @param key The name of the variable.
+-- @param value The value of the variable.
+-- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
+plume.register_macro("set", {"key", "value"}, {}, function(params, calling_token)
+    set(params, calling_token, false)
+    return ""
+end, nil, false, true)
+
+--- \set_local
+-- Affect a value to a variable locally.
+-- @param key The name of the variable.
+-- @param value The value of the variable.
+-- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
+-- @alias `setl`
+plume.register_macro("set_local", {"key", "value"}, {}, function(params, calling_token)
+    set(params, calling_token, true)
+    return ""
+end, nil, false, true)
+
+-- setl
+-- Alias for [set_local](#set_local)
+-- @param key The name of the variable.
+-- @param value The value of the variable.
+-- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
+plume.register_macro("setl", {"key", "value"}, {}, function(params, calling_token)
+    set(params, calling_token, true)
+    return ""
+end, nil, false, true)
 
 --- \raw
 -- Return the given body without render it.

@@ -196,7 +196,7 @@ end
 
 return function ()
     local result = {"# Macros documentation\n_Generated from source._"}
-    for categorie in ("Controls Files Eval Spaces Utils"):gmatch('%S+') do
+    for categorie in ("Controls Files Eval Spaces Utils Macros"):gmatch('%S+') do
         table.insert(result, "## " .. categorie)
         local script = io.open("macros/" .. categorie .. ".lua"):read "*a"
         capture_macro_doc (result, script)
@@ -218,6 +218,7 @@ return function ()
 
     local script = io.open("macros/utils.lua"):read ("*a")
          .. io.open("macros/files.lua"):read ("*a")
+         .. io.open("macros/macros.lua"):read ("*a")
          .. io.open("init.lua"):read ("*a")
          .. io.open("runtime.lua"):read ("*a")
     for name , doc in script:gmatch("%-%-%- @scope_variable%s*(%S+)%s*([^\n\r]+)") do

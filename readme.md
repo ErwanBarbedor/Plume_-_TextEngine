@@ -117,11 +117,12 @@ This doesn't work in Plume because `foo` will be expanded first.
 - `set` and `setl` no longer perform implicit conversion on the fly.
 - Remove `local` option for `set` and `alias`.
 - New macros `set_local`, `alias_local`, and `def_local` (alias for `setl`, `aliasl` and `defl`).
+- New macro `default_local`
 - New function `plume.export_local`
 - `light` space mode became `compact`. New space mode `light`.
 - Add new error when using wrong syntax inside optional parameter declarations, instead of crashing.
 - `__file_args` became `__file_params`
-- New macro special variable `__message`
+- New macro special variable `__message`.
 - New `_G` and `_L` tables.
 
 

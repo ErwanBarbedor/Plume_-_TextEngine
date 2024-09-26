@@ -189,6 +189,66 @@ _Generated from source._
 
 ## Utils
 
+### set
+
+**Usage:** `\set {key} {value}`
+
+**Description:** Affect a value to a variable.
+
+**Positionnal Parameters:**
+- `key` The name of the variable.
+- `value` The value of the variable.
+
+**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
+
+### set_local
+
+**Usage:** `\set_local {key} {value}`
+
+**Description:** Affect a value to a variable locally.
+
+**Positionnal Parameters:**
+- `key` The name of the variable.
+- `value` The value of the variable.
+
+**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
+
+**Alias:** `setl`
+
+### raw
+
+**Usage:** `\raw {body}`
+
+**Description:** Return the given body without render it.
+
+**Positionnal Parameters:**
+- `body` 
+
+### config
+
+**Usage:** `\config {key} {value}`
+
+**Description:** Edit plume configuration.
+
+**Positionnal Parameters:**
+- `key` Name of the paramter.
+- `value` New value to save.
+
+**Note:** Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
+
+### deprecate
+
+**Usage:** `\deprecate {name} {version} {alternative}`
+
+**Description:** Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
+
+**Positionnal Parameters:**
+- `name` Name of an existing macro.
+- `version` Version where the macro will be deleted.
+- `alternative` Give an alternative to replace this macro.
+
+## Macros
+
 ### def
 
 **Usage:** `\def[...] {name} {body}`
@@ -259,32 +319,6 @@ _Generated from source._
 
 **Other optional parameters:** Macro arguments names.
 
-### set
-
-**Usage:** `\set {key} {value}`
-
-**Description:** Affect a value to a variable.
-
-**Positionnal Parameters:**
-- `key` The name of the variable.
-- `value` The value of the variable.
-
-**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
-
-### set_local
-
-**Usage:** `\set_local {key} {value}`
-
-**Description:** Affect a value to a variable locally.
-
-**Positionnal Parameters:**
-- `key` The name of the variable.
-- `value` The value of the variable.
-
-**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
-
-**Alias:** `setl`
-
 ### alias
 
 **Usage:** `\alias[local] {name1} {name2}`
@@ -332,36 +366,4 @@ _Generated from source._
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
 
-**Other optional parameters:** Any parameters used by the given macro.
-
-### raw
-
-**Usage:** `\raw {body}`
-
-**Description:** Return the given body without render it.
-
-**Positionnal Parameters:**
-- `body` 
-
-### config
-
-**Usage:** `\config {key} {value}`
-
-**Description:** Edit plume configuration.
-
-**Positionnal Parameters:**
-- `key` Name of the paramter.
-- `value` New value to save.
-
-**Note:** Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
-
-### deprecate
-
-**Usage:** `\deprecate {name} {version} {alternative}`
-
-**Description:** Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
-
-**Positionnal Parameters:**
-- `name` Name of an existing macro.
-- `version` Version where the macro will be deleted.
-- `alternative` Give an alternative to replace this macro.
+**Other optional parameters:** Any parameters used by the given macro.
