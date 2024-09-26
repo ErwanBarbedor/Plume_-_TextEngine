@@ -78,7 +78,7 @@ plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator
     local t_sep, d_sep
     
     t_sep = plume.render_if_token(params.keywords.thousand_separator)
-    if #t_sep == 0 then t_sep = nil end
+    if t_sep and #t_sep == 0 then t_sep = nil end
     d_sep = plume.render_if_token(params.keywords.decimal_separator)
 
     local result = plume.call_lua_chunk(params.positionnals.expr)
