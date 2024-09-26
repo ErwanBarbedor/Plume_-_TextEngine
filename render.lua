@@ -81,22 +81,23 @@ function plume.parse_opt_params (macro, params, opt_params)
         capture_flag(key)
     end
 
-    for k, v in pairs(macro.user_opt_params) do
-        if not params.keywords[k] and not flags[k] then
-            if macro.default_opt_params[k] == nil then
-                if v == true then
-                    table.insert(params.others.flags, k)
-                else
-                    params.others.keywords[k] = v
-                end
-            else
-                params.keywords[k] = v
-            end
+    local scope = plume.current_scope ()
+    for k, _ in pairs(macro.default_opt_params) do
+        if not params.keywords[k] then
+            local v = scope.default[tostring(macro) .. "@" .. k]
+            params.keywords[k] = v
         end
     end
-    for k, v in pairs(macro.default_opt_params) do
-        if not params.keywords[k] and not flags[k] then
-            params.keywords[k] = v
+
+    for k, v in pairs(scope.default[tostring(macro) .. "?keywords"] or {}) do
+        if not params.others.keywords[k] then
+            params.others.keywords[k] = v
+        end
+    end
+
+    for _, k in pairs(scope.default[tostring(macro) .. "?flags"] or {}) do
+        if not params.keywords[k] then
+            table.insert(params.others.flags, k)
         end
     end
 end

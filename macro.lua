@@ -46,6 +46,11 @@ function plume.register_macro (name, params, default_opt_params, macro, token, i
         plume.std_macros[name] = macro
     end
 
+    -- Register keyword params
+    for k, v in pairs(default_opt_params) do
+        scope.default[tostring(macro) .. "@" .. k] = v
+    end
+
     return macro
 end
 

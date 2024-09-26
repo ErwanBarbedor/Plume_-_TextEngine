@@ -139,22 +139,23 @@ function plume.parse_opt_params (macro, params, opt_params)
         capture_flag(key)
     end
 
-    for k, v in pairs(macro.user_opt_params) do
-        if not params.keywords[k] and not flags[k] then
-            if macro.default_opt_params[k] == nil then
-                if v == true then
-                    table.insert(params.others.flags, k)
-                else
-                    params.others.keywords[k] = v
-                end
-            else
-                params.keywords[k] = v
-            end
+    local scope = plume.current_scope ()
+    for k, _ in pairs(macro.default_opt_params) do
+        if not params.keywords[k] then
+            local v = scope.default[tostring(macro) .. "@" .. k]
+            params.keywords[k] = v
         end
     end
-    for k, v in pairs(macro.default_opt_params) do
-        if not params.keywords[k] and not flags[k] then
-            params.keywords[k] = v
+
+    for k, v in pairs(scope.default[tostring(macro) .. "?keywords"] or {}) do
+        if not params.others.keywords[k] then
+            params.others.keywords[k] = v
+        end
+    end
+
+    for _, k in pairs(scope.default[tostring(macro) .. "?flags"] or {}) do
+        if not params.keywords[k] then
+            table.insert(params.others.flags, k)
         end
     end
 end
@@ -1340,6 +1341,11 @@ function plume.register_macro (name, params, default_opt_params, macro, token, i
         plume.std_macros[name] = macro
     end
 
+    -- Register keyword params
+    for k, v in pairs(default_opt_params) do
+        scope.default[tostring(macro) .. "@" .. k] = v
+    end
+
     return macro
 end
 
@@ -1857,28 +1863,88 @@ plume.register_macro("aliasl", {"name1", "name2"}, {}, function(params, calling_
     alias (name1, name2, calling_token, true)
 end, nil, false, true)
 
+--- Set (or reset) default parameters of a given macro.
+-- @param token table The calling token
+-- @param name string The name of the macro.
+-- @param keywords table A table of keyword arguments to set as default.
+-- @param flags table A list of flags to set as default.
+-- @param is_local boolean Is the default value local or global
+local function default(token, name, keywords, flags, is_local)
+    local scope = plume.current_scope(token.context)
+    local macro = scope.macros[name]
+    -- Check if this macro exists
+    if not macro then
+        plume.error_macro_not_found(token, name)
+    end
+
+    -- Register keyword params and flags.
+    local other_keywords = {}
+    
+    for k, v in pairs(keywords) do
+        local name = tostring(macro) .. "@" .. k
+
+        if macro.default_opt_params[k] then
+            if is_local then
+                scope:set_local("default", name, v)
+            else
+                scope.default[name] = v
+            end
+        else
+            other_keywords[k] = v
+        end
+    end
+    
+    local other_flags = {}
+    for _, k in ipairs(flags) do
+        local name  = tostring(macro) .. "@" .. k
+
+        if macro.default_opt_params[k] then
+            if is_local then
+                scope:set_local("default", name, true)
+            else
+                scope.default[name] = true
+            end
+        else
+            table.insert(other_flags, k)
+        end
+    end
+
+    if #other_keywords>0 then
+        local name = tostring(macro) .. "?keywords"
+        if is_local then
+            scope:set_local("default", name, other_keywords)
+        else
+            scope.default[name] = other_keywords
+        end
+    end
+
+    if #other_flags>0 then
+        local name = tostring(macro) .. "?flags"
+        if is_local then
+            scope:set_local("default", name, other_flags)
+        else
+            scope.default[name] = other_flags
+        end
+    end
+end
+
+
 --- \default
 -- set (or reset) default params of a given macro.
 -- @param name Name of an existing macro.
 -- @other_options Any parameters used by the given macro.
 plume.register_macro("default", {"name"}, {}, function(params, calling_token)
-    -- Get the provided macro name
     local name = params.positionnals.name:render()
+    default (calling_token, name, params.others.keywords, params.others.flags, false)
+end, nil, false, true, true)
 
-    local scope = plume.current_scope(calling_token.context)
-
-    -- Check if this macro exists
-    if not scope.macros[name] then
-        plume.error_macro_not_found(params.positionnals.name, name)
-    end
-
-    -- Add all arguments (except name) in user_opt_params
-    for k, v in pairs(params.others.keywords) do
-        scope.macros[name].user_opt_params[k] = v
-    end
-    for _, k in ipairs(params.others.flags) do
-        scope.macros[name].user_opt_params[k] = true
-    end
+--- \default_local
+-- set  localy (or reset) default params of a given macro.
+-- @param name Name of an existing macro.
+-- @other_options Any parameters used by the given macro.
+plume.register_macro("default_local", {"name"}, {}, function(params, calling_token)
+    local name = params.positionnals.name:render()
+    default (calling_token, name, params.others.keywords, params.others.flags, true)
 
 end, nil, false, true, true) 
     
@@ -2243,7 +2309,7 @@ plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator
     local t_sep, d_sep
     
     t_sep = plume.render_if_token(params.keywords.thousand_separator)
-    if #t_sep == 0 then t_sep = nil end
+    if t_sep and #t_sep == 0 then t_sep = nil end
     d_sep = plume.render_if_token(params.keywords.decimal_separator)
 
     local result = plume.call_lua_chunk(params.positionnals.expr)
@@ -2598,6 +2664,7 @@ function plume.create_scope (parent, source)
 
     make_field (scope, "variables", parent, source)
     make_field (scope, "macros", parent, source)
+    make_field (scope, "default", parent, source)
 
     --- Returns all variables of the given field that are visible from this scope.
     -- @param self table The current scope.

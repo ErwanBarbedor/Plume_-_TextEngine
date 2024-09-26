@@ -235,6 +235,7 @@ function plume.create_scope (parent, source)
 
     make_field (scope, "variables", parent, source)
     make_field (scope, "macros", parent, source)
+    make_field (scope, "default", parent, source)
 
     --- Returns all variables of the given field that are visible from this scope.
     -- @param self table The current scope.

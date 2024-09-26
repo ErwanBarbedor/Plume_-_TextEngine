@@ -366,4 +366,15 @@ _Generated from source._
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
 
+**Other optional parameters:** Any parameters used by the given macro.
+
+### default_local
+
+**Usage:** `\default_local[...] {name}`
+
+**Description:** set  localy (or reset) default params of a given macro.
+
+**Positionnal Parameters:**
+- `name` Name of an existing macro.
+
 **Other optional parameters:** Any parameters used by the given macro.

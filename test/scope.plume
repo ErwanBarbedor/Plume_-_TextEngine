@@ -131,3 +131,19 @@ baz
 // Result
 5
 // End
+
+// Test 'default_local 1'
+\def foo[x=bar] {#x}//
+\foo//
+\do {
+    \foo
+    \default_local foo[x=foo]//
+    \foo
+}//
+\foo
+// Result
+bar
+    bar
+    foo
+bar
+// End

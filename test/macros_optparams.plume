@@ -87,7 +87,7 @@ bar
 
 // End
 
-// Test 'set default'
+// Test 'set default 1'
 \def foo[x=bar] {#x}//
 \foo
 \default foo[x=baz]//
@@ -95,6 +95,16 @@ bar
 // Result
 bar
 baz
+// End
+
+// Test 'set default 2'
+\def foo[...] {//
+    #{__params.bar}//
+}//
+\default foo[bar]//
+\foo
+// Result
+true
 // End
 
 // Test 'To many optional blocks'
