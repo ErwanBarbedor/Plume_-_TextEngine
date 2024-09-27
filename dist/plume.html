@@ -3270,6 +3270,9 @@ function plume.cli_main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
+    -- The first arg is "plume"
+    table.remove(arg, 1)
+
     local print_output
     if arg[1] == "-v" or arg[1] == "--version" then
         print(plume._VERSION)

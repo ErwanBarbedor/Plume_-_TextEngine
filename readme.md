@@ -125,6 +125,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 - New macro special variable `__message`.
 - New `_G` and `_L` tables.
 
+### Fixes
+- Fix CLI error on params numbering
 
 See the [changelog](doc/changelog.md) for older version
 
