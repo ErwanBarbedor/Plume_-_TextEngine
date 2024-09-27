@@ -44,7 +44,7 @@ for lua_version in ("5.1 5.2 5.3 5.4 5.x"):gmatch('%S+') do
         end)
     end
     
-    code = code:gsub('#VERSION#', version .. " (Lua " .. lua_version .. ")")
+    code = code:gsub('#VERSION#', version .. "-lua-" .. lua_version)
     code = code:gsub('#GITHUB#', github)
 
     local file = io.open('dist/Lua '..lua_version..'/plume.lua', 'w')
