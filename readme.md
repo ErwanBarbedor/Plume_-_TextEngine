@@ -112,6 +112,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 ### Fixes
 
 - Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
+- Fix a case when unnecessary `0` will not be removed by `#`, even with the option `remove_zeros`.
 
 
 See the [changelog](doc/changelog.md) for older version

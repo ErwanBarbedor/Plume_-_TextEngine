@@ -118,6 +118,10 @@ plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator
                 result = int
             end
         end
+
+        if remove_zeros then
+            result = tostring(result):gsub(d_sep..'([0-9]-)0+$', d_sep.."%1")
+        end
     end
     
     if not silent then

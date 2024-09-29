@@ -74,8 +74,9 @@ end
 -- @param macro table The macro being called
 -- @param params table The arguments table to be filled
 -- @param opt_params table The optional arguments to parse
--- @param context table Scope to search default parameter for
+-- @param context table Scope to search default parameters for
 function plume.parse_opt_params (macro, params, opt_params, context)
+
 
     local key, eq, space
     local flags = {}
@@ -2361,6 +2362,10 @@ plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator
             else
                 result = int
             end
+        end
+
+        if remove_zeros then
+            result = tostring(result):gsub(d_sep..'([0-9]-)0+$', d_sep.."%1")
         end
     end
     
