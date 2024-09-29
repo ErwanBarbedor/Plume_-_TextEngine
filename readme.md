@@ -109,6 +109,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Last version : ?
 
+### Fixes
+
+- Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
 
 
 See the [changelog](doc/changelog.md) for older version

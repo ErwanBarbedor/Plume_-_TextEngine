@@ -16,7 +16,9 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param macro table The macro being called
 -- @param params table The arguments table to be filled
 -- @param opt_params table The optional arguments to parse
-function plume.parse_opt_params (macro, params, opt_params)
+-- @param context table Scope to search default parameters for
+function plume.parse_opt_params (macro, params, opt_params, context)
+
 
     local key, eq, space
     local flags = {}
@@ -81,7 +83,7 @@ function plume.parse_opt_params (macro, params, opt_params)
         capture_flag(key)
     end
 
-    local scope = plume.current_scope ()
+    local scope = plume.current_scope (context)
     for k, _ in pairs(macro.default_opt_params) do
         if not params.keywords[k] then
             local v = scope.default[tostring(macro) .. "@" .. k]
@@ -290,7 +292,7 @@ function plume.renderToken (self)
             -- end
 
             -- Parse optionnal params
-            plume.parse_opt_params(macro, macro_params, opt_params or {})
+            plume.parse_opt_params(macro, macro_params, opt_params or {}, token.context)
 
             -- Update traceback, call the macro and add is result
             table.insert(plume.traceback, token)
