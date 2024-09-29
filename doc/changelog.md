@@ -1,3 +1,24 @@
+### 0.6.0
+
+### Changes
+- Rework macros parameters into positionals/keywords/flags.
+- Using an unknown parameter name will now raise an error.
+- Due to the change, remove `script` without waiting for `1.0`.
+- The functions `set` and `setl` are no longer deprecated.
+- `set` and `setl` no longer perform implicit conversion on the fly.
+- Remove `local` option for `set` and `alias`.
+- New macros `set_local`, `alias_local`, and `def_local` (alias for `setl`, `aliasl` and `defl`).
+- New macro `default_local`.
+- New function `plume.export_local`.
+- `light` space mode became `compact`. New space mode `light`.
+- Add new error when using wrong syntax inside optional parameter declarations, instead of crashing.
+- `__file_args` became `__file_params`.
+- New macro special variable `__message`, used to achieve behavior like `\if {} \else {}`.
+- New `_G` and `_L` tables.
+
+### Fixes
+- Fix CLI error on params numbering
+
 ### 0.5.0
 
 #### Changes
