@@ -147,3 +147,15 @@ bar
     foo
 bar
 // End
+
+// Test 'default_local eval'
+\default_local eval [.1f]//
+\do {//
+    \default_local eval [.3f]//
+    #{1/3}
+}//
+#{1/3}
+// Result
+0.333
+0.3
+// End
