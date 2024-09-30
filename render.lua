@@ -29,8 +29,8 @@ function plume.parse_opt_params (macro, params, opt_params, context)
         if macro.default_opt_params[name] == nil then
             if macro.variable_parameters_number then
                 params.others.keywords[name] = value
-            else 
-                plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
+            else
+                plume.error_unknown_parameter (key, macro.name, name, macro.default_opt_params)
             end
         else
             params.keywords[name] = value
@@ -42,7 +42,7 @@ function plume.parse_opt_params (macro, params, opt_params, context)
         if macro.variable_parameters_number then
             table.insert(params.others.flags, name)
         elseif macro.default_opt_params[name] == nil then
-            plume.error(key, "Unknow flag named '" .. name .. "' for macro '" .. macro.name .. "'.")
+            plume.error_unknown_parameter (key, macro.name, name, macro.default_opt_params)
         else
             flags[name] = true
             table.insert(params.flags, name)

@@ -121,3 +121,21 @@ File 'string', line 2 : Macro call cannot be a parameter (here, parameter #1 of 
     \foo \foo x
          ^^^^
 // End
+
+// Test 'Macro unknow parameter'
+\def foo[bar=0] {}
+\foo[baz=0]
+// Error
+File 'string', line 2 : Unknow optionnal parameter 'baz' for macro 'foo'. Perhaps you mean 'bar'?
+    \foo[baz=0]
+         ^^^
+// End
+
+// Test 'Macro unknow flag'
+\def foo[?bar] {}
+\foo[baz]
+// Error
+File 'string', line 2 : Unknow optionnal parameter 'baz' for macro 'foo'. Perhaps you mean 'bar'?
+    \foo[baz]
+         ^^^
+// End

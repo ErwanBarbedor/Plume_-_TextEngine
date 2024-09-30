@@ -87,8 +87,8 @@ function plume.parse_opt_params (macro, params, opt_params, context)
         if macro.default_opt_params[name] == nil then
             if macro.variable_parameters_number then
                 params.others.keywords[name] = value
-            else 
-                plume.error(key, "Unknow keyword parameters named '" .. name .. "' for macro '" .. macro.name .. "'.")
+            else
+                plume.error_unknown_parameter (key, macro.name, name, macro.default_opt_params)
             end
         else
             params.keywords[name] = value
@@ -100,7 +100,7 @@ function plume.parse_opt_params (macro, params, opt_params, context)
         if macro.variable_parameters_number then
             table.insert(params.others.flags, name)
         elseif macro.default_opt_params[name] == nil then
-            plume.error(key, "Unknow flag named '" .. name .. "' for macro '" .. macro.name .. "'.")
+            plume.error_unknown_parameter (key, macro.name, name, macro.default_opt_params)
         else
             flags[name] = true
             table.insert(params.flags, name)
@@ -1298,6 +1298,40 @@ function plume.error_macro_not_found (token, macro_name)
     end
 
     local msg = "Unknow macro '" .. macro_name .. "'."
+
+    if #suggestions_list > 0 then
+        msg = msg .. " Perhaps you mean "
+        msg = msg .. table.concat(suggestions_list, ", "):gsub(',([^,]*)$', " or%1")
+        msg = msg .. "?"
+    end
+
+    plume.error (token, msg)
+end
+
+--- Generates an error message for unknown optional parameters not found.
+-- @param token table The token that caused the error (optional)
+-- @param macro_name string The name of the called macro during the error
+-- @param parameter string The name of the not found macro
+-- @param valid_parameters table Table of valid parameter names
+function plume.error_unknown_parameter (token, macro_name, parameter, valid_parameters)
+
+    
+    --Use a table to avoid duplicate names
+    local suggestions_table = {}
+
+    -- Suggestions for possible typing errors
+    for name, _ in pairs(valid_parameters) do
+        if word_distance (name, parameter) < 3 then
+            suggestions_table[name] = true
+        end
+    end
+
+    local suggestions_list = sort(suggestions_table)
+    for i, name in ipairs(suggestions_list) do
+        suggestions_list[i] =  "'" .. name .."'"
+    end
+
+    local msg = "Unknow optionnal parameter '" .. parameter .. "' for macro '" .. macro_name .. "'."
 
     if #suggestions_list > 0 then
         msg = msg .. " Perhaps you mean "

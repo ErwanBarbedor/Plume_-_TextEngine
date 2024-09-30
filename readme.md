@@ -109,10 +109,12 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Last version : ?
 
-### Fixes
+### Enhancement
+- When giving an unknown parameter to a macro, the debug message proposes some close words that could be valid parameters.
 
+### Fixes
 - Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
-- Fix a case when unnecessary `0` will not be removed by `#`, even with the option `remove_zeros`.
+- Fix a case when unnecessary `0`s will not be removed by `#`, even with the option `remove_zeros`.
 
 
 See the [changelog](doc/changelog.md) for older version
