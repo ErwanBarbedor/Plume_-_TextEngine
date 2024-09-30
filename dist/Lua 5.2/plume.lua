@@ -3172,15 +3172,17 @@ function plume.cli_main ()
             input  = arg[3]
             table.remove(arg, 1)
             table.remove(arg, 1)
-        elseif not arg[1] then
-            print ("No input file provided.")
-            return
         elseif arg[1]:match('^%-') then
             print("Unknown option '" .. arg[1] .. "'")
         else
             input  = arg[1]  -- Set input file
             table.remove(arg, 1)
         end
+    end
+
+    if not input then
+        print ("No input file provided.")
+        return
     end
 
     -- Initialize with the input file

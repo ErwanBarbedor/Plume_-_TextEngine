@@ -114,6 +114,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Now auto-detect lua code like `a, b = 1, 2` as statement, and not expression. Improve comment detection to force statement interpretation.
 
 ### Fixes
+- Fix some cli errors.
 - Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
 - Fix a case when unnecessary `0`s will not be removed by `#`, even with the option `remove_zeros`.
 
