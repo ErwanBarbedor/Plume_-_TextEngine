@@ -1,6 +1,6 @@
 <p align="center"><img src="dist/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.6.1-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.7.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -107,17 +107,7 @@ For exemple, in LaTeX, you can define a macro like this: `\newcommand {\foo} {ba
 
 This doesn't work in Plume because `foo` will be expanded first.
 
-## Last version : 0.6.1
-
-### Enhancement
-- When giving an unknown parameter to a macro, the debug message proposes some close words that could be valid parameters.
-- Now auto-detect lua code like `a, b = 1, 2` as statement, and not expression. Improve comment detection to force statement interpretation.
-
-### Fixes
-- Fix some cli errors.
-- Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
-- Fix a case when unnecessary `0`s will not be removed by `#`, even with the option `remove_zeros`.
-
+## Last version : 0.7.0
 
 See the [changelog](doc/changelog.md) for older version
 
