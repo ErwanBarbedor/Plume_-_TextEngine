@@ -2564,7 +2564,7 @@ end
 -- @return boolean
 local function is_lua_expression(s)
     local statement_keywords = {
-        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do", "--"
+        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do"
     }
     local first_word = s:match("%s*(%S+)")
 
@@ -2574,10 +2574,18 @@ local function is_lua_expression(s)
         end
     end
 
-    if s:match("^%s*[%w_%.]+%s*=%s*[^=]") then
+    -- any identifier follower by "," or "=" cannot be an expression
+    if s:match("^%s*[a-z-A-Z_][%w_%.]-%s*[=,]") then
         return false
     end
 
+    -- Any string begining with a comment cannot be an expression.
+    -- Trick to force statement detection.
+    if s:match("^%s*%-%-+") then
+        return false
+    end
+
+    -- Any string begining with a function declaration cannot be an expression.
     if s:match("^%s*function%s*[a-zA-Z]") then
         return false
     end

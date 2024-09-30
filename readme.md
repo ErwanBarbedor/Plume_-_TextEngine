@@ -111,6 +111,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### Enhancement
 - When giving an unknown parameter to a macro, the debug message proposes some close words that could be valid parameters.
+- Now auto-detect lua code like `a, b = 1, 2` as statement, and not expression. Improve comment detection to force statement interpretation.
 
 ### Fixes
 - Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
