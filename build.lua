@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Merge all code into a single file.
 -- Quite dirty, but do the job
 
-local version   = "Plume - TextEngine 0.6.0"
+local version   = "Plume - TextEngine 0.6.1"
 local github    = 'https://github.com/ErwanBarbedor/Plume_-_TextEngine'
 local build_doc = require 'build_doc'
 

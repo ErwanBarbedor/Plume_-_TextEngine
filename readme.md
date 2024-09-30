@@ -1,6 +1,6 @@
 <p align="center"><img src="dist/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.6.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.6.1-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -107,7 +107,7 @@ For exemple, in LaTeX, you can define a macro like this: `\newcommand {\foo} {ba
 
 This doesn't work in Plume because `foo` will be expanded first.
 
-## Last version : ?
+## Last version : 0.6.1
 
 ### Enhancement
 - When giving an unknown parameter to a macro, the debug message proposes some close words that could be valid parameters.
