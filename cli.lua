@@ -115,37 +115,38 @@ function plume.cli_main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
-    -- The first arg is "plume"
-    table.remove(arg, 1)
-
     local print_output
-    if arg[1] == "-v" or arg[1] == "--version" then
-        print(plume._VERSION)
-        return
-    elseif arg[1] == "-h" or arg[1] == "--help" then
-        print(cli_help)
-        return
-    elseif arg[1] == "-p" or arg[1] == "--print" then
-        print_output = true
-        table.remove(arg, 1)
-    end
-
     local output, input
-    if arg[1] == "-o" or arg[1] == "--output" then
-        output = arg[2]
-        if not output then
-            print ("No output file provided.")
-            return
-        end
 
-        input  = arg[3]
-    elseif not arg[1] then
-        print ("No input file provided.")
-        return
-    elseif arg[1]:match('^%-') then
-        print("Unknown option '" .. arg[1] .. "'")
-    else
-        input  = arg[1]  -- Set input file
+    while #arg > 0 do
+        if arg[1] == "-v" or arg[1] == "--version" then
+            print(plume._VERSION)
+            return
+        elseif arg[1] == "-h" or arg[1] == "--help" then
+            print(cli_help)
+            return
+        elseif arg[1] == "-p" or arg[1] == "--print" then
+            print_output = true
+            table.remove(arg, 1)
+        elseif arg[1] == "-o" or arg[1] == "--output" then
+            output = arg[2]
+            if not output then
+                print ("No output file provided.")
+                return
+            end
+
+            input  = arg[3]
+            table.remove(arg, 1)
+            table.remove(arg, 1)
+        elseif not arg[1] then
+            print ("No input file provided.")
+            return
+        elseif arg[1]:match('^%-') then
+            print("Unknown option '" .. arg[1] .. "'")
+        else
+            input  = arg[1]  -- Set input file
+            table.remove(arg, 1)
+        end
     end
 
     -- Initialize with the input file
