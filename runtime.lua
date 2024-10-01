@@ -77,7 +77,12 @@ local function is_lua_expression(s)
     end
 
     -- any identifier follower by "," or "=" cannot be an expression
-    if s:match("^%s*[a-z-A-Z_][%w_%.]-%s*[=,]") then
+    if s:match("^%s*[a-z-A-Z_][%w_%.]-%s*,") then
+        return false
+    end
+
+    -- any identifier follower by "=" (and not "=") cannot be an expression
+    if s:match("^%s*[a-z-A-Z_][%w_%.]-%s*=%s*[^=]") then
         return false
     end
 
