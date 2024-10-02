@@ -49,14 +49,12 @@ This is x:0
 // End
 
 // Test 'local macro'
-\def foo{
-    \defl foo barbar
+\def foo{//
+    \defl foo barbar//
     \foo
 }\foo
 // Result
-
-    
-    barbar
+barbar
 
 // End
 

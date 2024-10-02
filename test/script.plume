@@ -70,6 +70,6 @@ r
 \foo[x=bar]
 // Result
 No argument provided.
-    
-    The arg is bar.
+
+The arg is bar.
 // End

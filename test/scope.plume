@@ -106,7 +106,7 @@ baz
 \create_multiplier {2}
 // Result
 
-     6 
+ 6 
 // End
 
 // Test 'Local test 1'
@@ -143,8 +143,8 @@ baz
 \foo
 // Result
 bar
-    bar
-    foo
+bar
+foo
 bar
 // End
 

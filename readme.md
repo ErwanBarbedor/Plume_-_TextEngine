@@ -109,7 +109,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Last version : 0.7.0
 
-
+#### Changes
+- Default space mode is now `light`.
 
 #### Fixes
 - Fix wrong space mode name.

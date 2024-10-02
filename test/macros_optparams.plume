@@ -82,8 +82,8 @@ bar
 \foo[x=bar zzz]
 // Result
 bar
-    
-    true
+
+true
 
 // End
 

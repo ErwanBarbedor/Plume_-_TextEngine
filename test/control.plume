@@ -164,8 +164,8 @@ Traceback :
 \foo//
 // Result
 1
-    2
-    
+2
+
 // End
 
 // Test 'Nested for'
@@ -185,8 +185,8 @@ Traceback :
 }//
 // Result
 1 : 1
-    2 : 1
-    
+2 : 1
+
 // End
 
 // Test 'For and closures'
