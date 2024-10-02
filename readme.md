@@ -109,8 +109,10 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Last version : 0.7.0
 
-#### Fixes
 
+
+#### Fixes
+- Fix wrong space mode name.
 - Plume no longer see `a==4` as a statement.
 
 See the [changelog](doc/changelog.md) for older version

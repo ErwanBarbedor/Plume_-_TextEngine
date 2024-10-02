@@ -69,7 +69,8 @@ Foo!
 
 Bar!
 // Result
-Foo! Bar!
+Foo!
+Bar!
 // End
 
 // Test 'No need to escape "[]" outside of macro call'

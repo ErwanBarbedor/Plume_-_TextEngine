@@ -2456,7 +2456,7 @@ plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_to
     elseif mode == "no_spaces" then
         plume.running_api.config.filter_spaces = ""
         plume.running_api.config.filter_newlines = ""
-    elseif mode == "light" then
+    elseif mode == "compact" then
         plume.running_api.config.filter_spaces = " "
         plume.running_api.config.filter_newlines = " "
     elseif mode == "light" then
