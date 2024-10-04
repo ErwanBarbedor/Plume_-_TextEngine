@@ -6,7 +6,7 @@ Behind the scenes, Plume doesn't manipulate strings but custom tables named **to
 
 ```plume
 \def foo[x]{
-    #{print(x)}
+    ${print(x)}
 }
 \foo{bar}
 ```
@@ -14,27 +14,27 @@ This will print... `table: 0x560002d8ad30` or something like that, and not `bar`
 
 To see the tokenlist content, you can call `tokenlist:source()`, which will return raw text, or `tokenlist:render()` to get final content.
 
-_If x is a tokenlist, `#x` is the same as `#{x:render()}`._
+_If x is a tokenlist, `$x` is the same as `${x:render()}`._
 
 Example:
 
 ```plume
 \def foo[x]{
-    #{x:source()}
-    #{x:render()}
+    ${x:source()}
+    ${x:render()}
 }
-\foo{#{1+1}}
+\foo{${1+1}}
 ```
 Gives:
 
 ```plume
-#{1+1}
+${1+1}
 2
 ```
 
 Plume does an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
 
-_If x and y are tokenlists, `#{x+y}` is roughly equivalent to `#{tonumber(x:render())+tonumber(y:render())}`._
+_If x and y are tokenlists, `${x+y}` is roughly equivalent to `${tonumber(x:render())+tonumber(y:render())}`._
 
 ## Macro Parameters
 
@@ -43,7 +43,7 @@ A macro can have 3 kinds of parameters:
 ### Positional Parameters
 
 ```plume
-\def double[x y] {#x #x #y #y}
+\def double[x y] {$x $x $y $y}
 \double bar baz
 ```
 `x` and `y` are _positional parameters_. They must follow the macro call in the same order as declared. They will not be rendered until the user decides to.
@@ -51,7 +51,7 @@ A macro can have 3 kinds of parameters:
 ### Keyword Parameters
 
 ```plume
-\def hello[name=World salutation=Hello] {#salutation #name}
+\def hello[name=World salutation=Hello] {$salutation $name}
 \hello
 \hello[salutation=Greeting]
 ```
@@ -63,7 +63,7 @@ In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro
 
 ```plume
 \def hello[?polite] {
-    \if #polite {
+    \if $polite {
         Good morning sir.
     } \else {
         Hey bro!
@@ -75,12 +75,12 @@ In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro
 `?polite` is a _flag_. It is a shorthand for:
 
 ```plume
-\def hello[polite={#{false}}] {
-    #{polite = polite:render()}
+\def hello[polite={${false}}] {
+    ${polite = polite:render()}
     [...]
 }
 \hello
-\hello[polite={#{true}}]
+\hello[polite={${true}}]
 ```
 
 As you can see and similarly to keyword parameters, `polite` will be rendered during the macro call.
@@ -93,8 +93,8 @@ You can modify this behavior:
 
 ```plume
 \def foo[...] {
-    #{__params.bar} -> baz
-    #{__params.flag} -> true
+    ${__params.bar} -> baz
+    ${__params.flag} -> true
 }
 \foo[bar=baz flag]
 ```
@@ -109,8 +109,8 @@ Example:
 ```plume
 \include[foo=bar baz] lib
 // lib.plume
-#{__file_params.foo}
-#{__file_params[1]}
+${__file_params.foo}
+${__file_params[1]}
 ```
 Output:
 ```
@@ -137,7 +137,7 @@ Variables are global by default.
 }
 \set x 10
 \foo
-#x
+$x
 ```
 Gives:
 
@@ -153,7 +153,7 @@ But it is possible to make them local, with `\set[local]` (or its alias `\setl`)
 }
 \set x 10
 \foo
-#x
+$x
 ```
 
 Gives:
@@ -170,9 +170,9 @@ Like macros, each iteration has it's own scope.
 Variables used as parameters retain the scope in which the macro was called.
 
 ```plume
-\def foo[bar] {\set[local] x 3 #bar}
+\def foo[bar] {\set[local] x 3 $bar}
 \set x 1 
-\foo {#x}
+\foo {$x}
 ```
 
 Output `1`.
@@ -183,7 +183,7 @@ Plume implements a closure system, i.e. variables local to the block where the m
 
 ```plume
 \def mydef[name body] {
-    \def {#name} {#body}
+    \def {$name} {$body}
 }
 \mydef foo bar
 \foo
@@ -211,4 +211,4 @@ Gives
 foo bar
 ```
 
-You can also see [spaces macros](macros.md#spaces)) to have more controls over spaces.
+You can also see [spaces macros](macros.md$spaces)) to have more controls over spaces.

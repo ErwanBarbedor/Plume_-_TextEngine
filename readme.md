@@ -14,9 +14,9 @@ To illustrate, consider the task of generating ten files, each containing a mult
 
 ```plume
 \for {i=1,10} {
-    \file {table-#i.txt} {
+    \file {table-$i.txt} {
         \for {j=1,10}{
-            #i * #j = #{i*j}
+            $i * $j = ${i*j}
         }
     }
 }
@@ -33,7 +33,7 @@ Write the following in a file `input.plume`:
 ```plume
 \def table[x] {
     \for {i=1, 10} {
-        #x * #i = #{x*i}
+        $x * $i = ${x*i}
     }
 }
 \table {3}
@@ -111,9 +111,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Default space mode is now `light`.
-- Change eval escape to `$` from `#`. Code using `#` still works for now.
+- Change eval escape to `$` from `#`. Code using `$` still works for now.
 
-Explanations for the syntax change: originally, `#` was chosen to adhere to the LaTeX macro syntax, `\newcommand \double[1] {#1 #1}`. However, it doesn't necessarily align with the broader use that Plume makes of it. Moreover, `#` is used by Lua, which makes some expressions unclear (e.g., `#{#t}` to print the size of a table) and prevents it from being used to declare `plume` blocks inside `lua` blocks. Finally, `$` is much more associated with the `evaluate` function than `#`.
+Explanations for the syntax change: originally, `#` was chosen to adhere to the LaTeX macro syntax, `\newcommand \double[1] {$1 $1}`. However, it doesn't necessarily align with the broader use that Plume makes of it. Moreover, `#` is used by Lua, which makes some expressions unclear (e.g., `${$t}` to print the size of a table) and prevents it from being used to declare `plume` blocks inside `lua` blocks. Finally, `$` is much more associated with the `evaluate` function than `#`.
 
 
 

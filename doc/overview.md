@@ -8,9 +8,9 @@ Note: In the examples shown, superfluous spaces have been removed for clarity.
 
 You can write almost any text directly, and it will be rendered as-is.
 
-Exceptions: the characters `\`, `#`, `{`, `}`, `[`, and `]` have special meanings. Also, `//`.
+Exceptions: the characters `\`, `$`, `{`, `}`, `[`, and `]` have special meanings. Also, `//`.
 
-If you want to use them, escape them: `\\`, `\#`, ...
+If you want to use them, escape them: `\\`, `\$`, ...
 
 ## Comments
 
@@ -46,7 +46,7 @@ Example:
 A macro is defined using `\def`:
 
 ```plume
-\def greeting[name] {Hello, #name!}
+\def greeting[name] {Hello, $name!}
 \greeting {World}
 ```
 Output:
@@ -57,7 +57,7 @@ Hello, World!
 You can define arguments as optional with a default value:
 
 ```plume
-\def greeting[name=you] {Hello, #name!}
+\def greeting[name=you] {Hello, $name!}
 \greeting
 \greeting[name=me]
 ```
@@ -81,49 +81,49 @@ _Note: Spaces between args used by the same macros are ignored._
 
 ## Variables
 
-Variables are defined using the `\set` command and accessed using the `#` symbol.
+Variables are defined using the `\set` command and accessed using the `$` symbol.
 
 Example:
 
 ```plume
 \set x 5
-The value of x is #x
+The value of x is $x
 ```
 Output:
 ```
 The value of x is 5
 ```
 
-The `#` behaves almost like a macro, with one difference: whereas the macro will capture the first argument (if not in brace) as a single no-space, `#` will only capture a valid identifier, making writing certain expressions easier.
+The `$` behaves almost like a macro, with one difference: whereas the macro will capture the first argument (if not in brace) as a single no-space, `$` will only capture a valid identifier, making writing certain expressions easier.
 
-For example, `\foo x+1` is the same as `\foo {x+1}`, but `#x+1` is equivalent to `#{x}+1`.
-If you want to apply `#` to the whole expression, use `#{x+1}`.
+For example, `\foo x+1` is the same as `\foo {x+1}`, but `$x+1` is equivalent to `${x}+1`.
+If you want to apply `$` to the whole expression, use `${x+1}`.
 
 You can also define variable with Lua:
 
 ```plume
-#{x = 5}
+${x = 5}
 ```
-## `\set k {v}` vs `#{k = v}` vs `\def k {v}`
+## `\set k {v}` vs `${k = v}` vs `\def k {v}`
 These three methods produce similar results. But there are nuances to the way they work.
 
 `def k {v}` is the only one capable of defining a dynamic content. So you shouldn't use it to save a value.
 
-`#{k = v}` is the only one that lets you save lua objects. Use it with numbers, tables, ...
+`${k = v}` is the only one that lets you save lua objects. Use it with numbers, tables, ...
 
-Unlike `#{k = v}`, `set k {...}` can save a block.
+Unlike `${k = v}`, `set k {...}` can save a block.
 
 
 ## Lua Integration
 
 ### Lua Expressions
 
-You can evaluate any Lua expression using `#{...}` (or its alias `\eval{...}`):
+You can evaluate any Lua expression using `${...}` (or its alias `\eval{...}`):
 
 ```plume
 \set a 3
 \set b 4
-The sum of a and b is #{a + b}
+The sum of a and b is ${a + b}
 ```
 Output:
 ```
@@ -133,7 +133,7 @@ The sum of a and b is 7
 Example:
 
 ```plume
-The os time is #{os.time()}
+The os time is ${os.time()}
 ```
 Output:
 ```
@@ -156,7 +156,7 @@ Example:
     end
 }
 
-The factorial of 5 is: #{factorial(5)}
+The factorial of 5 is: ${factorial(5)}
 ```
 Output:
 ```
@@ -169,7 +169,7 @@ You can execute an external Lua file with `\require {path}`.
 
 ```plume
 \require {my_lib}
-#{some_function ()}
+${some_function ()}
 ```
 
 Or with `plume.require` inside `\script`:
@@ -210,7 +210,7 @@ For loop example:
 
 ```plume
 \for {i=1,3} {
-    Line #i
+    Line $i
 }
 ```
 Output:
@@ -221,9 +221,9 @@ Line 3
 ```
 
 ```plume
-\set fruits #{{apple = "red", banana = "yellow", grape = "purple"}}
+\set fruits ${{apple = "red", banana = "yellow", grape = "purple"}}
 \for {fruit, color in pairs(fruits)} {
-    The #fruit is #color.
+    The $fruit is $color.
 }
 ```
 Output:
@@ -238,8 +238,8 @@ While loop example:
 ```plume
 \set a 0
 \while {a < 3} {
-    \set a #{a+1}
-    a is now #a
+    \set a ${a+1}
+    a is now $a
 }
 ```
 Output:
@@ -257,14 +257,14 @@ Plume is configured to stop loops after 1000 iterations, to prevent infinite loo
 
 ## Number Formatting
 
-If an expression in `#{...}` returns a number, you can format it.
+If an expression in `${...}` returns a number, you can format it.
 
 ```plume
-#{4/3}[i]
-#{1/3}[.4f]
-#{10000}[thousand_separator=,]
-#{5/2}[decimal_separator=+0.]
-#{5327}[%.2s]
+${4/3}[i]
+${1/3}[.4f]
+${10000}[thousand_separator=,]
+${5/2}[decimal_separator=+0.]
+${5327}[%.2s]
 ```
 Output:
 ```
@@ -280,7 +280,7 @@ Output:
 You can set default argument values for any macros.
 
 ```plume
-\foo[bar=bar]{#bar}
+\foo[bar=bar]{$bar}
 \foo
 \default foo[bar=baz]
 \foo
@@ -291,12 +291,12 @@ bar
 baz
 ```
 
-To set '#' default value, use the alias "eval".
+To set '$' default value, use the alias "eval".
 
 ```plume
-#{50000}
+${50000}
 \default eval [thousand_separator={ }]
-#{50000}
+${50000}
 ```
 Output:
 ```
@@ -315,7 +315,7 @@ Assuming a file named `header.plume` contains:
 ```plume
 \def header[title] {
 <header>
-    <h1>#title</h1>
+    <h1>$title</h1>
 </header>
 }
 ```
