@@ -116,6 +116,24 @@ $a
 bonjour
 \-- End
 
+\-- Test 'Render table 1'
+${
+    a = {1, 2, 3}
+}
+${a}
+\-- Result
+1 2 3
+\-- End
+
+\-- Test 'Render table 2'
+${
+    a = {1, 2, 3}
+}
+${a}[join=,]
+\-- Result
+1,2,3
+\-- End
+
 \-- Test 'Eval syntax error 5.1 and jit'
 ${a = a+}
 \-- Error Lua 5.1 Lua jit

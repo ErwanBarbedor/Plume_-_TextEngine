@@ -43,51 +43,7 @@ local function scientific_notation (x, n, sep)
     return mantissa.. "e10^" .. exposant
 end
 
---- \eval
--- Evaluate the given expression or execute the given statement.
--- @param code The code to evaluate or execute.
--- @option thousand_separator={} Symbol used between groups of 3 digits.
--- @option decimal_separator=. Symbol used between the integer and the decimal part.
--- @option_nokw format={} Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
--- @flag remove_zeros Remove useless zeros (e.g., `1.0` becomes `1`).
--- @flag silent Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
--- @alias `#{1+1}` is the same as `\eval{1+1}`
--- @note If the given code is a statement, it cannot return any value.
--- @note If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
--- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
-plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator="."}, function(params, calling_token)
-    
-    local remove_zeros, format, scinot, silent
-
-    for _, flag in ipairs(params.others.flags) do
-        if flag == "remove_zeros" then
-            remove_zeros = true
-        elseif not silents and flag == "silent" then
-            silent = true
-        elseif flag:match('%.[0-9]+f') or flag == "i" then
-            format = flag
-        elseif not scinot and flag:match('%.[0-9]+s') then
-            scinot = flag:match('%.([0-9]+)s')
-        else
-            plume.error(arg, "Unknow arg '" .. flag .. "'.")
-        end
-    end
-
-
-    --Get separator if provided
-    local t_sep, d_sep
-    
-    t_sep = plume.render_if_token(params.keywords.thousand_separator)
-    if t_sep and #t_sep == 0 then t_sep = nil end
-    d_sep = plume.render_if_token(params.keywords.decimal_separator)
-
-    local result = plume.call_lua_chunk(params.positionnals.expr)
-
-    -- if result is a token, render it
-    if type(result) == "table" and result.render then
-        result = result:render ()
-    end
-    
+local function eval_style (result, format, scinot, d_sep, t_sep, remove_zeros, join_table, table_separator)
     if tonumber(result) then
         if format == "i" then
             result = math.floor(result)
@@ -122,7 +78,70 @@ plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator
         if remove_zeros then
             result = tostring(result):gsub(d_sep..'([0-9]-)0+$', d_sep.."%1")
         end
+    elseif type(result) == "table" and join_table then
+        local table_result = {}
+
+        for i, x in ipairs(result) do
+            table_result[i] = eval_style (x, format, scinot, d_sep, t_sep, remove_zeros)
+        end
+
+        result = table.concat(table_result, table_separator)
     end
+
+    return result
+end
+
+--- \eval
+-- Evaluate the given expression or execute the given statement.
+-- @param code The code to evaluate or execute.
+-- @option thousand_separator={} Symbol used between groups of 3 digits.
+-- @option decimal_separator=. Symbol used between the integer and the decimal part.
+-- @option join={ } If the value is a table, string to put between table elements.
+-- @option_nokw format={} Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
+-- @flag remove_zeros Remove useless zeros (e.g., `1.0` becomes `1`).
+-- @flag silent Execute the code without returning anything. Useful for filtering unwanted function returns: `${table.remove(t)}[silent]`
+-- @flag no_join_table Doesn't render all table element and just return `tostring(table)`.
+-- @alias `${1+1}` is the same as `\eval{1+1}`
+-- @note If the given code is a statement, it cannot return any value.
+-- @note In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
+plume.register_macro("eval", {"expr"}, {thousand_separator="", decimal_separator=".", join=" "}, function(params, calling_token)
+    local remove_zeros, format, scinot, silent
+    local join_table = true
+
+    for _, flag in ipairs(params.others.flags) do
+        if flag == "remove_zeros" then
+            remove_zeros = true
+        elseif flag == "no_join_table" then
+            join_table = false
+        elseif flag == "silent" then
+            silent = true
+        elseif flag:match('%.[0-9]+f') or flag == "i" then
+            format = flag
+        elseif not scinot and flag:match('%.[0-9]+s') then
+            scinot = flag:match('%.([0-9]+)s')
+        else
+            plume.error(arg, "Unknow arg '" .. flag .. "'.")
+        end
+    end
+
+
+    --Get separator if provided
+    local t_sep, d_sep
+    
+    t_sep = plume.render_if_token(params.keywords.thousand_separator)
+    if t_sep and #t_sep == 0 then t_sep = nil end
+    d_sep = plume.render_if_token(params.keywords.decimal_separator)
+    table_separator = plume.render_if_token(params.keywords.join)
+
+    local result = plume.call_lua_chunk(params.positionnals.expr)
+
+    -- if result is a token, render it
+    if type(result) == "table" and result.render then
+        result = result:render ()
+    end
+
+    -- Applying style
+    result = eval_style (result, format, scinot, d_sep, t_sep, remove_zeros, join_table, table_separator)
     
     if not silent then
         return result

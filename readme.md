@@ -115,6 +115,8 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Change eval escape to `$` from `#`. Code using `#` still works for now.
 - Change comment syntax to `\--` from `//`. Code using `//` still works for now.
 - New option `join` for `\for`, which will insert a character between all iterations.
+- `${x}` will now render all `x` elements, if `x` is a table.
+- New flag `no_table_join` and new option `join` for macro `$`.
 
 _-_Explanations for the syntaxs changes:_
 

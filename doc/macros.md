@@ -116,7 +116,7 @@ _Generated from source._
 
 ### eval
 
-**Usage:** `\eval[thousand_separator={} decimal_separator=. <format> remove_zeros silent] {code}`
+**Usage:** `\eval[thousand_separator={} decimal_separator=. join={ <format> remove_zeros silent no_join_table] {code}`
 
 **Description:** Evaluate the given expression or execute the given statement.
 
@@ -126,19 +126,20 @@ _Generated from source._
 **Keyword Parameters :** 
 - `thousand_separator` Symbol used between groups of 3 digits.Default value : empty
 - `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
+- `join` } If the value is a table, string to put between table elements.Default value : `{`
 
 
 **Flags :**
 - `<format>` Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
 - `remove_zeros` Remove useless zeros (e.g., `1.0` becomes `1`).
-- `silent` Execute the code without returning anything. Useful for filtering unwanted function returns: `#{table.remove(t)}[silent]`
+- `silent` Execute the code without returning anything. Useful for filtering unwanted function returns: `${table.remove(t)}[silent]`
+- `no_join_table` Doesn't render all table element and just return `tostring(table)`.
 
 **Notes:**
 - If the given code is a statement, it cannot return any value.
-- If you use eval inside default parameter values for eval, like `\default eval[{#format}]`, all parameters of `#format` will be ignored to prevent an infinite loop.
 - In some case, plume will treat a statement given code as an expression. To forced the detection by plume, start the code with a comment.
 
-**Alias:** `#{1+1}` is the same as `\eval{1+1}`
+**Alias:** `${1+1}` is the same as `\eval{1+1}`
 
 ## Spaces
 
