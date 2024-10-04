@@ -59,10 +59,10 @@ plume.syntax = {
     opt_block_begin      = "[",
     opt_block_end        = "]",
     opt_assign           = "=",
-    eval                 = "#",
+    eval                 = "$",
 
     -- Compatibility only, will be removed in 1.0
-    alt_eval             = "$"
+    alt_eval             = "#"
 }
 
 --- Checks if a string is a valid identifier.
