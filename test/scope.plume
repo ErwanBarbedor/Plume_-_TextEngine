@@ -1,161 +1,161 @@
-// Test 'Variable block scope 1'
-\def double[x] {$x $x}//
-\def foo[x] {\double $x}//
+\-- Test 'Variable block scope 1'
+\def double[x] {$x $x}\--
+\def foo[x] {\double $x}\--
 \foo 1
-// Result
+\-- Result
 1 1
-// End
+\-- End
 
-// Test 'Variable block scope 2'
-\def bar[x] {${local y = 1} $x}//
-\def foo {\bar $y}//
+\-- Test 'Variable block scope 2'
+\def bar[x] {${local y = 1} $x}\--
+\def foo {\bar $y}\--
 \foo
-// Result
+\-- Result
  
-// End
+\-- End
 
-// Test 'Variable block scope 3'
-\def foo[x] {$x}//
-\def bar[x] {$x}//
-\foo {//
-    ${x=3}//
-    \bar{$x}//
-}//
-// Result
+\-- Test 'Variable block scope 3'
+\def foo[x] {$x}\--
+\def bar[x] {$x}\--
+\foo {\--
+    ${x=3}\--
+    \bar{$x}\--
+}\--
+\-- Result
 3
-// End
+\-- End
 
-// Test 'Variable block scope 4'
-\def foo[x] {$x}//
-\def bar[x] {//
-    \foo {\foo $x}//
-}//
+\-- Test 'Variable block scope 4'
+\def foo[x] {$x}\--
+\def bar[x] {\--
+    \foo {\foo $x}\--
+}\--
 \bar a
-// Result
+\-- Result
 a
-// End
+\-- End
 
-// Test 'Variable block scope 5'
-\def id[x] {$x}//
-\def foo[bar] {\id{$bar}}//
+\-- Test 'Variable block scope 5'
+\def id[x] {$x}\--
+\def foo[bar] {\id{$bar}}\--
 \foo{bar}
 \foo{baz}
-// Result
+\-- Result
 bar
 baz
-// End
+\-- End
 
-// Test 'Variable block scope 6'
+\-- Test 'Variable block scope 6'
 \def foo[x]{$x}\def bar[x]{$x}\bar {\foo {${local x=0} $x}}
-// Result
+\-- Result
  0
-// End
+\-- End
 
-// Test 'Variable block scope 5'
-\def foo[x] {$x}//
+\-- Test 'Variable block scope 5'
+\def foo[x] {$x}\--
 \foo {\for {i=1,4} {$i}}
-// Result
+\-- Result
 1234
-// End
+\-- End
 
-// Test 'global 1'
-\def foo {${x=0}}//
-\foo//
-$x//
-// Result
+\-- Test 'global 1'
+\def foo {${x=0}}\--
+\foo\--
+$x\--
+\-- Result
 0
-// End
+\-- End
 
-// Test 'global 2'
-\def foo {${x=0}}//
-${x=1}//
-\foo//
-$x//
-// Result
+\-- Test 'global 2'
+\def foo {${x=0}}\--
+${x=1}\--
+\foo\--
+$x\--
+\-- Result
 0
-// End
+\-- End
 
-// Test 'Simple closure'
-\def mydef[name body] {//
-    \def {$name} {$body}//
-}//
-\mydef foo bar//
+\-- Test 'Simple closure'
+\def mydef[name body] {\--
+    \def {$name} {$body}\--
+}\--
+\mydef foo bar\--
 \foo
-// Result
+\-- Result
 bar
-// End
+\-- End
 
-// Test 'Independant closures'
-\def mydef[name body] {//
-    \def {$name} {$body}//
-}//
-\mydef foo bar//
-\mydef bar baz//
+\-- Test 'Independant closures'
+\def mydef[name body] {\--
+    \def {$name} {$body}\--
+}\--
+\mydef foo bar\--
+\mydef bar baz\--
 \foo
 \bar
-// Result
+\-- Result
 bar
 baz
-// End
+\-- End
 
-// Test 'Closure in Expression'
+\-- Test 'Closure in Expression'
 \def create_multiplier[multiplier] {
-    \def multiply_by[x] { ${x*multiplier} }//
-    \multiply_by {3}//
-}//
+    \def multiply_by[x] { ${x*multiplier} }\--
+    \multiply_by {3}\--
+}\--
 \create_multiplier {2}
-// Result
+\-- Result
 
  6 
-// End
+\-- End
 
-// Test 'Local test 1'
+\-- Test 'Local test 1'
 ${
     local a = 4
-}//
+}\--
 $a
-// Result
+\-- Result
 4
-// End
+\-- End
 
-// Test 'Local test 2'
-\def foo[body] {$body}//
-//
-\def bar {//
-    \foo {//
-        ${local x=5}//
-        $x//
-    }//
-}//
+\-- Test 'Local test 2'
+\def foo[body] {$body}\--
+\--
+\def bar {\--
+    \foo {\--
+        ${local x=5}\--
+        $x\--
+    }\--
+}\--
 \bar
-// Result
+\-- Result
 5
-// End
+\-- End
 
-// Test 'default_local 1'
-\def foo[x=bar] {$x}//
-\foo//
+\-- Test 'default_local 1'
+\def foo[x=bar] {$x}\--
+\foo\--
 \do {
     \foo
-    \default_local foo[x=foo]//
+    \default_local foo[x=foo]\--
     \foo
-}//
+}\--
 \foo
-// Result
+\-- Result
 bar
 bar
 foo
 bar
-// End
+\-- End
 
-// Test 'default_local eval'
-\default_local eval [.1f]//
-\do {//
-    \default_local eval [.3f]//
+\-- Test 'default_local eval'
+\default_local eval [.1f]\--
+\do {\--
+    \default_local eval [.3f]\--
     ${1/3}
-}//
+}\--
 ${1/3}
-// Result
+\-- Result
 0.333
 0.3
-// End
+\-- End

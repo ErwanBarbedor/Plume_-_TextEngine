@@ -1,71 +1,71 @@
-// Test 'simple macro 1'
+\-- Test 'simple macro 1'
 \def foo bar\foo
-// Result
+\-- Result
 bar
-// End
+\-- End
 
-// Test 'simple macro 2'
+\-- Test 'simple macro 2'
 \def foo {bar bar}\foo
-// Result
+\-- Result
 bar bar
-// End
+\-- End
 
-// Test 'macro with simpleparams'
+\-- Test 'macro with simpleparams'
 \def double[x] {$x $x}\double{foo}
-// Result
+\-- Result
 foo foo
-// End
+\-- End
 
-// Test 'macro with simple params 1'
+\-- Test 'macro with simple params 1'
 \def add[x y] {$x+$y}\add{1}{2}
-// Result
+\-- Result
 1+2
-// End
+\-- End
 
-// Test 'macro with simple params 2'
+\-- Test 'macro with simple params 2'
 \def add[x y] ${x+y}\add{1}{2}
-// Result
+\-- Result
 3
-// End
+\-- End
 
-// Test 'macro params are local'
-\def foo[x]{This is x:$x}//
-${x = 0}//
+\-- Test 'macro params are local'
+\def foo[x]{This is x:$x}\--
+${x = 0}\--
 This is x:$x
 \foo{5}
 This is x:$x
-// Result
+\-- Result
 This is x:0
 This is x:5
 This is x:0
-// End
+\-- End
 
-// Test 'macro with useless spaces'
+\-- Test 'macro with useless spaces'
 \def foo[
 
 ]{bar}
-// Result
+\-- Result
 
-// End
+\-- End
 
-// Test 'local macro'
-\def foo{//
-    \defl foo barbar//
+\-- Test 'local macro'
+\def foo{\--
+    \defl foo barbar\--
     \foo
 }\foo
-// Result
+\-- Result
 barbar
 
-// End
+\-- End
 
-// Test 'Macro message'
-\def foo{//
-    ${__message.sender} : ${__message.content}//
-    ${__message.send = "bar"}//
-}//
+\-- Test 'Macro message'
+\def foo{\--
+    ${__message.sender} : ${__message.content}\--
+    ${__message.send = "bar"}\--
+}\--
 \foo
 \foo
-// Result
+\-- Result
 \def : 
 \foo : bar
-// End
+\-- End

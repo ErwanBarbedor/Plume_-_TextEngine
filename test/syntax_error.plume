@@ -1,40 +1,40 @@
-// Test 'Wrong brace 1'
+\-- Test 'Wrong brace 1'
 }
-// Error
+\-- Error
 File 'string', line 1 : This brace close nothing.
     }
     ^
-// End
+\-- End
 
-// Test 'Wrong brace 2'
+\-- Test 'Wrong brace 2'
 {}}
-// Error
+\-- Error
 File 'string', line 1 : This brace close nothing.
     {}}
       ^
-// End
+\-- End
 
-// Test 'Wrong brace 3'
+\-- Test 'Wrong brace 3'
 {
-// Error
+\-- Error
 File 'string', line 1 : This brace was never closed
     {
     ^
-// End
+\-- End
 
-// Test 'Wrong brace 4'
+\-- Test 'Wrong brace 4'
 [}
-// Error
+\-- Error
 File 'string', line 1 : This brace doesn't matching the opening brace, which was '['.
     [}
      ^
-// End
-// ]]
+\-- End
+\-- ]]
 
-// Test 'No space in error message'
+\-- Test 'No space in error message'
         }
-// Error
+\-- Error
 File 'string', line 1 : This brace close nothing.
     }
     ^
-// End
+\-- End

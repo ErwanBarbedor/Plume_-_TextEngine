@@ -1,143 +1,143 @@
-// Test 'Optional arg (defaut)'
+\-- Test 'Optional arg (defaut)'
 \def foo [x=foo] {$x}\foo
-// Result
+\-- Result
 foo
-// End
+\-- End
 
-// Test 'Optional arg (provided)'
+\-- Test 'Optional arg (provided)'
 \def foo [x=foo] {$x}\foo[x=bar]
-// Result
+\-- Result
 bar
-// End
+\-- End
 
-// Test 'Optional arg (mixed 1)'
+\-- Test 'Optional arg (mixed 1)'
 \def foo [x=foo y=bar] {$x-$y}\foo
-// Result
+\-- Result
 foo-bar
-// End
+\-- End
 
-// Test 'Optional arg (mixed 2)'
+\-- Test 'Optional arg (mixed 2)'
 \def foo [x=foo y=bar] {$x-$y}\foo[x=bar]
-// Result
+\-- Result
 bar-bar
-// End
+\-- End
 
-// Test 'Optional arg (mixed 3)'
+\-- Test 'Optional arg (mixed 3)'
 \def foo [x=foo y=bar] {$x-$y}\foo[y=foo]
-// Result
+\-- Result
 foo-foo
-// End
+\-- End
 
 
-// Test 'Optional arg (set eval 1)'
-\def foo[x={${1+1}}] {$x}//
+\-- Test 'Optional arg (set eval 1)'
+\def foo[x={${1+1}}] {$x}\--
 \foo
-// Result
+\-- Result
 2
-// End
+\-- End
 
-// Test 'Optional arg (set eval 2)'
-\def foo bar//
-\def bar[x={\foo}] {$x}//
+\-- Test 'Optional arg (set eval 2)'
+\def foo bar\--
+\def bar[x={\foo}] {$x}\--
 \bar
-// Result
+\-- Result
 bar
-// End
+\-- End
 
-// Test 'Optional arg (pass eval 1)'
-\def foo[x={}] {$x}//
+\-- Test 'Optional arg (pass eval 1)'
+\def foo[x={}] {$x}\--
 \foo[x={${1+1}}]
-// Result
+\-- Result
 2
-// End
+\-- End
 
-// Test 'Optional arg (pass eval 2)'
-\def foo bar//
-\def bar[x={}] {$x}//
+\-- Test 'Optional arg (pass eval 2)'
+\def foo bar\--
+\def bar[x={}] {$x}\--
 \bar[x={\foo}]
-// Result
+\-- Result
 bar
-// End
+\-- End
 
-// Test 'Flag 1'
-\def foo[?bar] {\if bar {bar} \else {foo}}//
+\-- Test 'Flag 1'
+\def foo[?bar] {\if bar {bar} \else {foo}}\--
 \foo
-// Result
+\-- Result
  foo
-// End
+\-- End
 
-// Test 'Flag 2'
-\def foo[?bar] {\if bar {bar} \else {foo}}//
+\-- Test 'Flag 2'
+\def foo[?bar] {\if bar {bar} \else {foo}}\--
 \foo[bar]
-// Result
+\-- Result
 bar 
-// End
+\-- End
 
-// Test 'Variable parameters number'
-\def foo[...] {//
+\-- Test 'Variable parameters number'
+\def foo[...] {\--
     ${__params.x}
     ${__params.y}
     ${__params.zzz}
-}//
+}\--
 \foo[x=bar zzz]
-// Result
+\-- Result
 bar
 
 true
 
-// End
+\-- End
 
-// Test 'set default 1'
-\def foo[x=bar] {$x}//
+\-- Test 'set default 1'
+\def foo[x=bar] {$x}\--
 \foo
-\default foo[x=baz]//
-\foo//
-// Result
+\default foo[x=baz]\--
+\foo\--
+\-- Result
 bar
 baz
-// End
+\-- End
 
-// Test 'set default 2'
-\def foo[...] {//
-    ${__params.bar}//
-}//
-\default foo[bar]//
+\-- Test 'set default 2'
+\def foo[...] {\--
+    ${__params.bar}\--
+}\--
+\default foo[bar]\--
 \foo
-// Result
+\-- Result
 true
-// End
+\-- End
 
-// Test 'To many optional blocks'
+\-- Test 'To many optional blocks'
 \def[x][x] foo bar
-// Error
+\-- Error
 File 'string', line 1 : To many optional blocks given for macro '\def'
     \def[x][x] foo bar
            ^^^
-// End
+\-- End
 
-// Test 'To many "="in optional block'
+\-- Test 'To many "="in optional block'
 \def foo [a==5] {}
-// Error
+\-- Error
 File 'string', line 1 : Expected parameter value, not '='.
     \def foo [a==5] {}
                 ^
-// End
+\-- End
 
-// Test 'Early ='
+\-- Test 'Early ='
 \def foo [=a] {}
-// Error
+\-- Error
 File 'string', line 1 : Expected parameter name, not '='.
     \def foo [=a] {}
               ^
-// End
+\-- End
 
-// Test 'Bad argument name'
+\-- Test 'Bad argument name'
 \def foo [@=foo] {}
-// Error
+\-- Error
 File 'string', line 1 : '@' is an invalid parameter name.
     \def foo [@=foo] {}
     ^^^^
 Traceback :
     File 'string', line 1 : \def foo [@=foo] {}
                             ^^^^
-// End
+\-- End

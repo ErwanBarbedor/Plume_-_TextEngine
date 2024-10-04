@@ -1,79 +1,79 @@
-// Test 'Simple text'
+\-- Test 'Simple text'
 Hello world!
-// Result
+\-- Result
 Hello world!
-// End
+\-- End
 
-// Test 'Several lines'
+\-- Test 'Several lines'
 Hello! 
 
 ...world!
-// Result
+\-- Result
 Hello! 
 ...world!
-// End
+\-- End
 
-// Test 'Comment 1'
-Hello...//world!
+\-- Test 'Comment 1'
+Hello...\--world!
 
-// Result
+\-- Result
 Hello...
-// End
+\-- End
 
-// Test 'Comment 2'
-Hello...// It is a comment
+\-- Test 'Comment 2'
+Hello...\-- It is a comment
 world!
-// Result
+\-- Result
 Hello...world!
-// End
+\-- End
 
-// Test 'Space mode - no_spaces 1'
+\-- Test 'Space mode - no_spaces 1'
 \set_space_mode no_spaces
 Foo!
     Bar!
-// Result
+\-- Result
 Foo!Bar!
-// End
+\-- End
 
-// Test 'Space mode - no_spaces 2'
+\-- Test 'Space mode - no_spaces 2'
 \set_space_mode no_spaces
 Foo!             Bar!
-// Result
+\-- Result
 Foo!Bar!
-// End
+\-- End
 
-// Test 'Space mode - no_spaces 3'
+\-- Test 'Space mode - no_spaces 3'
 \set_space_mode no_spaces
 Foo!{\n}Bar!
-// Result
+\-- Result
 Foo!
 Bar!
-// End
+\-- End
 
-// Test 'Space mode - no_spaces 4'
+\-- Test 'Space mode - no_spaces 4'
 \set_space_mode no_spaces
 Foo!{\n[3]}
 Bar!
-// Result
+\-- Result
 Foo!
 
 
 Bar!
-// End
+\-- End
 
-// Test 'Space mode - light'
-\set_space_mode light//
+\-- Test 'Space mode - light'
+\set_space_mode light\--
 Foo!
 
 
 Bar!
-// Result
+\-- Result
 Foo!
 Bar!
-// End
+\-- End
 
-// Test 'No need to escape "[]" outside of macro call'
+\-- Test 'No need to escape "[]" outside of macro call'
 []
-// Result
+\-- Result
 []
-// End
+\-- End

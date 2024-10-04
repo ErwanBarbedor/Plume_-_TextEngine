@@ -1,75 +1,75 @@
-// Test 'script 1'
+\-- Test 'script 1'
 ${
     a = 5
     b = 3
 }
-// Result
+\-- Result
 
-// End
+\-- End
 
-// Test 'script 2'
+\-- Test 'script 2'
 ${
     a = 5
     b = 3
 }$a
-// Result
+\-- Result
 5
-// End
+\-- End
 
-// Test 'script 3'
-\def foo {//
+\-- Test 'script 3'
+\def foo {\--
     ${
         local a = 5
         b = 3
-    }//
-    $a $b//
-}//
+    }\--
+    $a $b\--
+}\--
 \foo $a $b
-// Result
+\-- Result
 5 3  3
-// End
+\-- End
 
-// Test 'script cannot return value'
+\-- Test 'script cannot return value'
 ${return 5}
-// Error
+\-- Error
 File 'string', line 1 : \script cannot return value.
     ${return 5}
      ^^^^^^^^^^
 Traceback :
     File 'string', line 1 : ${return 5}
                             ^
-// End
+\-- End
 
-// Test 'script implicit render'
-\def foo[x] {//
-    ${x:match(".$")}//
-}//
-//
+\-- Test 'script implicit render'
+\def foo[x] {\--
+    ${x:match(".$")}\--
+}\--
+\--
 \foo bar
-// Result
+\-- Result
 r
-// End
+\-- End
 
-// Test 'script implicit render - nil key'
-\def foo[x] {//
-    ${x.bar}//
-}//
-//
+\-- Test 'script implicit render - nil key'
+\def foo[x] {\--
+    ${x.bar}\--
+}\--
+\--
 \foo 1
-// Result
+\-- Result
 
-// End
+\-- End
 
-// Test 'script implicit render - test empty'
-\def foo[x={}] {//
+\-- Test 'script implicit render - test empty'
+\def foo[x={}] {\--
     \if {x:is_empty()} {No argument provided.}
-    \else {The arg is $x.}//
-}//
-//
-\foo//
+    \else {The arg is $x.}\--
+}\--
+\--
+\foo\--
 \foo[x=bar]
-// Result
+\-- Result
 No argument provided.
 
 The arg is bar.
-// End
+\-- End

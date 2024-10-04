@@ -1,54 +1,54 @@
-// Test 'get'
-${a = 1}//
+\-- Test 'get'
+${a = 1}\--
 ${plume.get "a"}
-// Result
+\-- Result
 1
-// End
+\-- End
 
-// Test 'get local'
-${local a = 1}//
+\-- Test 'get local'
+${local a = 1}\--
 ${plume.get "a"}
-// Result
+\-- Result
 1
-// End
+\-- End
 
-// Test 'lget'
-${a = {21}}//
+\-- Test 'lget'
+${a = {21}}\--
 ${plume.lget "a"[1]}
-// Result
+\-- Result
 21
-// End
+\-- End
 
-// Test 'export'
+\-- Test 'export'
 ${
     function add(x, y)
         return math.floor(x+y)
     end
 
     plume.export("add", 2, add)
-}//
-//
+}\--
+\--
 \add{1}{2}
-// Result
+\-- Result
 3
-// End
+\-- End
 
-// Test '_G'
-${x = 1}//
-${_G.x}//
-// Result
+\-- Test '_G'
+${x = 1}\--
+${_G.x}\--
+\-- Result
 1
-// End
+\-- End
 
-// Test '_G & _L'
-${x = 1}//
-\do {//
-    ${local x = 2}//
+\-- Test '_G & _L'
+${x = 1}\--
+\do {\--
+    ${local x = 2}\--
     ${_G.x}
     ${_L.x}
 }
-// Result
+\-- Result
 1
 2
 
-// End
+\-- End

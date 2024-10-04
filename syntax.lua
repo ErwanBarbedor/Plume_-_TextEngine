@@ -19,7 +19,7 @@ plume.syntax = {
 
     -- all folowing must be one char long
     escape               = "\\",
-    comment              = "/",-- comments are two plume.syntax.comment char next to each other.
+    comment              = "-",-- comments are two plume.syntax.comment char next to each other.
     block_begin          = "{",
     block_end            = "}",
     opt_block_begin      = "[",
@@ -28,7 +28,8 @@ plume.syntax = {
     eval                 = "$",
 
     -- Compatibility with 0.6.1. Will be removed in a future version.
-    alt_eval             = "#"
+    alt_eval             = "#",
+    alt_comment          = "/"
 }
 
 --- Checks if a string is a valid identifier.

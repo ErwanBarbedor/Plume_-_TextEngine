@@ -213,7 +213,7 @@ plume.syntax = {
 
     -- all folowing must be one char long
     escape               = "\\",
-    comment              = "/",-- comments are two plume.syntax.comment char next to each other.
+    comment              = "-",-- comments are two plume.syntax.comment char next to each other.
     block_begin          = "{",
     block_end            = "}",
     opt_block_begin      = "[",
@@ -222,7 +222,8 @@ plume.syntax = {
     eval                 = "$",
 
     -- Compatibility with 0.6.1. Will be removed in a future version.
-    alt_eval             = "#"
+    alt_eval             = "#",
+    alt_comment          = "/"
 }
 
 --- Checks if a string is a valid identifier.
@@ -994,11 +995,36 @@ function plume.tokenize (code, file)
         
         elseif c == plume.syntax.escape then
             -- Begin a macro or escape any special character.
-            local next = code:sub(pos+1, pos+1)
+            local next  = code:sub(pos+1, pos+1)
+            local next2 = code:sub(pos+2, pos+2)
             if next:match(plume.syntax.identifier_begin) then
                 write()
                 state = "macro"
                 table.insert(acc, c)
+            elseif next == plume.syntax.comment and next == next2 then
+                write("comment")
+                table.insert(acc, c)
+                table.insert(acc, next)
+                table.insert(acc, next)
+                local find_newline
+                repeat
+                    pos = pos + 1
+                    next = code:sub(pos, pos)
+                    if find_newline and not next:match "[ \t]" then
+                        pos = pos - 1
+                        break
+                    end
+
+                    table.insert(acc, next)
+                    if next == "\n" then
+                        find_newline = pos+1
+                    end
+                until pos >= #code
+
+                if find_newline then
+                    noline = noline + 1
+                    linepos = find_newline
+                end
             else
                 write()
                 newtoken ("escaped_text", next)
@@ -1041,10 +1067,11 @@ function plume.tokenize (code, file)
                 pos = pos - 1
             end
         
-        elseif c == plume.syntax.comment then
+        -- Compatibility with 0.6.1. Will be removed in a future version.
+        elseif c == plume.syntax.alt_comment then
             pos = pos + 1
             local next = code:sub(pos, pos)
-            if next == plume.syntax.comment then
+            if next == c then
                 write("comment")
                 table.insert(acc, c)
                 table.insert(acc, c)
@@ -1072,6 +1099,7 @@ function plume.tokenize (code, file)
                 write ("text")
                 table.insert(acc, c)
             end
+        --
 
         elseif c:match("%s") then
             write ("space")

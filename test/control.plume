@@ -1,214 +1,214 @@
-// Test 'if false'
+\-- Test 'if false'
 \if {1==2} foo
-// Result
+\-- Result
 
-// End
+\-- End
 
-// Test 'if false else'
+\-- Test 'if false else'
 \if {1==2} foo \else bar
-// Result
+\-- Result
  bar
-// End
+\-- End
 
-// Test 'if true'
+\-- Test 'if true'
 \if {1==1} foo
-// Result
+\-- Result
 foo
-// End
+\-- End
 
-// Test 'if true else'
+\-- Test 'if true else'
 \if {1==1} foo \else bar
-// Result
+\-- Result
 foo 
-// End
+\-- End
 
-// Test 'if true else 2'
-\if {1==1} foo//
+\-- Test 'if true else 2'
+\if {1==1} foo\--
 \else bar
-// Result
+\-- Result
 foo
-// End
+\-- End
 
-// Test 'if elseif'
+\-- Test 'if elseif'
 \if {1==2} foo \elseif {1==1} bar \else baz
-// Result
+\-- Result
  bar 
-// End
+\-- End
 
-// Test 'Simple while'
-${a=0}//
+\-- Test 'Simple while'
+${a=0}\--
 \while a<10 {${a = a+1} $a}
-// Result
+\-- Result
  1 2 3 4 5 6 7 8 9 10
-// End
+\-- End
 
-// Test 'To many loops'
-${a=0}//
+\-- Test 'To many loops'
+${a=0}\--
 \while a<10000 {${a = a+1} $a}
-// Error
+\-- Error
 File 'string', line 2 : To many loop repetition (over the configurated limit of 1000).
     \while a<10000 {${a = a+1} $a}
            ^^^^^^^
 Traceback :
     File 'string', line 2 : \while a<10000 {${a = a+1} $a}
                             ^^^^^^
-// End
+\-- End
 
-// Test 'simple for'
-\for i=1,3 {//
+\-- Test 'simple for'
+\for i=1,3 {\--
     Ligne $i
 }
-// Result
+\-- Result
 Ligne 1
 Ligne 2
 Ligne 3
 
-// End
+\-- End
 
-// Test 'less simple for'
-${x = 6}//
-\for i=1,x,2 {//
+\-- Test 'less simple for'
+${x = 6}\--
+\for i=1,x,2 {\--
     Ligne $i
 }
-// Result
+\-- Result
 Ligne 1
 Ligne 3
 Ligne 5
 
-// End
+\-- End
 
-// Test 'for throught table'
-${t = {1, 4, 9}}//
-\for {k, v in ipairs(t)} {//
+\-- Test 'for throught table'
+${t = {1, 4, 9}}\--
+\for {k, v in ipairs(t)} {\--
     $k:$v
 }
-// Result
+\-- Result
 1:1
 2:4
 3:9
 
-// End
+\-- End
 
-// Test 'for - empty'
+\-- Test 'for - empty'
 \for {i in pairs({})} {}
-// Result
+\-- Result
 
-// End
+\-- End
 
-// Test 'for - unknow iterator'
+\-- Test 'for - unknow iterator'
 \for {j} foo
-// Error
+\-- Error
 File 'string', line 1 : Non valid syntax for iterator.
     \for {j} foo
          ^^^
 Traceback :
     File 'string', line 1 : \for {j} foo
                             ^^^^
-// End
+\-- End
 
-// Test 'for - nil iterator'
+\-- Test 'for - nil iterator'
 \for {x in pairs(nil)} {}
-// Error Lua 5.3 Lua 5.4
+\-- Error Lua 5.3 Lua 5.4
 File 'string', line 1 : (lua error) bad argument #1 to 'for iterator' (table expected, got nil)
     \for {x in pairs(nil)} {}
          ^^^^^^^^^^^^^^^^^
 Traceback :
     File 'string', line 1 : \for {x in pairs(nil)} {}
                             ^^^^
-// End
+\-- End
 
-// Test 'for - nil iterator'
+\-- Test 'for - nil iterator'
 \for {x in pairs(nil)} {}
-// Error Lua 5.2 Lua 5.1
+\-- Error Lua 5.2 Lua 5.1
 File 'string', line 1 : (lua error) bad argument #1 to 'pairs' (table expected, got nil)
     \for {x in pairs(nil)} {}
          ^^^^^^^^^^^^^^^^^
 Traceback :
     File 'string', line 1 : \for {x in pairs(nil)} {}
                             ^^^^
-// End
+\-- End
 
-// Test 'for - wrong variable number'
-${t = {1, 4, 9}}//
+\-- Test 'for - wrong variable number'
+${t = {1, 4, 9}}\--
 \for {i, j, k in pairs(t)} foo
-// Error
+\-- Error
 File 'string', line 2 : Wrong number of variables, 3 instead of 2.
     \for {i, j, k in pairs(t)} foo
          ^^^^^^^^^^^^^^^^^^^^^
 Traceback :
     File 'string', line 2 : \for {i, j, k in pairs(t)} foo
                             ^^^^
-// End
+\-- End
 
-// Test 'else without if'
+\-- Test 'else without if'
 \else foo
-// Error
+\-- Error
 File 'string', line 1 : 'else' macro must be preceded by 'if' or 'elseif'.
     \else foo
     ^^^^^
 Traceback :
     File 'string', line 1 : \else foo
                             ^^^^^
-// End
+\-- End
 
-// Test 'do'
-\do {//
-    ${local x = 0}//
-    \def foo {//
-        ${x = x+1}//
+\-- Test 'do'
+\do {\--
+    ${local x = 0}\--
+    \def foo {\--
+        ${x = x+1}\--
         $x
-    }//
-}//
-\foo//
-${x = 5}//
-\foo//
-// Result
+    }\--
+}\--
+\foo\--
+${x = 5}\--
+\foo\--
+\-- Result
 1
 2
 
-// End
+\-- End
 
-// Test 'Nested for'
-\def foo[x] {$x}//
+\-- Test 'Nested for'
+\def foo[x] {$x}\--
 \for {j=1,2} {\foo {\for {i=1, 2} {$i}}}
-// Result
+\-- Result
 1212
-// End
+\-- End
 
-// Test 'For locals'
-\def foo[x] {$x}//
-\for {i=1, 2} {//
-    \foo {//
-        ${local x = 1}//
+\-- Test 'For locals'
+\def foo[x] {$x}\--
+\for {i=1, 2} {\--
+    \foo {\--
+        ${local x = 1}\--
         $i : $x
-    }//
-}//
-// Result
+    }\--
+}\--
+\-- Result
 1 : 1
 2 : 1
 
-// End
+\-- End
 
-// Test 'For and closures'
-\for {align in ("center left right"):gmatch('%S+')} {//
-    \def {$align} {//
-        $align//
-    }//  
-}//
+\-- Test 'For and closures'
+\for {align in ("center left right"):gmatch('%S+')} {\--
+    \def {$align} {\--
+        $align\--
+    }\--  
+}\--
 \left
 \right
-// Result
+\-- Result
 left
 right
-// End
+\-- End
 
-// Test 'For and closures 2'
-\for {align in ("center left right"):gmatch('%S+')} {//
-    \def[content] {$align} {//
-        <$align> $content </$align>//
-    }//
-}//
+\-- Test 'For and closures 2'
+\for {align in ("center left right"):gmatch('%S+')} {\--
+    \def[content] {$align} {\--
+        <$align> $content </$align>\--
+    }\--
+}\--
 \left foo
-// Result
+\-- Result
 <left> foo </left>
-// End
+\-- End

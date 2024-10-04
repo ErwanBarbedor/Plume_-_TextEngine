@@ -25,7 +25,7 @@ end
 
 local function parseTestsFromContent(tests, filename, content)
     content = content:gsub('\r', '')
-    for testName, input, outputInfos, expectedOutput in content:gmatch("\n*// Test '(.-)'\n(.-)\n// (.-)\n(.-)\n// End") do 
+    for testName, input, outputInfos, expectedOutput in content:gmatch("\n*\\%-%- Test '(.-)'\n(.-)\n\\%-%- (.-)\n(.-)\n\\%-%- End") do 
         table.insert(tests, {
             name = filename .. "/" .. testName,
             input = input,
