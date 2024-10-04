@@ -1522,11 +1522,13 @@ function plume.load_macros()
 -- @param iterator Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
 -- @param body A block that will be repeated.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("for", {"iterator", "body"}, {}, function(params, calling_token)
+plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, calling_token)
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
     local iterator_source = params.positionnals.iterator:source ()
+    local join = plume.render_if_token(params.keywords.join)
+
     local var, var1, var2, first, last
 
     local mode = 1
@@ -1587,8 +1589,14 @@ plume.register_macro("for", {"iterator", "body"}, {}, function(params, calling_t
         table.remove(values_list, 1)
         local first_value = values_list[1]
             
-        -- Break the loop if there are no more values
-        if not first_value then
+        -- If it not the end of the loop and not the
+        -- firt iteration, add the join char
+        if first_value then
+            if iteration_count > 1 then
+                table.insert(result, join)
+            end
+        -- And break the loop if there are no more values
+        else
             -- exit iteration scope
             plume.pop_scope ()
             break

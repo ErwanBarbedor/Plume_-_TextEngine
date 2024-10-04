@@ -114,6 +114,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 - You can now declare a Plume block inside a Lua block. (only works inside `plume` files for now, not in external Lua files)
 - Change eval escape to `$` from `#`. Code using `#` still works for now.
 - Change comment syntax to `\--` from `//`. Code using `//` still works for now.
+- New option `join` for `\for`, which will insert a character between all iterations.
 
 _-_Explanations for the syntaxs changes:_
 

@@ -95,6 +95,12 @@ ${t = {1, 4, 9}}
 
 \-- End
 
+\-- Test 'for - join'
+\for {i=1, 4} {$i}[join=,]
+\-- Result
+1,2,3,4
+\-- End
+
 \-- Test 'for - unknow iterator'
 \for {j} foo
 \-- Error
