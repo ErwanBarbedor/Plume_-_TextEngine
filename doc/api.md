@@ -146,6 +146,21 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 **Return:** `lua_objet`Result of evaluation
 
+### get_line
+
+**Usage :** `string, bool, string = tokenlist:get_line(source, noline)`
+
+**Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
+
+**Parameters :**
+- `source` _string_  The source code
+- `noline` _number_  The line number to retrieve
+
+**Return:**
+- `string`The source code
+- `bool`Is the tokenlist empty?
+- `string`The line at the specified line number
+
 ### source
 
 **Usage :** `string = tokenlist:source()`
@@ -165,6 +180,25 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 ## Tokenlist - intern methods
 
 The user have access to theses methods, but shouldn't use it.
+
+### get_line
+
+**Usage :** `debug_info, tokenlist, string, bool, string = tokenlist:get_line(scope, forced, source, noline)`
+
+**Description:**  Return debug informations about the tokenlist.
+
+**Parameters :**
+- `scope` _table_  The scope to freeze.
+- `forced` _boolean_  Force to re-freeze already frozen children?
+- `source` _string_  The source code
+- `noline` _number_  The line number to retrieve
+
+**Return:**
+- `debug_info`A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
+- `tokenlist`The copied tokenlist.
+- `string`The source code
+- `bool`Is the tokenlist empty?
+- `string`The line at the specified line number
 
 ### info
 

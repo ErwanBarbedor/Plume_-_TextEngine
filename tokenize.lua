@@ -88,13 +88,17 @@ function plume.tokenize (code, file)
             write()
             newtoken ("opt_block_end", plume.syntax.opt_block_end, 1)
         
-        elseif c == plume.syntax.eval then
+        elseif c == plume.syntax.eval
+            -- Compatibility only, will be removed in 1.0
+            or c == plume.syntax.alt_eval
+            --
+            then
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
             write()
             pos = pos + 1
-            newtoken ("eval", plume.syntax.eval)
+            newtoken ("eval", c)
             local next = code:sub(pos, pos)
             if next:match(plume.syntax.identifier_begin) then
                 local name = code:sub(pos, -1):match(plume.syntax.identifier .. '+')

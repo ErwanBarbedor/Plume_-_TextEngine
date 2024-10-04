@@ -1,36 +1,36 @@
 // Test 'Optional arg (defaut)'
-\def foo [x=foo] {#x}\foo
+\def foo [x=foo] {$x}\foo
 // Result
 foo
 // End
 
 // Test 'Optional arg (provided)'
-\def foo [x=foo] {#x}\foo[x=bar]
+\def foo [x=foo] {$x}\foo[x=bar]
 // Result
 bar
 // End
 
 // Test 'Optional arg (mixed 1)'
-\def foo [x=foo y=bar] {#x-#y}\foo
+\def foo [x=foo y=bar] {$x-$y}\foo
 // Result
 foo-bar
 // End
 
 // Test 'Optional arg (mixed 2)'
-\def foo [x=foo y=bar] {#x-#y}\foo[x=bar]
+\def foo [x=foo y=bar] {$x-$y}\foo[x=bar]
 // Result
 bar-bar
 // End
 
 // Test 'Optional arg (mixed 3)'
-\def foo [x=foo y=bar] {#x-#y}\foo[y=foo]
+\def foo [x=foo y=bar] {$x-$y}\foo[y=foo]
 // Result
 foo-foo
 // End
 
 
 // Test 'Optional arg (set eval 1)'
-\def foo[x={#{1+1}}] {#x}//
+\def foo[x={${1+1}}] {$x}//
 \foo
 // Result
 2
@@ -38,22 +38,22 @@ foo-foo
 
 // Test 'Optional arg (set eval 2)'
 \def foo bar//
-\def bar[x={\foo}] {#x}//
+\def bar[x={\foo}] {$x}//
 \bar
 // Result
 bar
 // End
 
 // Test 'Optional arg (pass eval 1)'
-\def foo[x={}] {#x}//
-\foo[x={#{1+1}}]
+\def foo[x={}] {$x}//
+\foo[x={${1+1}}]
 // Result
 2
 // End
 
 // Test 'Optional arg (pass eval 2)'
 \def foo bar//
-\def bar[x={}] {#x}//
+\def bar[x={}] {$x}//
 \bar[x={\foo}]
 // Result
 bar
@@ -75,9 +75,9 @@ bar
 
 // Test 'Variable parameters number'
 \def foo[...] {//
-    #{__params.x}
-    #{__params.y}
-    #{__params.zzz}
+    ${__params.x}
+    ${__params.y}
+    ${__params.zzz}
 }//
 \foo[x=bar zzz]
 // Result
@@ -88,7 +88,7 @@ true
 // End
 
 // Test 'set default 1'
-\def foo[x=bar] {#x}//
+\def foo[x=bar] {$x}//
 \foo
 \default foo[x=baz]//
 \foo//
@@ -99,7 +99,7 @@ baz
 
 // Test 'set default 2'
 \def foo[...] {//
-    #{__params.bar}//
+    ${__params.bar}//
 }//
 \default foo[bar]//
 \foo

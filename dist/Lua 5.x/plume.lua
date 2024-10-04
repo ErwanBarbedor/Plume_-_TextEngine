@@ -60,6 +60,9 @@ plume.syntax = {
     opt_block_end        = "]",
     opt_assign           = "=",
     eval                 = "#",
+
+    -- Compatibility only, will be removed in 1.0
+    alt_eval             = "$"
 }
 
 --- Checks if a string is a valid identifier.
@@ -262,7 +265,11 @@ function plume.renderToken (self)
 
             local name = token.value:gsub("^"..plume.syntax.escape , "")
 
-            if name == plume.syntax.eval then
+            if name == plume.syntax.eval
+                -- Compatibility only, will be removed in 1.0
+                or name == plume.syntax.alt_eval
+                --
+                then
                 name = "eval"
             end
 
@@ -287,7 +294,11 @@ function plume.renderToken (self)
                 elseif self[pos].kind == "macro" then
                     -- Raise an error. (except for '#') 
                     -- Macro as parameter must be enclosed in braces
-                    if self[pos].value == plume.syntax.eval then
+                    if self[pos].value == plume.syntax.eval
+                        -- Compatibility only, will be removed in 1.0
+                        or self[pos].value == plume.syntax.alt_eval
+                        --
+                        then
                         if not self[pos+1] then
                             plume.error(token, "End of block reached, not enough arguments for macro '#'.0 instead of 1.")
                         end
@@ -450,11 +461,12 @@ function plume.token (kind, value, line, pos, file, code)
         pos    = pos,
         file   = file,
         code   = code,
+
         --- Returns the source code of the token
         -- @return string The source code
         source = function (self)
             return self.value
-        end
+        end,
     }, {})
 end
 
@@ -683,8 +695,6 @@ function plume.tokenlist (x)
         --- @api_method Returns the raw code of the tokenlist, as is writed in the source file.
         -- @return string The source code
         source = function (self)
-            -- "detokenize" the tokens, to retrieve the
-            -- original code.
             local result = {}
             for _, token in ipairs(self) do
                 if token.kind == "block" then
@@ -719,6 +729,63 @@ function plume.tokenlist (x)
     return tokenlist
 end
 
+--- Retrieves a line by its line number in the source code.
+-- @param source string The source code
+-- @param noline number The line number to retrieve
+-- @return string The line at the specified line number
+function plume.get_line(source, noline)
+    local current_line = 1
+    for line in (source.."\n"):gmatch("(.-)\n") do
+        if noline == current_line then
+            return line
+        end
+        current_line = current_line + 1
+    end
+end
+
+--- Returns information about a token.
+-- @param token table The token to get information about
+-- @return table A table containing file, line number, line content,
+-- and position information
+function plume.token_info (token)
+
+    local file, token_noline, token_line, code, beginpos, endpos
+
+    -- Find all informations about the token
+    if token.kind == "opt_block" or token.kind == "block" then
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
+
+        if token:info().lastline == token_noline then
+            endpos = token:info().endpos+1
+        else
+            endpos = beginpos+1
+        end
+    elseif token.kind == "block_text" then
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
+
+        endpos = token[#token].pos + #token[#token].value
+    else
+        file = token.file
+        token_noline = token.line
+        code = token.code
+        beginpos = token.pos
+        endpos = token.pos+#token.value
+    end
+
+    return {
+        file     = file,
+        noline   = token_noline,
+        line     = plume.get_line (code, token_noline),
+        beginpos = beginpos,
+        endpos   = endpos
+    }
+end
 
 -- ## tokenize.lua ##
 --- Get the plume code as raw string, and return a list of token.
@@ -760,7 +827,7 @@ function plume.tokenize (code, file)
 
         if c == "\n" then
             write (nil, 0)
-            newtoken ("newline", "\n")
+            newtoken ("newline", "\n", 1)
             noline = noline + 1
             linepos = pos+1
         
@@ -797,13 +864,17 @@ function plume.tokenize (code, file)
             write()
             newtoken ("opt_block_end", plume.syntax.opt_block_end, 1)
         
-        elseif c == plume.syntax.eval then
+        elseif c == plume.syntax.eval
+            -- Compatibility only, will be removed in 1.0
+            or c == plume.syntax.alt_eval
+            --
+            then
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
             write()
             pos = pos + 1
-            newtoken ("eval", plume.syntax.eval)
+            newtoken ("eval", c)
             local next = code:sub(pos, pos)
             if next:match(plume.syntax.identifier_begin) then
                 local name = code:sub(pos, -1):match(plume.syntax.identifier .. '+')
@@ -1008,7 +1079,7 @@ end
 -- @param source string The source code
 -- @param noline number The line number to retrieve
 -- @return string The line at the specified line number
-local function get_line(source, noline)
+function plume.get_line(source, noline)
     local current_line = 1
     for line in (source.."\n"):gmatch("(.-)\n") do
         if noline == current_line then
@@ -1016,50 +1087,6 @@ local function get_line(source, noline)
         end
         current_line = current_line + 1
     end
-end
-
---- Returns information about a token.
--- @param token table The token to get information about
--- @return table A table containing file, line number, line content,
--- and position information
-local function token_info (token)
-
-    local file, token_noline, token_line, code, beginpos, endpos
-
-    -- Find all informations about the token
-    if token.kind == "opt_block" or token.kind == "block" then
-        file = token:info().file
-        token_noline = token:info().line
-        code = token:info().code
-        beginpos = token:info().pos
-
-        if token:info().lastline == token_noline then
-            endpos = token:info().endpos+1
-        else
-            endpos = beginpos+1
-        end
-    elseif token.kind == "block_text" then
-        file = token:info().file
-        token_noline = token:info().line
-        code = token:info().code
-        beginpos = token:info().pos
-
-        endpos = token[#token].pos + #token[#token].value
-    else
-        file = token.file
-        token_noline = token.line
-        code = token.code
-        beginpos = token.pos
-        endpos = token.pos+#token.value
-    end
-
-    return {
-        file     = file,
-        noline   = token_noline,
-        line     = get_line (code, token_noline),
-        beginpos = beginpos,
-        endpos   = endpos
-    }
 end
 
 --- Extracts information from a Lua error message.
@@ -1093,7 +1120,7 @@ local function lua_info (lua_message)
 
     -- If error occuring from extern file
     if token.lua_cache.filename then
-        local line = get_line (token.lua_cache.code, noline+1)
+        local line = plume.get_line (token.lua_cache.code, noline+1)
 
         return {
             file     = token.lua_cache.filename,
@@ -1104,7 +1131,7 @@ local function lua_info (lua_message)
         }
     end
 
-    local line = get_line (token:source (), noline)
+    local line = plume.get_line (token:source (), noline)
 
     return {
         file     = token:info().file,
@@ -1164,12 +1191,12 @@ function plume.make_error_message (token, error_message, is_lua_error)
     -- Add the token that caused
     -- the error.
     if token then
-        table.insert(error_lines_infos, token_info (token))
+        table.insert(error_lines_infos, plume.token_info (token))
     end
     
     -- Then add all traceback
     for i=#plume.traceback, 1, -1 do
-        table.insert(error_lines_infos, token_info (plume.traceback[i]))
+        table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
     end
 
     -- Now, for each line print line info (file, noline, line content)

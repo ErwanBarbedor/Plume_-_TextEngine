@@ -1,26 +1,26 @@
 // Test 'get'
-#{a = 1}//
-#{plume.get "a"}
+${a = 1}//
+${plume.get "a"}
 // Result
 1
 // End
 
 // Test 'get local'
-#{local a = 1}//
-#{plume.get "a"}
+${local a = 1}//
+${plume.get "a"}
 // Result
 1
 // End
 
 // Test 'lget'
-#{a = {21}}//
-#{plume.lget "a"[1]}
+${a = {21}}//
+${plume.lget "a"[1]}
 // Result
 21
 // End
 
 // Test 'export'
-#{
+${
     function add(x, y)
         return math.floor(x+y)
     end
@@ -34,18 +34,18 @@
 // End
 
 // Test '_G'
-#{x = 1}//
-#{_G.x}//
+${x = 1}//
+${_G.x}//
 // Result
 1
 // End
 
 // Test '_G & _L'
-#{x = 1}//
+${x = 1}//
 \do {//
-    #{local x = 2}//
-    #{_G.x}
-    #{_L.x}
+    ${local x = 2}//
+    ${_G.x}
+    ${_L.x}
 }
 // Result
 1

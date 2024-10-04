@@ -204,7 +204,11 @@ function plume.renderToken (self)
 
             local name = token.value:gsub("^"..plume.syntax.escape , "")
 
-            if name == plume.syntax.eval then
+            if name == plume.syntax.eval
+                -- Compatibility only, will be removed in 1.0
+                or name == plume.syntax.alt_eval
+                --
+                then
                 name = "eval"
             end
 
@@ -229,7 +233,11 @@ function plume.renderToken (self)
                 elseif self[pos].kind == "macro" then
                     -- Raise an error. (except for '#') 
                     -- Macro as parameter must be enclosed in braces
-                    if self[pos].value == plume.syntax.eval then
+                    if self[pos].value == plume.syntax.eval
+                        -- Compatibility only, will be removed in 1.0
+                        or self[pos].value == plume.syntax.alt_eval
+                        --
+                        then
                         if not self[pos+1] then
                             plume.error(token, "End of block reached, not enough arguments for macro '#'.0 instead of 1.")
                         end
