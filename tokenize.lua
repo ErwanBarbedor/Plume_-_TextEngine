@@ -51,7 +51,7 @@ function plume.tokenize (code, file)
 
         if c == "\n" then
             write (nil, 0)
-            newtoken ("newline", "\n")
+            newtoken ("newline", "\n", 1)
             noline = noline + 1
             linepos = pos+1
         
