@@ -266,36 +266,6 @@ function plume.tokenlist (x)
         --- @api_method Returns the raw code of the tokenlist, as is writed in the source file.
         -- @return string The source code
         source = function (self)
-            -- local info = self:info ()
-            -- local pos = 1
-            -- local endpos = 1
-            -- local noline = 0
-            -- print('=========')
-            -- for line in (info.code.."\n"):gmatch('[^\n]*\n') do
-            --     print(noline, info.lastline)
-            --     noline = noline + 1
-                
-            --     if noline > info.line and noline < info.lastline then
-            --         endpos = endpos + #line
-            --     elseif noline == info.line then
-            --         endpos = pos  + #line
-            --         pos = pos + info.pos
-            --     else
-            --         pos = pos + #line
-            --     end
-
-            --     if noline == info.lastline then
-            --         endpos = endpos + info.endpos
-            --         break
-            --     end
-            -- end
-            -- local code = info.code:sub(pos, endpos)
-            -- if self.kind == "block" then
-            --     code = code:sub(1, -2)
-            -- end
-            -- print(code, pos, endpos, info.endpos)
-            -- return code
-
             local result = {}
             for _, token in ipairs(self) do
                 if token.kind == "block" then
