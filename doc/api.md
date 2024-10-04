@@ -148,7 +148,7 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 ### get_line
 
-**Usage :** `string, bool, string = tokenlist:get_line(source, noline)`
+**Usage :** `string, string, bool, string = tokenlist:get_line(source, noline)`
 
 **Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
 
@@ -157,6 +157,7 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 - `noline` _number_  The line number to retrieve
 
 **Return:**
+- `string`The source code
 - `string`The source code
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
@@ -183,7 +184,7 @@ The user have access to theses methods, but shouldn't use it.
 
 ### get_line
 
-**Usage :** `debug_info, tokenlist, string, bool, string = tokenlist:get_line(scope, forced, source, noline)`
+**Usage :** `debug_info, tokenlist, string, string, bool, string = tokenlist:get_line(scope, forced, source, noline)`
 
 **Description:**  Return debug informations about the tokenlist.
 
@@ -196,6 +197,7 @@ The user have access to theses methods, but shouldn't use it.
 **Return:**
 - `debug_info`A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
 - `tokenlist`The copied tokenlist.
+- `string`The source code
 - `string`The source code
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
@@ -217,3 +219,11 @@ The user have access to theses methods, but shouldn't use it.
 **Parameters :**
 - `scope` _table_  The scope to freeze.
 - `forced` _boolean_  Force to re-freeze already frozen children?
+
+### sourceLua
+
+**Usage :** `string = tokenlist:sourceLua()`
+
+**Description:**  Get lua code as writed in the code file, after deleting comment and insert plume blocks. You shouldn't use this function.
+
+**Return:** `string`The source code

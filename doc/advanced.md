@@ -118,9 +118,6 @@ bar
 baz
 ```
 
-
-
-
 ## `\def`, `\redef`, and `\redef_forced`
 
 You can define a new macro with `\def`. But if the name is already taken, you must use `\redef`. If the name is taken by a predefined macro, use `\redef_forced`.
@@ -212,3 +209,19 @@ foo bar
 ```
 
 You can also see [spaces macros](macros.md#spaces)) to have more controls over spaces.
+
+## Include Plume code inside Lua block
+
+In some cases, you want to switch from _a lot of text with some Lua_ to _a lot of Lua with some text_.
+
+To do that, you can just declare a Plume block inside the Lua script:
+
+``` Plume
+${
+    function foo ()
+        return ${bar}
+    end
+}
+
+${foo()} -> bar
+```

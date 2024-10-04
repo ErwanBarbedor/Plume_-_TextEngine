@@ -153,4 +153,8 @@ function plume.init_api ()
     for k, v in pairs(plume.config) do
         scope.plume.config[k] = v
     end
+
+    -- Used to pass temp variable
+    scope.plume.temp = setmetatable({}, {__index=plume.temp, __newindex=function () error ("Cannot write 'plume.temp'") end})
 end
+

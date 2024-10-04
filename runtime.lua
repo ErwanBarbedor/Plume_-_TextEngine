@@ -107,7 +107,9 @@ end
 -- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of the execution
 function plume.call_lua_chunk(token, code, filename)
-    code = code or token:source ()
+    -- Used to store references to inserted plume blocks
+    local temp = {}
+    code = code or token:sourceLua (temp)
 
     if not token.lua_cache then
         -- Edit the code to add a "return", in case of an expression,
@@ -163,7 +165,19 @@ function plume.call_lua_chunk(token, code, filename)
                 local chunk_scope = plume.current_scope (token.context)
                 plume.setfenv (loaded_function, chunk_scope.variables)
 
-                return { xpcall (loaded_function, plume.error_handler) }
+                for k, v in pairs(temp) do
+                    plume.temp[k] = v
+                end
+
+                local result = { xpcall (loaded_function, plume.error_handler) }
+
+                -- Dont remove plume variable for now. May be a memory leak, 
+                -- but however function return ${foo} end could not work.
+                -- for k, v in pairs(temp) do
+                --     plume.temp[k] = nil
+                -- end
+
+                return result
             end
         })
 

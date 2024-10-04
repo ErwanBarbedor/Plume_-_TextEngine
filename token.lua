@@ -38,6 +38,12 @@ function plume.token (kind, value, line, pos, file, code)
         source = function (self)
             return self.value
         end,
+
+         --- Returns the source code of the token
+        -- @return string The source code
+        sourceLua = function (self)
+            return self.value
+        end,
     }, {})
 end
 
@@ -274,6 +280,54 @@ function plume.tokenlist (x)
                     table.insert(result, plume.syntax.opt_block_begin)
                 end
                 table.insert(result, token:source())
+                if token.kind == "block" then
+                    table.insert(result, plume.syntax.block_end)
+                elseif token.kind == "opt_block" then
+                    table.insert(result, plume.syntax.opt_block_end)
+                end
+            end
+
+            return table.concat(result, "")
+        end,
+
+        --- @intern_method Get lua code as writed in the code file, after deleting comment and insert plume blocks. You shouldn't use this function.
+        -- @return string The source code
+        sourceLua = function (self, temp)
+            local result = {}
+            local i = 0
+            -- for _, token in ipairs(self) do
+            while i < #self do
+                i = i+1
+                local token = self[i]
+                
+                if token.kind == "block" then
+                    table.insert(result, plume.syntax.block_begin)
+                elseif token.kind == "opt_block" then
+                    table.insert(result, plume.syntax.opt_block_begin)
+                end
+
+                if token.kind == "comment" then
+
+                -- It is a plume block inside lua code.
+                -- Insert a reference to the parsed tokenlist.
+                elseif token.kind == "macro" and token.value == plume.syntax.eval then
+                    local index = math.random (1, 100000)
+                    while temp['token' .. index] do index = index + 1 end
+
+                    i = i+1
+                    local text = self[i]
+                    temp['token' .. index] = text
+                    table.insert(result, "plume.temp.token" .. index)
+                    
+                    -- Add line jump in code, to keep same numbering as source code
+                    for _ in text:source():gmatch('\n') do
+                        table.insert(result, '\n')
+                    end
+                    
+                else
+                    table.insert(result, token:sourceLua(temp))
+                end
+
                 if token.kind == "block" then
                     table.insert(result, plume.syntax.block_end)
                 elseif token.kind == "opt_block" then

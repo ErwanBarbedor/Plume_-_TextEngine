@@ -70,8 +70,6 @@ function plume.tokenize (code, file)
             elseif next == plume.syntax.comment and next == next2 then
                 write("comment")
                 table.insert(acc, c)
-                table.insert(acc, next)
-                table.insert(acc, next)
                 local find_newline
                 repeat
                     pos = pos + 1

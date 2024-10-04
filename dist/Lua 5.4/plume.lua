@@ -468,6 +468,12 @@ function plume.token (kind, value, line, pos, file, code)
         source = function (self)
             return self.value
         end,
+
+         --- Returns the source code of the token
+        -- @return string The source code
+        sourceLua = function (self)
+            return self.value
+        end,
     }, {})
 end
 
@@ -711,6 +717,54 @@ function plume.tokenlist (x)
             return table.concat(result, "")
         end,
 
+        --- @intern_method Get lua code as writed in the code file, after deleting comment and insert plume blocks. You shouldn't use this function.
+        -- @return string The source code
+        sourceLua = function (self, temp)
+            local result = {}
+            local i = 0
+            -- for _, token in ipairs(self) do
+            while i < #self do
+                i = i+1
+                local token = self[i]
+                
+                if token.kind == "block" then
+                    table.insert(result, plume.syntax.block_begin)
+                elseif token.kind == "opt_block" then
+                    table.insert(result, plume.syntax.opt_block_begin)
+                end
+
+                if token.kind == "comment" then
+
+                -- It is a plume block inside lua code.
+                -- Insert a reference to the parsed tokenlist.
+                elseif token.kind == "macro" and token.value == plume.syntax.eval then
+                    local index = math.random (1, 100000)
+                    while temp['token' .. index] do index = index + 1 end
+
+                    i = i+1
+                    local text = self[i]
+                    temp['token' .. index] = text
+                    table.insert(result, "plume.temp.token" .. index)
+                    
+                    -- Add line jump in code, to keep same numbering as source code
+                    for _ in text:source():gmatch('\n') do
+                        table.insert(result, '\n')
+                    end
+                    
+                else
+                    table.insert(result, token:sourceLua(temp))
+                end
+
+                if token.kind == "block" then
+                    table.insert(result, plume.syntax.block_end)
+                elseif token.kind == "opt_block" then
+                    table.insert(result, plume.syntax.opt_block_end)
+                end
+            end
+
+            return table.concat(result, "")
+        end,
+
         --- @api_method Render the tokenlist and return true if it is empty
         -- @return bool Is the tokenlist empty?
         is_empty = function (self)
@@ -844,8 +898,6 @@ function plume.tokenize (code, file)
             elseif next == plume.syntax.comment and next == next2 then
                 write("comment")
                 table.insert(acc, c)
-                table.insert(acc, next)
-                table.insert(acc, next)
                 local find_newline
                 repeat
                     pos = pos + 1
@@ -2648,7 +2700,9 @@ end
 -- @param filename string If is extern lua code, name of the source file (optionnal)
 -- @return any The result of the execution
 function plume.call_lua_chunk(token, code, filename)
-    code = code or token:source ()
+    -- Used to store references to inserted plume blocks
+    local temp = {}
+    code = code or token:sourceLua (temp)
 
     if not token.lua_cache then
         -- Edit the code to add a "return", in case of an expression,
@@ -2704,7 +2758,19 @@ function plume.call_lua_chunk(token, code, filename)
                 local chunk_scope = plume.current_scope (token.context)
                 plume.setfenv (loaded_function, chunk_scope.variables)
 
-                return { xpcall (loaded_function, plume.error_handler) }
+                for k, v in pairs(temp) do
+                    plume.temp[k] = v
+                end
+
+                local result = { xpcall (loaded_function, plume.error_handler) }
+
+                -- Dont remove plume variable for now. May be a memory leak, 
+                -- but however function return ${foo} end could not work.
+                -- for k, v in pairs(temp) do
+                --     plume.temp[k] = nil
+                -- end
+
+                return result
             end
         })
 
@@ -2881,6 +2947,9 @@ function plume.init ()
     --- @scope_variable _G Globale table of variables.
     plume.current_scope ().variables._G = plume.current_scope ().variables
 
+    -- Used to pass temp variable
+    plume.temp = {}
+    
     -- Init methods that are visible from user
     plume.init_api ()
 
@@ -2907,7 +2976,6 @@ function plume.init ()
     for name in (""):gmatch('%S+') do
         plume.deprecate(name, "version", "alternative")
     end
-    
 
     -- Initialise error tracing
     plume.last_error = nil
@@ -3048,7 +3116,12 @@ function plume.init_api ()
     for k, v in pairs(plume.config) do
         scope.plume.config[k] = v
     end
+
+    -- Used to pass temp variable
+    scope.plume.temp = setmetatable({}, {__index=plume.temp, __newindex=function () error ("Cannot write 'plume.temp'") end})
 end
+
+
 
 -- <DEV>
 plume.show_token = false

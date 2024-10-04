@@ -98,6 +98,24 @@ ${5/3}
 1.67
 \-- End
 
+\-- Test 'Comment in lua'
+${
+    \-- A comment
+    1+1
+}
+\-- Result
+2
+\-- End
+
+\-- Test 'Eval - Plume block'
+${
+    a = ${bonjour}
+}
+$a
+\-- Result
+bonjour
+\-- End
+
 \-- Test 'Eval syntax error 5.1 and jit'
 ${a = a+}
 \-- Error Lua 5.1 Lua jit

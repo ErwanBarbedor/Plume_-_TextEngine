@@ -111,6 +111,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Default space mode is now `light`.
+- You can now declare a Plume block inside a Lua block. (only works inside `plume` files for now, not in external Lua files)
 - Change eval escape to `$` from `#`. Code using `$` still works for now.
 - Change comment syntax to `\--` from `//`. Code using `//` still works for now.
 
@@ -120,8 +121,8 @@ Originally, `#` was chosen to adhere to the LaTeX macro syntax, `\newcommand \do
 
 As for comments, the idea was to reduce the number of special characters to two in order to avoid the need for escaping as much as possible. (For example, `//` is used in URLs). So, start with `\`. It couldn't be `\\` (because it prints the character `\`) and `\$` was pretty weird, so `\--` was chosen in alignment with the `--` used by Lua. 
 
-
-
+#### Enhancement
+- Plume comment will now work in Lua blocks.
 
 #### Fixes
 - Fix wrong space mode name.

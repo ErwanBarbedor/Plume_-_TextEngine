@@ -62,6 +62,9 @@ function plume.init ()
     --- @scope_variable _G Globale table of variables.
     plume.current_scope ().variables._G = plume.current_scope ().variables
 
+    -- Used to pass temp variable
+    plume.temp = {}
+    
     -- Init methods that are visible from user
     plume.init_api ()
 
@@ -88,7 +91,6 @@ function plume.init ()
     for name in (""):gmatch('%S+') do
         plume.deprecate(name, "version", "alternative")
     end
-    
 
     -- Initialise error tracing
     plume.last_error = nil

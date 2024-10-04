@@ -40,15 +40,15 @@ Traceback :
                             ^
 \-- End
 
-\-- Test 'script implicit render'
-\def foo[x] {
-    ${x:match(".$")}
-}
-\--
-\foo bar
-\-- Result
-r
-\-- End
+\-- \-- Test 'script implicit render'
+\-- \def foo[x] {
+\--     ${x:match(".$")}
+\-- }
+\-- \--
+\-- \foo bar
+\-- \-- Result
+\-- r
+\-- \-- End
 
 \-- Test 'script implicit render - nil key'
 \def foo[x] {
