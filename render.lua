@@ -239,7 +239,7 @@ function plume.renderToken (self)
                         --
                         then
                         if not self[pos+1] then
-                            plume.error(token, "End of block reached, not enough arguments for macro '#'.0 instead of 1.")
+                            plume.error(token, "End of block reached, not enough arguments for macro '$'.0 instead of 1.")
                         end
                         local eval = plume.tokenlist ()
                         table.insert(eval, self[pos])

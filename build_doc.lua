@@ -205,7 +205,7 @@ return function ()
     io.open("doc/macros.md", "w"):write(table.concat(result, "\n\n"))
     print('Documentation for macros generated.')
 
-    local result = {"# Plume configuration\n_Generated from source._\n\nChange configuration using `#{plume.config.key = value}` or using the macro [config](macros.md#config).\n\n| Name | Default Value | Description |\n| ----- | ----- | ----- |"}
+    local result = {"# Plume configuration\n_Generated from source._\n\nChange configuration using `${plume.config.key = value}` or using the macro [config](macros.md#config).\n\n| Name | Default Value | Description |\n| ----- | ----- | ----- |"}
     local script = io.open("config.lua"):read "*a"
     for doc, name, value in script:gmatch("%-%-([^\n\r]+)%s+plume%.config%.([A-Za-z0-9_]+)%s*=%s*([^\n\r]+)") do
         table.insert(result, "| " .. name .. " | " .. value .. " | " .. doc .. " |")
@@ -214,7 +214,7 @@ return function ()
     io.open("doc/config.md", "w"):write(table.concat(result, "\n"))
     print('Documentation for configuration generated.')
 
-    local result = {"# Plume API\n_Generated from source._\n\nMéthodes et variables Lua accessibles in any `#` macro.\n\n## Variables\n\n| Name |  Description |\n| ----- | ----- |"}
+    local result = {"# Plume API\n_Generated from source._\n\nMéthodes et variables Lua accessibles in any `$` macro.\n\n## Variables\n\n| Name |  Description |\n| ----- | ----- |"}
 
     local script = io.open("macros/utils.lua"):read ("*a")
          .. io.open("macros/files.lua"):read ("*a")

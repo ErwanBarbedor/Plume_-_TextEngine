@@ -1,7 +1,7 @@
 # Plume configuration
 _Generated from source._
 
-Change configuration using `#{plume.config.key = value}` or using the macro [config](macros.md#config).
+Change configuration using `${plume.config.key = value}` or using the macro [config](macros.md#config).
 
 | Name | Default Value | Description |
 | ----- | ----- | ----- |

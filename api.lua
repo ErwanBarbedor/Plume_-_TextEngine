@@ -20,7 +20,7 @@ api._VERSION = plume._VERSION
 --- @api_variable Lua version compatible with this plume distribution.
 api._LUA_VERSION = plume._LUA_VERSION
 
---- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `#` block in statement-mode.
+--- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
 -- @note Mainly internal use, you shouldn't use this function.
 function api.capture_local()
     local index = 1

@@ -300,7 +300,7 @@ function plume.renderToken (self)
                         --
                         then
                         if not self[pos+1] then
-                            plume.error(token, "End of block reached, not enough arguments for macro '#'.0 instead of 1.")
+                            plume.error(token, "End of block reached, not enough arguments for macro '$'.0 instead of 1.")
                         end
                         local eval = plume.tokenlist ()
                         table.insert(eval, self[pos])
@@ -509,8 +509,8 @@ end
 
 -- Categorize metamethods , for convenience :
 -- Arguments of macros are passed as tokenlist without rendering it.
--- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
--- With metamethods, it becomes \def add[x y] #{x+y}, with an implicit call to tokenlist:render ()
+-- But \def add[x y] ${tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
+-- With metamethods, it becomes \def add[x y] ${x+y}, with an implicit call to tokenlist:render ()
 local metamethods_binary_numeric = {
     add  = function (x, y) return x+y end,
     sub  = function (x, y) return x-y end,
@@ -2938,7 +2938,7 @@ api._VERSION = plume._VERSION
 --- @api_variable Lua version compatible with this plume distribution.
 api._LUA_VERSION = plume._LUA_VERSION
 
---- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `#` block in statement-mode.
+--- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
 -- @note Mainly internal use, you shouldn't use this function.
 function api.capture_local()
     local index = 1

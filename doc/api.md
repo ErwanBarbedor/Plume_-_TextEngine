@@ -1,7 +1,7 @@
 # Plume API
 _Generated from source._
 
-Méthodes et variables Lua accessibles in any `#` macro.
+Méthodes et variables Lua accessibles in any `$` macro.
 
 ## Variables
 
@@ -25,7 +25,7 @@ Méthodes et variables Lua accessibles in any `#` macro.
 
 **Usage :** `plume.capture_local()`
 
-**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `#` block in statement-mode.
+**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
 
 **Note:** Mainly internal use, you shouldn't use this function.
 

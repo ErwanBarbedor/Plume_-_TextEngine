@@ -80,8 +80,8 @@ end
 
 -- Categorize metamethods , for convenience :
 -- Arguments of macros are passed as tokenlist without rendering it.
--- But \def add[x y] #{tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
--- With metamethods, it becomes \def add[x y] #{x+y}, with an implicit call to tokenlist:render ()
+-- But \def add[x y] ${tonumber(x:render()) + tonumber(y:render())} is quite cumbersome.
+-- With metamethods, it becomes \def add[x y] ${x+y}, with an implicit call to tokenlist:render ()
 local metamethods_binary_numeric = {
     add  = function (x, y) return x+y end,
     sub  = function (x, y) return x-y end,

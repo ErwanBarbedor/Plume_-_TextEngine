@@ -211,4 +211,4 @@ Gives
 foo bar
 ```
 
-You can also see [spaces macros](macros.md$spaces)) to have more controls over spaces.
+You can also see [spaces macros](macros.md#spaces)) to have more controls over spaces.
