@@ -52,6 +52,8 @@ local function runTests(tests)
             testNumber = testNumber + 1
             
             plume.init ()
+            plume.running_api.config.filter_spaces   = " "
+            plume.running_api.config.filter_newlines = ""
 
             local sucess, result = pcall (plume.render, test.input)
             local err = ""

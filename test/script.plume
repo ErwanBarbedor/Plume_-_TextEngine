@@ -41,9 +41,9 @@ Traceback :
 \-- End
 
 \-- Test 'script implicit render'
-\def foo[x] {\--
-    ${x:match(".$")}\--
-}\--
+\def foo[x] {
+    ${x:match(".$")}
+}
 \--
 \foo bar
 \-- Result
@@ -51,9 +51,9 @@ r
 \-- End
 
 \-- Test 'script implicit render - nil key'
-\def foo[x] {\--
-    ${x.bar}\--
-}\--
+\def foo[x] {
+    ${x.bar}
+}
 \--
 \foo 1
 \-- Result
@@ -61,15 +61,14 @@ r
 \-- End
 
 \-- Test 'script implicit render - test empty'
-\def foo[x={}] {\--
-    \if {x:is_empty()} {No argument provided.}
-    \else {The arg is $x.}\--
-}\--
+\def foo[x={}] {
+    \if {x:is_empty()} {No argument provided.\n}
+    \else {The arg is $x.}
+}
 \--
 \foo\--
 \foo[x=bar]
 \-- Result
 No argument provided.
-
 The arg is bar.
 \-- End

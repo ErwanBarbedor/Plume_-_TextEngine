@@ -32,7 +32,6 @@ number
 ${a = 2}
 ${type(a)}
 \-- Result
-
 number
 \-- End
 
@@ -46,7 +45,6 @@ table
 ${a = function (x) return 2*x end}
 ${a(5)}
 \-- Result
-
 10
 \-- End
 

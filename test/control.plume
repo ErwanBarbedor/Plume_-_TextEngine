@@ -55,8 +55,8 @@ Traceback :
 \-- End
 
 \-- Test 'simple for'
-\for i=1,3 {\--
-    Ligne $i
+\for i=1,3 {
+    Ligne $i\n
 }
 \-- Result
 Ligne 1
@@ -66,9 +66,9 @@ Ligne 3
 \-- End
 
 \-- Test 'less simple for'
-${x = 6}\--
-\for i=1,x,2 {\--
-    Ligne $i
+${x = 6}
+\for i=1,x,2 {
+    Ligne $i\n
 }
 \-- Result
 Ligne 1
@@ -78,9 +78,9 @@ Ligne 5
 \-- End
 
 \-- Test 'for throught table'
-${t = {1, 4, 9}}\--
-\for {k, v in ipairs(t)} {\--
-    $k:$v
+${t = {1, 4, 9}}
+\for {k, v in ipairs(t)} {
+    $k:$v\n
 }
 \-- Result
 1:1
@@ -152,20 +152,20 @@ Traceback :
 \-- End
 
 \-- Test 'do'
-\do {\--
-    ${local x = 0}\--
-    \def foo {\--
-        ${x = x+1}\--
+\do {
+    ${local x = 0}
+    \def foo {
+        ${x = x+1}\n
         $x
-    }\--
-}\--
-\foo\--
-${x = 5}\--
-\foo\--
+    }
+}
+\foo
+${x = 5}
+\foo
 \-- Result
+
 1
 2
-
 \-- End
 
 \-- Test 'Nested for'
@@ -176,26 +176,26 @@ ${x = 5}\--
 \-- End
 
 \-- Test 'For locals'
-\def foo[x] {$x}\--
-\for {i=1, 2} {\--
-    \foo {\--
-        ${local x = 1}\--
+\def foo[x] {$x}
+\for {i=1, 2} {
+    \foo {
+        ${local x = 1}\n
         $i : $x
-    }\--
-}\--
+    }
+}
 \-- Result
+
 1 : 1
 2 : 1
-
 \-- End
 
 \-- Test 'For and closures'
-\for {align in ("center left right"):gmatch('%S+')} {\--
-    \def {$align} {\--
-        $align\--
-    }\--  
-}\--
-\left
+\for {align in ("center left right"):gmatch('%S+')} {
+    \def {$align} {
+        $align
+    }
+}
+   \left\n
 \right
 \-- Result
 left
@@ -203,11 +203,11 @@ right
 \-- End
 
 \-- Test 'For and closures 2'
-\for {align in ("center left right"):gmatch('%S+')} {\--
-    \def[content] {$align} {\--
-        <$align> $content </$align>\--
-    }\--
-}\--
+\for {align in ("center left right"):gmatch('%S+')} {
+    \def[content] {$align} {
+        <$align> $content </$align>
+    }
+}
 \left foo
 \-- Result
 <left> foo </left>

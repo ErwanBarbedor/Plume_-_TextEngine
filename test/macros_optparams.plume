@@ -74,34 +74,33 @@ bar
 \-- End
 
 \-- Test 'Variable parameters number'
-\def foo[...] {\--
-    ${__params.x}
-    ${__params.y}
+\def foo[...] {
+    ${__params.x}\n
+    ${__params.y}\n
     ${__params.zzz}
-}\--
+}
 \foo[x=bar zzz]
 \-- Result
 bar
 
 true
-
 \-- End
 
 \-- Test 'set default 1'
-\def foo[x=bar] {$x}\--
+\def foo[x=bar] {$x}
+\foo\n
+\default foo[x=baz]
 \foo
-\default foo[x=baz]\--
-\foo\--
 \-- Result
 bar
 baz
 \-- End
 
 \-- Test 'set default 2'
-\def foo[...] {\--
-    ${__params.bar}\--
-}\--
-\default foo[bar]\--
+\def foo[...] {
+    ${__params.bar}
+}
+\default foo[bar]
 \foo
 \-- Result
 true

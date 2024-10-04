@@ -79,8 +79,7 @@ Traceback :
 \def foo bar \redef foo barbar
 \foo
 \-- Result
- 
-barbar
+ barbar
 \-- End
 
 \-- Test 'Macro already exist as standard'
@@ -98,7 +97,6 @@ Traceback :
 \redef_forced for bar
 \for
 \-- Result
-
 bar
 \-- End
 

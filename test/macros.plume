@@ -29,9 +29,9 @@ foo foo
 \-- End
 
 \-- Test 'macro params are local'
-\def foo[x]{This is x:$x}\--
-${x = 0}\--
-This is x:$x
+\def foo[x]{This is x:$x\n}
+${x = 0}
+This is x:$x\n
 \foo{5}
 This is x:$x
 \-- Result
@@ -49,23 +49,23 @@ This is x:0
 \-- End
 
 \-- Test 'local macro'
-\def foo{\--
-    \defl foo barbar\--
+\def foo{
+    \defl foo barbar
     \foo
 }\foo
 \-- Result
 barbar
-
 \-- End
 
 \-- Test 'Macro message'
-\def foo{\--
-    ${__message.sender} : ${__message.content}\--
-    ${__message.send = "bar"}\--
-}\--
+\def foo{
+    ${__message.sender} : ${__message.content}\n
+    ${__message.send = "bar"}
+}
 \foo
 \foo
 \-- Result
 \def : 
 \foo : bar
+
 \-- End

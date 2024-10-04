@@ -36,9 +36,9 @@ a
 \-- End
 
 \-- Test 'Variable block scope 5'
-\def id[x] {$x}\--
-\def foo[bar] {\id{$bar}}\--
-\foo{bar}
+\def id[x] {$x}
+\def foo[bar] {\id{$bar}}
+\foo{bar}\n
 \foo{baz}
 \-- Result
 bar
@@ -52,46 +52,46 @@ baz
 \-- End
 
 \-- Test 'Variable block scope 5'
-\def foo[x] {$x}\--
+\def foo[x] {$x}
 \foo {\for {i=1,4} {$i}}
 \-- Result
 1234
 \-- End
 
 \-- Test 'global 1'
-\def foo {${x=0}}\--
-\foo\--
-$x\--
+\def foo {${x=0}}
+\foo
+$x
 \-- Result
 0
 \-- End
 
 \-- Test 'global 2'
-\def foo {${x=0}}\--
-${x=1}\--
-\foo\--
-$x\--
+\def foo {${x=0}}
+${x=1}
+\foo
+$x
 \-- Result
 0
 \-- End
 
 \-- Test 'Simple closure'
-\def mydef[name body] {\--
-    \def {$name} {$body}\--
-}\--
-\mydef foo bar\--
+\def mydef[name body] {
+    \def {$name} {$body}
+}
+\mydef foo bar
 \foo
 \-- Result
 bar
 \-- End
 
 \-- Test 'Independant closures'
-\def mydef[name body] {\--
-    \def {$name} {$body}\--
-}\--
-\mydef foo bar\--
-\mydef bar baz\--
-\foo
+\def mydef[name body] {
+    \def {$name} {$body}
+}
+\mydef foo bar
+\mydef bar baz
+\foo\n
 \bar
 \-- Result
 bar
@@ -100,12 +100,11 @@ baz
 
 \-- Test 'Closure in Expression'
 \def create_multiplier[multiplier] {
-    \def multiply_by[x] { ${x*multiplier} }\--
-    \multiply_by {3}\--
-}\--
+    \def multiply_by[x] { ${x*multiplier} }
+    \multiply_by {3}
+}
 \create_multiplier {2}
 \-- Result
-
  6 
 \-- End
 
@@ -134,12 +133,12 @@ $a
 
 \-- Test 'default_local 1'
 \def foo[x=bar] {$x}\--
-\foo\--
+\foo\n
 \do {
-    \foo
-    \default_local foo[x=foo]\--
-    \foo
-}\--
+    \foo\n
+    \default_local foo[x=foo]
+    \foo\n
+}
 \foo
 \-- Result
 bar
@@ -149,11 +148,11 @@ bar
 \-- End
 
 \-- Test 'default_local eval'
-\default_local eval [.1f]\--
-\do {\--
-    \default_local eval [.3f]\--
-    ${1/3}
-}\--
+\default_local eval [.1f]
+\do {
+    \default_local eval [.3f]
+    ${1/3}\n
+}
 ${1/3}
 \-- Result
 0.333
