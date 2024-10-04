@@ -1,5 +1,4 @@
 ### 0.6.1
-0.6.1
 
 #### Enhancement
 - When giving an unknown parameter to a macro, the debug message proposes some close words that could be valid parameters.
