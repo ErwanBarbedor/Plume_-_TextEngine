@@ -32,11 +32,12 @@ function plume.token (kind, value, line, pos, file, code)
         pos    = pos,
         file   = file,
         code   = code,
+
         --- Returns the source code of the token
         -- @return string The source code
         source = function (self)
             return self.value
-        end
+        end,
     }, {})
 end
 
@@ -223,6 +224,90 @@ function plume.tokenlist (x)
             }
         end,
 
+        --- @intern_method Return debug informations about the tokenlist.
+        -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
+        new_info = function (self)
+            local first = self.first or self[1]
+            local last = self.last or self[#self]
+
+            if first.__type == "tokenlist" then
+                first = first:info()
+            end
+            if last.__type == "tokenlist" then
+                last = last:info()
+            end
+
+            local info = {
+                file = first.file,
+                token_noline = first.line,
+                lastline = last.line,
+                code = first.code,
+                beginpos  = first.pos,
+                endpos = last.pos
+            }
+
+            if self.kind == "opt_block" or self.kind == "block" then
+                token_noline = token:info().line
+
+                if info.lastline == info.token_noline then
+                    info.endpos = info.endpos + 1
+                else
+                    info.endpos = info.beginpos + 1
+                end
+            elseif self.kind == "block_text" then
+                endpos = self[#self].pos + #self[#self].value
+            else
+                info.endpos = info.pos+#self.value
+            end
+
+            info.line = plume.get_line (code, token_noline)
+            
+            return info
+        end,
+
+        --- Returns information about a token.
+        -- @param token table The token to get information about
+        -- @return table A table containing file, line number, line content,
+        -- and position information
+        _info = function (self)
+            local file, token_noline, token_line, code, beginpos, endpos
+
+            -- Find all informations about the token
+            if token.kind == "opt_block" or token.kind == "block" then
+                file = token:info().file
+                token_noline = token:info().line
+                code = token:info().code
+                beginpos = token:info().pos
+
+                if token:info().lastline == token_noline then
+                    endpos = token:info().endpos+1
+                else
+                    endpos = beginpos+1
+                end
+            elseif token.kind == "block_text" then
+                file = token:info().file
+                token_noline = token:info().line
+                code = token:info().code
+                beginpos = token:info().pos
+
+                endpos = token[#token].pos + #token[#token].value
+            else
+                file = token.file
+                token_noline = token.line
+                code = token.code
+                beginpos = token.pos
+                endpos = token.pos+#token.value
+            end
+
+            return {
+                file     = file,
+                noline   = token_noline,
+                line     = plume.get_line (code, token_noline),
+                beginpos = beginpos,
+                endpos   = endpos
+            }
+        end,
+
         --- @itern_method Copy the tokenlist.
         -- @return tokenlist The copied tokenlist.
         copy = function (self)
@@ -265,8 +350,36 @@ function plume.tokenlist (x)
         --- @api_method Returns the raw code of the tokenlist, as is writed in the source file.
         -- @return string The source code
         source = function (self)
-            -- "detokenize" the tokens, to retrieve the
-            -- original code.
+            -- local info = self:info ()
+            -- local pos = 1
+            -- local endpos = 1
+            -- local noline = 0
+            -- print('=========')
+            -- for line in (info.code.."\n"):gmatch('[^\n]*\n') do
+            --     print(noline, info.lastline)
+            --     noline = noline + 1
+                
+            --     if noline > info.line and noline < info.lastline then
+            --         endpos = endpos + #line
+            --     elseif noline == info.line then
+            --         endpos = pos  + #line
+            --         pos = pos + info.pos
+            --     else
+            --         pos = pos + #line
+            --     end
+
+            --     if noline == info.lastline then
+            --         endpos = endpos + info.endpos
+            --         break
+            --     end
+            -- end
+            -- local code = info.code:sub(pos, endpos)
+            -- if self.kind == "block" then
+            --     code = code:sub(1, -2)
+            -- end
+            -- print(code, pos, endpos, info.endpos)
+            -- return code
+
             local result = {}
             for _, token in ipairs(self) do
                 if token.kind == "block" then
@@ -299,4 +412,62 @@ function plume.tokenlist (x)
     end
     
     return tokenlist
+end
+
+--- Retrieves a line by its line number in the source code.
+-- @param source string The source code
+-- @param noline number The line number to retrieve
+-- @return string The line at the specified line number
+function plume.get_line(source, noline)
+    local current_line = 1
+    for line in (source.."\n"):gmatch("(.-)\n") do
+        if noline == current_line then
+            return line
+        end
+        current_line = current_line + 1
+    end
+end
+
+--- Returns information about a token.
+-- @param token table The token to get information about
+-- @return table A table containing file, line number, line content,
+-- and position information
+function plume.token_info (token)
+
+    local file, token_noline, token_line, code, beginpos, endpos
+
+    -- Find all informations about the token
+    if token.kind == "opt_block" or token.kind == "block" then
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
+
+        if token:info().lastline == token_noline then
+            endpos = token:info().endpos+1
+        else
+            endpos = beginpos+1
+        end
+    elseif token.kind == "block_text" then
+        file = token:info().file
+        token_noline = token:info().line
+        code = token:info().code
+        beginpos = token:info().pos
+
+        endpos = token[#token].pos + #token[#token].value
+    else
+        file = token.file
+        token_noline = token.line
+        code = token.code
+        beginpos = token.pos
+        endpos = token.pos+#token.value
+    end
+
+    return {
+        file     = file,
+        noline   = token_noline,
+        line     = plume.get_line (code, token_noline),
+        beginpos = beginpos,
+        endpos   = endpos
+    }
 end

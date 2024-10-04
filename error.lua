@@ -70,7 +70,7 @@ end
 -- @param source string The source code
 -- @param noline number The line number to retrieve
 -- @return string The line at the specified line number
-local function get_line(source, noline)
+function plume.get_line(source, noline)
     local current_line = 1
     for line in (source.."\n"):gmatch("(.-)\n") do
         if noline == current_line then
@@ -78,50 +78,6 @@ local function get_line(source, noline)
         end
         current_line = current_line + 1
     end
-end
-
---- Returns information about a token.
--- @param token table The token to get information about
--- @return table A table containing file, line number, line content,
--- and position information
-local function token_info (token)
-
-    local file, token_noline, token_line, code, beginpos, endpos
-
-    -- Find all informations about the token
-    if token.kind == "opt_block" or token.kind == "block" then
-        file = token:info().file
-        token_noline = token:info().line
-        code = token:info().code
-        beginpos = token:info().pos
-
-        if token:info().lastline == token_noline then
-            endpos = token:info().endpos+1
-        else
-            endpos = beginpos+1
-        end
-    elseif token.kind == "block_text" then
-        file = token:info().file
-        token_noline = token:info().line
-        code = token:info().code
-        beginpos = token:info().pos
-
-        endpos = token[#token].pos + #token[#token].value
-    else
-        file = token.file
-        token_noline = token.line
-        code = token.code
-        beginpos = token.pos
-        endpos = token.pos+#token.value
-    end
-
-    return {
-        file     = file,
-        noline   = token_noline,
-        line     = get_line (code, token_noline),
-        beginpos = beginpos,
-        endpos   = endpos
-    }
 end
 
 --- Extracts information from a Lua error message.
@@ -155,7 +111,7 @@ local function lua_info (lua_message)
 
     -- If error occuring from extern file
     if token.lua_cache.filename then
-        local line = get_line (token.lua_cache.code, noline+1)
+        local line = plume.get_line (token.lua_cache.code, noline+1)
 
         return {
             file     = token.lua_cache.filename,
@@ -166,7 +122,7 @@ local function lua_info (lua_message)
         }
     end
 
-    local line = get_line (token:source (), noline)
+    local line = plume.get_line (token:source (), noline)
 
     return {
         file     = token:info().file,
@@ -226,12 +182,12 @@ function plume.make_error_message (token, error_message, is_lua_error)
     -- Add the token that caused
     -- the error.
     if token then
-        table.insert(error_lines_infos, token_info (token))
+        table.insert(error_lines_infos, plume.token_info (token))
     end
     
     -- Then add all traceback
     for i=#plume.traceback, 1, -1 do
-        table.insert(error_lines_infos, token_info (plume.traceback[i]))
+        table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
     end
 
     -- Now, for each line print line info (file, noline, line content)
