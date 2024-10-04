@@ -27,7 +27,7 @@ plume.syntax = {
     opt_assign           = "=",
     eval                 = "$",
 
-    -- Compatibility only, will be removed in 1.0
+    -- Compatibility with 0.6.1. Will be removed in a future version.
     alt_eval             = "#"
 }
 

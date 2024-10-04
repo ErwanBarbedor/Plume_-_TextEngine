@@ -205,7 +205,7 @@ function plume.renderToken (self)
             local name = token.value:gsub("^"..plume.syntax.escape , "")
 
             if name == plume.syntax.eval
-                -- Compatibility only, will be removed in 1.0
+                -- Compatibility with 0.6.1. Will be removed in a future version.
                 or name == plume.syntax.alt_eval
                 --
                 then

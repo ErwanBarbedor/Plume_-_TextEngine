@@ -89,7 +89,7 @@ function plume.tokenize (code, file)
             newtoken ("opt_block_end", plume.syntax.opt_block_end, 1)
         
         elseif c == plume.syntax.eval
-            -- Compatibility only, will be removed in 1.0
+            -- Compatibility with 0.6.1. Will be removed in a future version.
             or c == plume.syntax.alt_eval
             --
             then
