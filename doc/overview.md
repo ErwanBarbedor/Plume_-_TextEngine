@@ -8,16 +8,16 @@ Note: In the examples shown, superfluous spaces have been removed for clarity.
 
 You can write almost any text directly, and it will be rendered as-is.
 
-Exceptions: the characters `\`, `$`, `{`, `}`, `[`, and `]` have special meanings. Also, `//`.
+Exceptions: the characters `\`, `$`, `{`, `}`, `[`, and `]` have special meanings. Also, `\--`.
 
 If you want to use them, escape them: `\\`, `\$`, ...
 
 ## Comments
 
-Single-line comments are denoted by `//` and are not rendered in the output:
+Single-line comments are denoted by `\--` and are not rendered in the output:
 
 ```plume
-Hello // This is a comment
+Hello \-- This is a comment
 World
 ```
 Output:

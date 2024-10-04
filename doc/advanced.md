@@ -108,7 +108,7 @@ You can supply parameters to included files. They will be stored in the `__file_
 Example:
 ```plume
 \include[foo=bar baz] lib
-// lib.plume
+\-- lib.plume
 ${__file_params.foo}
 ${__file_params[1]}
 ```
@@ -200,7 +200,7 @@ A comment deletes the line feed _and_ the indentation of the following line.
 
 For exemple, 
 ```plume
-foo //
+foo \--
     bar
 ```
 Gives
