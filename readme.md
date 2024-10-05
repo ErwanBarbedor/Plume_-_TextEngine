@@ -124,7 +124,6 @@ This doesn't work in Plume because `foo` will be expanded first.
 - `${x}` will now render all `x` elements if `x` is a table.
 - New flag `no_table_join` and new option `join` for macro `$`.
 
-
 _-_Explanations for the syntaxs changes:_
 
 Originally, `#` was chosen to adhere to the LaTeX macro syntax, `\newcommand \double[1] {#1 #1}`. However, it doesn't necessarily align with the broader use that Plume makes of it. Moreover, `#` is used by Lua, which makes some expressions unclear (e.g., `#{#t}` to print the size of a table) and prevents it from being used to declare `plume` blocks inside `lua` blocks. Finally, `$` is much more associated with the `evaluate` function than `#`.
