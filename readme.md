@@ -134,6 +134,7 @@ As for comments, the idea was to reduce the number of special characters to two 
 #### Enhancement
 - Plume comment will now work in Lua blocks.
 - Remove useless lines from traceback.
+- Warnings will be printed only one time per faulty code chunk.
 
 #### Fixes
 - Fix wrong space mode name.

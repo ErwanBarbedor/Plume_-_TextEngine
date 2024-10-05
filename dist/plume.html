@@ -1548,7 +1548,13 @@ function plume.error (token, error_message, is_lua_error)
 end
 
 function plume.warning (token, warning_message)
-    print("Warning : " .. plume.make_error_message (token, warning_message))
+    local info = plume.token_info (token)
+    local signature = info.file .. "@" .. info.line .. "@" .. info.beginpos
+
+    if not plume.warning_cache[signature] then
+        plume.warning_cache[signature] = true
+        print("Warning : " .. plume.make_error_message (token, warning_message))
+    end
 end
 
 --- Generates error message for error occuring in plume internal functions
@@ -3339,6 +3345,9 @@ function plume.init ()
     plume.deprecate("alias_local", "1.0", "local_alias")
     plume.deprecate("aliasl", "1.0", "lalias")
     plume.deprecate("default_local", "1.0", "local_default")
+
+    -- Warning cache
+    plume.warning_cache = {}
 
     -- Initialise error tracing
     plume.last_error = nil

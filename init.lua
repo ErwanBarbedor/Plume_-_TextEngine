@@ -99,6 +99,9 @@ function plume.init ()
     plume.deprecate("aliasl", "1.0", "lalias")
     plume.deprecate("default_local", "1.0", "local_default")
 
+    -- Warning cache
+    plume.warning_cache = {}
+
     -- Initialise error tracing
     plume.last_error = nil
     plume.traceback = {}
