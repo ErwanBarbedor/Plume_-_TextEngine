@@ -99,7 +99,7 @@ function plume.deprecate (name, version, alternative)
 
     macro.macro = function (params, calling_token)
         if plume.running_api.config.show_deprecation_warnings then
-            print("Warning : macro '" .. name .. "' (used in file '" .. calling_token.file .. "', line ".. calling_token.line .. ") is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
+            plume.warning(calling_token, "Macro '" .. name .. "' is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 
         return macro_f (params, calling_token)
@@ -114,12 +114,12 @@ end
 -- @param version Version where the macro will be deleted.
 -- @param alternative Give an alternative to replace this macro.
 plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(params, calling_token)
-    local name        = params.name:render()
-    local version     = params.version:render()
-    local alternative = params.alternative:render()
+    local name        = params.positionnals.name:render()
+    local version     = params.positionnals.version:render()
+    local alternative = params.positionnals.alternative:render()
 
     if not plume.deprecate(name, version, alternative) then
-        plume.error_macro_not_found(params.name, name)
+        plume.error_macro_not_found(params.positionnals.name, name)
     end
 
 end, nil, false, true)
