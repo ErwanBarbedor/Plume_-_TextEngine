@@ -54,7 +54,7 @@ plume.register_macro("local_set", {"key", "value"}, {}, function(params, calling
     return ""
 end, nil, false, true)
 
--- lset
+--- lset
 -- Alias for [local_set](#local_set)
 -- @param key The name of the variable.
 -- @param value The value of the variable.
@@ -66,7 +66,7 @@ end, nil, false, true)
 
 --- \raw
 -- Return the given body without render it.
--- @param body
+-- @param body 
 plume.register_macro("raw", {"body"}, {}, function(params)
     return params.positionnals['body']:source ()
 end, nil, false, true)
