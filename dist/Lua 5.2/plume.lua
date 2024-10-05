@@ -1860,7 +1860,7 @@ local function test_macro_name_available (name, redef, redef_forced, calling_tok
             else
                 msg = msg .. ". "
             end
-            
+
             return false, msg
         end
     elseif redef and not redef_forced then
@@ -2020,7 +2020,7 @@ plume.register_macro("local_macro", {"name", "body"}, {}, function(def_parameter
     -- '$' in arg name, so they cannot be erased by user
     new_macro (def_parameters, false, false, true, calling_token)
     return ""
-end, nil, true, true)
+end, nil, true, true, true)
 
 --- \lmacro
 -- Alias for [local_macro](#local_macro)
@@ -2031,7 +2031,7 @@ plume.register_macro("lmacro", {"name", "body"}, {}, function(def_parameters, ca
     -- '$' in arg name, so they cannot be erased by user
     new_macro (def_parameters, false, false, true, calling_token)
     return ""
-end, nil, true, true)
+end, nil, true, true, true)
 
 --- Create alias of a function
 local function alias (name1, name2, calling_token, is_local)
