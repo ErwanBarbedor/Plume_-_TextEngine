@@ -876,6 +876,12 @@ function plume.tokenize (code, file)
         )
     end
 
+    local function warning (message)
+        if plume.running_api.config.show_deprecation_warnings then
+            print("Warning file '" .. file .. "', line " .. noline .. " : " .. message)
+        end
+    end
+
     local function write (current, delta)
         -- If state changed, write the previous state and start a new state.
         if not current or current ~= state then
@@ -960,6 +966,11 @@ function plume.tokenize (code, file)
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
+
+            if c == plume.syntax.alt_eval then
+                warning ("Old syntax '#' for eval will be remove in 0.10. Use '$' instead.")
+            end
+
             write()
             pos = pos + 1
             newtoken ("eval", c)
@@ -977,6 +988,7 @@ function plume.tokenize (code, file)
             pos = pos + 1
             local next = code:sub(pos, pos)
             if next == c then
+                warning ("Old syntax '//' for command will be remove in 0.10. Use '\\--' instead.")
                 write("comment")
                 table.insert(acc, c)
                 table.insert(acc, c)

@@ -55,6 +55,7 @@ local function runTests(tests)
             plume.running_api.config.filter_spaces   = " "
             plume.running_api.config.filter_newlines = ""
             plume.running_api.config.show_macro_overwrite_warnings = false
+            plume.running_api.config.show_deprecation_warnings = false
 
             local sucess, result = pcall (plume.render, test.input)
             local err = ""
