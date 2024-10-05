@@ -287,7 +287,7 @@ function plume.error (token, error_message, is_lua_error)
 end
 
 function plume.warning (token, warning_message)
-    print(plume.make_error_message (token, warning_message))
+    print("Warning : " .. plume.make_error_message (token, warning_message))
 end
 
 --- Generates error message for error occuring in plume internal functions
