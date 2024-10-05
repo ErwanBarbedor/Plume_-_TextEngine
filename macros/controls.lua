@@ -23,7 +23,24 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
-    local iterator_source = params.positionnals.iterator:source ()
+    local iterator_token
+
+    if params.positionnals.iterator:is_eval_block() then
+        iterator_token  = params.positionnals.iterator[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.iterator:source()
+            local message = "Iterator must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.iterator, message)
+        end
+        iterator_token  = params.positionnals.iterator
+    end
+
+    local iterator_source = iterator_token:source ()
+
+     
     local join = plume.render_if_token(params.keywords.join)
 
     local var, var1, var2, first, last
@@ -43,7 +60,7 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     
     -- If both attempts fail, raise an error
     if not var then
-        plume.error(params.positionnals.iterator, "Non valid syntax for iterator.")
+        plume.error(iterator_token, "Non valid syntax for iterator.")
     end
 
     -- Extract all variable names from the iterator
@@ -74,7 +91,7 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
         -- Update and check loop limit
         iteration_count = iteration_count + 1
         if iteration_count > up_limit then
-            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(calling_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- Iteration scope
@@ -101,12 +118,12 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
 
         -- Check for Lua errors in the coroutine
         if not sucess or not co then
-            plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+            plume.error(iterator_token, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
         end
 
         -- Verify that the number of variables matches the number of values
         if #values_list ~= #variables_list then
-            plume.error(params.positionnals.iterator,
+            plume.error(iterator_token,
                 "Wrong number of variables, "
                 .. #variables_list
                 .. " instead of "
@@ -142,7 +159,23 @@ plume.register_macro("while", {"condition", "body"}, {}, function(params)
     local result = {}
     local i = 0
     local up_limit = plume.running_api.config.max_loop_size
-    while plume.call_lua_chunk (params.positionnals.condition) do
+
+    local condition_token
+
+    if params.positionnals.condition:is_eval_block() then
+        condition_token  = params.positionnals.condition[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.condition:source()
+            local message = "While condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.condition, message)
+        end
+        condition_token  = params.positionnals.condition
+    end
+
+    while plume.call_lua_chunk (condition_token) do
         -- Each iteration have it's own local scope
         plume.push_scope (params.positionnals.body.context)
         
@@ -151,7 +184,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(params)
         table.insert(result, body:render())
         i = i + 1
         if i > up_limit then
-            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(condition_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- exit local scope
@@ -170,7 +203,22 @@ plume.register_macro("if", {"condition", "body"}, {}, function(params)
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = plume.call_lua_chunk(params.positionnals.condition)
+    local condition_token
+
+    if params.positionnals.condition:is_eval_block() then
+        condition_token  = params.positionnals.condition[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.condition:source()
+            local message = "if condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.condition, message)
+        end
+        condition_token  = params.positionnals.condition
+    end
+
+    local condition = plume.call_lua_chunk(condition_token)
     if condition then
         return params.positionnals.body:render()
     end
@@ -209,9 +257,24 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_
         plume.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
     end
 
+    local condition_token
+
+    if params.positionnals.condition:is_eval_block() then
+        condition_token  = params.positionnals.condition[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.condition:source()
+            local message = "elseif condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.condition, message)
+        end
+        condition_token  = params.positionnals.condition
+    end
+
     local condition
     if chain_message then
-        condition = plume.call_lua_chunk(params.positionnals.condition)
+        condition = plume.call_lua_chunk(condition_token)
         if condition then
             return params.positionnals.body:render()
         end

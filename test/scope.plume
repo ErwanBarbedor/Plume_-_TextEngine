@@ -53,7 +53,7 @@ baz
 
 \-- Test 'Variable block scope 5'
 \def foo[x] {$x}
-\foo {\for {i=1,4} {$i}}
+\foo {\for ${i=1,4} {$i}}
 \-- Result
 1234
 \-- End

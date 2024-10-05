@@ -62,7 +62,7 @@ r
 
 \-- Test 'script implicit render - test empty'
 \def foo[x={}] {
-    \if {x:is_empty()} {No argument provided.\n}
+    \if ${x:is_empty()} {No argument provided.\n}
     \else {The arg is $x.}
 }
 \--

@@ -60,14 +60,14 @@ bar
 \-- End
 
 \-- Test 'Flag 1'
-\def foo[?bar] {\if bar {bar} \else {foo}}\--
+\def foo[?bar] {\if $bar {bar} \else {foo}}\--
 \foo
 \-- Result
  foo
 \-- End
 
 \-- Test 'Flag 2'
-\def foo[?bar] {\if bar {bar} \else {foo}}\--
+\def foo[?bar] {\if $bar {bar} \else {foo}}\--
 \foo[bar]
 \-- Result
 bar 

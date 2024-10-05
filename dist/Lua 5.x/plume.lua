@@ -767,7 +767,7 @@ function plume.tokenlist (x)
             -- Check if the table has exactly 2 elements and the first element is of kind "macro"
             if #self == 2 and self[1].kind == "macro" then
                 -- Check if the macro value is "$" or "eval"
-                is_eval_block = is_eval_block or self[1].value == "#"
+                is_eval_block = is_eval_block or self[1].value == "$"
                 is_eval_block = is_eval_block or self[1].value == "eval"
 
                 -- Deprecated: This will be removed in version 1.0
@@ -1246,7 +1246,8 @@ end
 -- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function plume.make_error_message (token, error_message, is_lua_error)
+-- @param show_traceback boolean Show, or not, the traceback
+function plume.make_error_message (token, error_message, is_lua_error, show_traceback)
     
     -- Make the list of lines to prompt.
     local error_lines_infos = {}
@@ -1260,19 +1261,21 @@ function plume.make_error_message (token, error_message, is_lua_error)
         error_message = "(lua error) " .. error_message:gsub('^.-:[0-9]+: ', '')
 
         local traceback = (plume.lua_traceback or "")
-        local first_line = true
-        for line in traceback:gmatch('[^\n]+') do
-            if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
-                -- Remove first line, that already
-                -- be added.
-                if first_line then
-                    first_line = false
-                else
-                    local infos = lua_info (line)
-                    table.insert(error_lines_infos, lua_info (line))
-                    -- check if we arn't last line
-                    if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
-                        break
+        if show_traceback then
+            local first_line = true
+            for line in traceback:gmatch('[^\n]+') do
+                if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
+                    -- Remove first line, that already
+                    -- be added.
+                    if first_line then
+                        first_line = false
+                    else
+                        local infos = lua_info (line)
+                        table.insert(error_lines_infos, lua_info (line))
+                        -- check if we arn't last line
+                        if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
+                            break
+                        end
                     end
                 end
             end
@@ -1286,8 +1289,10 @@ function plume.make_error_message (token, error_message, is_lua_error)
     end
     
     -- Then add all traceback
-    for i=#plume.traceback, 1, -1 do
-        table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
+    if show_traceback then
+        for i=#plume.traceback, 1, -1 do
+            table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
+        end
     end
 
     -- Now, for each line print line info (file, noline, line content)
@@ -1372,13 +1377,17 @@ function plume.error (token, error_message, is_lua_error)
     end
 
     -- Create a formatted error message.
-    local error_message = plume.make_error_message (token, error_message, is_lua_error)
+    local error_message = plume.make_error_message (token, error_message, is_lua_error, true)
 
     -- Save the error message.
     plume.last_error = error_message
 
     -- Throw the error message.
     error(error_message, -1)
+end
+
+function plume.warning (token, warning_message)
+    print("Warning : " .. plume.make_error_message (token, warning_message))
 end
 
 --- Generates error message for error occuring in plume internal functions
@@ -1549,7 +1558,24 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     -- The macro uses coroutines to handle the iteration process, which allows for flexible
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
-    local iterator_source = params.positionnals.iterator:source ()
+    local iterator_token
+
+    if params.positionnals.iterator:is_eval_block() then
+        iterator_token  = params.positionnals.iterator[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.iterator:source()
+            local message = "Iterator must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.iterator, message)
+        end
+        iterator_token  = params.positionnals.iterator
+    end
+
+    local iterator_source = iterator_token:source ()
+
+     
     local join = plume.render_if_token(params.keywords.join)
 
     local var, var1, var2, first, last
@@ -1569,7 +1595,7 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     
     -- If both attempts fail, raise an error
     if not var then
-        plume.error(params.positionnals.iterator, "Non valid syntax for iterator.")
+        plume.error(iterator_token, "Non valid syntax for iterator.")
     end
 
     -- Extract all variable names from the iterator
@@ -1600,7 +1626,7 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
         -- Update and check loop limit
         iteration_count = iteration_count + 1
         if iteration_count > up_limit then
-            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(calling_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- Iteration scope
@@ -1627,12 +1653,12 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
 
         -- Check for Lua errors in the coroutine
         if not sucess or not co then
-            plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+            plume.error(iterator_token, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
         end
 
         -- Verify that the number of variables matches the number of values
         if #values_list ~= #variables_list then
-            plume.error(params.positionnals.iterator,
+            plume.error(iterator_token,
                 "Wrong number of variables, "
                 .. #variables_list
                 .. " instead of "
@@ -1668,7 +1694,23 @@ plume.register_macro("while", {"condition", "body"}, {}, function(params)
     local result = {}
     local i = 0
     local up_limit = plume.running_api.config.max_loop_size
-    while plume.call_lua_chunk (params.positionnals.condition) do
+
+    local condition_token
+
+    if params.positionnals.condition:is_eval_block() then
+        condition_token  = params.positionnals.condition[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.condition:source()
+            local message = "While condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.condition, message)
+        end
+        condition_token  = params.positionnals.condition
+    end
+
+    while plume.call_lua_chunk (condition_token) do
         -- Each iteration have it's own local scope
         plume.push_scope (params.positionnals.body.context)
         
@@ -1677,7 +1719,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(params)
         table.insert(result, body:render())
         i = i + 1
         if i > up_limit then
-            plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            plume.error(condition_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
         end
 
         -- exit local scope
@@ -1696,7 +1738,22 @@ plume.register_macro("if", {"condition", "body"}, {}, function(params)
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
 
-    local condition = plume.call_lua_chunk(params.positionnals.condition)
+    local condition_token
+
+    if params.positionnals.condition:is_eval_block() then
+        condition_token  = params.positionnals.condition[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.condition:source()
+            local message = "if condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.condition, message)
+        end
+        condition_token  = params.positionnals.condition
+    end
+
+    local condition = plume.call_lua_chunk(condition_token)
     if condition then
         return params.positionnals.body:render()
     end
@@ -1735,9 +1792,24 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_
         plume.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
     end
 
+    local condition_token
+
+    if params.positionnals.condition:is_eval_block() then
+        condition_token  = params.positionnals.condition[2]
+    else
+        -- compatibility with 0.6.1. Will lead to an error in a future version.
+        if plume.running_api.config.show_deprecation_warnings then
+            local source = params.positionnals.condition:source()
+            local message = "elseif condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+
+            plume.warning(params.positionnals.condition, message)
+        end
+        condition_token  = params.positionnals.condition
+    end
+
     local condition
     if chain_message then
-        condition = plume.call_lua_chunk(params.positionnals.condition)
+        condition = plume.call_lua_chunk(condition_token)
         if condition then
             return params.positionnals.body:render()
         end
@@ -2210,7 +2282,7 @@ function plume.deprecate (name, version, alternative)
 
     macro.macro = function (params, calling_token)
         if plume.running_api.config.show_deprecation_warnings then
-            print("Warning : macro '" .. name .. "' (used in file '" .. calling_token.file .. "', line ".. calling_token.line .. ") is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
+            plume.warning(calling_token, "Macro '" .. name .. "' is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 
         return macro_f (params, calling_token)
@@ -2225,12 +2297,12 @@ end
 -- @param version Version where the macro will be deleted.
 -- @param alternative Give an alternative to replace this macro.
 plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(params, calling_token)
-    local name        = params.name:render()
-    local version     = params.version:render()
-    local alternative = params.alternative:render()
+    local name        = params.positionnals.name:render()
+    local version     = params.positionnals.version:render()
+    local alternative = params.positionnals.alternative:render()
 
     if not plume.deprecate(name, version, alternative) then
-        plume.error_macro_not_found(params.name, name)
+        plume.error_macro_not_found(params.positionnals.name, name)
     end
 
 end, nil, false, true) 

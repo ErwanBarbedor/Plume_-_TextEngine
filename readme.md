@@ -111,6 +111,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Default space mode is now `light`.
+- First parameter of `\if`, `\elseif`, `\for` and `\while` must now be an eval block.
 - You can now declare a Plume block inside a Lua block. (only works inside `plume` files for now, not in external Lua files)
 - Change eval escape to `$` from `#`. Code using `#` still works for now.
 - Change comment syntax to `\--` from `//`. Code using `//` still works for now.
@@ -130,6 +131,7 @@ As for comments, the idea was to reduce the number of special characters to two 
 #### Fixes
 - Fix wrong space mode name.
 - Plume no longer see `a==4` as a statement.
+- Fix an error causing Plume to crash if a for loop go over the iteration limit.
 
 See the [changelog](doc/changelog.md) for older version
 
