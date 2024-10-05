@@ -112,7 +112,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 #### Changes
 - Default space mode is now `light`.
 - Rework a lot of naming:
-    - `\def` became `\macro`. New macro `\function`, an alias for `\macro {${}}`.
+    - `\def` became `\macro`.
     - The convention for local variant of `\command` is `\local_command`, with an alias `\lcommand`.
     - All old names (`\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, and `\aliasl`) are deprecated, but work for now.
 - Deprecate `\redef` and `\redef_forced`. Writing over existing macros will now just print a warning.
