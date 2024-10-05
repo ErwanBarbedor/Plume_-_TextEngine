@@ -1841,7 +1841,7 @@ local function test_macro_name_available (name, redef, redef_forced, calling_tok
     -- Test if the name is taken by standard macro
     if std_macro then
         if not redef_forced then
-            local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros, so you shouldn't replace it. If you really want to, use '\\redef_forced "..name.."'."
+            local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros. Change it only if not know what your doing."
             return false, msg
         end
 
@@ -1860,8 +1860,7 @@ local function test_macro_name_available (name, redef, redef_forced, calling_tok
             else
                 msg = msg .. ". "
             end
-
-            msg = msg .. "Use '\\redef "..name.."' to erase it."
+            
             return false, msg
         end
     elseif redef and not redef_forced then
