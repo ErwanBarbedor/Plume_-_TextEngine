@@ -346,7 +346,7 @@ function plume.tokenlist (x)
             -- Check if the table has exactly 2 elements and the first element is of kind "macro"
             if #self == 2 and self[1].kind == "macro" then
                 -- Check if the macro value is "$" or "eval"
-                is_eval_block = is_eval_block or self[1].value == "#"
+                is_eval_block = is_eval_block or self[1].value == "$"
                 is_eval_block = is_eval_block or self[1].value == "eval"
 
                 -- Deprecated: This will be removed in version 1.0
