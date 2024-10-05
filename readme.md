@@ -1,6 +1,6 @@
 <p align="center"><img src="dist/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.7.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.8.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 

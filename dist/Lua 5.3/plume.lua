@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.7.0-lua-5.3
+Plume - TextEngine 0.8.0-lua-5.3
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local plume = {}
-plume._VERSION = "Plume - TextEngine 0.7.0-lua-5.3"
+plume._VERSION = "Plume - TextEngine 0.8.0-lua-5.3"
 
 
 -- ## config.lua ##
@@ -3423,7 +3423,7 @@ end
 
 -- ## cli.lua ##
 local cli_help = [[
-Plume - TextEngine 0.7.0-lua-5.3
+Plume - TextEngine 0.8.0-lua-5.3
 Plume is a templating langage with advanced scripting features.
 
 Usage:
