@@ -107,38 +107,7 @@ For exemple, in LaTeX, you can define a macro like this: `\newcommand {\foo} {ba
 
 This doesn't work in Plume because `foo` will be expanded first.
 
-## Last version : 0.7.0
-
-#### Changes
-- Default space mode is now `light`.
-- Rework a lot of naming:
-    - `\def` became `\macro`.
-    - The convention for local variant of `\command` is `\local_command`, with an alias `\lcommand`.
-    - All old names (`\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, and `\aliasl`) are deprecated, but work for now.
-- Deprecate `\redef` and `\redef_forced`. Writing over existing macros will now just print a warning.
-- The first parameter of `\if`, `\elseif`, `\for`, and `\while` must now be an eval block.
-- You can now declare a Plume block inside a Lua block. (only works inside `plume` files for now, not in external Lua files)
-- Change eval escape to `$` from `#`. Code using `#` still works for now.
-- Change comment syntax to `\--` from `//`. Code using `//` still works for now.
-- New option `join` for `\for`, which will insert a character between all iterations.
-- `${x}` will now render all `x` elements if `x` is a table.
-- New flag `no_table_join` and new option `join` for macro `$`.
-
-_Explanations for the syntaxs changes:_
-
-Originally, `#` was chosen to adhere to the LaTeX macro syntax, `\newcommand \double[1] {#1 #1}`. However, it doesn't necessarily align with the broader use that Plume makes of it. Moreover, `#` is used by Lua, which makes some expressions unclear (e.g., `#{#t}` to print the size of a table) and prevents it from being used to declare `plume` blocks inside `lua` blocks. Finally, `$` is much more associated with the `evaluate` function than `#`.
-
-As for comments, the idea was to reduce the number of special characters to two in order to avoid the need for escaping as much as possible. (For example, `//` is used in URLs). So, start with `\`. It couldn't be `\\` (because it prints the character `\`) and `\$` was pretty weird, so `\--` was chosen in alignment with the `--` used by Lua. 
-
-#### Enhancement
-- Plume comment will now work in Lua blocks.
-- Remove useless lines from traceback.
-- Warnings will be printed only one time per faulty code chunk.
-
-#### Fixes
-- Fix wrong space mode name.
-- Plume no longer see `a==4` as a statement.
-- Fix an error causing Plume to crash if a for loop go over the iteration limit.
+## Last version : 0.8.0
 
 See the [changelog](doc/changelog.md) for older version
 
