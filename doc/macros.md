@@ -202,9 +202,9 @@ _Generated from source._
 
 **Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
 
-### set_local
+### local_set
 
-**Usage:** `\set_local {key} {value}`
+**Usage:** `\local_set {key} {value}`
 
 **Description:** Affect a value to a variable locally.
 
@@ -214,7 +214,7 @@ _Generated from source._
 
 **Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
 
-**Alias:** `setl`
+**Alias:** `lset`
 
 ### raw
 
@@ -247,6 +247,20 @@ _Generated from source._
 - `name` Name of an existing macro.
 - `version` Version where the macro will be deleted.
 - `alternative` Give an alternative to replace this macro.
+
+### set_local
+
+**Usage:** `\set_local {key} {value}`
+
+**Description:** DEPRECATED Affect a value to a variable locally.
+
+**Positionnal Parameters:**
+- `key` The name of the variable.
+- `value` The value of the variable.
+
+**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
+
+**Alias:** `setl`
 
 ## Macros
 
