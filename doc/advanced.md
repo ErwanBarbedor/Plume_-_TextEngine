@@ -138,11 +138,11 @@ Gives:
 20
 ```
 
-But it is possible to make them local, with `\set[local]` (or its alias `\setl`).
+But it is possible to make them local, with `\local_set` (or its alias `\lset`).
 
 ```plume
 \macro foo {
-    \set[local] x 20
+    \local_set x 20
 }
 \set x 10
 \foo
