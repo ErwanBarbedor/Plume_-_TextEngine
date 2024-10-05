@@ -338,6 +338,26 @@ function plume.tokenlist (x)
             return table.concat(result, "")
         end,
 
+        --- @api_method Determines if the block is an evaluation block (like `${1+1}`)
+        -- @return boolean Returns true if the block is an evaluation block, false otherwise
+        is_eval_block = function (self)
+            local is_eval_block = false
+
+            -- Check if the table has exactly 2 elements and the first element is of kind "macro"
+            if #self == 2 and self[1].kind == "macro" then
+                -- Check if the macro value is "$" or "eval"
+                is_eval_block = is_eval_block or self[1].value == "#"
+                is_eval_block = is_eval_block or self[1].value == "eval"
+
+                -- Deprecated: This will be removed in version 1.0
+                is_eval_block = is_eval_block or self[1].value == "script"
+                --
+            end
+
+            return is_eval_block
+        end,
+
+
         --- @api_method Render the tokenlist and return true if it is empty
         -- @return bool Is the tokenlist empty?
         is_empty = function (self)

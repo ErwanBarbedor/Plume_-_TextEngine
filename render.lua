@@ -335,16 +335,7 @@ end
 -- @name renderLua
 -- @return lua_objet Result of evaluation
 function plume.renderTokenLua (self)
-    local is_lua
-    if #self == 2 and self[1].kind == "macro" then
-        is_lua = is_lua or self[1].value == "#"
-        is_lua = is_lua or self[1].value == "eval"
-        --          To be removed in 1.0          --
-        is_lua = is_lua or self[1].value == "script"
-        --------------------------------------------
-    end
-
-    if is_lua then
+    if self:is_eval_block () then
         local result = plume.call_lua_chunk(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then
             result = result:render ()
