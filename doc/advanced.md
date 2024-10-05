@@ -5,7 +5,7 @@
 Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
 
 ```plume
-\def foo[x]{
+\macro foo[x]{
     ${print(x)}
 }
 \foo{bar}
@@ -19,7 +19,7 @@ _If x is a tokenlist, `$x` is the same as `${x:render()}`._
 Example:
 
 ```plume
-\def foo[x]{
+\macro foo[x]{
     ${x:source()}
     ${x:render()}
 }
@@ -43,7 +43,7 @@ A macro can have 3 kinds of parameters:
 ### Positional Parameters
 
 ```plume
-\def double[x y] {$x $x $y $y}
+\macro double[x y] {$x $x $y $y}
 \double bar baz
 ```
 `x` and `y` are _positional parameters_. They must follow the macro call in the same order as declared. They will not be rendered until the user decides to.
@@ -51,7 +51,7 @@ A macro can have 3 kinds of parameters:
 ### Keyword Parameters
 
 ```plume
-\def hello[name=World salutation=Hello] {$salutation $name}
+\macro hello[name=World salutation=Hello] {$salutation $name}
 \hello
 \hello[salutation=Greeting]
 ```
@@ -62,7 +62,7 @@ In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro
 ### Flags
 
 ```plume
-\def hello[?polite] {
+\macro hello[?polite] {
     \if $polite {
         Good morning sir.
     } \else {
@@ -75,7 +75,7 @@ In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro
 `?polite` is a _flag_. It is a shorthand for:
 
 ```plume
-\def hello[polite={${false}}] {
+\macro hello[polite={${false}}] {
     ${polite = polite:render()}
     [...]
 }
@@ -92,7 +92,7 @@ By default, Plume will raise an error if you use unknown flags or keyword parame
 You can modify this behavior:
 
 ```plume
-\def foo[...] {
+\macro foo[...] {
     ${__params.bar} -> baz
     ${__params.flag} -> true
 }
@@ -118,10 +118,6 @@ bar
 baz
 ```
 
-## `\def`, `\redef`, and `\redef_forced`
-
-You can define a new macro with `\def`. But if the name is already taken, you must use `\redef`. If the name is taken by a predefined macro, use `\redef_forced`.
-
 ## Scopes
 ### Variables Scope
 
@@ -129,7 +125,7 @@ Each macro execution create a new scope.
 Variables are global by default.
 
 ```plume
-\def foo {
+\macro foo {
     \set x 20
 }
 \set x 10
@@ -145,7 +141,7 @@ Gives:
 But it is possible to make them local, with `\set[local]` (or its alias `\setl`).
 
 ```plume
-\def foo {
+\macro foo {
     \set[local] x 20
 }
 \set x 10
@@ -167,7 +163,7 @@ Like macros, each iteration has it's own scope.
 Variables used as parameters retain the scope in which the macro was called.
 
 ```plume
-\def foo[bar] {\set[local] x 3 $bar}
+\macro foo[bar] {\local_set x 3 $bar}
 \set x 1 
 \foo {$x}
 ```
@@ -179,8 +175,8 @@ Output `1`.
 Plume implements a closure system, i.e. variables local to the block where the macro is defined remain accessible from this macro.
 
 ```plume
-\def mydef[name body] {
-    \def {$name} {$body}
+\macro mydef[name body] {
+    \macro {$name} {$body}
 }
 \mydef foo bar
 \foo
@@ -190,7 +186,7 @@ Output `bar`, even though `name` and `body` are variables local to the `mydef` b
 
 ## Too Many Intricate Macro Calls
 
-By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\def foo {\foo}`.
+By default, Plume cannot handle more than 100 macros in the call stack, mainly to avoid infinite loops on things like `\macro foo {\foo}`.
 
 See [config](config.md) to edit this number.
 

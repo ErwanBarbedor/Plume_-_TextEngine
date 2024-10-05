@@ -43,10 +43,10 @@ Example:
 \macro[foo bar=baz] {arg1} {arg2}
 ```
 
-A macro is defined using `\def`:
+A macro is defined using `\macro`:
 
 ```plume
-\def greeting[name] {Hello, $name!}
+\macro greeting[name] {Hello, $name!}
 \greeting {World}
 ```
 Output:
@@ -57,7 +57,7 @@ Hello, World!
 You can define arguments as optional with a default value:
 
 ```plume
-\def greeting[name=you] {Hello, $name!}
+\macro greeting[name=you] {Hello, $name!}
 \greeting
 \greeting[name=me]
 ```
@@ -70,7 +70,7 @@ Hello, me!
 You can use any number of arguments, separated by spaces:
 
 ```plume
-\def foo[x y z foo=bar baz=foo]{
+\macro foo[x y z foo=bar baz=foo]{
     ...
 }
 ```
@@ -104,10 +104,12 @@ You can also define variable with Lua:
 ```plume
 ${x = 5}
 ```
-## `\set k {v}` vs `${k = v}` vs `\def k {v}`
+
+
+## `\set k {v}` vs `${k = v}` vs `\macro k {v}`
 These three methods produce similar results. But there are nuances to the way they work.
 
-`def k {v}` is the only one capable of defining a dynamic content. So you shouldn't use it to save a value.
+`macro k {v}` is the only one capable of defining a dynamic content. So you shouldn't use it to save a value.
 
 `${k = v}` is the only one that lets you save lua objects. Use it with numbers, tables, ...
 
@@ -144,12 +146,12 @@ You should notice that the syntax is the same as for variables. In fact, plume d
 
 ### Lua Scripts
 
-You can execute any Lua statement inside `\script{...}`.
+You can execute any Lua statement with `${...}`.
 
 Example:
 
 ```plume
-\script{
+${
     function factorial(n)
         if n == 0 then return 1 end
         return n * factorial(n - 1)
@@ -162,6 +164,8 @@ Output:
 ```
 The factorial of 5 is: 120
 ```
+
+`${...}` cannot contain return statement.
 
 ### Require
 
@@ -188,9 +192,9 @@ The `\if`, `\elseif`, and `\else` commands provide conditional logic:
 
 ```plume
 \set x 10
-\if {x > 5}
+\if ${x > 5}
     {x is greater than 5}
-\elseif {x < 5}
+\elseif ${x < 5}
     {x is less than 5}
 \else
     {x is equal to 5}
@@ -209,7 +213,7 @@ Plume supports `\for` and `\while` loops.
 For loop example:
 
 ```plume
-\for {i=1,3} {
+\for ${i=1,3} {
     Line $i
 }
 ```
@@ -221,8 +225,8 @@ Line 3
 ```
 
 ```plume
-\set fruits ${{apple = "red", banana = "yellow", grape = "purple"}}
-\for {fruit, color in pairs(fruits)} {
+${fruits = {apple = "red", banana = "yellow", grape = "purple"}}
+\for ${fruit, color in pairs(fruits)} {
     The $fruit is $color.
 }
 ```
@@ -237,7 +241,7 @@ While loop example:
 
 ```plume
 \set a 0
-\while {a < 3} {
+\while ${a < 3} {
     \set a ${a+1}
     a is now $a
 }
@@ -313,7 +317,7 @@ Example:
 Assuming a file named `header.plume` contains:
 
 ```plume
-\def header[title] {
+\macro header[title] {
 <header>
     <h1>$title</h1>
 </header>
