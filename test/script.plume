@@ -35,9 +35,6 @@ ${return 5}
 File 'string', line 1 : \script cannot return value.
     ${return 5}
      ^^^^^^^^^^
-Traceback :
-    File 'string', line 1 : ${return 5}
-                            ^
 \-- End
 
 \-- Test 'script implicit render'

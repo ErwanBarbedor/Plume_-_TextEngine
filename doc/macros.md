@@ -116,7 +116,7 @@ _Generated from source._
 
 ### eval
 
-**Usage:** `\eval[thousand_separator={} decimal_separator=. join={ <format> remove_zeros silent no_join_table] {code}`
+**Usage:** `\eval[thousand_separator={} decimal_separator=. join=_ <format> remove_zeros silent no_join_table] {code}`
 
 **Description:** Evaluate the given expression or execute the given statement.
 
@@ -126,7 +126,7 @@ _Generated from source._
 **Keyword Parameters :** 
 - `thousand_separator` Symbol used between groups of 3 digits.Default value : empty
 - `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
-- `join` } If the value is a table, string to put between table elements.Default value : `{`
+- `join` If the value is a table, string to put between table elements.Default value : a space
 
 
 **Flags :**

@@ -143,8 +143,6 @@ File 'string', line 1 : (lua error) unexpected symbol near '<eof>'
 Traceback :
     File 'string', line 1 : ${a = a+}
                              ^^^^^^^^
-    File 'string', line 1 : ${a = a+}
-                            ^
 \-- End
 
 \-- Test 'Eval syntax error 5.4'
@@ -156,8 +154,6 @@ File 'string', line 1 : (lua error) unexpected symbol near <eof>
 Traceback :
     File 'string', line 1 : ${a = a+}
                              ^^^^^^^^
-    File 'string', line 1 : ${a = a+}
-                            ^
 \-- End
 
 \-- Test 'Eval lua error 5.1, 5.2, 5.3'
@@ -169,8 +165,6 @@ File 'string', line 1 : (lua error) attempt to perform arithmetic on a string va
 Traceback :
     File 'string', line 1 : ${a = ""+1}
                              ^^^^^^^^^^
-    File 'string', line 1 : ${a = ""+1}
-                            ^
 \-- End
 
 \-- Test 'Eval lua error 5.4'
@@ -182,8 +176,6 @@ File 'string', line 1 : (lua error) attempt to add a 'string' with a 'number'
 Traceback :
     File 'string', line 1 : ${a = ""+1}
                              ^^^^^^^^^^
-    File 'string', line 1 : ${a = ""+1}
-                            ^
 \-- End
 
 
@@ -207,8 +199,6 @@ Traceback :
                             ^^^^^
     File 'string', line 10 : ${foo()}
                               ^^^^^^^
-    File 'string', line 10 : ${foo()}
-                             ^
 \-- End
 
 \-- Test 'Chain errors (eval) 5.4'
@@ -231,8 +221,6 @@ Traceback :
                             ^^^^^
     File 'string', line 10 : ${foo()}
                               ^^^^^^^
-    File 'string', line 10 : ${foo()}
-                             ^
 \-- End
 
 \-- Test 'Error in control implicit block 5.1'

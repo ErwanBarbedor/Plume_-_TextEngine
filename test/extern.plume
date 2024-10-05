@@ -63,8 +63,6 @@ File 'test/lib.lua', line 4 : (lua error) attempt to perform arithmetic on globa
 Traceback :
     File 'string', line 2 : ${foo()} 
                              ^^^^^^^
-    File 'string', line 2 : ${foo()} 
-                            ^
 \-- End
 
 \-- Test 'Error in extern file'
@@ -77,6 +75,4 @@ File 'test/lib.lua', line 4 : (lua error) attempt to perform arithmetic on a nil
 Traceback :
     File 'string', line 2 : ${foo()} 
                              ^^^^^^^
-    File 'string', line 2 : ${foo()} 
-                            ^
 \-- End

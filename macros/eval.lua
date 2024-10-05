@@ -96,7 +96,7 @@ end
 -- @param code The code to evaluate or execute.
 -- @option thousand_separator={} Symbol used between groups of 3 digits.
 -- @option decimal_separator=. Symbol used between the integer and the decimal part.
--- @option join={ } If the value is a table, string to put between table elements.
+-- @option join=_ If the value is a table, string to put between table elements.
 -- @option_nokw format={} Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point.
 -- @flag remove_zeros Remove useless zeros (e.g., `1.0` becomes `1`).
 -- @flag silent Execute the code without returning anything. Useful for filtering unwanted function returns: `${table.remove(t)}[silent]`

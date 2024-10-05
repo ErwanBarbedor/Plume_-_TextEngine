@@ -191,7 +191,9 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
     -- Then add all traceback
     if show_traceback then
         for i=#plume.traceback, 1, -1 do
-            table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
+            if plume.traceback[i].kind ~= "macro" or plume.traceback[i].value ~= plume.syntax.eval then
+                table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
+            end
         end
     end
 

@@ -122,6 +122,8 @@ local function capture_macro_doc (result, source)
 
                 if default == "{}" then
                     table.insert(options, "`" .. name .. "` " .. desc .. "Default value : empty")
+                elseif default == "_" then
+                    table.insert(options, "`" .. name .. "` " .. desc .. "Default value : a space")
                 else
                     table.insert(options, "`" .. name .. "` " .. desc .. "Default value : `"..default.."`")
                 end
