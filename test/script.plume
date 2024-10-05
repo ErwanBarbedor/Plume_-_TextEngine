@@ -17,7 +17,7 @@ ${
 \-- End
 
 \-- Test 'script 3'
-\def foo {\--
+\macro foo {\--
     ${
         local a = 5
         b = 3
@@ -38,7 +38,7 @@ File 'string', line 1 : \script cannot return value.
 \-- End
 
 \-- Test 'script implicit render'
-\def foo[x] {
+\macro foo[x] {
     ${x:match(".\$")}
 }
 \--
@@ -48,7 +48,7 @@ r
 \-- End
 
 \-- Test 'script implicit render - nil key'
-\def foo[x] {
+\macro foo[x] {
     ${x.bar}
 }
 \--
@@ -58,7 +58,7 @@ r
 \-- End
 
 \-- Test 'script implicit render - test empty'
-\def foo[x={}] {
+\macro foo[x={}] {
     \if ${x:is_empty()} {No argument provided.\n}
     \else {The arg is $x.}
 }

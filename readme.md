@@ -111,13 +111,19 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 #### Changes
 - Default space mode is now `light`.
-- First parameter of `\if`, `\elseif`, `\for` and `\while` must now be an eval block.
+- Rework a lot of naming:
+    - `\def` became `\macro`. New macro `\function`, an alias for `\macro {${}}`.
+    - The convention for local variant of `\command` is `\local_command`, with an alias `\lcommand`.
+    - All old names (`\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, and `\aliasl`) are deprecated, but work for now.
+- Deprecate `\redef` and `\redef_forced`. Writing over existing macros will now just print a warning.
+- The first parameter of `\if`, `\elseif`, `\for`, and `\while` must now be an eval block.
 - You can now declare a Plume block inside a Lua block. (only works inside `plume` files for now, not in external Lua files)
 - Change eval escape to `$` from `#`. Code using `#` still works for now.
 - Change comment syntax to `\--` from `//`. Code using `//` still works for now.
 - New option `join` for `\for`, which will insert a character between all iterations.
-- `${x}` will now render all `x` elements, if `x` is a table.
+- `${x}` will now render all `x` elements if `x` is a table.
 - New flag `no_table_join` and new option `join` for macro `$`.
+
 
 _-_Explanations for the syntaxs changes:_
 

@@ -88,9 +88,16 @@ function plume.init ()
     plume.load_macros()
 
     -- Deprecate
-    for name in (""):gmatch('%S+') do
-        plume.deprecate(name, "version", "alternative")
-    end
+    plume.deprecate("def", "1.0", "macro")
+    plume.deprecate("defl", "1.0", "lmacro")
+    plume.deprecate("redef", "1.0", "macro")
+    plume.deprecate("redef_forced", "1.0", "macro")
+    plume.deprecate("def_local", "1.0", "local_macro")
+    plume.deprecate("set_local", "1.0", "local_set")
+    plume.deprecate("setl", "1.0", "lset")
+    plume.deprecate("alias_local", "1.0", "local_alias")
+    plume.deprecate("aliasl", "1.0", "lalias")
+    plume.deprecate("default_local", "1.0", "local_default")
 
     -- Initialise error tracing
     plume.last_error = nil

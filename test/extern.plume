@@ -37,9 +37,9 @@ x = bar
 \-- Test 'include extern'
 \extern test/lib.plume
 \-- Result
-\def double[x] {$x $x}\--
+\macro double[x] {$x $x}\--
 
-\def foo {x = ${__file_params.x}}
+\macro foo {x = ${__file_params.x}}
 \-- End
 
 \-- Test 'include error'

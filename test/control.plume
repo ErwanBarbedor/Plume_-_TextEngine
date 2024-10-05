@@ -160,7 +160,7 @@ Traceback :
 \-- Test 'do'
 \do {
     ${local x = 0}
-    \def foo {
+    \macro foo {
         ${x = x+1}\n
         $x
     }
@@ -175,14 +175,14 @@ ${x = 5}
 \-- End
 
 \-- Test 'Nested for'
-\def foo[x] {$x}\--
+\macro foo[x] {$x}\--
 \for ${j=1,2} {\foo {\for ${i=1, 2} {$i}}}
 \-- Result
 1212
 \-- End
 
 \-- Test 'For locals'
-\def foo[x] {$x}
+\macro foo[x] {$x}
 \for ${i=1, 2} {
     \foo {
         ${local x = 1}\n
@@ -197,7 +197,7 @@ ${x = 5}
 
 \-- Test 'For and closures'
 \for ${align in ("center left right"):gmatch('%S+')} {
-    \def {$align} {
+    \macro {$align} {
         $align
     }
 }
@@ -210,7 +210,7 @@ right
 
 \-- Test 'For and closures 2'
 \for ${align in ("center left right"):gmatch('%S+')} {
-    \def[content] {$align} {
+    \macro[content] {$align} {
         <$align> $content </$align>
     }
 }

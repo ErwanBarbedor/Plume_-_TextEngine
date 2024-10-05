@@ -1,2 +1,2 @@
-\def double[x] {$x $x}\--
-\def foo {x = ${__file_params.x}}
+\macro double[x] {$x $x}\--
+\macro foo {x = ${__file_params.x}}

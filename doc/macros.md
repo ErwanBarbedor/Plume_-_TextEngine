@@ -250,9 +250,9 @@ _Generated from source._
 
 ## Macros
 
-### def
+### macro
 
-**Usage:** `\def[...] {name} {body}`
+**Usage:** `\macro[...] {name} {body}`
 
 **Description:** Define a new macro.
 
@@ -264,37 +264,9 @@ _Generated from source._
 
 **Note:** Doesn't work if the name is already taken by another macro.
 
-### redef
+### local_macro
 
-**Usage:** `\redef[...] {name} {body}`
-
-**Description:** Redefine a macro.
-
-**Positionnal Parameters:**
-- `name` Name must be a valid lua identifier
-- `body` Body of the macro, that will be render at each call.
-
-**Other optional parameters:** Macro arguments names.
-
-**Note:** Doesn't work if the name is available.
-
-### redef_forced
-
-**Usage:** `\redef_forced[...] {name} {body}`
-
-**Description:** Redefined a predefined macro.
-
-**Positionnal Parameters:**
-- `name` Name must be a valid lua identifier
-- `body` Body of the macro, that will be render at each call.
-
-**Other optional parameters:** Macro arguments names.
-
-**Note:** Doesn't work if the name is available or isn't a predefined macro.
-
-### def_local
-
-**Usage:** `\def_local[...] {name} {body}`
+**Usage:** `\local_macro[...] {name} {body}`
 
 **Description:** Define a new macro locally.
 
@@ -308,11 +280,11 @@ _Generated from source._
 
 **Alias:** `\defl`
 
-### defl
+### lmacro
 
-**Usage:** `\defl[...] {name} {body}`
+**Usage:** `\lmacro[...] {name} {body}`
 
-**Description:** Alias for [def_local](#def_local)
+**Description:** Alias for [local_macro](#local_macro)
 
 **Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
@@ -334,11 +306,9 @@ _Generated from source._
 **Flags :**
 - `local` Is the new macro local to the current scope.
 
-**Alias:** `\aliasl` is equivalent as `\alias[local]`
+### local_alias
 
-### alias_local
-
-**Usage:** `\alias_local {name1} {name2}`
+**Usage:** `\local_alias {name1} {name2}`
 
 **Description:** Make an alias locally
 
@@ -346,13 +316,13 @@ _Generated from source._
 - `name1` Name of an existing macro.
 - `name2` Any valid lua identifier.
 
-**Alias:** `\aliasl`
+**Alias:** `\lalias`
 
-### aliasl
+### lalias
 
-**Usage:** `\aliasl {name1} {name2}`
+**Usage:** `\lalias {name1} {name2}`
 
-**Description:** Alias for [alias_local](#alias_local)
+**Description:** Alias for [local_alias](#local_alias)
 
 **Positionnal Parameters:**
 - `name1` Name of an existing macro.
@@ -369,11 +339,127 @@ _Generated from source._
 
 **Other optional parameters:** Any parameters used by the given macro.
 
+### local_default
+
+**Usage:** `\local_default[...] {name}`
+
+**Description:** set  localy (or reset) default params of a given macro.
+
+**Positionnal Parameters:**
+- `name` Name of an existing macro.
+
+**Other optional parameters:** Any parameters used by the given macro.
+
+**Alias:** `\ldefault`
+
+### ldefault
+
+**Usage:** `\ldefault[...] {name}`
+
+**Description:** alias for [local_default](#local_default).
+
+**Positionnal Parameters:**
+- `name` Name of an existing macro.
+
+**Other optional parameters:** Any parameters used by the given macro.
+
+### def
+
+**Usage:** `\def[...] {name} {body}`
+
+**Description:** DEPRECATED. Define a new macro.
+
+**Positionnal Parameters:**
+- `name` Name must be a valid lua identifier
+- `body` Body of the macro, that will be render at each call.
+
+**Other optional parameters:** Macro arguments names. See [more about](advanced.md#macro-parameters)
+
+**Note:** Doesn't work if the name is already taken by another macro.
+
+### redef
+
+**Usage:** `\redef[...] {name} {body}`
+
+**Description:** DEPRECATED. Redefine a macro.
+
+**Positionnal Parameters:**
+- `name` Name must be a valid lua identifier
+- `body` Body of the macro, that will be render at each call.
+
+**Other optional parameters:** Macro arguments names.
+
+**Note:** Doesn't work if the name is available.
+
+### redef_forced
+
+**Usage:** `\redef_forced[...] {name} {body}`
+
+**Description:** DEPRECATED. Redefined a predefined macro.
+
+**Positionnal Parameters:**
+- `name` Name must be a valid lua identifier
+- `body` Body of the macro, that will be render at each call.
+
+**Other optional parameters:** Macro arguments names.
+
+**Note:** Doesn't work if the name is available or isn't a predefined macro.
+
+### def_local
+
+**Usage:** `\def_local[...] {name} {body}`
+
+**Description:** DEPRECATED. Define a new macro locally.
+
+**Positionnal Parameters:**
+- `name` Name must be a valid lua identifier
+- `body` Body of the macro, that will be render at each call.
+
+**Other optional parameters:** Macro arguments names.
+
+**Note:** Contrary to `\def`, can erase another macro without error.
+
+**Alias:** `\defl`
+
+### defl
+
+**Usage:** `\defl[...] {name} {body}`
+
+**Description:** DEPRECATED. Alias for [def_local](#def_local)
+
+**Positionnal Parameters:**
+- `name` Name must be a valid lua identifier
+- `body` Body of the macro, that will be render at each call.
+
+**Other optional parameters:** Macro arguments names.
+
+### alias_local
+
+**Usage:** `\alias_local {name1} {name2}`
+
+**Description:** DEPRECATED. Make an alias locally
+
+**Positionnal Parameters:**
+- `name1` Name of an existing macro.
+- `name2` Any valid lua identifier.
+
+**Alias:** `\aliasl`
+
+### aliasl
+
+**Usage:** `\aliasl {name1} {name2}`
+
+**Description:** DEPRECATED. Alias for [alias_local](#alias_local)
+
+**Positionnal Parameters:**
+- `name1` Name of an existing macro.
+- `name2` Any valid lua identifier.
+
 ### default_local
 
 **Usage:** `\default_local[...] {name}`
 
-**Description:** set  localy (or reset) default params of a given macro.
+**Description:** DEPRECATED. set localy (or reset) default params of a given macro.
 
 **Positionnal Parameters:**
 - `name` Name of an existing macro.

@@ -44,6 +44,8 @@ plume.config.filter_newlines = "\n"
 -- Show deprecation warnings created with [deprecate](macros.md#deprecate).
 plume.config.show_deprecation_warnings  = true
 
+-- Show warning occuring when overwriting already existing macro
+plume.config.show_macro_overwrite_warnings = true
 
 -- ## syntax.lua ##
 plume.syntax = {
@@ -1879,7 +1881,7 @@ end
 -- @param redef_forced boolean Whether to force redefinition of standard macros
 -- @param is_local boolean Whether the macro is local
 -- @param calling_token token The token where the macro is being defined
-local function def (def_parameters, redef, redef_forced, is_local, calling_token)
+local function new_macro (def_parameters, redef, redef_forced, is_local, calling_token)
     -- Get the provided macro name
     local name = def_parameters.positionnals.name:render()
     local variable_parameters_number = false
@@ -1892,7 +1894,9 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
     if not is_local then
         local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
         if not available then
-            plume.error(def_parameters.positionnals.name, msg)
+            if plume.running_api.config.show_macro_overwrite_warnings then
+                plume.warning(def_parameters.positionnals.name, msg)
+            end
         end
     end
 
@@ -1997,61 +2001,39 @@ local function def (def_parameters, redef, redef_forced, is_local, calling_token
     end, calling_token, false, false, variable_parameters_number)
 end
 
---- \def
+--- \macro
 -- Define a new macro.
 -- @param name Name must be a valid lua identifier
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names. See [more about](advanced.md#macro-parameters)
 -- @note Doesn't work if the name is already taken by another macro.
-plume.register_macro("def", {"name", "body"}, {}, function(def_parameters, calling_token)
+plume.register_macro("macro", {"name", "body"}, {}, function(def_parameters, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_parameters, false, false, false, calling_token)
+    new_macro (def_parameters, false, false, false, calling_token)
     return ""
 end, nil, false, true, true)
 
---- \redef
--- Redefine a macro.
--- @param name Name must be a valid lua identifier
--- @param body Body of the macro, that will be render at each call.
--- @other_options Macro arguments names.
--- @note Doesn't work if the name is available.
-plume.register_macro("redef", {"name", "body"}, {}, function(def_parameters, calling_token)
-    def (def_parameters, true, false, false, calling_token)
-    return ""
-end, nil, false, true, true)
-
---- \redef_forced
--- Redefined a predefined macro.
--- @param name Name must be a valid lua identifier
--- @param body Body of the macro, that will be render at each call.
--- @other_options Macro arguments names.
--- @note Doesn't work if the name is available or isn't a predefined macro.
-plume.register_macro("redef_forced", {"name", "body"}, {["*"]=true}, function(def_parameters, calling_token)
-    def (def_parameters, true, true, false, calling_token)
-    return ""
-end, nil, false, true, true)
-
---- \def_local
+--- \local_macro
 -- Define a new macro locally.
 -- @param name Name must be a valid lua identifier
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
 -- @note Contrary to `\def`, can erase another macro without error.
 -- @alias `\defl`
-plume.register_macro("def_local", {"name", "body"}, {}, function(def_parameters, calling_token)
+plume.register_macro("local_macro", {"name", "body"}, {}, function(def_parameters, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_parameters, false, false, true, calling_token)
+    new_macro (def_parameters, false, false, true, calling_token)
     return ""
 end, nil, true, true)
 
---- \defl
--- Alias for [def_local](#def_local)
+--- \lmacro
+-- Alias for [local_macro](#local_macro)
 -- @param name Name must be a valid lua identifier
 -- @param body Body of the macro, that will be render at each call.
 -- @other_options Macro arguments names.
-plume.register_macro("defl", {"name", "body"}, {}, function(def_parameters, calling_token)
+plume.register_macro("lmacro", {"name", "body"}, {}, function(def_parameters, calling_token)
     -- '$' in arg name, so they cannot be erased by user
-    def (def_parameters, false, false, true, calling_token)
+    new_macro (def_parameters, false, false, true, calling_token)
     return ""
 end, nil, true, true)
 
@@ -2080,29 +2062,28 @@ end
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
 -- @flag local Is the new macro local to the current scope.
--- @alias `\aliasl` is equivalent as `\alias[local]`
 plume.register_macro("alias", {"name1", "name2"}, {}, function(params, calling_token)
     local name1 = params.positionnals.name1:render()
     local name2 = params.positionnals.name2:render()
     alias (name1, name2, calling_token, false)
 end, nil, false, true)
 
---- \alias_local
+--- \local_alias
 -- Make an alias locally
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
--- @alias `\aliasl`
-plume.register_macro("alias_local", {"name1", "name2"}, {}, function(params, calling_token)
+-- @alias `\lalias`
+plume.register_macro("local_alias", {"name1", "name2"}, {}, function(params, calling_token)
     local name1 = params.positionnals.name1:render()
     local name2 = params.positionnals.name2:render()
     alias (name1, name2, calling_token, true)
 end, nil, false, true)
 
---- \aliasl
--- Alias for [alias_local](#alias_local)
+--- \lalias
+-- Alias for [local_alias](#local_alias)
 -- @param name1 Name of an existing macro.
 -- @param name2 Any valid lua identifier.
-plume.register_macro("aliasl", {"name1", "name2"}, {}, function(params, calling_token)
+plume.register_macro("lalias", {"name1", "name2"}, {}, function(params, calling_token)
     local name1 = params.positionnals.name1:render()
     local name2 = params.positionnals.name2:render()
     alias (name1, name2, calling_token, true)
@@ -2183,8 +2164,111 @@ plume.register_macro("default", {"name"}, {}, function(params, calling_token)
     default (calling_token, name, params.others.keywords, params.others.flags, false)
 end, nil, false, true, true)
 
---- \default_local
+--- \local_default
 -- set  localy (or reset) default params of a given macro.
+-- @param name Name of an existing macro.
+-- @other_options Any parameters used by the given macro.
+-- @alias `\ldefault`
+plume.register_macro("local_default", {"name"}, {}, function(params, calling_token)
+    local name = params.positionnals.name:render()
+    default (calling_token, name, params.others.keywords, params.others.flags, true)
+
+end, nil, false, true, true)
+
+--- \ldefault
+-- alias for [local_default](#local_default).
+-- @param name Name of an existing macro.
+-- @other_options Any parameters used by the given macro.
+plume.register_macro("ldefault", {"name"}, {}, function(params, calling_token)
+    local name = params.positionnals.name:render()
+    default (calling_token, name, params.others.keywords, params.others.flags, true)
+
+end, nil, false, true, true)
+
+--- Compatibility with 0.6.1, will be removed in a future version.
+
+--- \def
+-- DEPRECATED. Define a new macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names. See [more about](advanced.md#macro-parameters)
+-- @note Doesn't work if the name is already taken by another macro.
+plume.register_macro("def", {"name", "body"}, {}, function(def_parameters, calling_token)
+    -- '$' in arg name, so they cannot be erased by user
+    new_macro (def_parameters, false, false, false, calling_token)
+    return ""
+end, nil, false, true, true)
+
+
+--- \redef
+-- DEPRECATED. Redefine a macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is available.
+plume.register_macro("redef", {"name", "body"}, {}, function(def_parameters, calling_token)
+    new_macro (def_parameters, true, false, false, calling_token)
+    return ""
+end, nil, false, true, true)
+
+--- \redef_forced
+-- DEPRECATED. Redefined a predefined macro.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Doesn't work if the name is available or isn't a predefined macro.
+plume.register_macro("redef_forced", {"name", "body"}, {["*"]=true}, function(def_parameters, calling_token)
+    new_macro (def_parameters, true, true, false, calling_token)
+    return ""
+end, nil, false, true, true)
+
+--- \def_local
+-- DEPRECATED. Define a new macro locally.
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+-- @note Contrary to `\def`, can erase another macro without error.
+-- @alias `\defl`
+plume.register_macro("def_local", {"name", "body"}, {}, function(def_parameters, calling_token)
+    -- '$' in arg name, so they cannot be erased by user
+    new_macro (def_parameters, false, false, true, calling_token)
+    return ""
+end, nil, true, true)
+
+--- \defl
+-- DEPRECATED. Alias for [def_local](#def_local)
+-- @param name Name must be a valid lua identifier
+-- @param body Body of the macro, that will be render at each call.
+-- @other_options Macro arguments names.
+plume.register_macro("defl", {"name", "body"}, {}, function(def_parameters, calling_token)
+    -- '$' in arg name, so they cannot be erased by user
+    new_macro (def_parameters, false, false, true, calling_token)
+    return ""
+end, nil, true, true)
+
+--- \alias_local
+-- DEPRECATED. Make an alias locally
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
+-- @alias `\aliasl`
+plume.register_macro("alias_local", {"name1", "name2"}, {}, function(params, calling_token)
+    local name1 = params.positionnals.name1:render()
+    local name2 = params.positionnals.name2:render()
+    alias (name1, name2, calling_token, true)
+end, nil, false, true)
+
+--- \aliasl
+-- DEPRECATED. Alias for [alias_local](#alias_local)
+-- @param name1 Name of an existing macro.
+-- @param name2 Any valid lua identifier.
+plume.register_macro("aliasl", {"name1", "name2"}, {}, function(params, calling_token)
+    local name1 = params.positionnals.name1:render()
+    local name2 = params.positionnals.name2:render()
+    alias (name1, name2, calling_token, true)
+end, nil, false, true)
+
+--- \default_local
+-- DEPRECATED. set localy (or reset) default params of a given macro.
 -- @param name Name of an existing macro.
 -- @other_options Any parameters used by the given macro.
 plume.register_macro("default_local", {"name"}, {}, function(params, calling_token)
@@ -3085,9 +3169,16 @@ function plume.init ()
     plume.load_macros()
 
     -- Deprecate
-    for name in (""):gmatch('%S+') do
-        plume.deprecate(name, "version", "alternative")
-    end
+    plume.deprecate("def", "1.0", "macro")
+    plume.deprecate("defl", "1.0", "lmacro")
+    plume.deprecate("redef", "1.0", "macro")
+    plume.deprecate("redef_forced", "1.0", "macro")
+    plume.deprecate("def_local", "1.0", "local_macro")
+    plume.deprecate("set_local", "1.0", "local_set")
+    plume.deprecate("setl", "1.0", "lset")
+    plume.deprecate("alias_local", "1.0", "local_alias")
+    plume.deprecate("aliasl", "1.0", "lalias")
+    plume.deprecate("default_local", "1.0", "local_default")
 
     -- Initialise error tracing
     plume.last_error = nil

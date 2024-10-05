@@ -32,3 +32,6 @@ plume.config.filter_newlines = "\n"
 
 -- Show deprecation warnings created with [deprecate](macros.md#deprecate).
 plume.config.show_deprecation_warnings  = true
+
+-- Show warning occuring when overwriting already existing macro
+plume.config.show_macro_overwrite_warnings = true

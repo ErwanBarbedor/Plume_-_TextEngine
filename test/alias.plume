@@ -1,5 +1,5 @@
 \-- Test 'alias 1'
-\def foo bar\--
+\macro foo bar\--
 \alias foo baz\--
 \baz
 \-- Result
@@ -7,31 +7,31 @@ bar
 \-- End
 
 \-- Test 'alias 2'
-\def foo bar\--
+\macro foo bar\--
 \alias foo baz\--
-\redef foo foo\--
+\macro foo foo\--
 \baz \foo
 \-- Result
 bar foo
 \-- End
 
 \-- Test 'alias 3'
-\def foo bar\--
+\macro foo bar\--
 \do {\--
     \alias foo baz\--
 }\--
-\redef foo foo\--
+\macro foo foo\--
 \baz \foo
 \-- Result
 bar foo
 \-- End
 
 \-- Test 'alias 4'
-\def foo bar\--
+\macro foo bar\--
 \do {\--
-    \aliasl foo baz\--
+    \lalias foo baz\--
 }\--
-\redef foo foo\--
+\macro foo foo\--
 \baz \foo
 \-- Error
 File 'string', line 6 : Unknow macro 'baz'. Perhaps you mean 'raw'?

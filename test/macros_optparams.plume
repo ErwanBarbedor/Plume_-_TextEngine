@@ -1,80 +1,80 @@
 \-- Test 'Optional arg (defaut)'
-\def foo [x=foo] {$x}\foo
+\macro foo [x=foo] {$x}\foo
 \-- Result
 foo
 \-- End
 
 \-- Test 'Optional arg (provided)'
-\def foo [x=foo] {$x}\foo[x=bar]
+\macro foo [x=foo] {$x}\foo[x=bar]
 \-- Result
 bar
 \-- End
 
 \-- Test 'Optional arg (mixed 1)'
-\def foo [x=foo y=bar] {$x-$y}\foo
+\macro foo [x=foo y=bar] {$x-$y}\foo
 \-- Result
 foo-bar
 \-- End
 
 \-- Test 'Optional arg (mixed 2)'
-\def foo [x=foo y=bar] {$x-$y}\foo[x=bar]
+\macro foo [x=foo y=bar] {$x-$y}\foo[x=bar]
 \-- Result
 bar-bar
 \-- End
 
 \-- Test 'Optional arg (mixed 3)'
-\def foo [x=foo y=bar] {$x-$y}\foo[y=foo]
+\macro foo [x=foo y=bar] {$x-$y}\foo[y=foo]
 \-- Result
 foo-foo
 \-- End
 
 
 \-- Test 'Optional arg (set eval 1)'
-\def foo[x={${1+1}}] {$x}\--
+\macro foo[x={${1+1}}] {$x}\--
 \foo
 \-- Result
 2
 \-- End
 
 \-- Test 'Optional arg (set eval 2)'
-\def foo bar\--
-\def bar[x={\foo}] {$x}\--
+\macro foo bar\--
+\macro bar[x={\foo}] {$x}\--
 \bar
 \-- Result
 bar
 \-- End
 
 \-- Test 'Optional arg (pass eval 1)'
-\def foo[x={}] {$x}\--
+\macro foo[x={}] {$x}\--
 \foo[x={${1+1}}]
 \-- Result
 2
 \-- End
 
 \-- Test 'Optional arg (pass eval 2)'
-\def foo bar\--
-\def bar[x={}] {$x}\--
+\macro foo bar\--
+\macro bar[x={}] {$x}\--
 \bar[x={\foo}]
 \-- Result
 bar
 \-- End
 
 \-- Test 'Flag 1'
-\def foo[?bar] {\if $bar {bar} \else {foo}}\--
+\macro foo[?bar] {\if $bar {bar} \else {foo}}\--
 \foo
 \-- Result
  foo
 \-- End
 
 \-- Test 'Flag 2'
-\def foo[?bar] {\if $bar {bar} \else {foo}}\--
+\macro foo[?bar] {\if $bar {bar} \else {foo}}\--
 \foo[bar]
 \-- Result
 bar 
 \-- End
 
 \-- Test 'Variable parameters number'
-\def foo[...] {
+\macro foo[...] {
     ${__params.x}\n
     ${__params.y}\n
     ${__params.zzz}
@@ -87,7 +87,7 @@ true
 \-- End
 
 \-- Test 'set default 1'
-\def foo[x=bar] {$x}
+\macro foo[x=bar] {$x}
 \foo\n
 \default foo[x=baz]
 \foo
@@ -97,7 +97,7 @@ baz
 \-- End
 
 \-- Test 'set default 2'
-\def foo[...] {
+\macro foo[...] {
     ${__params.bar}
 }
 \default foo[bar]
@@ -107,36 +107,36 @@ true
 \-- End
 
 \-- Test 'To many optional blocks'
-\def[x][x] foo bar
+\macro[x][x] foo bar
 \-- Error
-File 'string', line 1 : To many optional blocks given for macro '\def'
-    \def[x][x] foo bar
-           ^^^
+File 'string', line 1 : To many optional blocks given for macro '\macro'
+    \macro[x][x] foo bar
+             ^^^
 \-- End
 
 \-- Test 'To many "="in optional block'
-\def foo [a==5] {}
+\macro foo [a==5] {}
 \-- Error
 File 'string', line 1 : Expected parameter value, not '='.
-    \def foo [a==5] {}
-                ^
+    \macro foo [a==5] {}
+                  ^
 \-- End
 
 \-- Test 'Early ='
-\def foo [=a] {}
+\macro foo [=a] {}
 \-- Error
 File 'string', line 1 : Expected parameter name, not '='.
-    \def foo [=a] {}
-              ^
+    \macro foo [=a] {}
+                ^
 \-- End
 
 \-- Test 'Bad argument name'
-\def foo [@=foo] {}
+\macro foo [@=foo] {}
 \-- Error
 File 'string', line 1 : '@' is an invalid parameter name.
-    \def foo [@=foo] {}
-    ^^^^
+    \macro foo [@=foo] {}
+    ^^^^^^
 Traceback :
-    File 'string', line 1 : \def foo [@=foo] {}
-                            ^^^^
+    File 'string', line 1 : \macro foo [@=foo] {}
+                            ^^^^^^
 \-- End
