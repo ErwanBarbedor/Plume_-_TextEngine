@@ -146,7 +146,8 @@ end
 -- @param token table The token that caused the error (optional)
 -- @param error_message string The raised error message
 -- @param is_lua_error boolean Whether the error is due to lua script
-function plume.make_error_message (token, error_message, is_lua_error)
+-- @param show_traceback boolean Show, or not, the traceback
+function plume.make_error_message (token, error_message, is_lua_error, show_traceback)
     
     -- Make the list of lines to prompt.
     local error_lines_infos = {}
@@ -160,19 +161,21 @@ function plume.make_error_message (token, error_message, is_lua_error)
         error_message = "(lua error) " .. error_message:gsub('^.-:[0-9]+: ', '')
 
         local traceback = (plume.lua_traceback or "")
-        local first_line = true
-        for line in traceback:gmatch('[^\n]+') do
-            if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
-                -- Remove first line, that already
-                -- be added.
-                if first_line then
-                    first_line = false
-                else
-                    local infos = lua_info (line)
-                    table.insert(error_lines_infos, lua_info (line))
-                    -- check if we arn't last line
-                    if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
-                        break
+        if show_traceback then
+            local first_line = true
+            for line in traceback:gmatch('[^\n]+') do
+                if line:match('^%s*%[string "%-%-chunk[0-9]+%.%.%."%]') then
+                    -- Remove first line, that already
+                    -- be added.
+                    if first_line then
+                        first_line = false
+                    else
+                        local infos = lua_info (line)
+                        table.insert(error_lines_infos, lua_info (line))
+                        -- check if we arn't last line
+                        if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
+                            break
+                        end
                     end
                 end
             end
@@ -186,8 +189,10 @@ function plume.make_error_message (token, error_message, is_lua_error)
     end
     
     -- Then add all traceback
-    for i=#plume.traceback, 1, -1 do
-        table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
+    if show_traceback then
+        for i=#plume.traceback, 1, -1 do
+            table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
+        end
     end
 
     -- Now, for each line print line info (file, noline, line content)
@@ -272,13 +277,17 @@ function plume.error (token, error_message, is_lua_error)
     end
 
     -- Create a formatted error message.
-    local error_message = plume.make_error_message (token, error_message, is_lua_error)
+    local error_message = plume.make_error_message (token, error_message, is_lua_error, true)
 
     -- Save the error message.
     plume.last_error = error_message
 
     -- Throw the error message.
     error(error_message, -1)
+end
+
+function plume.warning (token, warning_message)
+    print(plume.make_error_message (token, warning_message))
 end
 
 --- Generates error message for error occuring in plume internal functions
