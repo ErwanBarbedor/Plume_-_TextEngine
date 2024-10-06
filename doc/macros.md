@@ -124,13 +124,13 @@ _Generated from source._
 - `code` The code to evaluate or execute.
 
 **Keyword Parameters :** 
-- `thousand_separator` Symbol used between groups of 3 digits.Default value : empty
-- `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
-- `join` If the value is a table, string to put between table elements.Default value : a space
+- `thousand_separator` Symbol used between groups of 3 digits.Default value : empty
+- `decimal_separator` Symbol used between the integer and the decimal part.Default value : `.`
+- `join` If the value is a table, string to put between table elements.Default value : a space
 
 
 **Flags :**
-- `<format>` Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
+- `<format>` Only works if the code returns a number. If `i`, the number is rounded. If `.2f`, it will be output with 2 digits after the decimal point. If `.3s`, it will be output using scientific notation, with 3 digits after the decimal point..
 - `remove_zeros` Remove useless zeros (e.g., `1.0` becomes `1`).
 - `silent` Execute the code without returning anything. Useful for filtering unwanted function returns: `${table.remove(t)}[silent]`
 - `no_join_table` Doesn't render all table element and just return `tostring(table)`.
@@ -151,7 +151,7 @@ _Generated from source._
 
 
 **Flags :**
-- `<n>` Number of newlines to output..
+- `<n>` Number of newlines to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -163,7 +163,7 @@ _Generated from source._
 
 
 **Flags :**
-- `<n>` Number of spaces to output..
+- `<n>` Number of spaces to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -175,7 +175,7 @@ _Generated from source._
 
 
 **Flags :**
-- `<n>` Number of tabs to output..
+- `<n>` Number of tabs to output..
 
 **Note:** Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
 
@@ -478,4 +478,4 @@ _Generated from source._
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
 
-**Other optional parameters:** Any parameters used by the given macro.
+**Other optional parameters:** Any parameters used by the given macro.

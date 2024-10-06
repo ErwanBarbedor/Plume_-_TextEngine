@@ -66,20 +66,6 @@ local function sort(t)
     return sortedTable
 end
 
---- Retrieves a line by its line number in the source code.
--- @param source string The source code
--- @param noline number The line number to retrieve
--- @return string The line at the specified line number
-function plume.get_line(source, noline)
-    local current_line = 1
-    for line in (source.."\n"):gmatch("(.-)\n") do
-        if noline == current_line then
-            return line
-        end
-        current_line = current_line + 1
-    end
-end
-
 --- Extracts information from a Lua error message.
 -- @param message string The error message
 -- @return table A table containing file, line number, line content, and position information
