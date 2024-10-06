@@ -121,7 +121,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### Changes
 - Configuration can now be local.
-- Add a warning if using `#` or `//` instead of `$` and `\--`.
+- Add a warning if using `#` or `//` instead of `$` and `\--`. Will be trigger in Lua code, ignore it in this case.
 - New function `plume.check_inside`.
 - `${...}[i]` will now do round, not floor.
 
