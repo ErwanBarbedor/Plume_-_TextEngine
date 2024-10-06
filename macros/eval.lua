@@ -46,7 +46,11 @@ end
 local function eval_style (result, format, scinot, d_sep, t_sep, remove_zeros, join_table, table_separator)
     if tonumber(result) then
         if format == "i" then
-            result = math.floor(result)
+            local int = math.floor(tonumber(result))
+            if result - int >= 0.5 then
+                int = int + 1
+            end
+            result = int
         elseif format then
             result = string.format("%"..format, result)
         end
