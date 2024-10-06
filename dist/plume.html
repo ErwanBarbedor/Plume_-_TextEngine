@@ -1898,11 +1898,11 @@ end, nil, false, true)
 -- Implements a custom mechanism that mimics Lua's if behavior.
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered, only if the condition is verified.
-plume.register_macro("if", {"condition", "body"}, {}, function(params)
+plume.register_macro("if", {"condition", "body"}, {}, function(params, calling_token)
     -- Have the same behavior of the lua if control structure.
     -- Send a message "true" or "false" for activate (or not)
     -- following "else" or "elseif"
-
+    local config = plume.current_scope (calling_token.context).config
     local condition_token
 
     if params.positionnals.condition:is_eval_block() then
