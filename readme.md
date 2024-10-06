@@ -112,6 +112,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 ### Changes
 - Configuration can now be local.
 - Add a warning if using `#` or `//` instead of `$` and `\--`.
+- New function `plume.check_inside`.
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
