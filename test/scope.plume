@@ -148,9 +148,9 @@ bar
 \-- End
 
 \-- Test 'default_local eval'
-\ldefault eval [.1f]
+\ldefault[.1f] eval
 \do {
-    \ldefault eval [.3f]
+    \ldefault[.3f] eval
     ${1/3}\n
 }
 ${1/3}
