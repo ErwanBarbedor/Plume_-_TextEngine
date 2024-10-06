@@ -627,11 +627,6 @@ function plume.tokenlist (x)
         kind      = kind,        --- Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
         context   = false,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
         lua_cache = false,       --- For eval tokens, cached loaded lua code.
-
-        -- To be removed --
-        first     = false,
-        last      = false,
-        -------------------
         
         --- @intern_method Return debug informations about the tokenlist.
         -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
@@ -774,10 +769,6 @@ function plume.tokenlist (x)
                 -- Check if the macro value is "$" or "eval"
                 is_eval_block = is_eval_block or self[1].value == "$"
                 is_eval_block = is_eval_block or self[1].value == "eval"
-
-                -- Deprecated: This will be removed in version 1.0
-                is_eval_block = is_eval_block or self[1].value == "script"
-                --
             end
 
             return is_eval_block
