@@ -107,6 +107,16 @@ For exemple, in LaTeX, you can define a macro like this: `\newcommand {\foo} {ba
 
 This doesn't work in Plume because `foo` will be expanded first.
 
+## Project Status
+
+Plume is currently in development, and I try to release an update every week or every two weeks.
+
+I am actively experimenting with features in several projects (non-public), so updates are often non-backward compatible: macros and functions are added/removed very regularly, the internal workings evolve, and even the syntax can change.
+
+This is essential for improving Plume, but it currently makes it incompatible with production use, although I try to announce non-backward compatible changes one or two versions in advance. However, feel free to test and report any errors or suggestions! The documentation is already very comprehensive and is regularly updated.
+
+Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents..
+
 ## Last version : 0.8.0
 
 ### Changes
