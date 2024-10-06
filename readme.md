@@ -110,6 +110,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 ## Last version : 0.8.0
 
 ### Changes
+- Configuration can now be local.
 - Add a warning if using `#` or `//` instead of `$` and `\--`.
 
 ### Deprecation

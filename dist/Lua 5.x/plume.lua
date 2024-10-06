@@ -3101,9 +3101,14 @@ function plume.create_scope (parent, source)
     scope.__childs = {}
     -- </DEV>
 
+    -- Store all variables, accessibles from user
     make_field (scope, "variables", parent, source)
-    make_field (scope, "macros", parent, source)
-    make_field (scope, "default", parent, source)
+    -- Store macro
+    make_field (scope, "macros",    parent, source)
+    -- Store default parameters for macro
+    make_field (scope, "default",   parent, source)
+    -- Store configuration
+    make_field (scope, "config",    parent, source)
 
     --- Returns all variables of the given field that are visible from this scope.
     -- @param self table The current scope.
