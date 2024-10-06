@@ -113,6 +113,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Configuration can now be local.
 - Add a warning if using `#` or `//` instead of `$` and `\--`.
 
+### Fixes
+- Fix a bug causing `local_macro` and `lmacro` to be global.
+
 ### Deprecation
 - `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced` will be removed in `v0.9`
 - Old syntax `#` and `//` compatibility will be removed in `v0.10`.

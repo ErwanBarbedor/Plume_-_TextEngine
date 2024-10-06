@@ -176,7 +176,7 @@ local function new_macro (def_parameters, redef, redef_forced, is_local, calling
         plume.pop_scope ()
 
         return result, message
-    end, calling_token, false, false, variable_parameters_number)
+    end, calling_token, is_local, false, variable_parameters_number)
 end
 
 --- \macro
@@ -202,7 +202,7 @@ plume.register_macro("local_macro", {"name", "body"}, {}, function(def_parameter
     -- '$' in arg name, so they cannot be erased by user
     new_macro (def_parameters, false, false, true, calling_token)
     return ""
-end, nil, true, true, true)
+end, nil, false, true, true)
 
 --- \lmacro
 -- Alias for [local_macro](#local_macro)
@@ -213,7 +213,7 @@ plume.register_macro("lmacro", {"name", "body"}, {}, function(def_parameters, ca
     -- '$' in arg name, so they cannot be erased by user
     new_macro (def_parameters, false, false, true, calling_token)
     return ""
-end, nil, true, true, true)
+end, nil, false, true, true)
 
 --- Create alias of a function
 local function alias (name1, name2, calling_token, is_local)
