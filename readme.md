@@ -113,6 +113,9 @@ This doesn't work in Plume because `foo` will be expanded first.
 - Configuration can now be local.
 - Add a warning if using `#` or `//` instead of `$` and `\--`.
 
+### Enhancement
+- When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
+
 ### Fixes
 - Fix a bug causing `local_macro` and `lmacro` to be global.
 

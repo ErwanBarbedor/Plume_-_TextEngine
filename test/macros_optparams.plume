@@ -136,7 +136,4 @@ File 'string', line 1 : Expected parameter name, not '='.
 File 'string', line 1 : '@' is an invalid parameter name.
     \macro foo [@=foo] {}
     ^^^^^^
-Traceback :
-    File 'string', line 1 : \macro foo [@=foo] {}
-                            ^^^^^^
 \-- End

@@ -152,9 +152,6 @@ Traceback :
 File 'string', line 1 : 'else' macro must be preceded by 'if' or 'elseif'.
     \else foo
     ^^^^^
-Traceback :
-    File 'string', line 1 : \else foo
-                            ^^^^^
 \-- End
 
 \-- Test 'do'
