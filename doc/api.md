@@ -116,6 +116,17 @@ Méthodes et variables Lua accessibles in any `$` macro.
 - `arg_number` _Number_  of paramters to capture
 - `is_local` _bool_  Is the new macro local?
 
+### check_inside
+
+**Usage :** `bool = plume.check_inside(name)`
+
+**Description:**  Check if we are inside a given macro
+
+**Parameters :**
+- `name` _string_  the name of the macro
+
+**Return:** `bool`True if we are inside a macro with the given name, false otherwise.
+
 ## Tokenlist
 
 Tokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.

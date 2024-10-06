@@ -137,6 +137,20 @@ function api.export_local(name, params_number, f)
     api.export(name, params_number, f, true)
 end
 
+--- @api_method Check if we are inside a given macro
+-- @param name string the name of the macro
+-- @return bool True if we are inside a macro with the given name, false otherwise.
+function api.check_inside (name)
+    for i = #plume.traceback, 1, -1 do
+        if name == plume.traceback[i].value
+            or plume.syntax.escape .. name == plume.traceback[i].value
+        then
+            return true
+        end
+    end
+    return false
+end
+
 --- Initializes the API methods visible to the user.
 function plume.init_api ()
     local scope = plume.current_scope ().variables
