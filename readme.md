@@ -125,6 +125,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 ### Deprecation
 - `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced` will be removed in `v0.9`
 - Old syntax `#` and `//` compatibility will be removed in `v0.10`.
+- Non-lua block as parameter of `\if`, `\elseif`, `\for` and `\while` will no longer be accepted in `v0.11`.
 
 See the [changelog](doc/changelog.md) for older version
 
