@@ -274,14 +274,14 @@ function plume.parse_opt_params (macro, params, opt_params, context)
     end
 
     for _, token in ipairs(opt_params) do
-        if token.kind ~= "opt_assign"
+        if token.kind ~= "opt_assign" and token.kind ~= "comment"
             and token.kind ~= "block" and token.kind ~= "block_text"
             and token.kind  ~= "space" and token.kind  ~= "newline" then
             plume.error(token, "Cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
         end
 
         if key then
-            if token.kind == "space" or token.kind == "newline" then
+            if token.kind == "space" or token.kind == "newline" or token.kind == "comment" then
             elseif eq then
                 if token.kind == "opt_assign" then
                     plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
@@ -299,7 +299,7 @@ function plume.parse_opt_params (macro, params, opt_params, context)
             end
         elseif token.kind == "opt_assign" then
             plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
-        elseif token.kind ~= "space" and token.kind ~= "newline"then
+        elseif token.kind ~= "space" and token.kind ~= "newline" and token.kind ~= "comment" then
             key = token
         end
     end

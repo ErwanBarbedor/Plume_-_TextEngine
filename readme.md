@@ -117,6 +117,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
+- Can now use comments inside optional parameter declaration.
 
 ### Fixes
 - Fix a bug causing `local_macro` and `lmacro` to be global.
