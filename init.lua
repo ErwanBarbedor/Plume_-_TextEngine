@@ -84,6 +84,10 @@ function plume.init ()
         plume.scopes[1].variables[k] = v
     end
 
+    -- Initialise configuration
+    for k, v in pairs(plume.config) do
+        plume.scopes[1].config[k] = v
+    end
 
     plume.load_macros()
 

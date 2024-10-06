@@ -232,7 +232,19 @@ _Generated from source._
 **Description:** Edit plume configuration.
 
 **Positionnal Parameters:**
-- `key` Name of the paramter.
+- `key` Name of the parameter.
+- `value` New value to save.
+
+**Note:** Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
+
+### lconfig
+
+**Usage:** `\lconfig {key} {value}`
+
+**Description:** Edit plume configuration in local scope.
+
+**Positionnal Parameters:**
+- `key` Name of the parameter.
 - `value` New value to save.
 
 **Note:** Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.

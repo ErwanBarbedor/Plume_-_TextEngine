@@ -342,6 +342,9 @@ function plume.renderToken (self)
     -- Used to skip space at line beginning
     local last_is_newline = false
 
+    -- Get current configuration
+    local config = plume.current_scope (self.context).config
+
     while pos <= #self do
         local token = self[pos]
 
@@ -378,13 +381,13 @@ function plume.renderToken (self)
         
         elseif token.kind == "newline" then
             -- To be removed in 1.0 --
-            if plume.running_api.config.ignore_spaces then
+            if config.ignore_spaces then
                 last_is_newline = true
             --------------------------
             else
-                if plume.running_api.config.filter_newlines then
+                if config.filter_newlines then
                     if not last_is_newline then
-                        table.insert(result, plume.running_api.config.filter_newlines)
+                        table.insert(result, config.filter_newlines)
                         last_is_newline = true
                     end
                 elseif token.__type == "token" then
@@ -396,7 +399,7 @@ function plume.renderToken (self)
         
         elseif token.kind == "space" then
             -- To be removed in 1.0 --
-            if plume.running_api.config.ignore_spaces then
+            if config.ignore_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
@@ -404,11 +407,11 @@ function plume.renderToken (self)
                 end
             --------------------------
             else
-                if plume.running_api.config.filter_spaces then
+                if config.filter_spaces then
                     if last_is_newline then
                         last_is_newline = false
                     else
-                        table.insert(result, plume.running_api.config.filter_spaces)
+                        table.insert(result, config.filter_spaces)
                     end
                 else
                     table.insert(result, token.value)
@@ -420,7 +423,7 @@ function plume.renderToken (self)
             
             -- If more than plume.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            local up_limit = plume.running_api.config.max_callstack_size
+            local up_limit = config.max_callstack_size
             
             if #plume.traceback > up_limit then
                 plume.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
@@ -1728,12 +1731,13 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
     local iterator_token
+    local config = plume.current_scope (calling_token.context).config
 
     if params.positionnals.iterator:is_eval_block() then
         iterator_token  = params.positionnals.iterator[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.iterator:source()
             local message = "Iterator must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -1786,7 +1790,7 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     -- plume.pop_scope ()
     
     -- Limiting loop iterations to avoid infinite loop
-    local up_limit = plume.running_api.config.max_loop_size
+    local up_limit = config.max_loop_size
     local iteration_count  = 0
 
     
@@ -1856,13 +1860,14 @@ end, nil, false, true)
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered while the condition is verified.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("while", {"condition", "body"}, {}, function(params)
+plume.register_macro("while", {"condition", "body"}, {}, function(params, calling_token)
     -- Have the same behavior of the lua while control structure.
     -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
-
+    local config = plume.current_scope (calling_token.context).config
+    
     local result = {}
     local i = 0
-    local up_limit = plume.running_api.config.max_loop_size
+    local up_limit = config.max_loop_size
 
     local condition_token
 
@@ -1870,7 +1875,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(params)
         condition_token  = params.positionnals.condition[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.condition:source()
             local message = "While condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -1913,7 +1918,7 @@ plume.register_macro("if", {"condition", "body"}, {}, function(params)
         condition_token  = params.positionnals.condition[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.condition:source()
             local message = "if condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -1967,7 +1972,7 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_
         condition_token  = params.positionnals.condition[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.condition:source()
             local message = "elseif condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -2052,6 +2057,7 @@ local function new_macro (def_parameters, redef, redef_forced, is_local, calling
     -- Get the provided macro name
     local name = def_parameters.positionnals.name:render()
     local variable_parameters_number = false
+    local config = plume.current_scope (calling_token.context).config
 
     -- Check if the name is a valid identifier
     if not plume.is_identifier(name) then
@@ -2061,7 +2067,7 @@ local function new_macro (def_parameters, redef, redef_forced, is_local, calling
     if not is_local then
         local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
         if not available then
-            if plume.running_api.config.show_macro_overwrite_warnings then
+            if config.show_macro_overwrite_warnings then
                 plume.warning(def_parameters.positionnals.name, msg)
             end
         end
@@ -2506,22 +2512,39 @@ end, nil, false, true)
 
 --- \config
 -- Edit plume configuration.
--- @param key Name of the paramter.
+-- @param key Name of the parameter.
 -- @param value New value to save.
 -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
 plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
     local name   = params.positionnals.name:render ()
     local value  = params.positionnals.value:renderLua ()
-    local config = plume.running_api.config
+    local scope = plume.current_scope()
 
-    if config[name] == nil then
+    if scope.config[name] == nil then
         plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
     end
 
-    config[name] = value
+    scope:set("config", name, value)
 end, nil, false, true)
 
-function plume.deprecate (name, version, alternative)
+--- \lconfig
+-- Edit plume configuration in local scope.
+-- @param key Name of the parameter.
+-- @param value New value to save.
+-- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
+plume.register_macro("lconfig", {"name", "value"}, {}, function(params, calling_token)
+    local name   = params.positionnals.name:render ()
+    local value  = params.positionnals.value:renderLua ()
+    local scope = plume.current_scope(calling_token.context)
+
+    if scope.config[name] == nil then
+        plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
+    end
+    
+    scope:set_local("config", name, value)
+end, nil, false, true)
+
+function plume.deprecate (name, version, alternative, calling_token)
     local macro = plume.current_scope()["macros"][name]
 
     if not macro then
@@ -2531,7 +2554,8 @@ function plume.deprecate (name, version, alternative)
     local macro_f = macro.macro
 
     macro.macro = function (params, calling_token)
-        if plume.running_api.config.show_deprecation_warnings then
+        local config = plume.current_scope (calling_token.context).config
+        if config.show_deprecation_warnings then
             plume.warning(calling_token, "Macro '" .. name .. "' is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 
@@ -2946,19 +2970,20 @@ end, nil, false, true, true)
 -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
 plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
     local mode = params.positionnals.mode:render ()
+    local config = plume.current_scope(calling_token.context).config
 
     if mode == "normal" then
-        plume.running_api.config.config.filter_spaces = false
-        plume.running_api.config.config.filter_newlines = false
+        config.filter_spaces = false
+        config.filter_newlines = false
     elseif mode == "no_spaces" then
-        plume.running_api.config.filter_spaces = ""
-        plume.running_api.config.filter_newlines = ""
+        config.filter_spaces = ""
+        config.filter_newlines = ""
     elseif mode == "compact" then
-        plume.running_api.config.filter_spaces = " "
-        plume.running_api.config.filter_newlines = " "
+        config.filter_spaces = " "
+        config.filter_newlines = " "
     elseif mode == "light" then
-        plume.running_api.config.filter_spaces = " "
-        plume.running_api.config.filter_newlines = "\n"
+        config.filter_spaces = " "
+        config.filter_newlines = "\n"
     else
         plume.error(params.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
     end
@@ -3404,6 +3429,10 @@ function plume.init ()
         plume.scopes[1].variables[k] = v
     end
 
+    -- Initialise configuration
+    for k, v in pairs(plume.config) do
+        plume.scopes[1].config[k] = v
+    end
 
     plume.load_macros()
 
@@ -3579,10 +3608,28 @@ function plume.init_api ()
         scope.plume[k] = v
     end
 
-    scope.plume.config = {}
-    for k, v in pairs(plume.config) do
-        scope.plume.config[k] = v
-    end
+    -- Edit configuration from script
+    scope.plume.config = setmetatable({}, {
+        __newindex = function (self, k, v)
+            plume.scopes[1]:set ("config", k, v)
+        end,
+
+        __index = function (self, k)
+            return plume.scopes[1].config[k]
+        end
+    })
+
+    scope.plume.local_config = setmetatable({}, {
+        __newindex = function (self, k, v)
+            plume.current_scope(plume.traceback[#plume.traceback].context):set_local("config", k, v)
+        end,
+
+        __index = function (self, k)
+            return plume.current_scope(plume.traceback[#plume.traceback].context).config[k]
+        end
+    })
+
+    scope.plume.lconfig = scope.plume.local_config
 
     -- Used to pass temp variable
     scope.plume.temp = setmetatable({}, {__index=plume.temp, __newindex=function () error ("Cannot write 'plume.temp'") end})

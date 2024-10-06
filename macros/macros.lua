@@ -63,6 +63,7 @@ local function new_macro (def_parameters, redef, redef_forced, is_local, calling
     -- Get the provided macro name
     local name = def_parameters.positionnals.name:render()
     local variable_parameters_number = false
+    local config = plume.current_scope (calling_token.context).config
 
     -- Check if the name is a valid identifier
     if not plume.is_identifier(name) then
@@ -72,7 +73,7 @@ local function new_macro (def_parameters, redef, redef_forced, is_local, calling
     if not is_local then
         local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
         if not available then
-            if plume.running_api.config.show_macro_overwrite_warnings then
+            if config.show_macro_overwrite_warnings then
                 plume.warning(def_parameters.positionnals.name, msg)
             end
         end

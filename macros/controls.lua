@@ -24,12 +24,13 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     -- iteration over various types of iterables without implementing a full Lua parser.
     local result = {}
     local iterator_token
+    local config = plume.current_scope (calling_token.context).config
 
     if params.positionnals.iterator:is_eval_block() then
         iterator_token  = params.positionnals.iterator[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.iterator:source()
             local message = "Iterator must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -82,7 +83,7 @@ plume.register_macro("for", {"iterator", "body"}, {join=""}, function(params, ca
     -- plume.pop_scope ()
     
     -- Limiting loop iterations to avoid infinite loop
-    local up_limit = plume.running_api.config.max_loop_size
+    local up_limit = config.max_loop_size
     local iteration_count  = 0
 
     
@@ -152,13 +153,14 @@ end, nil, false, true)
 -- @param condition Anything that follow syntax of a lua expression, to evaluate.
 -- @param body A block that will be rendered while the condition is verified.
 -- @note Each iteration has it's own scope. The maximal number of iteration is limited by `plume.config.max_loop_size`. See [config](config.md) to edit it.
-plume.register_macro("while", {"condition", "body"}, {}, function(params)
+plume.register_macro("while", {"condition", "body"}, {}, function(params, calling_token)
     -- Have the same behavior of the lua while control structure.
     -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
-
+    local config = plume.current_scope (calling_token.context).config
+    
     local result = {}
     local i = 0
-    local up_limit = plume.running_api.config.max_loop_size
+    local up_limit = config.max_loop_size
 
     local condition_token
 
@@ -166,7 +168,7 @@ plume.register_macro("while", {"condition", "body"}, {}, function(params)
         condition_token  = params.positionnals.condition[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.condition:source()
             local message = "While condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -209,7 +211,7 @@ plume.register_macro("if", {"condition", "body"}, {}, function(params)
         condition_token  = params.positionnals.condition[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.condition:source()
             local message = "if condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 
@@ -263,7 +265,7 @@ plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_
         condition_token  = params.positionnals.condition[2]
     else
         -- compatibility with 0.6.1. Will lead to an error in a future version.
-        if plume.running_api.config.show_deprecation_warnings then
+        if config.show_deprecation_warnings then
             local source = params.positionnals.condition:source()
             local message = "elseif condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
 

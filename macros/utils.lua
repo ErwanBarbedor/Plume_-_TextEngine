@@ -73,22 +73,39 @@ end, nil, false, true)
 
 --- \config
 -- Edit plume configuration.
--- @param key Name of the paramter.
+-- @param key Name of the parameter.
 -- @param value New value to save.
 -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
 plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
     local name   = params.positionnals.name:render ()
     local value  = params.positionnals.value:renderLua ()
-    local config = plume.running_api.config
+    local scope = plume.current_scope()
 
-    if config[name] == nil then
+    if scope.config[name] == nil then
         plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
     end
 
-    config[name] = value
+    scope:set("config", name, value)
 end, nil, false, true)
 
-function plume.deprecate (name, version, alternative)
+--- \lconfig
+-- Edit plume configuration in local scope.
+-- @param key Name of the parameter.
+-- @param value New value to save.
+-- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
+plume.register_macro("lconfig", {"name", "value"}, {}, function(params, calling_token)
+    local name   = params.positionnals.name:render ()
+    local value  = params.positionnals.value:renderLua ()
+    local scope = plume.current_scope(calling_token.context)
+
+    if scope.config[name] == nil then
+        plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
+    end
+    
+    scope:set_local("config", name, value)
+end, nil, false, true)
+
+function plume.deprecate (name, version, alternative, calling_token)
     local macro = plume.current_scope()["macros"][name]
 
     if not macro then
@@ -98,7 +115,8 @@ function plume.deprecate (name, version, alternative)
     local macro_f = macro.macro
 
     macro.macro = function (params, calling_token)
-        if plume.running_api.config.show_deprecation_warnings then
+        local config = plume.current_scope (calling_token.context).config
+        if config.show_deprecation_warnings then
             plume.warning(calling_token, "Macro '" .. name .. "' is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
         end
 

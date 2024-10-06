@@ -127,6 +127,43 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Return:** `bool`True if we are inside a macro with the given name, false otherwise.
 
+### __newindex
+
+**Usage :** `file, founded_path, value, value, value, lib, bool = plume.__newindex(path, key, key, key, path, name, arg_number, is_local, name, arg_number, is_local, name, open_mode, silent_fail)`
+
+**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
+
+**Parameters :**
+- `path` _string_  The path where to search for the file.
+- `key` _string_  The variable name.
+- `key` _string_  The variable name
+- `key` _string_  The variable name
+- `path` _string_  Path of the lua file to load
+- `name` _string_  Name of the macro
+- `arg_number` _Number_  of paramters to capture
+- `is_local` _bool_  Is the new macro local?
+- `name` _string_  Name of the macro
+- `arg_number` _Number_  of paramters to capture
+- `is_local` _bool_  Is the new macro local?
+- `name` _string_  the name of the macro
+- `open_mode` _string_ Mode to open the file. _(optional, default `"r"`)_
+- `silent_fail` _boolean_ If true, the search will not raise an error if no file is found. _(optional, default `false`)_
+
+**Return:**
+- `file`The file found during the search, opened in the given mode.
+- `founded_path`The path of the file founded.
+- `value`The required variable.
+- `value`The required variable.
+- `value`The required variable.
+- `lib`The require lib
+- `bool`True if we are inside a macro with the given name, false otherwise.
+
+**Notes:**
+- Mainly internal use, you shouldn't use this function.
+- `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
+
+**Alias :** `plume.lget`
+
 ## Tokenlist
 
 Tokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.

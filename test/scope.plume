@@ -170,3 +170,27 @@ ${1/3}
 baz
 bar
 \-- End
+
+\-- Test 'local_config (macro)'
+\config filter_newlines !
+\do {
+    \lconfig filter_newlines ?
+    foo
+    bar
+}
+baz
+\-- Result
+!!?foo?bar?!baz
+\-- End
+
+\-- Test 'local_config (script)'
+${plume.config.filter_newlines = "!"}
+\do {
+    ${plume.local_config.filter_newlines = "?"}
+    foo
+    bar
+}
+baz
+\-- Result
+!!?foo?bar?!baz
+\-- End

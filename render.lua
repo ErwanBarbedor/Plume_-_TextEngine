@@ -118,6 +118,9 @@ function plume.renderToken (self)
     -- Used to skip space at line beginning
     local last_is_newline = false
 
+    -- Get current configuration
+    local config = plume.current_scope (self.context).config
+
     while pos <= #self do
         local token = self[pos]
 
@@ -154,13 +157,13 @@ function plume.renderToken (self)
         
         elseif token.kind == "newline" then
             -- To be removed in 1.0 --
-            if plume.running_api.config.ignore_spaces then
+            if config.ignore_spaces then
                 last_is_newline = true
             --------------------------
             else
-                if plume.running_api.config.filter_newlines then
+                if config.filter_newlines then
                     if not last_is_newline then
-                        table.insert(result, plume.running_api.config.filter_newlines)
+                        table.insert(result, config.filter_newlines)
                         last_is_newline = true
                     end
                 elseif token.__type == "token" then
@@ -172,7 +175,7 @@ function plume.renderToken (self)
         
         elseif token.kind == "space" then
             -- To be removed in 1.0 --
-            if plume.running_api.config.ignore_spaces then
+            if config.ignore_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
@@ -180,11 +183,11 @@ function plume.renderToken (self)
                 end
             --------------------------
             else
-                if plume.running_api.config.filter_spaces then
+                if config.filter_spaces then
                     if last_is_newline then
                         last_is_newline = false
                     else
-                        table.insert(result, plume.running_api.config.filter_spaces)
+                        table.insert(result, config.filter_spaces)
                     end
                 else
                     table.insert(result, token.value)
@@ -196,7 +199,7 @@ function plume.renderToken (self)
             
             -- If more than plume.max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            local up_limit = plume.running_api.config.max_callstack_size
+            local up_limit = config.max_callstack_size
             
             if #plume.traceback > up_limit then
                 plume.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")

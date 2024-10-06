@@ -163,10 +163,28 @@ function plume.init_api ()
         scope.plume[k] = v
     end
 
-    scope.plume.config = {}
-    for k, v in pairs(plume.config) do
-        scope.plume.config[k] = v
-    end
+    -- Edit configuration from script
+    scope.plume.config = setmetatable({}, {
+        __newindex = function (self, k, v)
+            plume.scopes[1]:set ("config", k, v)
+        end,
+
+        __index = function (self, k)
+            return plume.scopes[1].config[k]
+        end
+    })
+
+    scope.plume.local_config = setmetatable({}, {
+        __newindex = function (self, k, v)
+            plume.current_scope(plume.traceback[#plume.traceback].context):set_local("config", k, v)
+        end,
+
+        __index = function (self, k)
+            return plume.current_scope(plume.traceback[#plume.traceback].context).config[k]
+        end
+    })
+
+    scope.plume.lconfig = scope.plume.local_config
 
     -- Used to pass temp variable
     scope.plume.temp = setmetatable({}, {__index=plume.temp, __newindex=function () error ("Cannot write 'plume.temp'") end})
