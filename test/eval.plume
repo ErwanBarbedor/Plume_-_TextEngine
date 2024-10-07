@@ -134,6 +134,14 @@ ${a}[join=,]
 1,2,3
 \-- End
 
+\-- Test 'Not to many eval'
+${a=0}
+\macro foo ${a=a+1}
+\foo $a
+\-- Result
+ 1
+\-- End
+
 \-- Test 'Eval syntax error 5.1 and jit'
 ${a = a+}
 \-- Error Lua 5.1 Lua jit
@@ -177,7 +185,6 @@ Traceback :
     File 'string', line 1 : ${a = ""+1}
                              ^^^^^^^^^^
 \-- End
-
 
 \-- Test 'Chain errors (eval) 5.1 and jit'
 ${

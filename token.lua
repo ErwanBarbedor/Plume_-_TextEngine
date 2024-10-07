@@ -231,8 +231,11 @@ function plume.tokenlist (x)
             local token_copy     = plume.tokenlist ()
             token_copy.kind      = self.kind
             token_copy.context   = self.context
-            token_copy.first     = self.first
-            token_copy.last      = self.last
+
+            -- Hard fix, need a cleanup on token.first / token.last
+            -- Uncomment break test "eval/Not to many eval"
+            -- token_copy.first     = self.first
+            -- token_copy.last      = self.last
             token_copy.lua_cache = self.lua_cache
 
             for _, token in ipairs(self) do

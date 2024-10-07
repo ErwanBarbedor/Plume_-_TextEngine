@@ -131,6 +131,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### Fixes
 - Fix a bug causing `local_macro` and `lmacro` to be global.
+- Fix a bug causing an eval block to be evaluated 3 times instead of once.
 
 ### Deprecation
 - `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced` will be removed in `v0.9`
