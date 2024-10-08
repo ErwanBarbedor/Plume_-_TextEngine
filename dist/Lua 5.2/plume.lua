@@ -3602,6 +3602,8 @@ Examples:
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
 
+local cli = {}
+
 --- Determine the current directory
 local function getCurrentDirectory ()
     -- Determine the appropriate directory separator based on the OS
@@ -3665,7 +3667,7 @@ end
 
 -- Main function for the command-line interface,
 -- a minimal cli parser
-function plume.cli_main ()
+function cli.main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
@@ -3705,7 +3707,7 @@ function plume.cli_main ()
     end
 
     if not input then
-        return plume.interactive_mode ()
+        return cli.interactive_mode ()
     end
 
     -- Initialize with the input file
@@ -3755,7 +3757,7 @@ end
 
 --- Activates the interactive mode of the plume module
 -- Prints the version, initializes plume, and processes user input until the "exit" command is issued.
-function plume.interactive_mode()
+function cli.interactive_mode()
     -- Print the version information
     print("Plume - TextEngine 0.8.0-lua-5.2")
     print("Type '" .. plume.syntax.escape .. "exit' to exit the interactive mode.")
@@ -3784,7 +3786,7 @@ end
 -- Trick to test if we are called from the command line
 -- Handle the specific case where arg is nil (when used in fegari for exemple)
 if arg and debug.getinfo(3, "S")==nil then
-    plume.cli_main ()
+    cli.main ()
 end
 
 return plume
