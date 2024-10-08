@@ -129,6 +129,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Add a warning if using `#` or `//` instead of `$` and `\--`. Will be trigger in Lua code, ignore it in this case.
 - Remove `plume._LUA_VERSION`. (the lua version is already in `plume._VERSION`)
 - Remove implicite render on `token.__eq`
+- Remove access to the lua table `arg` from plume
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.

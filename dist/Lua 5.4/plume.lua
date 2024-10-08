@@ -3224,25 +3224,25 @@ local lua_std_functions
 if _VERSION == "Lua 5.1" then
     if jit then
         plume._LUA_VERSION = "Lua jit"
-        lua_std_functions = "math package arg module require assert string table type next pairs ipairs getmetatable setmetatable getfenv setfenv rawget rawset rawequal unpack select tonumber tostring error pcall xpcall loadfile load loadstring dofile gcinfo collectgarbage newproxy print _VERSION coroutine jit bit debug os io"
+        lua_std_functions = "_VERSION assert bit collectgarbage coroutine debug dofile error gcinfo getfenv getmetatable io ipairs jit load loadfile loadstring math module newproxy next os package pairs pcall print rawequal rawget rawset require select setfenv setmetatable string table tonumber tostring type unpack xpcall"
     else
-        lua_std_functions = "string xpcall package tostring print os unpack require getfenv setmetatable next assert tonumber io rawequal collectgarbage arg getmetatable module rawset math debug pcall table newproxy type coroutine select gcinfo pairs rawget loadstring ipairs _VERSION dofile setfenv load error loadfile"
+        lua_std_functions = "_VERSION assert collectgarbage coroutine debug dofile error gcinfo getfenv getmetatable io ipairs load loadfile loadstring math module newproxy next os package pairs pcall print rawequal rawget rawset require select setfenv setmetatable string table tonumber tostring type unpack xpcall"
     end
 end
 -- </Lua 5.1>
 -- <Lua 5.2>
 if _VERSION == "Lua 5.2" then
-    lua_std_functions = "setmetatable print unpack type table bit32 error loadstring pairs package select require io module debug math tonumber loadfile dofile os rawequal rawget next collectgarbage rawlen assert rawset pcall coroutine xpcall tostring ipairs string load getmetatable _VERSION"
+    lua_std_functions = "_VERSION assert bit32 collectgarbage coroutine debug dofile error getmetatable io ipairs load loadfile loadstring math module next os package pairs pcall print rawequal rawget rawlen rawset require select setmetatable string table tonumber tostring type unpack xpcall"
 end
 -- </Lua 5.2>
 -- <Lua 5.3>
 if _VERSION == "Lua 5.3" then
-    lua_std_functions = "coroutine print loadfile assert dofile next io setmetatable string os ipairs require getmetatable rawequal select type pcall collectgarbage _VERSION pairs bit32 debug package rawlen math error load rawset rawget table utf8 tonumber tostring xpcall"
+    lua_std_functions = "_VERSION assert bit32 collectgarbage coroutine debug dofile error getmetatable io ipairs load loadfile math next os package pairs pcall print rawequal rawget rawlen rawset require select setmetatable string table tonumber tostring type utf8 xpcall"
 end
 -- </Lua 5.3>
 -- <Lua 5.4>
 if _VERSION == "Lua 5.4" then
-    lua_std_functions = "load require error os warn ipairs collectgarbage package rawlen utf8 coroutine xpcall math select loadfile next rawget dofile table tostring _VERSION tonumber io pcall print setmetatable string debug arg assert pairs rawequal getmetatable type rawset"
+    lua_std_functions = "_VERSION assert collectgarbage coroutine debug dofile error getmetatable io ipairs load loadfile math next os package pairs pcall print rawequal rawget rawlen rawset require select setmetatable string table tonumber tostring type utf8 warn xpcall"
 end
 -- </Lua 5.4>
 
