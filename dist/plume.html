@@ -3893,22 +3893,33 @@ function plume.cli_main ()
     end
 end
 
-function plume.interactive_mode ()
+--- Activates the interactive mode of the plume module
+-- Prints the version, initializes plume, and processes user input until the "exit" command is issued.
+function plume.interactive_mode()
+    -- Print the version information
     print("Plume - TextEngine 0.8.0-lua-5.3")
     print("Type '" .. plume.syntax.escape .. "exit' to exit the interactive mode.")
 
-    plume.init ()
+    -- Initialize plume module
+    plume.init()
     local exit = false
-    plume.register_macro("exit", {}, {}, function () exit = true end)
 
+    -- Register "exit" macro to exit interactive mode
+    plume.register_macro("exit", {}, {}, function() exit = true end)
+
+    -- Start interactive loop
     while not exit do
+        -- Prompt the user for input
         io.write "> "
         local input = io.read "*l"
+        
+        -- Attempt to render the user's input and handle any errors
         local success, result = pcall(plume.render, input)
-
+        
         print(result)
     end
 end
+
 
 -- Trick to test if we are called from the command line
 -- Handle the specific case where arg is nil (when used in fegari for exemple)
