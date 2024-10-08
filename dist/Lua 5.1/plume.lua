@@ -1,3 +1,4 @@
+#!/usr/bin/env lua51
 --[[
 Plume - TextEngine 0.8.0-lua-5.1
 Copyright (C) 2024 Erwan Barbedor

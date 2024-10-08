@@ -47,6 +47,14 @@ for lua_version in ("5.1 5.2 5.3 5.4 5.x"):gmatch('%S+') do
     code = code:gsub('#VERSION#', version .. "-lua-" .. lua_version)
     code = code:gsub('#GITHUB#', github)
 
+    local shebang = "#!/usr/bin/env lua"
+    if lua_version ~= "5.x" then
+        shebang = shebang .. lua_version:gsub('%.', '')
+    end
+
+    code = shebang .. "\n" .. code
+
+
     local file = io.open('dist/Lua '..lua_version..'/plume.lua', 'w')
         file:write(code)
     file:close ()
