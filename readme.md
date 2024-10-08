@@ -127,6 +127,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - New option for CLI : interactive mode
 - Remove implicite render on `token.__eq`
 - New `plume.engine`
+- Remove `plume._LUA_VERSION`. (the lua version is already in `plume._VERSION`)
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.

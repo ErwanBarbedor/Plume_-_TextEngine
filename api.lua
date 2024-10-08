@@ -17,8 +17,6 @@ local api = {}
 
 --- @api_variable Version of plume.
 api._VERSION = plume._VERSION
---- @api_variable Lua version compatible with this plume distribution.
-api._LUA_VERSION = plume._LUA_VERSION
 --- @api_variable Hook to the internal `plume` table, for experimented users.
 api.engine   = plume
 
