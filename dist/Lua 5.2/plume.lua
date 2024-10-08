@@ -3678,6 +3678,8 @@ function plume.cli_main ()
             table.remove(arg, 1)
         elseif arg[1]:match('^%-') then
             print("Unknown option '" .. arg[1] .. "'")
+            print("Type plume --help for get accepted options.")
+            return
         else
             input = arg[1]
             table.remove(arg, 1)
