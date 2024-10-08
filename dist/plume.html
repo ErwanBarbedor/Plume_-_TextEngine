@@ -787,12 +787,16 @@ function plume.tokenlist (x)
         kind      = kind,        --- Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
         context   = false,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
         lua_cache = false,       --- For eval tokens, cached loaded lua code.
+
+        -- opening_token = nil --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
+        -- closing_token = nil --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
+
         
         --- @intern_method Return debug informations about the tokenlist.
         -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
         info = function (self)
-            local first = self.first or self[1]
-            local last = self.last or self[#self]
+            local first = self.opening_token or self[1]
+            local last = self.closing_token or self[#self]
 
             if first.__type == "tokenlist" then
                 first = first:info()
@@ -1219,7 +1223,7 @@ function plume.parse (tokenlist)
         if token.kind == "block_begin" then
             eval_var = 0
             table.insert(stack, plume.tokenlist("block"))
-            stack[#stack].first = token
+            stack[#stack].opening_token = token
         
         elseif token.kind == "block_end" then
             eval_var = 0
@@ -1230,16 +1234,16 @@ function plume.parse (tokenlist)
             if not top then
                 plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "block" then
-                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.opening_token.value.."'.")
             end
             
-            last.last = token
+            last.closing_token = token
             table.insert(stack[#stack], last)
         
         elseif token.kind == "opt_block_begin" then
             eval_var = 0
             table.insert(stack, plume.tokenlist("opt_block"))
-            stack[#stack].first = token
+            stack[#stack].opening_token = token
         
         elseif token.kind == "opt_block_end" then
             eval_var = 0
@@ -1250,10 +1254,10 @@ function plume.parse (tokenlist)
             if not top then
                 plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "opt_block" then
-                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.opening_token.value.."'.")
             end
 
-            last.last = token
+            last.closing_token = token
             table.insert(stack[#stack], last)
         
         elseif token.kind == "text" 
@@ -1277,7 +1281,7 @@ function plume.parse (tokenlist)
         end
     end
     if #stack > 1 then
-        plume.error(stack[#stack].first, "This brace was never closed")
+        plume.error(stack[#stack].opening_token, "This brace was never closed")
     end
     return stack[1] 
 end

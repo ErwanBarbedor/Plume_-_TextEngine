@@ -201,12 +201,16 @@ function plume.tokenlist (x)
         kind      = kind,        --- Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
         context   = false,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
         lua_cache = false,       --- For eval tokens, cached loaded lua code.
+
+        -- opening_token = nil --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
+        -- closing_token = nil --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
+
         
         --- @intern_method Return debug informations about the tokenlist.
         -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
         info = function (self)
-            local first = self.first or self[1]
-            local last = self.last or self[#self]
+            local first = self.opening_token or self[1]
+            local last = self.closing_token or self[#self]
 
             if first.__type == "tokenlist" then
                 first = first:info()

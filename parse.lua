@@ -26,7 +26,7 @@ function plume.parse (tokenlist)
         if token.kind == "block_begin" then
             eval_var = 0
             table.insert(stack, plume.tokenlist("block"))
-            stack[#stack].first = token
+            stack[#stack].opening_token = token
         
         elseif token.kind == "block_end" then
             eval_var = 0
@@ -37,16 +37,16 @@ function plume.parse (tokenlist)
             if not top then
                 plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "block" then
-                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.opening_token.value.."'.")
             end
             
-            last.last = token
+            last.closing_token = token
             table.insert(stack[#stack], last)
         
         elseif token.kind == "opt_block_begin" then
             eval_var = 0
             table.insert(stack, plume.tokenlist("opt_block"))
-            stack[#stack].first = token
+            stack[#stack].opening_token = token
         
         elseif token.kind == "opt_block_end" then
             eval_var = 0
@@ -57,10 +57,10 @@ function plume.parse (tokenlist)
             if not top then
                 plume.error(token, "This brace close nothing.")
             elseif last.kind ~= "opt_block" then
-                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.first.value.."'.")
+                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.opening_token.value.."'.")
             end
 
-            last.last = token
+            last.closing_token = token
             table.insert(stack[#stack], last)
         
         elseif token.kind == "text" 
@@ -84,7 +84,7 @@ function plume.parse (tokenlist)
         end
     end
     if #stack > 1 then
-        plume.error(stack[#stack].first, "This brace was never closed")
+        plume.error(stack[#stack].opening_token, "This brace was never closed")
     end
     return stack[1] 
 end

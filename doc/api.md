@@ -177,6 +177,8 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 - `tokenlist.kind` :  Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
 - `tokenlist.context` :  The scope of the tokenlist. If set to false (default), search vars in the current scope.
 - `tokenlist.lua_cache` :  For eval tokens, cached loaded lua code.
+- `tokenlist.opening_token` :  If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
+- `tokenlist.closing_token` :  If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
 
 ### render
 
