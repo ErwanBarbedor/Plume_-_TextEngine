@@ -17,17 +17,24 @@ local cli_help = [[
 Plume is a templating langage with advanced scripting features.
 
 Usage:
+    plume
     plume INPUT_FILE
+    plume --string CODE
     plume --print INPUT_FILE
     plume --output OUTPUT_FILE INPUT_FILE
     plume --version
     plume --help
 
+No argument:
+    Launch interactive mode.
+
 Options:
+
   -h, --help          Show this help message and exit.
   -v, --version       Show the version of plume and exit.
   -o, --output FILE   Write the output to FILE
-  -p, --print         Display the result
+  -p, --print         Display the result (true if -s is present)
+  -s, --string        Evaluate the input
 
 Examples:
   plume --help
@@ -115,8 +122,8 @@ function plume.cli_main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
-    local print_output
-    local output, input
+    local print_output, direct_mode
+    local output_file, input_file
 
     while #arg > 0 do
         if arg[1] == "-v" or arg[1] == "--version" then
@@ -128,11 +135,13 @@ function plume.cli_main ()
         elseif arg[1] == "-p" or arg[1] == "--print" then
             print_output = true
             table.remove(arg, 1)
+        elseif arg[1] == "-s" or arg[1] == "--string" then
+            direct_mode = true
+            table.remove(arg, 1)
         elseif arg[1] == "-o" or arg[1] == "--output" then
-            output = arg[2]
-            if not output then
+            output_file = arg[2]
+            if not output_file then
                 print ("No output file provided.")
-                return
             end
 
             input  = arg[3]
@@ -141,31 +150,40 @@ function plume.cli_main ()
         elseif arg[1]:match('^%-') then
             print("Unknown option '" .. arg[1] .. "'")
         else
-            input  = arg[1]  -- Set input file
+            input = arg[1]
             table.remove(arg, 1)
         end
     end
 
     if not input then
-        print ("No input file provided.")
-        return
+        return plume.interactive_mode ()
     end
 
     -- Initialize with the input file
     local currentDirectory = getCurrentDirectory ()
-    plume.init (input)
-    --- @api_variable If use in command line, path of the input file.
-    plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input)
-    --- @api_variable Name of the file to output execution result. If set to none, don't print anything. Can be set by command line.
-    plume.current_scope().variables.plume.output_file = absolutePath(currentDirectory, output)
 
-    -- Render the file and capture success or error
-    success, result = pcall(plume.renderFile, input)
+    local success, result
+    if direct_mode then
+        plume.init ()
+        -- Render the given string and capture success or error
+        success, result = pcall(plume.render, input)
+    else
+        input_file = input
+        plume.init (input_file)
+        --- @api_variable If use in command line, path of the input file.
+        plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input_file)
+        --- @api_variable Name of the file to output execution result. If set to none, don't print anything. Can be set by command line.
+        plume.current_scope().variables.plume.output_file = absolutePath(currentDirectory, output_file)
 
-    if print_output then
-        -- Print the result if the print_output flag is set
+        -- Render the given file and capture success or error
+        success, result = pcall(plume.renderFile, input_file)
+    end
+
+    -- Print the result if the print_output flag is set, or if in direct mode
+    if sucess and (print_output or direct_mode) then    
         print(result)
     end
+
     if output then
         -- Write the result to the output file if specified
         local file = io.open(output, "w")
@@ -182,6 +200,23 @@ function plume.cli_main ()
         print("Success.")
     else
         print("Error:")
+        print(result)
+    end
+end
+
+function plume.interactive_mode ()
+    print("#VERSION#")
+    print("Type '" .. plume.syntax.escape .. "exit' to exit the interactive mode.")
+
+    plume.init ()
+    local exit = false
+    plume.register_macro("exit", {}, {}, function () exit = true end)
+
+    while not exit do
+        io.write "> "
+        local input = io.read "*l"
+        local success, result = pcall(plume.render, input)
+
         print(result)
     end
 end

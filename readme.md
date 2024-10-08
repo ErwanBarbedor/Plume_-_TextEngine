@@ -124,6 +124,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Add a warning if using `#` or `//` instead of `$` and `\--`. Will be trigger in Lua code, ignore it in this case.
 - New function `plume.check_inside`.
 - `${...}[i]` will now do round, not floor.
+- New option for CLI : interactive mode
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
