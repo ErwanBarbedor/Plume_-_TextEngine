@@ -32,7 +32,7 @@ ${
 \-- Test 'script cannot return value'
 ${return 5}
 \-- Error
-File 'string', line 1 : \script cannot return value.
+File 'string', line 1 : ${...} cannot return value.
     ${return 5}
      ^^^^^^^^^^
 \-- End

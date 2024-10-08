@@ -120,14 +120,15 @@ function plume.call_lua_chunk(token, code, filename)
         -- but this does the trick for now.
         plume.chunk_count = plume.chunk_count + 1
         local plume_code
-        if is_lua_expression (code) then
+        local lua_expression = is_lua_expression (code)
+        if lua_expression then
             code = "--chunk" .. plume.chunk_count .. '\nreturn ' .. code
             plume_code = code
         else
              -- Script cannot return value
             local end_code = code:gsub('%s+$', ''):match('[^;\n]-$')
             if end_code and end_code:match('^%s*return') then
-                plume.error(token, "\\script cannot return value.")
+                plume.error(token, "${...} cannot return value.")
             end
 
             code = "--chunk" .. plume.chunk_count .. '\n' .. code
@@ -144,6 +145,9 @@ function plume.call_lua_chunk(token, code, filename)
             -- that the error handler can find it 
             token.lua_cache = {code=code, filename=filename}
             table.insert(plume.lua_cache, token)
+            if lua_expression then
+                load_err = load_err .. "\nPlume has assumed that this chunk of code is an expression. If it is in fact a statement, start your code with a comment to force Plume to see it."
+            end
             plume.error(token, load_err, true)
         end
 

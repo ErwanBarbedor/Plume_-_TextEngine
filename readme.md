@@ -129,6 +129,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
 - Can now use comments inside optional parameter declaration.
+- Better error message for syntax error in lua code.
 
 ### Fixes
 - Fix a bug causing `local_macro` and `lmacro` to be global.
