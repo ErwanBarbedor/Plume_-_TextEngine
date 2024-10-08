@@ -13,7 +13,6 @@ Méthodes et variables Lua accessibles in any `$` macro.
 | `_G` | Globale table of variables. |
 | `_L` | Local table of variables. |
 | `plume._VERSION` |  Version of plume. |
-| `plume._LUA_VERSION` |  Lua version compatible with this plume distribution. |
 | `plume.engine` |  Hook to the internal `plume` table, for experimented users. |
 | `plume.input_file` |  If use in command line, path of the input file. |
 | `plume.output_file` |  Name of the file to output execution result. If set to none, don't print anything. Can be set by command line. |

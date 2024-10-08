@@ -106,6 +106,24 @@ baz
 true
 \-- End
 
+\-- Test 'Eval in parameter value'
+\macro foo[x=${1+1}] {
+    $x
+}
+\foo
+\-- Result
+2
+\-- End
+
+\-- Test 'Eval in parameter name'
+\macro foo[${"x"}=2] {
+    $x
+}
+\foo
+\-- Result
+2
+\-- End
+
 \-- Test 'To many optional blocks'
 \macro[x][x] foo bar
 \-- Error

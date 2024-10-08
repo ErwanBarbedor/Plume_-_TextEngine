@@ -49,8 +49,23 @@ function plume.parse_opt_params (macro, params, opt_params, context)
         end
     end
 
-    for _, token in ipairs(opt_params) do
-        if token.kind ~= "opt_assign" and token.kind ~= "comment"
+    local i=0
+    while i < #opt_params do
+        i = i + 1
+        token = opt_params[i]
+        -- See ${...} as {${...}}
+        if token.kind == "macro" and token.value == plume.syntax.eval then
+            local eval = plume.tokenlist("block")
+            table.insert(eval, token)
+
+            i = i + 1
+            if not opt_params[i] then
+            end
+            table.insert(eval, opt_params[i])
+            token = eval
+        -- Anything that is not ${...}, "=", a block, a comment or a space (in fact, macros)
+        -- will lead to an error
+        elseif token.kind ~= "opt_assign" and token.kind ~= "comment"
             and token.kind ~= "block" and token.kind ~= "block_text"
             and token.kind  ~= "space" and token.kind  ~= "newline" then
             plume.error(token, "Cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
