@@ -126,6 +126,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - `${...}[i]` will now do round, not floor.
 - New option for CLI : interactive mode
 - Remove implicite render on `token.__eq`
+- New `plume.engine`
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
