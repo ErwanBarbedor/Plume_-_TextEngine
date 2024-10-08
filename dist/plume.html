@@ -878,7 +878,7 @@ function plume.tokenlist (x)
             return table.concat(result, "")
         end,
 
-        --- @intern_method Get lua code as writed in the code file, after deleting comment and insert plume blocks. You shouldn't use this function.
+        --- @api_method Get lua code as writed in the code file, after deleting comment and insert plume blocks.
         -- @return string The source code
         sourceLua = function (self, temp)
             local result = {}

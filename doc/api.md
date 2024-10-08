@@ -221,6 +221,14 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 **Return:** `string`The source code
 
+### sourceLua
+
+**Usage :** `string = tokenlist:sourceLua()`
+
+**Description:**  Get lua code as writed in the code file, after deleting comment and insert plume blocks.
+
+**Return:** `string`The source code
+
 ### is_eval_block
 
 **Usage :** `boolean = tokenlist:is_eval_block()`
@@ -279,11 +287,3 @@ The user have access to theses methods, but shouldn't use it.
 **Parameters :**
 - `scope` _table_  The scope to freeze.
 - `forced` _boolean_  Force to re-freeze already frozen children?
-
-### sourceLua
-
-**Usage :** `string = tokenlist:sourceLua()`
-
-**Description:**  Get lua code as writed in the code file, after deleting comment and insert plume blocks. You shouldn't use this function.
-
-**Return:** `string`The source code
