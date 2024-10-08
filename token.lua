@@ -199,11 +199,12 @@ function plume.tokenlist (x)
     local tokenlist = setmetatable({
         __type    = "tokenlist", --- Type of the table. Value : `"tokenlist"`
         kind      = kind,        --- Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
+        
+        -- Set to false instead of nil, so read these value don't trigger __index method.
         context   = false,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
         lua_cache = false,       --- For eval tokens, cached loaded lua code.
-
-        -- opening_token = nil --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
-        -- closing_token = nil --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
+        opening_token = false, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
+        closing_token = false, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
 
         
         --- @intern_method Return debug informations about the tokenlist.
@@ -238,9 +239,9 @@ function plume.tokenlist (x)
 
             -- Hard fix, need a cleanup on token.first / token.last
             -- Uncomment break test "eval/Not to many eval"
-            -- token_copy.first     = self.first
-            -- token_copy.last      = self.last
-            token_copy.lua_cache = self.lua_cache
+            token_copy.opening_token = self.opening_token
+            token_copy.closing_token = self.closing_token
+            token_copy.lua_cache     = self.lua_cache
 
             for _, token in ipairs(self) do
                 if token.__type == "tokenlist" then
