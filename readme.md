@@ -115,7 +115,7 @@ I am actively experimenting with features in several projects (non-public), so u
 
 This is essential for improving Plume, but it currently makes it incompatible with production use, although I try to announce non-backward compatible changes one or two versions in advance. However, feel free to test and report any errors or suggestions! The documentation is already very comprehensive and is regularly updated.
 
-Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents..
+Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
 ## Last version : 0.8.0
 
@@ -125,6 +125,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - New function `plume.check_inside`.
 - `${...}[i]` will now do round, not floor.
 - New option for CLI : interactive mode
+- Remove implicite render on `token.__eq`
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.

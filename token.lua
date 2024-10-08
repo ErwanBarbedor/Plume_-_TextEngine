@@ -105,7 +105,6 @@ local metamethods_unary_numeric = {
 
 local metamethods_binary_string = {
     concat = function (x, y) return x..y end,
-    eq     = function (x, y) return x==y end
 }
 
 local metamethods_unary_string = {
