@@ -151,6 +151,13 @@ function api.check_inside (name)
     return false
 end
 
+--- @api_method Write content to the return value of the current script
+-- @param content anything
+function api.write(content)
+    local content = plume.render_if_token (content)
+    table.insert(plume.write_stack[#plume.write_stack], content)
+end
+
 --- Initializes the API methods visible to the user.
 function plume.init_api ()
     local scope = plume.current_scope ().variables

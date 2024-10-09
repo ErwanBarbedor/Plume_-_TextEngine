@@ -127,6 +127,12 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Return:** `bool`True if we are inside a macro with the given name, false otherwise.
 
+### write
+
+**Usage :** `plume.write()`
+
+**Description:**  Write content to the return value of the current script
+
 ### __newindex
 
 **Usage :** `file, founded_path, value, value, value, lib, bool = plume.__newindex(path, key, key, key, path, name, arg_number, is_local, name, arg_number, is_local, name, open_mode, silent_fail)`

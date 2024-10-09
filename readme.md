@@ -125,6 +125,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - `${...}[i]` will now do round, not floor.
 - New option for CLI : interactive mode
 - New function `plume.check_inside`.
+- New function `plume.write`.
 - New `plume.engine`
 - Add a warning if using `#` or `//` instead of `$` and `\--`. Will be trigger in Lua code, ignore it in this case.
 - Remove `plume._LUA_VERSION`. (the lua version is already in `plume._VERSION`)

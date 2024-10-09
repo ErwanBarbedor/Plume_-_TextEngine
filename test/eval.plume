@@ -116,6 +116,28 @@ $a
 bonjour
 \-- End
 
+\-- Test 'Eval - write'
+${--
+    plume.write(${Bonjour\n})
+    plume.write("Bonjour")
+}
+\-- Result
+Bonjour
+Bonjour
+\-- End
+
+\-- Test 'Eval - write (nested'
+${--
+    plume.write(${
+        foo : ${--
+            plume.write(1+1)
+        }
+    })
+}
+\-- Result
+foo : 2
+\-- End
+
 \-- Test 'Render table 1'
 ${
     a = {1, 2, 3}

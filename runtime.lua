@@ -158,8 +158,9 @@ function plume.call_lua_chunk(token, code, filename)
             
 
         local chunck = setmetatable({
-            code=plume_code,
-            filename=filename
+            code              = plume_code,
+            filename          = filename,
+            is_lua_expression = lua_expression
         },{
             __call = function ()
                 -- If the token is locked in a specific
@@ -190,12 +191,20 @@ function plume.call_lua_chunk(token, code, filename)
         table.insert(plume.lua_cache, token)
     end
 
+    table.insert(plume.write_stack, {})
     local result = token.lua_cache ()
+
     local sucess = result[1]
     table.remove(result, 1)
 
     if not sucess then
         plume.error(token, result[1], true)
+    end
+
+    local write_result = table.concat(table.remove(plume.write_stack))
+    
+    if not token.lua_cache.is_lua_expression then
+        result[1] = write_result
     end
 
     -- <Lua 5.1>

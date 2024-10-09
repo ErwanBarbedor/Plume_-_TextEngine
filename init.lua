@@ -77,6 +77,9 @@ function plume.init ()
     -- To assign a number of each
     -- of them.
     plume.chunk_count = 0
+
+    -- Used to store call to plume.write
+    plume.write_stack = {}
         
     -- Add all std function into
     -- global scope

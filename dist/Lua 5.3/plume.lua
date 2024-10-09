@@ -3039,8 +3039,9 @@ function plume.call_lua_chunk(token, code, filename)
             
 
         local chunck = setmetatable({
-            code=plume_code,
-            filename=filename
+            code              = plume_code,
+            filename          = filename,
+            is_lua_expression = lua_expression
         },{
             __call = function ()
                 -- If the token is locked in a specific
@@ -3071,12 +3072,20 @@ function plume.call_lua_chunk(token, code, filename)
         table.insert(plume.lua_cache, token)
     end
 
+    table.insert(plume.write_stack, {})
     local result = token.lua_cache ()
+
     local sucess = result[1]
     table.remove(result, 1)
 
     if not sucess then
         plume.error(token, result[1], true)
+    end
+
+    local write_result = table.concat(table.remove(plume.write_stack))
+    
+    if not token.lua_cache.is_lua_expression then
+        result[1] = write_result
     end
 
     -- <Lua 5.1>
@@ -3290,6 +3299,9 @@ function plume.init ()
     -- To assign a number of each
     -- of them.
     plume.chunk_count = 0
+
+    -- Used to store call to plume.write
+    plume.write_stack = {}
         
     -- Add all std function into
     -- global scope
@@ -3462,6 +3474,13 @@ function api.check_inside (name)
         end
     end
     return false
+end
+
+--- @api_method Write content to the return value of the current script
+-- @param content anything
+function api.write(content)
+    local content = plume.render_if_token (content)
+    table.insert(plume.write_stack[#plume.write_stack], content)
 end
 
 --- Initializes the API methods visible to the user.
