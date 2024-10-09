@@ -83,8 +83,6 @@ end
 -- @param opt_params table The optional arguments to parse
 -- @param context table Scope to search default parameters for
 function plume.parse_opt_params (macro, params, opt_params, context)
-
-
     local key, eq, space
     local flags = {}
 
@@ -125,8 +123,14 @@ function plume.parse_opt_params (macro, params, opt_params, context)
 
             i = i + 1
             if not opt_params[i] then
+                plume.error(token, "End of block reached, not enough arguments for macro '$'.0 instead of 1.")
             end
             table.insert(eval, opt_params[i])
+
+            if opt_params[i+1] and opt_params[i+1].kind == "opt_block" then
+                i = i + 1
+                table.insert(eval, opt_params[i])
+            end
             token = eval
         -- Anything that is not ${...}, "=", a block, a comment or a space (in fact, macros)
         -- will lead to an error
@@ -327,6 +331,12 @@ function plume.renderToken (self)
                         local eval = plume.tokenlist ()
                         table.insert(eval, self[pos])
                         table.insert(eval, self[pos+1])
+
+                        if self[pos+2] and self[pos+2].kind == "opt_block" then
+                            table.insert(eval, self[pos+2])
+                            pos = pos + 1
+                        end
+
                         table.insert(params, eval)
                         pos = pos + 1
                     else
