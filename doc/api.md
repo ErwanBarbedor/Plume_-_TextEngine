@@ -116,9 +116,9 @@ Méthodes et variables Lua accessibles in any `$` macro.
 - `arg_number` _Number_  of paramters to capture
 - `is_local` _bool_  Is the new macro local?
 
-### check_inside
+### is_called_by
 
-**Usage :** `bool = plume.check_inside(name)`
+**Usage :** `bool = plume.is_called_by(name)`
 
 **Description:**  Check if we are inside a given macro
 
