@@ -120,17 +120,17 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ## Last version : 0.8.0
 
 ### Changes
-- Can now use `${...}` in parameters names and parameters values.
+- Can now use `${...}` in parameter names and parameter values.
 - Configuration can now be local.
-- `${...}[i]` will now do round, not floor.
-- New option for CLI : interactive mode
+- `${...}[i]` will now round, not floor.
+- New option for CLI: interactive mode
 - New function `plume.check_inside`.
 - New function `plume.write`.
 - New `plume.engine`
-- Add a warning if using `#` or `//` instead of `$` and `\--`. Will be trigger in Lua code, ignore it in this case.
-- Remove `plume._LUA_VERSION`. (the lua version is already in `plume._VERSION`)
-- Remove implicite render on `token.__eq`
-- Remove access to the lua table `arg` from plume
+- Add a warning if using `#` or `//` instead of `$` and `\--`. Will be triggered in Lua code, ignore it in this case.
+- Remove `plume._LUA_VERSION`. (the Lua version is already in `plume._VERSION`)
+- Remove implicit render on `token.__eq`
+- Remove access to the Lua table `arg` from plume.
 
 ### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
