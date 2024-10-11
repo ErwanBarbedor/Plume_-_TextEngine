@@ -80,8 +80,5 @@ function plume.load_macros()
     require "plume.macros.utils" 
     require "plume.macros.files" 
     require "plume.macros.eval" 
-    require "plume.macros.spaces" 
-    -- <DEV>
-    require "plume.macros.debug" 
-    -- </DEV>
+    require "plume.macros.spaces"
 end
