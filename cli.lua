@@ -11,6 +11,7 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
+local plume = require "plume"
 
 local cli_help = [[
 ]] .. plume._VERSION .. [[
@@ -212,7 +213,7 @@ end
 -- Prints the version, initializes plume, and processes user input until the "exit" command is issued.
 function cli.interactive_mode()
     -- Print the version information
-    print("#VERSION#")
+    print(plume._VERSION)
     print("Type '" .. plume.syntax.escape .. "exit' to exit the interactive mode.")
 
     -- Initialize plume module

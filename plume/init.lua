@@ -96,6 +96,4 @@ function plume.renderFile(filename)
     return result
 end
 
-require "plume.cli"
-
 return plume
