@@ -119,6 +119,8 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.9.0
 
+### Changes
+- Plume is no longer a standalone Lua file.
 
 
 See the [changelog](doc/changelog.md) for older version

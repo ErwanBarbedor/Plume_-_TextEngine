@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 local cli_help = [[
-#VERSION#
+]] .. plume._VERSION .. [[
 Plume is a templating langage with advanced scripting features.
 
 Usage:
@@ -235,9 +235,4 @@ function cli.interactive_mode()
     end
 end
 
-
--- Trick to test if we are called from the command line
--- Handle the specific case where arg is nil (when used in fegari for exemple)
-if arg and debug.getinfo(3, "S")==nil then
-    cli.main ()
-end
+cli.main ()

@@ -2,14 +2,9 @@
 local print_error_detail
 
 local plume
-if arg[1] == "dist" then
-    package.path = package.path .. ";dist/".._VERSION.."/?.lua"
-    plume = require "plume"
-else
-    package.path = package.path .. ";../?.lua"
-    plume = require "main"
-    print_error_detail = true
-end
+package.path = package.path .. ";?/init.lua"
+plume = require "plume"
+print_error_detail = true
 
 local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optparams", "scope"}
 

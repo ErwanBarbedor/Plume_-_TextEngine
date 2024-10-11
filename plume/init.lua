@@ -1,8 +1,8 @@
 --[[
-#VERSION#
+Plume - TextEngine 0.9.0
 Copyright (C) 2024 Erwan Barbedor
 
-Check #GITHUB#
+Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
 for documentation, tutorial or to report issues.
 
 This program is free software: you can redistribute it and/or modify
@@ -19,19 +19,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 plume = {}
-plume._VERSION = "#VERSION#"
+plume._VERSION = "Plume - TextEngine 0.9.0"
 
-require "config"
-require "syntax"
-require "render"
-require "token"
-require "tokenize"
-require "parse"
-require "error"
-require "macro"
-require "runtime"
-require "init"
-require "api"
+require "plume.config"
+require "plume.syntax"
+require "plume.render"
+require "plume.token"
+require "plume.tokenize"
+require "plume.parse"
+require "plume.error"
+require "plume.macro"
+require "plume.runtime"
+require "plume.initialization"
+require "plume.api"
 
 -- <DEV>
 plume.show_token = false
@@ -96,6 +96,6 @@ function plume.renderFile(filename)
     return result
 end
 
-require "cli"
+require "plume.cli"
 
 return plume

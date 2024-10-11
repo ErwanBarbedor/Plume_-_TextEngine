@@ -75,13 +75,13 @@ function plume.load_macros()
     -- save the name of predefined macros
     plume.std_macros = {}
 
-    require "macros/controls" 
-    require "macros/macros" 
-    require "macros/utils" 
-    require "macros/files" 
-    require "macros/eval" 
-    require "macros/spaces" 
+    require "plume.macros.controls" 
+    require "plume.macros.macros" 
+    require "plume.macros.utils" 
+    require "plume.macros.files" 
+    require "plume.macros.eval" 
+    require "plume.macros.spaces" 
     -- <DEV>
-    require "macros/debug" 
+    require "plume.macros.debug" 
     -- </DEV>
 end
