@@ -112,7 +112,6 @@ local metamethods_unary_string = {
 }
 
 -- Use load to avoid syntax error in prior versions of Lua.
--- <Lua 5.3 5.4>
 if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
     metamethods_binary_numeric.idiv = load("return function (x, y) return x//y end")()
     metamethods_binary_numeric.band = load("return function (x, y) return x&y end")()
@@ -123,7 +122,6 @@ if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
 
     metamethods_unary_numeric.bnot = load("return function (x) return ~x end")()
 end
--- </Lua>
 
 --- Creates a new tokenlist.
 -- @param x string|table Either a kind string or a table of tokens

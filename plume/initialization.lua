@@ -18,7 +18,6 @@ plume._LUA_VERSION = _VERSION
 -- Save all lua standard functions to be available from "eval" macros
 local lua_std_functions
 
--- <Lua 5.1>
 if _VERSION == "Lua 5.1" then
     if jit then
         plume._LUA_VERSION = "Lua jit"
@@ -26,23 +25,13 @@ if _VERSION == "Lua 5.1" then
     else
         lua_std_functions = "_VERSION assert collectgarbage coroutine debug dofile error gcinfo getfenv getmetatable io ipairs load loadfile loadstring math module newproxy next os package pairs pcall print rawequal rawget rawset require select setfenv setmetatable string table tonumber tostring type unpack xpcall"
     end
-end
--- </Lua 5.1>
--- <Lua 5.2>
-if _VERSION == "Lua 5.2" then
+elseif _VERSION == "Lua 5.2" then
     lua_std_functions = "_VERSION assert bit32 collectgarbage coroutine debug dofile error getmetatable io ipairs load loadfile loadstring math module next os package pairs pcall print rawequal rawget rawlen rawset require select setmetatable string table tonumber tostring type unpack xpcall"
-end
--- </Lua 5.2>
--- <Lua 5.3>
-if _VERSION == "Lua 5.3" then
+elseif _VERSION == "Lua 5.3" then
     lua_std_functions = "_VERSION assert bit32 collectgarbage coroutine debug dofile error getmetatable io ipairs load loadfile math next os package pairs pcall print rawequal rawget rawlen rawset require select setmetatable string table tonumber tostring type utf8 xpcall"
-end
--- </Lua 5.3>
--- <Lua 5.4>
-if _VERSION == "Lua 5.4" then
+elseif _VERSION == "Lua 5.4" then
     lua_std_functions = "_VERSION assert collectgarbage coroutine debug dofile error getmetatable io ipairs load loadfile math next os package pairs pcall print rawequal rawget rawlen rawset require select setmetatable string table tonumber tostring type utf8 warn xpcall"
 end
--- </Lua 5.4>
 
 plume.lua_std_functions = {}
 for name in lua_std_functions:gmatch('%S+') do

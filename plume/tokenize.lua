@@ -190,15 +190,8 @@ function plume.tokenize (code, file)
         end
         pos = pos + 1
     end
+    
     write ()
-
-    -- <DEV>
-    if plume.show_token then
-        for _, token in ipairs(result) do
-            print(token.kind, token.value:gsub('\n', '\\n'):gsub('\t', '\\t'):gsub(' ', '_'), token.pos, #token.value)
-        end
-    end
-    -- </DEV>
 
     return result
 end

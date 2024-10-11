@@ -14,15 +14,10 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Manage scopes and runtime lua executions
 
-
--- <Lua 5.1>
 if _VERSION == "Lua 5.1" then
     plume.load_lua_chunk  = loadstring
     plume.setfenv = setfenv
-end
--- </Lua>
--- <Lua 5.2 5.3 5.4>
-if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
+elseif _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
     plume.load_lua_chunk = load
 
     --- Sets the environment of a given function.
@@ -58,7 +53,6 @@ if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
         return func
     end
 end
--- </Lua>
 
 -- This function checks if a given string represents a Lua expression or statement based on its initial keywords.
 -- It returns true for expressions and false for statements.
@@ -207,16 +201,7 @@ function plume.call_lua_chunk(token, code, filename)
         result[1] = write_result
     end
 
-    -- <Lua 5.1>
-    if _VERSION == "Lua 5.1" then
-        return unpack(result)
-    end
-    -- </Lua>
-    -- <Lua 5.2 5.3 5.4>
-    if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
-        return table.unpack (result)
-    end
-    -- </Lua>
+    return (unpack or table.unpack)(result)
 end
 
 --- Creates a scope field
@@ -264,14 +249,6 @@ end
 -- @return table The new scope
 function plume.create_scope (parent, source)
     local scope = {}
-
-    -- <DEV>
-    if parent then
-        scope.__parent = parent
-        table.insert(parent.__childs, scope)
-    end
-    scope.__childs = {}
-    -- </DEV>
 
     -- Store all variables, accessibles from user
     make_field (scope, "variables", parent, source)

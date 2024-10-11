@@ -33,35 +33,6 @@ require "plume.runtime"
 require "plume.initialization"
 require "plume.api"
 
--- <DEV>
-plume.show_token = false
-local function print_tokens(t, indent)
-    local function print_token_info (token)
-        print(indent..token.kind.."\t"..(token.value or ""):gsub('\n', '\\n'):gsub(' ', '_')..'\t'..tostring(token.context or ""))
-    end
-
-    indent = indent or ""
-    for _, token in ipairs(t) do
-        if token.kind == "block" or token.kind == "opt_block" then
-            print_token_info(token)
-            print_tokens(token, "\t"..indent)
-        
-        elseif token.kind == "block_text" then
-            local value = ""
-            for _, txt in ipairs(token) do
-                value = value .. txt.value
-            end
-            print_token_info(token)
-        elseif token.kind == "opt_value" or token.kind == "opt_key_value" then
-            print_token_info (token)
-            print_tokens(token, "\t"..indent)
-        else
-            print_token_info(token)
-        end
-    end
-end
--- </DEV>
-
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
 -- @param file string The name used to track the code
@@ -71,12 +42,6 @@ function plume.render (code, file)
     
     tokens = plume.tokenize(code, file)
     tokens = plume.parse(tokens)
-    -- <DEV>
-    if plume.show_token then
-        print "--------"
-        print_tokens(tokens)
-    end
-    -- </DEV>
     result = tokens:render()
     
     return result
