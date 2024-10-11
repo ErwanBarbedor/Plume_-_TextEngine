@@ -1,3 +1,32 @@
+### 0.8.0
+
+#### Changes
+- Can now use `${...}` in parameter names and parameter values.
+- Configuration can now be local.
+- `${...}[i]` will now round, not floor.
+- New option for CLI: interactive mode
+- New function `plume.is_called_by`.
+- New function `plume.write`.
+- New `plume.engine`
+- Add a warning if using `#` or `//` instead of `$` and `\--`. Will be triggered in Lua code, ignore it in this case.
+- Remove `plume._LUA_VERSION`. (the Lua version is already in `plume._VERSION`)
+- Remove implicit render on `token.__eq`
+- Remove access to the Lua table `arg` from plume.
+
+#### Enhancement
+- When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
+- Can now use comments inside optional parameter declaration.
+- Better error message for syntax error in lua code.
+
+#### Fixes
+- Fix a bug causing `local_macro` and `lmacro` to be global.
+- Fix a bug causing an eval block to be evaluated 3 times instead of once.
+
+#### Deprecation
+- `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced` will be removed in `v0.9`
+- Old syntax `#` and `//` compatibility will be removed in `v0.10`.
+- Non-lua block as parameter of `\if`, `\elseif`, `\for` and `\while` will no longer be accepted in `v0.11`.
+
 ### 0.7.0
 
 #### Changes
