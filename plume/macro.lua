@@ -65,12 +65,12 @@ function plume.render_if_token (x)
 end
 
 function plume.load_macros()
-    -- <DEV>
-    -- Clear cached packages
-    for m in ("controls utils macros files eval spaces debug"):gmatch('%S+') do
-         package.loaded["plume.macros."..m] = nil
+    -- Clear macro cache
+    for k, _ in pairs(package.loaded) do
+        if k:match('^plume%.macros%.') then
+            package.loaded[k] = nil
+        end
     end
-    -- </DEV>
 
     -- save the name of predefined macros
     plume.std_macros = {}
