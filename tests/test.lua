@@ -9,7 +9,7 @@ print_error_detail = true
 local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optparams", "scope"}
 
 local function readFile(filename)
-    local file = io.open("test/"..filename..".plume", "r")
+    local file = io.open("tests/"..filename..".plume", "r")
     if not file then
         error("Could not open file " .. filename)
     end
