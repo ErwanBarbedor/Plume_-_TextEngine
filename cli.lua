@@ -18,7 +18,7 @@ local cli_help = [[
 Plume is a templating langage with advanced scripting features.
 
 Usage:
-    plume [--print -p] [--output -o OUTPUT_FILE] [INPUT_FILE | --string -s CODE]
+    plume [--print -p] [--output -o OUTPUT_FILE] [--config CONFIG] [INPUT_FILE | --string -s CODE]
 
 Options:
   No argument         Launch interactive mode.
@@ -27,16 +27,20 @@ Options:
   -o, --output FILE   Write the output to FILE
   -p, --print         Display the result (true if -s is present)
   -s, --string        Evaluate the input
+  -c, --config        Edit plume configuration
 
 Examples:
   plume --help
     Display this message.
 
   plume --print input.plume
-    Process 'input.txt' and display the result
+    Process 'input.plume' and display the result
 
   plume --output output.txt --string "foo"
     Process the code "foo" and save the result to 'output.txt'.
+  
+  plume --config "filter_spaces=_;filter_newlines= ;show_deprecation_warnings=false" input.plume
+    Process 'input.plume' with a specific configuration.
 
 For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
@@ -110,7 +114,7 @@ function cli.main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
-    local print_output, direct_mode
+    local print_output, direct_mode, config
     local output_file, input_file
 
     while #arg > 0 do
@@ -126,18 +130,23 @@ function cli.main ()
         elseif arg[1] == "-s" or arg[1] == "--string" then
             direct_mode = true
             table.remove(arg, 1)
+        elseif arg[1] == "-c" or arg[1] == "--config" then
+            local optn = table.remove(arg, 1)
+            config = table.remove(arg, 1)
+            if not config then
+                io.stderr:write("configuration expected after '" .. optn .. "'.")
+            end
         elseif arg[1] == "-o" or arg[1] == "--output" then
             output_file = arg[2]
             if not output_file then
-                print ("No output file provided.")
+                io.stderr:write("No output file provided.")
             end
 
             input  = arg[3]
             table.remove(arg, 1)
             table.remove(arg, 1)
         elseif arg[1]:match('^%-') then
-            print("Unknown option '" .. arg[1] .. "'")
-            print("Type plume --help for get accepted options.")
+            io.stderr:write("Unknown option '" .. arg[1] .. "'\n" .. "Type plume --help for get accepted options.")
             return
         else
             input = arg[1]
@@ -146,7 +155,9 @@ function cli.main ()
     end
 
     if not input then
-        return cli.interactive_mode ()
+        plume.init()
+        cli.config(plume, config)
+        return cli.interactive_mode (plume)
     end
 
     -- Initialize with the input file
@@ -155,11 +166,14 @@ function cli.main ()
     local success, result
     if direct_mode then
         plume.init ()
+        cli.config(plume, config)
         -- Render the given string and capture success or error
         success, result = pcall(plume.render, input)
     else
         input_file = input
         plume.init (input_file)
+        cli.config(plume, config)
+
         --- @api_variable If use in command line, path of the input file.
         plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input_file)
         --- @api_variable Name of the file to output execution result. If set to none, don't print anything. Can be set by command line.
@@ -193,13 +207,11 @@ end
 
 --- Activates the interactive mode of the plume module
 -- Prints the version, initializes plume, and processes user input until the "exit" command is issued.
-function cli.interactive_mode()
+function cli.interactive_mode(plume)
     -- Print the version information
     print(plume._VERSION)
     print("Type '" .. plume.syntax.escape .. "exit' to exit the interactive mode.")
 
-    -- Initialize plume module
-    plume.init()
     local exit = false
 
     -- Register "exit" macro to exit interactive mode
@@ -220,6 +232,39 @@ function cli.interactive_mode()
         if not sucess then
             plume.last_error = nil
             plume.traceback = {}
+        end
+    end
+end
+
+--- Configures the application's runtime settings
+-- Parses the configuration string and updates plume configuration.
+-- The configuration string should have key-value pairs separated by semicolons, with each pair in the format "key=value".
+-- Supports boolean values ("true" or "false") and numeric values in string form.
+-- If an invalid format is encountered or a key does not exist, an error message is written to stderr.
+-- @param plume table The plume main table
+-- @param config string A semicolon-separated string of "key=value" pairs representing configuration settings.
+function cli.config(plume, config)
+    for info in config:gmatch('[^;]+') do
+        local key, value = info:match('([^=]+)=(.+)')
+        if not value then
+            io.stderr:write('Malformed configuration "' .. info .. '"\n')
+            io.stderr:write('"key=value" format expected.\n')
+        end
+
+        -- Convert value to appropriate type (boolean or number)
+        if value == "false" then
+            value = false
+        elseif value == "true" then
+            value = true
+        elseif tonumber(value) then
+            value = tonumber(value)
+        end
+
+        -- Update the configuration if the key exists
+        if plume.running_api.config[key] then
+            plume.running_api.config[key] = value
+        else
+            io.stderr:write("Unknown configuration '" .. key .. "'\n")
         end
     end
 end
