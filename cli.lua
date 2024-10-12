@@ -201,11 +201,8 @@ function cli.main ()
         print("File '" .. filename .. "' written.")
     end
 
-    if success then
-        print("Success.")
-    else
-        print("Error:")
-        print(result)
+    if not success then
+        io.stderr:write(result.."\n")
     end
 end
 
