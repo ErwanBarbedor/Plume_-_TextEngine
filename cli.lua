@@ -18,19 +18,10 @@ local cli_help = [[
 Plume is a templating langage with advanced scripting features.
 
 Usage:
-    plume
-    plume INPUT_FILE
-    plume --string CODE
-    plume --print INPUT_FILE
-    plume --output OUTPUT_FILE INPUT_FILE
-    plume --version
-    plume --help
-
-No argument:
-    Launch interactive mode.
+    plume [--print -p] [--output -o OUTPUT_FILE] [INPUT_FILE | --string -s CODE]
 
 Options:
-
+  No argument         Launch interactive mode.
   -h, --help          Show this help message and exit.
   -v, --version       Show the version of plume and exit.
   -o, --output FILE   Write the output to FILE
@@ -41,19 +32,13 @@ Examples:
   plume --help
     Display this message.
 
-  plume --version
-    Display the version of Plume.
-
-  plume input.plume
-    Process 'input.txt'
-
   plume --print input.plume
     Process 'input.txt' and display the result
 
-  plume --output output.txt input.plume
-    Process 'input.txt' and save the result to 'output.txt'.
+  plume --output output.txt --string "foo"
+    Process the code "foo" and save the result to 'output.txt'.
 
-For more information, visit #GITHUB#.
+For more information, visit https://github.com/ErwanBarbedor/Plume_-_TextEngine.
 ]]
 
 local cli = {}
