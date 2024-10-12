@@ -126,6 +126,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### CLI
 #### Fixes
 - No longer see the first error message for each error.
+- Fixe an error preventing to see plume output.
 
 
 See the [changelog](doc/changelog.md) for older version
