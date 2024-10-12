@@ -130,6 +130,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### Enhancements
 - Rewrite doc
+- New tests specifics to CLI
 
 #### Fixes
 - No longer see the first error message for each error.

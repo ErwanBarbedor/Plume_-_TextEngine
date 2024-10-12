@@ -1,0 +1,11 @@
+\-- CLI Test 'get version'
+./plume.sh -v
+\-- Result
+Plume - TextEngine 0.9.0
+\-- End
+
+\-- CLI Test 'simple call'
+./plume.sh --string foo
+\-- Result
+foo
+\-- End
