@@ -244,7 +244,7 @@ end
 -- @param plume table The plume main table
 -- @param config string A semicolon-separated string of "key=value" pairs representing configuration settings.
 function cli.config(plume, config)
-    for info in config:gmatch('[^;]+') do
+    for info in (config or ""):gmatch('[^;]+') do
         local key, value = info:match('([^=]+)=(.+)')
         if not value then
             io.stderr:write('Malformed configuration "' .. info .. '"\n')
