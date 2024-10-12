@@ -123,6 +123,10 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Plume is no longer a standalone Lua file.
 - As planned, remove `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced`.
 
+### CLI
+#### Fixes
+- No longer see the first error message for each error.
+
 
 See the [changelog](doc/changelog.md) for older version
 

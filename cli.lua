@@ -233,6 +233,12 @@ function cli.interactive_mode()
         local success, result = pcall(plume.render, input)
         
         print(result)
+
+        -- Reset traceback and error
+        if not sucess then
+            plume.last_error = nil
+            plume.traceback = {}
+        end
     end
 end
 
