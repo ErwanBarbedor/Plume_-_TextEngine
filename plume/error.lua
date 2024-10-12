@@ -12,9 +12,6 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-plume.last_error = nil
-plume.traceback = {}
-
 --- Compute Damerau-Levenshtein distance
 -- @param s1 string first word to compare
 -- @param s2 string second word to compare
