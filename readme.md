@@ -127,7 +127,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 #### Fixes
 - No longer see the first error message for each error.
 - Fixe an error preventing to see plume output.
-
+- Error is now writted on stderr, not stdin.
 
 See the [changelog](doc/changelog.md) for older version
 
