@@ -253,7 +253,8 @@ end, nil, false, true)
 -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
 plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_token, chain_sender, chain_message)
     -- Have the same behavior of the lua elseif control structure.
-    
+    local config = plume.current_scope (self_token.context).config
+
     -- Must receive a message from preceding if
     if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
         plume.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")
