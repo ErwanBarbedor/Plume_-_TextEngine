@@ -125,10 +125,10 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### CLI
 
-### Changes
+#### Changes
 - New option `-c --config` to edit configuration before executing the file or the given code.
 
-### Enhancements
+#### Enhancements
 - Rewrite doc
 - New tests specifics to CLI
 
