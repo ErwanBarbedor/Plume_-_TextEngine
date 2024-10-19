@@ -82,7 +82,7 @@ _Of course, with this method you can output several files._
 For a list of available options, use:
 
 ```
-> lua plume.lua -h
+> plume -h
 Usage:
     plume INPUT_FILE
     plume --print INPUT_FILE
