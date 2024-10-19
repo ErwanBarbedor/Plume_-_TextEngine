@@ -26,9 +26,9 @@ To illustrate, consider the task of generating ten files, each containing a mult
 
 You can test plume in [your browser](https://app.barbedor.bzh/plume.html). 
 
-Plume requires Lua to run. It has been tested with Lua versions 5.x and LuaJIT. You just need to download the file corresponding to your installed Lua version. For example, for Lua 5.4: [dist/Lua 5.4/plume.lua](dist/5.4/plume.lua).
+Plume requires Lua to run. It has been tested with Lua versions 5.x and LuaJIT. Clone or download the repository,
 
-Write the following in a file `input.plume`:
+Write the following in a file `input.plume` inside the `plume` folder (or just add this folder to path):
 
 ```plume
 \def table[x] {
@@ -42,7 +42,7 @@ Write the following in a file `input.plume`:
 Then, in a command console, execute:
 
 ```bash
-lua plume.lua -p input.plume
+plume -p input.plume
 ```
 
 This runs the `input.plume` file and you should see the multiplication table of 3 in your console.
@@ -50,7 +50,7 @@ This runs the `input.plume` file and you should see the multiplication table of 
 To save this result to the `output.txt` file, run:
 
 ```bash
-lua plume.lua -o output.txt input.plume
+plume -o output.txt input.plume
 ```
 
 You can also write your `input.plume` like this:
