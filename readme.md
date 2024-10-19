@@ -28,7 +28,7 @@ You can test plume in [your browser](https://app.barbedor.bzh/plume.html).
 
 Plume requires Lua to run. It has been tested with Lua versions 5.x and LuaJIT. Clone or download the repository.
 
-Write the following in a file `input.plume` inside the `plume` folder (or just add this folder to path):
+Write the following in a file `input.plume` inside the `plume` folder:
 
 ```plume
 \def table[x] {
@@ -41,11 +41,16 @@ Write the following in a file `input.plume` inside the `plume` folder (or just a
 
 Then, in a command console, execute:
 
+**Windows**
 ```bash
 plume -p input.plume
 ```
 
-_For linux system, you may before make `plume` file executable._
+**Linux**
+```bash
+chmod +x plume
+./plume -p input.plume
+```
 
 This runs the `input.plume` file and you should see the multiplication table of 3 in your console.
 
@@ -69,7 +74,7 @@ You can also write your `input.plume` like this:
 And just call:
 
 ```bash
-lua plume.lua input.plume
+plume input.plume
 ```
 
 _Of course, with this method you can output several files._
