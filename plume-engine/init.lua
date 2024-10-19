@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.9.0
+Plume - TextEngine 0.10.0
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.9.0"
+plume._VERSION = "Plume - TextEngine 0.10.0"
 
 require "plume-engine.config"
 require "plume-engine.syntax"
