@@ -141,8 +141,6 @@ function cli.main ()
             if not output_file then
                 io.stderr:write("No output file provided.")
             end
-
-            input  = arg[3]
             table.remove(arg, 1)
             table.remove(arg, 1)
         elseif arg[1]:match('^%-') then
@@ -184,20 +182,20 @@ function cli.main ()
     end
 
     -- Print the result if the print_output flag is set, or if in direct mode
-    if success and (print_output or direct_mode) then    
+    if success and (print_output or (direct_mode and not output_file)) then    
         print(result)
     end
 
-    if output then
+    if output_file then
         -- Write the result to the output file if specified
-        local file = io.open(output, "w")
+        local file = io.open(output_file, "w")
         if not file then
-            error("Cannot write the file '" .. output .. "'.", -1)
+            error("Cannot write the file '" .. output_file .. "'.", -1)
             return
         end
         file:write(result)
         file:close ()
-        print("File '" .. filename .. "' written.")
+        print("File '" .. output_file .. "' written.")
     end
 
     if not success then
