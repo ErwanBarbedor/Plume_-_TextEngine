@@ -1,3 +1,23 @@
+### 0.9.0
+
+#### Changes
+- Plume is no longer a standalone Lua file.
+- As planned, remove `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced`.
+
+#### CLI
+
+##### Changes
+- New option `-c --config` to edit configuration before executing the file or the given code.
+
+##### Enhancements
+- Rewrite doc
+- New tests specifics to CLI
+
+##### Fixes
+- No longer see the first error message for each error.
+- Fixe an error preventing to see plume output.
+- Error is now writted on stderr, not stdin.
+
 ### 0.8.0
 
 #### Changes
