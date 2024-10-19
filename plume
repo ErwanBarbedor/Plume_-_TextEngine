@@ -1,0 +1,3 @@
+#!/bin/sh
+export LUA_PATH="`dirname \"$0\"`/?/init.lua;`dirname \"$0\"`/?.lua;$LUA_PATH"
+lua54 "$(dirname "$0")/cli.lua" -p "$@"
