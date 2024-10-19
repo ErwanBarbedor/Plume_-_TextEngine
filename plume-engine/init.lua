@@ -21,17 +21,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 plume = {}
 plume._VERSION = "Plume - TextEngine 0.9.0"
 
-require "plume.config"
-require "plume.syntax"
-require "plume.render"
-require "plume.token"
-require "plume.tokenize"
-require "plume.parse"
-require "plume.error"
-require "plume.macro"
-require "plume.runtime"
-require "plume.initialization"
-require "plume.api"
+require "plume-engine.config"
+require "plume-engine.syntax"
+require "plume-engine.render"
+require "plume-engine.token"
+require "plume-engine.tokenize"
+require "plume-engine.parse"
+require "plume-engine.error"
+require "plume-engine.macro"
+require "plume-engine.runtime"
+require "plume-engine.initialization"
+require "plume-engine.api"
 
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render

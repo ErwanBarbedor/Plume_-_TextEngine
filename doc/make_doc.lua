@@ -199,7 +199,7 @@ end
 local result = {"# Macros documentation\n_Generated from source._"}
 for categorie in ("Controls Files Eval Spaces Utils Macros"):gmatch('%S+') do
     table.insert(result, "## " .. categorie)
-    local script = io.open("plume/macros/" .. categorie .. ".lua"):read "*a"
+    local script = io.open("plume-engine/macros/" .. categorie .. ".lua"):read "*a"
     capture_macro_doc (result, script)
 end
 
@@ -207,7 +207,7 @@ io.open("doc/macros.md", "w"):write(table.concat(result, "\n\n"))
 print('Documentation for macros generated.')
 
 local result = {"# Plume configuration\n_Generated from source._\n\nChange configuration using `${plume.config.key = value}` or using the macro [config](macros.md#config).\n\n| Name | Default Value | Description |\n| ----- | ----- | ----- |"}
-local script = io.open("plume/config.lua"):read "*a"
+local script = io.open("plume-engine/config.lua"):read "*a"
 for doc, name, value in script:gmatch("%-%-([^\n\r]+)%s+plume%.config%.([A-Za-z0-9_]+)%s*=%s*([^\n\r]+)") do
     table.insert(result, "| " .. name .. " | " .. value .. " | " .. doc .. " |")
 end
@@ -217,16 +217,16 @@ print('Documentation for configuration generated.')
 
 local result = {"# Plume API\n_Generated from source._\n\nMéthodes et variables Lua accessibles in any `$` macro.\n\n## Variables\n\n| Name |  Description |\n| ----- | ----- |"}
 
-local script = io.open("plume/macros/utils.lua"):read ("*a")
-     .. io.open("plume/macros/files.lua"):read ("*a")
-     .. io.open("plume/macros/macros.lua"):read ("*a")
-     .. io.open("plume/initialization.lua"):read ("*a")
-     .. io.open("plume/runtime.lua"):read ("*a")
+local script = io.open("plume-engine/macros/utils.lua"):read ("*a")
+     .. io.open("plume-engine/macros/files.lua"):read ("*a")
+     .. io.open("plume-engine/macros/macros.lua"):read ("*a")
+     .. io.open("plume-engine/initialization.lua"):read ("*a")
+     .. io.open("plume-engine/runtime.lua"):read ("*a")
 for name , doc in script:gmatch("%-%-%- @scope_variable%s*(%S+)%s*([^\n\r]+)") do
     table.insert(result, "| `" .. name .. "` | " .. doc .. " |")
 end
 
-local script = io.open("plume/api.lua"):read ("*a") .. "\n" .. io.open("cli.lua"):read ("*a")
+local script = io.open("plume-engine/api.lua"):read ("*a") .. "\n" .. io.open("cli.lua"):read ("*a")
 for doc, name in script:gmatch("%-%-%- @api_variable([^\n\r]+).-([A-Za-z0-9_]+)%s*=") do
     table.insert(result, "| `plume." .. name .. "` | " .. doc .. " |")
 end
@@ -237,8 +237,8 @@ table.insert(result, "## Methods\n\n")
 
 capture_api_doc (result, script, "plume.", "api_method")
 
-local script1 = io.open("plume/token.lua"):read ("*a"):match('local tokenlist = setmetatable(.*)')
-local script2 = io.open("plume/render.lua"):read ("*a")
+local script1 = io.open("plume-engine/token.lua"):read ("*a"):match('local tokenlist = setmetatable(.*)')
+local script2 = io.open("plume-engine/render.lua"):read ("*a")
 
 table.insert(result, "## Tokenlist\n\nTokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.\n\nIn addition to the methods listed below, all operations that can be supercharged have also been supercharged. So, if `x` and `y` are two tokenlists, `x + y` is equivalent to `x:render() + y:render()`.\n\nIn the same way, if you call all `string` methods on a tokenlist, the call to `render` will be implicit: `tokenlist:match(...)` is equivalent to `tokenlist:render():match(...)`.")
 

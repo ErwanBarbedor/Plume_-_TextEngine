@@ -67,7 +67,7 @@ end
 function plume.load_macros()
     -- Clear macro cache
     for k, _ in pairs(package.loaded) do
-        if k:match('^plume%.macros%.') then
+        if k:match('^plume%-engine%.macros%.') then
             package.loaded[k] = nil
         end
     end
@@ -75,10 +75,10 @@ function plume.load_macros()
     -- save the name of predefined macros
     plume.std_macros = {}
 
-    require "plume.macros.controls" 
-    require "plume.macros.macros" 
-    require "plume.macros.utils" 
-    require "plume.macros.files" 
-    require "plume.macros.eval" 
-    require "plume.macros.spaces"
+    require "plume-engine.macros.controls" 
+    require "plume-engine.macros.macros" 
+    require "plume-engine.macros.utils" 
+    require "plume-engine.macros.files" 
+    require "plume-engine.macros.eval" 
+    require "plume-engine.macros.spaces"
 end

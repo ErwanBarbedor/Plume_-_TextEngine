@@ -11,7 +11,7 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
-local plume = require "plume"
+local plume = require "plume-engine"
 
 local cli_help = [[
 ]] .. plume._VERSION .. [[

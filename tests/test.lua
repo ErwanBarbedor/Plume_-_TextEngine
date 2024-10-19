@@ -3,7 +3,7 @@ local print_error_detail
 
 local plume
 package.path = package.path .. ";?/init.lua"
-plume = require "plume"
+plume = require "plume-engine"
 print_error_detail = true
 
 local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optparams", "scope", "cli"}
