@@ -121,11 +121,6 @@ function plume.tokenize (code, file)
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
-
-            if c == plume.syntax.alt_eval then
-                warning ("Old syntax '#' for eval will be remove in 0.10. Use '$' instead.")
-            end
-
             write()
             pos = pos + 1
             newtoken ("eval", c)
