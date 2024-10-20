@@ -32,6 +32,7 @@ require "plume-engine.macro"
 require "plume-engine.runtime"
 require "plume-engine.initialization"
 require "plume-engine.api"
+require "plume-engine.debug"
 
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
