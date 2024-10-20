@@ -175,42 +175,26 @@ function plume.renderToken (self)
             table.insert(result, token.value)
         
         elseif token.kind == "newline" then
-            -- To be removed in 1.0 --
-            if config.ignore_spaces then
-                last_is_newline = true
-            --------------------------
-            else
-                if config.filter_newlines then
-                    if not last_is_newline then
-                        table.insert(result, config.filter_newlines)
-                        last_is_newline = true
-                    end
-                elseif token.__type == "token" then
-                    table.insert(result, token.value)
-                else
-                    table.insert(result, token:render())
+            if config.filter_newlines then
+                if not last_is_newline then
+                    table.insert(result, config.filter_newlines)
+                    last_is_newline = true
                 end
+            elseif token.__type == "token" then
+                table.insert(result, token.value)
+            else
+                table.insert(result, token:render())
             end
         
         elseif token.kind == "space" then
-            -- To be removed in 1.0 --
-            if config.ignore_spaces then
+            if config.filter_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
-                    table.insert(result, " ")
+                    table.insert(result, config.filter_spaces)
                 end
-            --------------------------
             else
-                if config.filter_spaces then
-                    if last_is_newline then
-                        last_is_newline = false
-                    else
-                        table.insert(result, config.filter_spaces)
-                    end
-                else
-                    table.insert(result, token.value)
-                end
+                table.insert(result, token.value)
             end
 
         elseif token.kind == "macro" then
@@ -226,11 +210,7 @@ function plume.renderToken (self)
 
             local name = token.value:gsub("^"..plume.syntax.escape , "")
 
-            if name == plume.syntax.eval
-                -- Compatibility with 0.6.1. Will be removed in a future version.
-                or name == plume.syntax.alt_eval
-                --
-                then
+            if name == plume.syntax.eval then
                 name = "eval"
             end
 
@@ -255,11 +235,7 @@ function plume.renderToken (self)
                 elseif self[pos].kind == "macro" then
                     -- Raise an error. (except for '#') 
                     -- Macro as parameter must be enclosed in braces
-                    if self[pos].value == plume.syntax.eval
-                        -- Compatibility only, will be removed in 1.0
-                        or self[pos].value == plume.syntax.alt_eval
-                        --
-                        then
+                    if self[pos].value == plume.syntax.eval then
                         if not self[pos+1] then
                             plume.error(token, "End of block reached, not enough arguments for macro '$'.0 instead of 1.")
                         end

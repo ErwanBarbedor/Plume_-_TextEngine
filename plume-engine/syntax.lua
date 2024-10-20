@@ -25,11 +25,7 @@ plume.syntax = {
     opt_block_begin      = "[",
     opt_block_end        = "]",
     opt_assign           = "=",
-    eval                 = "$",
-
-    -- Compatibility with 0.6.1. Will be removed in a future version.
-    alt_eval             = "#",
-    alt_comment          = "/"
+    eval                 = "$"
 }
 
 --- Checks if a string is a valid identifier.

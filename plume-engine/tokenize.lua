@@ -117,11 +117,7 @@ function plume.tokenize (code, file)
             write()
             newtoken ("opt_block_end", plume.syntax.opt_block_end, 1)
         
-        elseif c == plume.syntax.eval
-            -- Compatibility with 0.6.1. Will be removed in a future version.
-            or c == plume.syntax.alt_eval
-            --
-            then
+        elseif c == plume.syntax.eval then
             -- If nexts chars are alphanumeric, capture the next
             -- identifier as a block, and not %S+.
             -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
@@ -141,41 +137,6 @@ function plume.tokenize (code, file)
             else
                 pos = pos - 1
             end
-        
-        -- Compatibility with 0.6.1. Will be removed in a future version.
-        elseif c == plume.syntax.alt_comment then
-            pos = pos + 1
-            local next = code:sub(pos, pos)
-            if next == c then
-                warning ("Old syntax '//' for command will be remove in 0.10. Use '\\--' instead.")
-                write("comment")
-                table.insert(acc, c)
-                table.insert(acc, c)
-                local find_newline
-                repeat
-                    pos = pos + 1
-                    next = code:sub(pos, pos)
-                    if find_newline and not next:match "[ \t]" then
-                        pos = pos - 1
-                        break
-                    end
-
-                    table.insert(acc, next)
-                    if next == "\n" then
-                        find_newline = pos+1
-                    end
-                until pos >= #code
-
-                if find_newline then
-                    noline = noline + 1
-                    linepos = find_newline
-                end
-            else
-                pos = pos - 1
-                write ("text")
-                table.insert(acc, c)
-            end
-        --
 
         elseif c:match("%s") then
             write ("space")

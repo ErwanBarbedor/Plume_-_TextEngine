@@ -141,26 +141,3 @@ plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, functi
     end
 
 end, nil, false, true)
-
---- Compatibility with 0.6.1, will be removed in a future version.
-
---- \set_local
--- DEPRECATED Affect a value to a variable locally.
--- @param key The name of the variable.
--- @param value The value of the variable.
--- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
--- @alias `setl`
-plume.register_macro("set_local", {"key", "value"}, {}, function(params, calling_token)
-    set(params, calling_token, true)
-    return ""
-end, nil, false, true)
-
--- setl
--- DEPRECATED Alias for [set_local](#set_local)
--- @param key The name of the variable.
--- @param value The value of the variable.
--- @note Value is always stored as a string. To store lua object, use `#{var = ...}`
-plume.register_macro("setl", {"key", "value"}, {}, function(params, calling_token)
-    set(params, calling_token, true)
-    return ""
-end, nil, false, true)

@@ -126,7 +126,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.10.0
 
-
+### Changes
+- As planned, remove compatibilty for old syntax `#` and `\\`
+- As planned, remove compatibilty for old configuration `config.ignore_spaces`
 
 See the [changelog](doc/changelog.md) for older version
 

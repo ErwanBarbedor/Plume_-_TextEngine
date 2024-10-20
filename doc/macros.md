@@ -260,20 +260,6 @@ _Generated from source._
 - `version` Version where the macro will be deleted.
 - `alternative` Give an alternative to replace this macro.
 
-### set_local
-
-**Usage:** `\set_local {key} {value}`
-
-**Description:** DEPRECATED Affect a value to a variable locally.
-
-**Positionnal Parameters:**
-- `key` The name of the variable.
-- `value` The value of the variable.
-
-**Note:** Value is always stored as a string. To store lua object, use `#{var = ...}`
-
-**Alias:** `setl`
-
 ## Macros
 
 ### macro
