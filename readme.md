@@ -1,6 +1,6 @@
 <p align="center"><img src="plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.10.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.11.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -124,11 +124,8 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
-## Last version : 0.10.0
+## Last version : 0.11.0
 
-### Changes
-- As planned, remove compatibilty for old syntax `#` and `\\`
-- As planned, remove compatibilty for old configuration `config.ignore_spaces`
 
 See the [changelog](doc/changelog.md) for older version
 

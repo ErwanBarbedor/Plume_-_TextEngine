@@ -1,3 +1,10 @@
+### 0.10.0
+
+### Changes
+- As planned, remove compatibilty for old syntax `#` and `\\`
+- As planned, remove compatibilty for old configuration `config.ignore_spaces`
+
+
 ### 0.9.0
 
 #### Changes
