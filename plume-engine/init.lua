@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.10.0"
+plume._VERSION = "Plume - TextEngine 0.11.0"
 
 require "plume-engine.config"
 require "plume-engine.syntax"
