@@ -126,6 +126,8 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.11.0
 
+### Internal changes
+- Rewrite unitary testing : cleaner code and much cleaner output.
 
 See the [changelog](doc/changelog.md) for older version
 
