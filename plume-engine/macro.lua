@@ -65,20 +65,13 @@ function plume.render_if_token (x)
 end
 
 function plume.load_macros()
-    -- Clear macro cache
-    for k, _ in pairs(package.loaded) do
-        if k:match('^plume%-engine%.macros%.') then
-            package.loaded[k] = nil
-        end
-    end
-
-    -- save the name of predefined macros
+    -- to save the name of predefined macros
     plume.std_macros = {}
 
-    require "plume-engine.macros.controls" 
-    require "plume-engine.macros.macros" 
-    require "plume-engine.macros.utils" 
-    require "plume-engine.macros.files" 
-    require "plume-engine.macros.eval" 
-    require "plume-engine.macros.spaces"
+    require "plume-engine.macros.controls" ()
+    require "plume-engine.macros.macros" ()
+    require "plume-engine.macros.utils" ()
+    require "plume-engine.macros.files" ()
+    require "plume-engine.macros.eval" ()
+    require "plume-engine.macros.spaces" ()
 end

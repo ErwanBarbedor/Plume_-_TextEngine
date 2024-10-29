@@ -128,6 +128,8 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Enhancement
 - More pertinents suggestions in case of unknow macro or parameter.
+- Resetting Plume is much faster.
+
 
 ### Internal changes
 - Rewrite unitary testing : cleaner code and much cleaner output.

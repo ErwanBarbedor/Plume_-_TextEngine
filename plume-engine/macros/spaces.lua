@@ -13,63 +13,64 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Define spaces-related macros
+return function ()
+    --- \n
+    -- Output a newline. 
+    -- @option_nokw n=1 Number of newlines to output.
+    -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
+    plume.register_macro("n", {}, {}, function(params)
+        local count = 1
+        if params.others.flags[1] then
+            count = params.others.flags[1]
+        end
+        return ("\n"):rep(count)
+    end, nil, false, true, true)
 
---- \n
--- Output a newline. 
--- @option_nokw n=1 Number of newlines to output.
--- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
-plume.register_macro("n", {}, {}, function(params)
-    local count = 1
-    if params.others.flags[1] then
-        count = params.others.flags[1]
-    end
-    return ("\n"):rep(count)
-end, nil, false, true, true)
+    --- \s
+    -- Output a space.
+    -- @option_nokw n=1 Number of spaces to output.
+    -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
+    plume.register_macro("s", {}, {}, function(params)
+        local count = 1
+        if params.others.flags[1] then
+            count = params.others.flags[1]
+        end
+        return (" "):rep(count)
+    end, nil, false, true, true)
 
---- \s
--- Output a space.
--- @option_nokw n=1 Number of spaces to output.
--- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
-plume.register_macro("s", {}, {}, function(params)
-    local count = 1
-    if params.others.flags[1] then
-        count = params.others.flags[1]
-    end
-    return (" "):rep(count)
-end, nil, false, true, true)
+    --- \t
+    -- Output a tabulation.
+    -- @option_nokw n=1 Number of tabs to output.
+    -- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
+    plume.register_macro("t", {}, {}, function(params)
+        local count = 1
+        if params.others.flags[1] then
+            count = params.others.flags[1]
+        end
+        return ("\t"):rep(count)
+    end, nil, false, true, true)
 
---- \t
--- Output a tabulation.
--- @option_nokw n=1 Number of tabs to output.
--- @note Don't affected by `plume.config.filter_spaces` and `plume.config.filter_newlines`.
-plume.register_macro("t", {}, {}, function(params)
-    local count = 1
-    if params.others.flags[1] then
-        count = params.others.flags[1]
-    end
-    return ("\t"):rep(count)
-end, nil, false, true, true)
+    --- \set_space_mode
+    -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
+    -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
+    plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
+        local mode = params.positionnals.mode:render ()
+        local config = plume.current_scope(calling_token.context).config
 
---- \set_space_mode
--- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
--- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
-plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
-    local mode = params.positionnals.mode:render ()
-    local config = plume.current_scope(calling_token.context).config
-
-    if mode == "normal" then
-        config.filter_spaces = false
-        config.filter_newlines = false
-    elseif mode == "no_spaces" then
-        config.filter_spaces = ""
-        config.filter_newlines = ""
-    elseif mode == "compact" then
-        config.filter_spaces = " "
-        config.filter_newlines = " "
-    elseif mode == "light" then
-        config.filter_spaces = " "
-        config.filter_newlines = "\n"
-    else
-        plume.error(params.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
-    end
-end)
+        if mode == "normal" then
+            config.filter_spaces = false
+            config.filter_newlines = false
+        elseif mode == "no_spaces" then
+            config.filter_spaces = ""
+            config.filter_newlines = ""
+        elseif mode == "compact" then
+            config.filter_spaces = " "
+            config.filter_newlines = " "
+        elseif mode == "light" then
+            config.filter_spaces = " "
+            config.filter_newlines = "\n"
+        else
+            plume.error(params.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
+        end
+    end)
+end
