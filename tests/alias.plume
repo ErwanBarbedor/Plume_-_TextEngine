@@ -34,7 +34,7 @@ bar foo
 \macro foo foo\--
 \baz \foo
 \-- Error
-File 'string', line 6 : Unknow macro 'baz'. Perhaps you mean 'raw'?
+File 'string', line 6 : Unknow macro 'baz'.
     \baz \foo
     ^^^^
 \-- End

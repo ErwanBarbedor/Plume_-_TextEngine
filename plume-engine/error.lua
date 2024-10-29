@@ -302,23 +302,25 @@ end
 -- @param macro_name string The name of the not founded macro
 function plume.error_macro_not_found (token, macro_name)
     
-    --Use a table to avoid duplicate names
+    -- Use a table to avoid duplicate names
     local suggestions_table = {}
 
     local scope = plume.current_scope(token and token.context)
-    -- Hardcoded suggestions
+    
+    -- Hardcoded suggestions for common errors
     if macro_name == "import" then
-        if scope.macros.require then
-            suggestions_table["require"] = true
-        end
-        if scope.macros.include then
-            suggestions_table["include"] = true
-        end
+        suggestions_table["require"] = true
+        suggestions_table["include"] = true
+    elseif macro_name == "def" or macro_name == "function" or macro_name == "func" then
+        suggestions_table.macro = true
+    elseif macro_name == "script" or macro_name == "lua" then
+        suggestions_table.eval = true
+        suggestions_table['$'] = true
     end
 
     -- Suggestions for possible typing errors
     for _, name in ipairs(scope:get_all("macros")) do
-        if word_distance (name, macro_name) < 3 then
+        if word_distance (name, macro_name) <= math.max(math.min(3, #macro_name - 2), 1) then
             suggestions_table[name] = true
         end
     end
@@ -345,19 +347,17 @@ end
 -- @param parameter string The name of the not found macro
 -- @param valid_parameters table Table of valid parameter names
 function plume.error_unknown_parameter (token, macro_name, parameter, valid_parameters)
-
-    
-    --Use a table to avoid duplicate names
+    -- Use a table to avoid duplicate names
     local suggestions_table = {}
 
     -- Suggestions for possible typing errors
     for name, _ in pairs(valid_parameters) do
-        if word_distance (name, parameter) < 3 then
+        if word_distance (name, parameter) <= math.max(math.min(3, #parameter - 2), 1) then
             suggestions_table[name] = true
         end
     end
 
-    local suggestions_list = sort(suggestions_table)
+    local suggestions_list = sort(suggestions_table)-- To make the order deterministic
     for i, name in ipairs(suggestions_list) do
         suggestions_list[i] =  "'" .. name .."'"
     end

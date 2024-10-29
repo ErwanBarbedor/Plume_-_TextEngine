@@ -126,6 +126,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.11.0
 
+## Enhancement
+- More pertinents suggestions in case of unknow macro or parameter.
+
 ### Internal changes
 - Rewrite unitary testing : cleaner code and much cleaner output.
 
