@@ -29,14 +29,10 @@ return function ()
         if params.positionnals.iterator:is_eval_block() then
             iterator_token  = params.positionnals.iterator[2]
         else
-            -- compatibility with 0.6.1. Will lead to an error in a future version.
-            if config.show_deprecation_warnings then
-                local source = params.positionnals.iterator:source()
-                local message = "Iterator must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+            local source = params.positionnals.iterator:source()
+            local message = "Iterator must be an eval block. Use '\\for ${" .. source .. "}' instead of '\\for " .. source .. "'. In the future, this will lead to an error."
 
-                plume.warning(params.positionnals.iterator, message)
-            end
-            iterator_token  = params.positionnals.iterator
+            plume.error(params.positionnals.iterator, message)
         end
 
         local iterator_source = iterator_token:source ()
@@ -167,14 +163,10 @@ return function ()
         if params.positionnals.condition:is_eval_block() then
             condition_token  = params.positionnals.condition[2]
         else
-            -- compatibility with 0.6.1. Will lead to an error in a future version.
-            if config.show_deprecation_warnings then
-                local source = params.positionnals.condition:source()
-                local message = "While condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+            local source = params.positionnals.iterator:source()
+            local message = "Condition must be an eval block. Use '\\while ${" .. source .. "}' instead of '\\while " .. source .. "'. In the future, this will lead to an error."
 
-                plume.warning(params.positionnals.condition, message)
-            end
-            condition_token  = params.positionnals.condition
+            plume.error(params.positionnals.iterator, message)
         end
 
         while plume.call_lua_chunk (condition_token) do
@@ -210,14 +202,10 @@ return function ()
         if params.positionnals.condition:is_eval_block() then
             condition_token  = params.positionnals.condition[2]
         else
-            -- compatibility with 0.6.1. Will lead to an error in a future version.
-            if config.show_deprecation_warnings then
-                local source = params.positionnals.condition:source()
-                local message = "if condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+            local source = params.positionnals.iterator:source()
+            local message = "Condition must be an eval block. Use '\\if ${" .. source .. "}' instead of '\\if " .. source .. "'. In the future, this will lead to an error."
 
-                plume.warning(params.positionnals.condition, message)
-            end
-            condition_token  = params.positionnals.condition
+            plume.error(params.positionnals.iterator, message)
         end
 
         local condition = plume.call_lua_chunk(condition_token)
@@ -265,14 +253,10 @@ return function ()
         if params.positionnals.condition:is_eval_block() then
             condition_token  = params.positionnals.condition[2]
         else
-            -- compatibility with 0.6.1. Will lead to an error in a future version.
-            if config.show_deprecation_warnings then
-                local source = params.positionnals.condition:source()
-                local message = "elseif condition must be an eval block. Use '${" .. source .. "}' instead of '" .. source .. "'. In the future, this will lead to an error."
+            local source = params.positionnals.iterator:source()
+            local message = "Condition must be an eval block. Use '\\elseif ${" .. source .. "}' instead of '\\elseif " .. source .. "'. In the future, this will lead to an error."
 
-                plume.warning(params.positionnals.condition, message)
-            end
-            condition_token  = params.positionnals.condition
+            plume.error(params.positionnals.iterator, message)
         end
 
         local condition
