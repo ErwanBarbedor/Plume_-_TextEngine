@@ -140,7 +140,8 @@ return function ()
                 __file_params[k] = true
             end
 
-            plume.current_scope (calling_token.context):set_local("variables", "__file_params", __file_params)
+            local scope = plume.get_scope (calling_token.context)
+            scope:set_local("variables", "__file_params", __file_params)
 
             -- Render file content
             local result = plume.render(file:read("*a"), filepath)

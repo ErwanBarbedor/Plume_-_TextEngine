@@ -20,7 +20,7 @@ api._VERSION = plume._VERSION
 --- @api_variable Hook to the internal `plume` table, for experimented users.
 api.engine   = plume
 
---- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
+--- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
 -- @note Mainly internal use, you shouldn't use this function.
 function api.capture_local()
     local index = 1
@@ -28,7 +28,8 @@ function api.capture_local()
     while true do
         local key, value = debug.getlocal(2, index)
         if key then
-            plume.current_scope (calling_token.context):set_local("variables", key, value)
+            local scope = plume.get_scope (calling_token.context)
+            scope:set_local("variables", key, value)
         else
             break
         end
@@ -51,7 +52,8 @@ end
 -- @return value The required variable.
 -- @note `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
 function api.get (key)
-    return plume.current_scope().variables[key]
+    local scope = plume.get_scope()
+    return scope:get("variables", key)
 end
 
 --- @api_method Get a variable value by name in the current scope. If the variable has a render method (see [render](#render)), call it and return the result. Otherwise, return the variable.
@@ -59,7 +61,8 @@ end
 -- @alias getr
 -- @return value The required variable.
 function api.get_render (key)
-    local result = plume.current_scope().variables[key]
+    local scope = plume.get_scope()
+    local result = scope:get("variables", key)
     if type(result) == table and result.render then
         return result:render ()
     else
@@ -73,7 +76,8 @@ api.getr = api.get_render
 -- @alias lget
 -- @return value The required variable.
 function api.lua_get (key)
-    local result = plume.current_scope().variables[key]
+    local scope = plume.get_scope()
+    local result = scope:get("variables", key)
     if type(result) == table and result.renderLua then
         return result:renderLua ()
     else
@@ -81,10 +85,6 @@ function api.lua_get (key)
     end
 end
 api.lget = api.lua_get
-
--- To remove in 1.0   --
-api.setl = api.set_local
-------------------------
 
 --- @api_method Works like Lua's require, but uses Plume's file search system.
 -- @param path string Path of the lua file to load
@@ -115,16 +115,7 @@ function api.export(name, params_number, f, is_local)
         for i=1, params_number do
             rparams[i] = params.positionnals['x' .. i]:render()
         end
-        -- <Lua 5.1>
-        if _VERSION == "Lua 5.1" then
-            return f(unpack(rparams))
-        end
-        -- </Lua>
-        -- <Lua 5.2 5.3 5.4>
-        if _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
-            return f(table.unpack(rparams))
-        end
-        -- </Lua>
+        return f(plume.unpack(rparams))
     end, nil, is_local)
 end
 
@@ -158,42 +149,54 @@ function api.write(content)
     table.insert(plume.write_stack[#plume.write_stack], content)
 end
 
---- Initializes the API methods visible to the user.
+--- Initializes the API methods visible to the user through `plume` variable.
 function plume.init_api ()
-    local scope = plume.current_scope ().variables
-    scope.plume = {}
+    local plume_reference = {}
 
-    -- keep a reference
-    plume.running_api = scope.plume
+    local global_scope = plume.get_scope ()
+    global_scope:set_local("variables", "plume", plume_reference)
+
+    -- keep a reference to the user `plume` variable
+    plume.running_api = plume_reference
 
     for k, v in pairs(api) do
-        scope.plume[k] = v
+        plume_reference[k] = v
     end
 
-    -- Edit configuration from script
-    scope.plume.config = setmetatable({}, {
+    --- User can edit configuration through a table
+    plume_reference.config = setmetatable({}, {
         __newindex = function (self, k, v)
-            plume.scopes[1]:set ("config", k, v)
+            global_scope:set ("config", k, v)
         end,
 
         __index = function (self, k)
-            return plume.scopes[1].config[k]
+            return global_scope:get("config", k)
         end
     })
 
-    scope.plume.local_config = setmetatable({}, {
+    --- User can also edit configuration locally
+    plume_reference.local_config = setmetatable({}, {
         __newindex = function (self, k, v)
-            plume.current_scope(plume.traceback[#plume.traceback].context):set_local("config", k, v)
+            local scope = plume.get_scope()
+            scope:set_local("config", k, v)
         end,
 
         __index = function (self, k)
-            return plume.current_scope(plume.traceback[#plume.traceback].context).config[k]
+            local scope = plume.get_scope()
+            return scope:get("config", k)
         end
     })
 
-    scope.plume.lconfig = scope.plume.local_config
+    plume_reference.lconfig = plume_reference.local_config
 
     -- Used to pass temp variable
-    scope.plume.temp = setmetatable({}, {__index=plume.temp, __newindex=function () error ("Cannot write 'plume.temp'") end})
+    plume_reference.temp = setmetatable({},
+        {
+            __index    = plume.temp,
+            __newindex = function ()
+                error ("Cannot write 'plume.temp'")
+            end
+        }
+    )
 end
 

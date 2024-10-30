@@ -55,20 +55,20 @@ return function ()
     -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
     plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
         local mode = params.positionnals.mode:render ()
-        local config = plume.current_scope(calling_token.context).config
+        local scope = plume.get_scope(calling_token.context)
 
         if mode == "normal" then
-            config.filter_spaces = false
-            config.filter_newlines = false
+            scope:set("config", "filter_spaces", false)
+            scope:set("config", "filter_newlines", false)
         elseif mode == "no_spaces" then
-            config.filter_spaces = ""
-            config.filter_newlines = ""
+            scope:set("config", "filter_spaces", "")
+            scope:set("config", "filter_newlines", "")
         elseif mode == "compact" then
-            config.filter_spaces = " "
-            config.filter_newlines = " "
+            scope:set("config", "filter_spaces", " ")
+            scope:set("config", "filter_newlines", " ")
         elseif mode == "light" then
-            config.filter_spaces = " "
-            config.filter_newlines = "\n"
+            scope:set("config", "filter_spaces", " ")
+            scope:set("config", "filter_newlines", "\n")
         else
             plume.error(params.mode, "Unknow value space mode '" .. mode .. "'. Accepted values are : normal, no_spaces, light.")
         end

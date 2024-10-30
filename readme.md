@@ -127,14 +127,17 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ## Last version : 0.11.0
 
 ## Change
-- As planned, `\for`, `\if`, `\while` and `\elseif` first parameter must now be an eval block.
+- As planned, `\for`, `\if`, `\while` and `\elseif`'s first parameter must now be an lua block.
+- Remove `_L`, too complex to implement without being useful.
 
 ## Enhancement
-- More pertinents suggestions in case of unknow macro or parameter.
+- More pertinent suggestions in case of unknown macro or parameter.
 - Resetting Plume is much faster.
 
 ### Internal changes
-- Rewrite unitary testing : cleaner code and much cleaner output.
+- Rewrite unitary testing: cleaner code and much clearer output.
+- A lot of code rewriting, cleaning, and spaces added.
+
 
 See the [changelog](doc/changelog.md) for older version
 

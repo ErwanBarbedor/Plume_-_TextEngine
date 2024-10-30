@@ -11,7 +11,6 @@ Méthodes et variables Lua accessibles in any `$` macro.
 | `__params` | When inside a macro with a variable paramter count, contain all excedents parameters, use `pairs` to iterate over them. Flags are both stocked as key=value (`__params.some_flag = true`) and table indice. (`__params[1] = "some_flag"`| |
 | `__message` | Used to implement if-like behavior. If you give a value to `__message.send`, the next macro to be called (in the same block) will receive this value in `__message.content`, and the name for the last macro in `__message.sender`  |
 | `_G` | Globale table of variables. |
-| `_L` | Local table of variables. |
 | `plume._VERSION` |  Version of plume. |
 | `plume.engine` |  Hook to the internal `plume` table, for experimented users. |
 | `plume.input_file` |  If use in command line, path of the input file. |
@@ -25,7 +24,7 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Usage :** `plume.capture_local()`
 
-**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
+**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
 
 **Note:** Mainly internal use, you shouldn't use this function.
 
@@ -137,7 +136,7 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Usage :** `file, founded_path, value, value, value, lib, bool = plume.__newindex(path, key, key, key, path, name, arg_number, is_local, name, arg_number, is_local, name, open_mode, silent_fail)`
 
-**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of `$` block in statement-mode.
+**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
 
 **Parameters :**
 - `path` _string_  The path where to search for the file.

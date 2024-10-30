@@ -102,10 +102,11 @@ function plume.parse_opt_params (macro, params, opt_params, context)
         capture_flag(key)
     end
 
-    local scope = plume.current_scope (context)
+    local scope = plume.get_scope (context)
     for k, _ in pairs(macro.default_opt_params) do
         if not params.keywords[k] then
-            local v = scope.default[tostring(macro) .. "@" .. k]
+            local keyword_name = tostring(macro) .. "@" .. k
+            local v = scope:get("default", keyword_name)
             params.keywords[k] = v
         end
     end
@@ -137,10 +138,14 @@ function plume.renderToken (self)
     -- Used to skip space at line beginning
     local last_is_newline = false
 
-    -- Get current configuration
-    local config = plume.current_scope (self.context).config
+    local scope = plume.get_scope (self.context)
 
     while pos <= #self do
+        -- Get current configuration
+        local config_filter_newlines    = scope:get("config", "filter_newlines")
+        local config_filter_spaces      = scope:get("config", "filter_spaces")
+        local config_max_callstack_size = scope:get("config", "max_callstack_size")
+
         local token = self[pos]
 
         -- Break the chain if encounter non macro non space token
@@ -175,9 +180,9 @@ function plume.renderToken (self)
             table.insert(result, token.value)
         
         elseif token.kind == "newline" then
-            if config.filter_newlines then
+            if config_filter_newlines then
                 if not last_is_newline then
-                    table.insert(result, config.filter_newlines)
+                    table.insert(result, config_filter_newlines)
                     last_is_newline = true
                 end
             elseif token.__type == "token" then
@@ -187,11 +192,11 @@ function plume.renderToken (self)
             end
         
         elseif token.kind == "space" then
-            if config.filter_spaces then
+            if config_filter_spaces then
                 if last_is_newline then
                     last_is_newline = false
                 else
-                    table.insert(result, config.filter_spaces)
+                    table.insert(result, config_filter_spaces)
                 end
             else
                 table.insert(result, token.value)
@@ -201,8 +206,8 @@ function plume.renderToken (self)
             -- Capture required number of block after the macro.
             
             -- If more than plume.max_callstack_size macro are running, throw an error.
-            -- Mainly to adress "\def foo \foo" kind of infinite loop.
-            local up_limit = config.max_callstack_size
+            -- Mainly to adress "\macro foo \foo" kind of infinite loop.
+            local up_limit = config_max_callstack_size
             
             if #plume.traceback > up_limit then
                 plume.error(token, "To many intricate macro call (over the configurated limit of " .. up_limit .. ").")
@@ -218,7 +223,7 @@ function plume.renderToken (self)
                 plume.error(token, "'" .. name .. "' is an invalid name for a macro.")
             end
 
-            local macro = plume.current_scope(self.context).macros[name]
+            local macro = scope:get("macros", name)
             if not macro then
                 plume.error_macro_not_found(token, name)
             end

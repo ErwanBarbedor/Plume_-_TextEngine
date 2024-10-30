@@ -24,7 +24,8 @@ return function ()
         -- iteration over various types of iterables without implementing a full Lua parser.
         local result = {}
         local iterator_token
-        local config = plume.current_scope (calling_token.context).config
+        local scope = plume.get_scope (calling_token.context)
+        local max_loop_size = scope:get("config", "max_loop_size")
 
         if params.positionnals.iterator:is_eval_block() then
             iterator_token  = params.positionnals.iterator[2]
@@ -74,20 +75,19 @@ return function ()
         -- Load and create the coroutine
         -- plume.push_scope ()
         local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
-        plume.setfenv (iterator_coroutine, plume.current_scope (calling_token.context).variables)
+        local scope = plume.get_scope (calling_token.context)
+        plume.setfenv (iterator_coroutine, scope:bridge_to("variables"))
         local co = iterator_coroutine ()
         -- plume.pop_scope ()
         
         -- Limiting loop iterations to avoid infinite loop
-        local up_limit = config.max_loop_size
         local iteration_count  = 0
 
-        
         -- Main iteration loop
         while true do
             -- Update and check loop limit
             iteration_count = iteration_count + 1
-            if iteration_count > up_limit then
+            if iteration_count > max_loop_size then
                 plume.error(calling_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
             end
 
@@ -128,13 +128,14 @@ return function ()
             end
 
             -- Set local variables in the current scope
+            local local_scope = plume.get_scope (calling_token.context)
             for i=1, #variables_list do
-                (calling_token.context or plume.current_scope ()):set_local ("variables", variables_list[i], values_list[i])
+                local_scope:set_local ("variables", variables_list[i], values_list[i])
             end
 
             -- Render the body of the loop and add it to the result
             local body = params.positionnals.body:copy ()
-            body:set_context(plume.current_scope(), true)
+            body:set_context(plume.get_scope(), true)
             table.insert(result, body:render())
 
             -- exit iteration scope
@@ -152,11 +153,12 @@ return function ()
     plume.register_macro("while", {"condition", "body"}, {}, function(params, calling_token)
         -- Have the same behavior of the lua while control structure.
         -- To prevent infinite loop, a hard limit is setted by plume.max_loop_size
-        local config = plume.current_scope (calling_token.context).config
+        local scope = plume.get_scope (calling_token.context)
+        local max_loop_size = scope:get("config", "max_loop_size")
+
         
         local result = {}
         local i = 0
-        local up_limit = config.max_loop_size
 
         local condition_token
 
@@ -174,11 +176,11 @@ return function ()
             plume.push_scope (params.positionnals.body.context)
             
             local body = params.positionnals.body:copy ()
-            body:set_context(plume.current_scope(), true)
+            body:set_context(plume.get_scope(), true)
             table.insert(result, body:render())
             i = i + 1
-            if i > up_limit then
-                plume.error(condition_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+            if i > max_loop_size then
+                plume.error(condition_token, "To many loop repetition (over the configurated limit of " .. max_loop_size .. ").")
             end
 
             -- exit local scope
@@ -196,7 +198,6 @@ return function ()
         -- Have the same behavior of the lua if control structure.
         -- Send a message "true" or "false" for activate (or not)
         -- following "else" or "elseif"
-        local config = plume.current_scope (calling_token.context).config
         local condition_token
 
         if params.positionnals.condition:is_eval_block() then
@@ -220,8 +221,6 @@ return function ()
     -- @param body A block that will be rendered, only if the last condition isn't verified.
     -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
     plume.register_macro("else", {"body"}, {}, function(params, self_token, chain_sender, chain_message)
-        -- Have the same behavior of the lua else control structure.
-
         -- Must receive a message from preceding if
         if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
             plume.error(self_token, "'else' macro must be preceded by 'if' or 'elseif'.")
@@ -240,9 +239,6 @@ return function ()
     -- @param body A block that will be rendered, only if the last condition isn't verified and the current condition is verified.
     -- @note Must follow an `\if` or an `\elseif` macro; otherwise, it will raise an error.
     plume.register_macro("elseif", {"condition", "body"}, {}, function(params, self_token, chain_sender, chain_message)
-        -- Have the same behavior of the lua elseif control structure.
-        local config = plume.current_scope (self_token.context).config
-
         -- Must receive a message from preceding if
         if chain_sender ~= "\\if" and chain_sender ~= "\\elseif" then
             plume.error(self_token, "'elseif' macro must be preceded by 'if' or 'elseif'.")

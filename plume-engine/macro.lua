@@ -34,12 +34,12 @@ function plume.register_macro (name, params, default_opt_params, macro, token, i
         variable_parameters_number = variable_parameters_number
     }
 
-    local scope = plume.current_scope(token and token.context)
+    local scope = plume.get_scope(token and token.context)
 
     if is_local then
         scope:set_local ("macros", name, macro)
     else
-        scope.macros[name] = macro
+        scope:set ("macros", name, macro)
     end
 
     if std then
@@ -48,7 +48,8 @@ function plume.register_macro (name, params, default_opt_params, macro, token, i
 
     -- Register keyword params
     for k, v in pairs(default_opt_params) do
-        scope.default[tostring(macro) .. "@" .. k] = v
+        local keyword_name = tostring(macro) .. "@" .. k
+        scope:set("default", keyword_name, v)
     end
 
     return macro

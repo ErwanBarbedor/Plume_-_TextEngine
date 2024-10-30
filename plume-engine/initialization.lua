@@ -46,10 +46,10 @@ function plume.init ()
 
     -- Create the first local scope
     -- (indeed, the global one)
-    plume.push_scope ()
+    local global_scope = plume.push_scope ()
 
     --- @scope_variable _G Globale table of variables.
-    plume.current_scope ().variables._G = plume.current_scope ().variables
+    global_scope:set("variables", "_G", global_scope:bridge_to("variables"))
 
     -- Used to pass temp variable
     plume.temp = {}
@@ -73,12 +73,12 @@ function plume.init ()
     -- Add all std function into
     -- global scope
     for k, v in pairs(plume.lua_std_functions) do
-        plume.scopes[1].variables[k] = v
+        global_scope:set("variables", k, v)
     end
 
     -- Initialise configuration
     for k, v in pairs(plume.config) do
-        plume.scopes[1].config[k] = v
+        global_scope:set("config", k, v)
     end
 
     plume.load_macros()

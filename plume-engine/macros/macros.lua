@@ -14,45 +14,25 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define macro-related macros
 return function ()
-    --- Test if the given name i available
-    -- @param name string the name to test
-    -- @param redef boolean Whether this is a redefinition
-    -- @param redef_forced boolean Whether to force redefinition of standard macros
-    local function test_macro_name_available (name, redef, redef_forced, calling_token)
-        local std_macro = plume.std_macros[name]
-        local macro     = plume.current_scope(calling_token.context).macros[name]
-        -- Test if the name is taken by standard macro
-        if std_macro then
-            if not redef_forced then
-                local msg = "The macro '" .. name .. "' is a standard macro and is certainly used by other macros. Change it only if not know what your doing."
-                return false, msg
-            end
-
-        -- Test if this macro already exists
-        elseif macro then
-            if not redef then
-                local msg = "The macro '" .. name .. "' already exist"
-                local first_definition = macro.token
-
-                if first_definition then
-                    msg = msg
-                        .. " (defined in file '"
-                        .. first_definition.file
-                        .. "', line "
-                        .. first_definition.line .. ").\n"
-                else
-                    msg = msg .. ". "
-                end
-
-                return false, msg
-            end
-        elseif redef and not redef_forced then
-            local msg = "The macro '" .. name .. "' doesn't exist, so you can't erase it. Use '\\def "..name.."' instead."
-            return false, msg
+    --- Checks if a macro is already defined in the current scope and issues a warning if it is.
+    -- @param token tokenlist
+    -- @param name string The name of the macro to check.
+    local function check_macro_availability(token, name)
+        -- Retrieve the current scope based on the context provided by the token
+        local scope = plume.get_scope(token.context)
+        
+        -- Attempt to get the macro by name from the current scope
+        local macro = scope:get("macros", name)
+        
+        -- Get the configuration setting for showing macro overwrite warnings
+        local show_macro_overwrite_warnings = scope:get("config", "show_macro_overwrite_warnings")
+        
+        -- If the macro is already defined and warnings are enabled, issue a warning
+        if macro and show_macro_overwrite_warnings then
+            plume.warning_macro_already_exists(token, name)
         end
-
-        return true
     end
+
 
     --- Defines a new macro or redefines an existing one.
     -- @param def_parameters table The arguments for the macro definition
@@ -60,35 +40,32 @@ return function ()
     -- @param redef_forced boolean Whether to force redefinition of standard macros
     -- @param is_local boolean Whether the macro is local
     -- @param calling_token token The token where the macro is being defined
-    local function new_macro (def_parameters, redef, redef_forced, is_local, calling_token)
+    local function new_macro (macro_parameters, is_local, calling_token)
         -- Get the provided macro name
-        local name = def_parameters.positionnals.name:render()
+        local name = macro_parameters.positionnals.name:render()
         local variable_parameters_number = false
-        local config = plume.current_scope (calling_token.context).config
+
+        local scope  = plume.get_scope(calling_token.context)
 
         -- Check if the name is a valid identifier
         if not plume.is_identifier(name) then
-            plume.error(def_parameters.positionnals.name, "'" .. name .. "' is an invalid name for a macro.")
+            plume.error(macro_parameters.positionnals.name, "'" .. name .. "' is an invalid name for a macro.")
         end
 
+        -- If define globaly, check if a macro with this name already exist
         if not is_local then
-            local available, msg = test_macro_name_available (name, redef, redef_forced, calling_token)
-            if not available then
-                if config.show_macro_overwrite_warnings then
-                    plume.warning(def_parameters.positionnals.name, msg)
-                end
-            end
+            check_macro_availability (macro_parameters.positionnals.name, name)
         end
 
         -- Check if parameters names are valid and register flags
-        for name, _ in pairs(def_parameters.others.keywords) do
+        for name, _ in pairs(macro_parameters.others.keywords) do
             if not plume.is_identifier(name) then
                 plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
             end
         end
 
         local parameters_names = {}
-        for _, name in ipairs(def_parameters.others.flags) do
+        for _, name in ipairs(macro_parameters.others.flags) do
             if name == "..." then
                 variable_parameters_number = true
             else
@@ -101,7 +78,7 @@ return function ()
                     plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
                 end
                 if flag then
-                    def_parameters.others.keywords[name] = false
+                    macro_parameters.others.keywords[name] = false
                 else
                     table.insert(parameters_names, name)
                 end
@@ -109,17 +86,16 @@ return function ()
         end
 
         -- Capture current scope
-        local closure = plume.current_scope ()
-
+        local closure = plume.get_scope ()
         
-        plume.register_macro(name, parameters_names, def_parameters.others.keywords, function(params, calling_token, chain_sender, chain_message)
+        plume.register_macro(name, parameters_names, macro_parameters.others.keywords, function(params, calling_token, chain_sender, chain_message)
             -- Insert closure
             plume.push_scope (closure)
 
             -- Copy all tokens. Then, give each of them
             -- a reference to current lua scope
             -- (affect only scripts and evals tokens)
-            local last_scope = plume.current_scope ()
+            local last_scope = plume.get_scope ()
             for k, v in pairs(params.positionnals) do
                 params.positionnals[k] = v:copy ()
                 params.positionnals[k]:set_context (last_scope)
@@ -146,38 +122,38 @@ return function ()
 
             
             -- argument are variable local to the macro
-            plume.push_scope ()
+            local scope = plume.push_scope ()
 
             -- add all params in the current scope
             for k, v in pairs(params.positionnals) do
-                plume.current_scope():set_local("variables", k, v)
+                scope:set_local("variables", k, v)
             end
             for k, v in pairs(params.keywords) do
-                plume.current_scope():set_local("variables", k, v)
+                scope:set_local("variables", k, v)
             end
             for _, k in pairs(params.flags) do
-                plume.current_scope():set_local("variables", k, true)
+                scope:set_local("variables", k, true)
             end
 
-            plume.current_scope():set_local("variables", "__params", __params)
+            scope:set_local("variables", "__params", __params)
 
             --- @scope_variable __message  Used to implement if-like behavior. If you give a value to `__message.send`, the next macro to be called (in the same block) will receive this value in `__message.content`, and the name for the last macro in `__message.sender` 
             
-            plume.current_scope():set_local("variables", "__message", {sender = chain_sender, content = chain_message})
+            scope:set_local("variables", "__message", {sender = chain_sender, content = chain_message})
 
-            local body = def_parameters.positionnals.body:copy ()
-            body:set_context (plume.current_scope (), true)
+            local body = macro_parameters.positionnals.body:copy ()
+            body:set_context (scope, true)
             local result = body:render()
 
             -- Capture message
-            local message = tostring(plume.current_scope().variables.__message.send)
+            local message = scope:get("variables", "__message")
             -- exit macro scope
             plume.pop_scope ()
 
             -- exit closure
             plume.pop_scope ()
 
-            return result, message
+            return result, tostring(message.send)
         end, calling_token, is_local, false, variable_parameters_number)
     end
 
@@ -189,7 +165,7 @@ return function ()
     -- @note Doesn't work if the name is already taken by another macro.
     plume.register_macro("macro", {"name", "body"}, {}, function(def_parameters, calling_token)
         -- '$' in arg name, so they cannot be erased by user
-        new_macro (def_parameters, false, false, false, calling_token)
+        new_macro (def_parameters, false, calling_token)
         return ""
     end, nil, false, true, true)
 
@@ -202,7 +178,7 @@ return function ()
     -- @alias `\defl`
     plume.register_macro("local_macro", {"name", "body"}, {}, function(def_parameters, calling_token)
         -- '$' in arg name, so they cannot be erased by user
-        new_macro (def_parameters, false, false, true, calling_token)
+        new_macro (def_parameters, true, calling_token)
         return ""
     end, nil, false, true, true)
 
@@ -213,27 +189,27 @@ return function ()
     -- @other_options Macro arguments names.
     plume.register_macro("lmacro", {"name", "body"}, {}, function(def_parameters, calling_token)
         -- '$' in arg name, so they cannot be erased by user
-        new_macro (def_parameters, false, false, true, calling_token)
+        new_macro (def_parameters, true, calling_token)
         return ""
     end, nil, false, true, true)
 
     --- Create alias of a function
     local function alias (name1, name2, calling_token, is_local)
-        -- Test if name2 is available
-        local available, msg = test_macro_name_available (name2, false, false, calling_token)
-        if not available then
-            -- Remove the last sentence of the error message
-            -- (the reference to redef)
-            msg = msg:gsub("%.[^%.]-%.$", ".")
-            plume.error(params.name2, msg)
+        -- Test names availability
+        local scope =  plume.get_scope (calling_token.context)
+
+        if not scope:get("macros", name1) then
+            plume.error(calling_token, "The macro '" .. name2 .. "' doesn't exists, so \\alias failed.")
+        end
+        if not is_local then
+            check_macro_availability (calling_token, name2)
         end
 
-        local scope =  plume.current_scope (calling_token.context)
-
+        local macro = scope.macros[name1]
         if is_local then
-            plume.current_scope (calling_token.context):set_local("macros", name2, scope.macros[name1])
+            scope:set_local("macros", name2, macro)
         else
-            plume.current_scope (calling_token.context):set("macros", name2, scope.macros[name1]) 
+            scope:set("macros", name2, macro) 
         end
     end
 
@@ -276,8 +252,8 @@ return function ()
     -- @param flags table A list of flags to set as default.
     -- @param is_local boolean Is the default value local or global
     local function default(token, name, keywords, flags, is_local)
-        local scope = plume.current_scope(token.context)
-        local macro = scope.macros[name]
+        local scope = plume.get_scope(token.context)
+        local macro = scope:get("macros", name)
         -- Check if this macro exists
         if not macro then
             plume.error_macro_not_found(token, name)
@@ -293,7 +269,7 @@ return function ()
                 if is_local then
                     scope:set_local("default", name, v)
                 else
-                    scope.default[name] = v
+                    scope:set("default", name, v)
                 end
             else
                 other_keywords[k] = v
@@ -308,7 +284,7 @@ return function ()
                 if is_local then
                     scope:set_local("default", name, true)
                 else
-                    scope.default[name] = true
+                    scope:set("default", name, true)
                 end
             else
                 table.insert(other_flags, k)
@@ -320,7 +296,7 @@ return function ()
             if is_local then
                 scope:set_local("default", name, other_keywords)
             else
-                scope.default[name] = other_keywords
+                scope:set("default", name, other_keywords)
             end
         end
 
@@ -329,7 +305,7 @@ return function ()
             if is_local then
                 scope:set_local("default", name, other_flags)
             else
-                scope.default[name] = other_flags
+                scope:set("default", name, other_flags)
             end
         end
     end

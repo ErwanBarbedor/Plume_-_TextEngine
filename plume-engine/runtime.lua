@@ -17,9 +17,10 @@ You should have received a copy of the GNU General Public License along with Plu
 if _VERSION == "Lua 5.1" then
     plume.load_lua_chunk  = loadstring
     plume.setfenv = setfenv
+    plume.unpack  = unpack
 elseif _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
     plume.load_lua_chunk = load
-
+    plume.unpack  = table.unpack
     --- Sets the environment of a given function.
     -- Uses the debug library to achieve setfenv functionality
     -- by modifying the _ENV upvalue of the function.
@@ -157,12 +158,9 @@ function plume.call_lua_chunk(token, code, filename)
             is_lua_expression = lua_expression
         },{
             __call = function ()
-                -- If the token is locked in a specific
-                -- scope, execute inside it.
-                -- Else, execute inside current scope.
-
-                local chunk_scope = plume.current_scope (token.context)
-                plume.setfenv (loaded_function, chunk_scope.variables)
+                -- The function can write and read variable of the current scope
+                local scope = plume.get_scope(token.context)
+                plume.setfenv (loaded_function, scope:bridge_to("variables"))
 
                 for k, v in pairs(temp) do
                     plume.temp[k] = v
@@ -231,10 +229,8 @@ local function make_field(scope, field_name, parent, source)
             -- Register a new value.
             -- If there is a parent and the key does not exist in the source,
             -- send the value to the parent. Otherwise, register it.
-            if parent and not (source and rawget(source.variables, key)) then
+            if parent  then
                 parent[field_name][key] = value
-            elseif source then
-                rawset(source[field_name], key, value)
             else
                 rawset(self, key, value)
             end
@@ -245,19 +241,18 @@ end
 
 --- Creates a new scope with the given parent.
 -- @param parent scope The parent scope
--- @param source scope An optionnal scope to copy
 -- @return table The new scope
-function plume.create_scope (parent, source)
+function plume.create_scope (parent)
     local scope = {}
 
     -- Store all variables, accessibles from user
-    make_field (scope, "variables", parent, source)
+    make_field (scope, "variables", parent)
     -- Store macro
-    make_field (scope, "macros",    parent, source)
+    make_field (scope, "macros",    parent)
     -- Store default parameters for macro
-    make_field (scope, "default",   parent, source)
+    make_field (scope, "default",   parent)
     -- Store configuration
-    make_field (scope, "config",    parent, source)
+    make_field (scope, "config",    parent)
 
     --- Returns all variables of the given field that are visible from this scope.
     -- @param self table The current scope.
@@ -286,7 +281,7 @@ function plume.create_scope (parent, source)
         return t
     end
 
-    --- Registers a variable locally in the given scope.
+    --- Registers a variable locally in the given scope
     -- @param key string The key to set
     -- @param value any The value to set
     function scope.set_local(self, field, key, value)
@@ -297,33 +292,66 @@ function plume.create_scope (parent, source)
     -- @param key string The key to set
     -- @param value any The value to set
     function scope.set(self, field, key, value)
-        scope[field][key] = value
+        -- If no parent or if the variable is already registered
+        -- save it in this scope
+        -- Otherwise send the value to the parent
+        if not parent or rawget(scope[field], key)  then
+            rawset (scope[field], key, value)
+        else
+            parent:set (field, key, value)
+        end
     end
 
-    --- @scope_variable _L Local table of variables.
-    scope.variables._L = scope.variables
+    --- Get the value of a given variable. Return local value if it exists, else search recursively in parents
+    -- @param key string The key to set
+    -- @param value any The value to set
+    function scope.get(self, field, key)
+        -- If the value is nil, recursively call the parent.
+        local value = rawget(scope[field], key)
+
+        if value then
+            return value
+        elseif parent then
+            return parent:get(field, key)
+        end
+    end
+
+    --- Creates a bridge object to interact with a specific scope field as table
+    -- @param field string The name of the field in the scope to bridge to
+    function scope.bridge_to(self, field)
+        return setmetatable({}, {
+            __newindex = function(self, key, value)
+                scope:set(field, key, value)
+            end,
+
+            __index = function(self, key)
+                return scope:get(field, key)
+            end
+        })
+    end
 
     return scope
 end
 
 --- Creates a new scope with the penultimate scope as parent.
 function plume.push_scope (scope)
-    local last_scope = plume.current_scope ()
+    local last_scope = plume.get_scope ()
     local new_scope = plume.create_scope (scope or last_scope)
 
     table.insert(plume.scopes, new_scope)
-end
 
+    return new_scope
+end
 
 --- Removes the last created scope.
 function plume.pop_scope ()
     table.remove(plume.scopes)
 end
 
---- Returns the current scope.
+--- Returns the current scope or, if not nil, the scope given as a parameter.
 -- @param scope table Return this scope if not nil
 -- @return table The current scope
-function plume.current_scope (scope)
+function plume.get_scope (scope)
     return scope or plume.scopes[#plume.scopes]
 end
 

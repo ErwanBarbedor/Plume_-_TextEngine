@@ -24,11 +24,12 @@ return function ()
         end
 
         local value = params.positionnals.value:render ()
-        
+        local scope = plume.get_scope(calling_token.context)
+
         if is_local then
-            plume.current_scope (calling_token.context):set_local("variables", key, value)
+            scope:set_local("variables", key, value)
         else
-            plume.current_scope (calling_token.context):set("variables", key, value) 
+            scope:set("variables", key, value) 
         end
     end
 
@@ -78,7 +79,7 @@ return function ()
     plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
         local name   = params.positionnals.name:render ()
         local value  = params.positionnals.value:renderLua ()
-        local scope = plume.current_scope()
+        local scope = plume.get_scope()
 
         if scope.config[name] == nil then
             plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
@@ -95,7 +96,7 @@ return function ()
     plume.register_macro("lconfig", {"name", "value"}, {}, function(params, calling_token)
         local name   = params.positionnals.name:render ()
         local value  = params.positionnals.value:renderLua ()
-        local scope = plume.current_scope(calling_token.context)
+        local scope = plume.get_scope(calling_token.context)
 
         if scope.config[name] == nil then
             plume.error (calling_token, "Unknow configuration entry '" .. name .. "'.")
@@ -105,7 +106,8 @@ return function ()
     end, nil, false, true)
 
     function plume.deprecate (name, version, alternative, calling_token)
-        local macro = plume.current_scope()["macros"][name]
+        local scope = plume.get_scope ()
+        local macro = scope:get("macros", name)
 
         if not macro then
             return nil
@@ -114,9 +116,10 @@ return function ()
         local macro_f = macro.macro
 
         macro.macro = function (params, calling_token)
-            local config = plume.current_scope (calling_token.context).config
-            if config.show_deprecation_warnings then
-                plume.warning(calling_token, "Macro '" .. name .. "' is deprecated, and will be removed in version " .. version .. ". Use '" .. alternative .. "' instead.")
+            local scope = plume.get_scope (calling_token.context)
+            local show_deprecation_warnings = scope:get("config", "show_deprecation_warnings")
+            if show_deprecation_warnings then
+                plume.warning_deprecated_macro (calling_token, name, version, alternative)
             end
 
             return macro_f (params, calling_token)

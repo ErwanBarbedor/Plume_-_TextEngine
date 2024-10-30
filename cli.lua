@@ -173,9 +173,9 @@ function cli.main ()
         cli.config(plume, config)
 
         --- @api_variable If use in command line, path of the input file.
-        plume.current_scope().variables.plume.input_file  = absolutePath(currentDirectory, input_file)
+        plume.get_scope().variables.plume.input_file  = absolutePath(currentDirectory, input_file)
         --- @api_variable Name of the file to output execution result. If set to none, don't print anything. Can be set by command line.
-        plume.current_scope().variables.plume.output_file = absolutePath(currentDirectory, output_file)
+        plume.get_scope().variables.plume.output_file = absolutePath(currentDirectory, output_file)
 
         -- Render the given file and capture success or error
         success, result = pcall(plume.renderFile, input_file)

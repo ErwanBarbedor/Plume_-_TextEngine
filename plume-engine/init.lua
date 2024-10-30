@@ -34,6 +34,9 @@ require "plume-engine.initialization"
 require "plume-engine.api"
 require "plume-engine.debug"
 
+require "plume-engine.messages.errors"
+require "plume-engine.messages.warnings"
+
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render
 -- @param file string The name used to track the code
