@@ -36,8 +36,6 @@ return function ()
 
     --- Defines a new macro or redefines an existing one.
     -- @param def_parameters table The arguments for the macro definition
-    -- @param redef boolean Whether this is a redefinition
-    -- @param redef_forced boolean Whether to force redefinition of standard macros
     -- @param is_local boolean Whether the macro is local
     -- @param calling_token token The token where the macro is being defined
     local function new_macro (macro_parameters, is_local, calling_token)
@@ -174,8 +172,7 @@ return function ()
     -- @param name Name must be a valid lua identifier
     -- @param body Body of the macro, that will be render at each call.
     -- @other_options Macro arguments names.
-    -- @note Contrary to `\def`, can erase another macro without error.
-    -- @alias `\defl`
+    -- @alias `\macrol`
     plume.register_macro("local_macro", {"name", "body"}, {}, function(def_parameters, calling_token)
         -- '$' in arg name, so they cannot be erased by user
         new_macro (def_parameters, true, calling_token)
@@ -187,9 +184,9 @@ return function ()
     -- @param name Name must be a valid lua identifier
     -- @param body Body of the macro, that will be render at each call.
     -- @other_options Macro arguments names.
-    plume.register_macro("lmacro", {"name", "body"}, {}, function(def_parameters, calling_token)
+    plume.register_macro("lmacro", {"name", "body"}, {}, function(macro_parameters, calling_token)
         -- '$' in arg name, so they cannot be erased by user
-        new_macro (def_parameters, true, calling_token)
+        new_macro (macro_parameters, true, calling_token)
         return ""
     end, nil, false, true, true)
 

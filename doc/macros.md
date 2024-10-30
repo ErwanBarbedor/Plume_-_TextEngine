@@ -311,9 +311,7 @@ _Generated from source._
 
 **Other optional parameters:** Macro arguments names.
 
-**Note:** Contrary to `\def`, can erase another macro without error.
-
-**Alias:** `\defl`
+**Alias:** `\macrol`
 
 ### lmacro
 

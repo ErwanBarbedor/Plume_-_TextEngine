@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- Configuration settings
 plume.config = {}
 
--- Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\def foo {\foo}`.
+-- Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\macro foo {\foo}`.
 plume.config.max_callstack_size = 100
 
 -- Maximum of loop iteration for macro `\while` and `\for`.

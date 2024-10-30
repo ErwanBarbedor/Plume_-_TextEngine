@@ -5,7 +5,7 @@ Change configuration using `${plume.config.key = value}` or using the macro [con
 
 | Name | Default Value | Description |
 | ----- | ----- | ----- |
-| max_callstack_size | 100 |  Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\def foo {\foo}`. |
+| max_callstack_size | 100 |  Maximum number of nested macros. Intended to prevent infinite recursion errors such as `\macro foo {\foo}`. |
 | max_loop_size | 1000 |  Maximum of loop iteration for macro `\while` and `\for`. |
 | ignore_spaces | false |  Deprecated. Will be removed in 1.0. |
 | filter_spaces | " " |  If set to false, no effect. If set to `x`, the `x` character will replace any group of spaces (except spaces beginning a line). See [spaces macros](macros.md#spaces) for more details about space control. |

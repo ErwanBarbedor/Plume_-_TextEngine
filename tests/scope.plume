@@ -76,21 +76,21 @@ $x
 \-- End
 
 \-- Test 'Simple closure'
-\macro mydef[name body] {
+\macro mymacro[name body] {
     \macro {$name} {$body}
 }
-\mydef foo bar
+\mymacro foo bar
 \foo
 \-- Result
 bar
 \-- End
 
 \-- Test 'Independant closures'
-\macro mydef[name body] {
+\macro mymacro[name body] {
     \macro {$name} {$body}
 }
-\mydef foo bar
-\mydef bar baz
+\mymacro foo bar
+\mymacro bar baz
 \foo\n
 \bar
 \-- Result

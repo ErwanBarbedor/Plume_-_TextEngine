@@ -31,7 +31,7 @@ Plume requires Lua to run. It has been tested with Lua versions 5.x and LuaJIT. 
 Write the following in a file `input.plume` inside the `plume` folder:
 
 ```plume
-\def table[x] {
+\macro table[x] {
     \for {i=1, 10} {
         $x * $i = ${x*i}
     }

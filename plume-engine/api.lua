@@ -106,11 +106,11 @@ end
 -- @param f function
 -- @param is_local bool Is the new macro local?
 function api.export(name, params_number, f, is_local)
-    local def_params = {}
+    local macro_params = {}
     for i=1, params_number do
-        table.insert(def_params, "x"..i)
+        table.insert(macro_params, "x"..i)
     end
-    plume.register_macro(name, def_params, {}, function (params)
+    plume.register_macro(name, macro_params, {}, function (params)
         local rparams = {}
         for i=1, params_number do
             rparams[i] = params.positionnals['x' .. i]:render()
