@@ -66,6 +66,7 @@ function plume.parse (tokenlist)
         elseif token.kind == "text" 
             or token.kind == "escaped_text" 
             or token.kind == "opt_assign" and top.kind ~= "opt_block" then
+            -- or token.kind:match('^lua_.*') then
 
             local last = stack[#stack]
             if #last == 0 or last[#last].kind ~= "block_text" or eval_var > 0 then
@@ -78,6 +79,7 @@ function plume.parse (tokenlist)
             token.kind = "macro"
             eval_var = 2
             table.insert(stack[#stack], token)
+            
         else
             eval_var = 0
             table.insert(stack[#stack], token)

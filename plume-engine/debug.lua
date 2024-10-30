@@ -25,11 +25,36 @@ end
 function plume.debug.print_tokens(tokens)
     for _, token in ipairs(tokens) do
         local value = token.value:gsub("\n", "\\n"):gsub("\r", "\\r"):gsub("%s", "_")
-        print("!", norm(token.kind), norm(value))
+        print("!>", norm(token.kind), norm(value))
     end
 end
+
+function plume.debug.print_parsed_tokens(tokens, indent)
+    indent = indent or ""
+    for _, token in ipairs(tokens) do
+        local infos = norm(token.kind)
+        if token.kind == "block_text" or token.kind == "space" or token.kind:match('^lua_.*') then
+            infos = infos .. "\t'" .. token:source():gsub("\n", "\\n"):gsub("\r", "\\r"):gsub("%s", "_") .. "'"
+        elseif token.kind == "macro" then
+            infos = infos .. "\t" .. token.value
+        end
+
+        print(indent .. "->", infos, #indent)
+
+        if token.kind == "block" or token.kind == "opt_block" then
+            plume.debug.print_parsed_tokens (token, indent .. "\t")
+        end
+    end
+end
+
 
 function plume.debug.tokenize (code)
     local tokens = plume.tokenizer:tokenize(code, file)
     plume.debug.print_tokens(tokens)
+end
+
+function plume.debug.parse (code)
+    local tokens = plume.tokenizer:tokenize(code, file)
+    tokens = plume.parse(tokens)
+    plume.debug.print_parsed_tokens(tokens)
 end

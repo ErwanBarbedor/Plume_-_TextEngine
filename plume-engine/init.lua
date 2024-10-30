@@ -37,6 +37,7 @@ require "plume-engine.api"
 require "plume-engine.debug"
 
 require "plume-engine.messages.errors"
+require "plume-engine.messages.syntax_errors"
 require "plume-engine.messages.warnings"
 
 --- Tokenizes, parses, and renders a string.

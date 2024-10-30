@@ -38,3 +38,11 @@ File 'string', line 1 : This brace close nothing.
     }
     ^
 \-- End
+
+\-- Test 'Wrong $ usage'
+$@
+\-- Error
+File 'string', line 1 : Syntax error. $ must be followed by an identifier or '{', not '@'
+    $@
+    ^
+\-- End

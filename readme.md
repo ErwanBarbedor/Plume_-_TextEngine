@@ -134,10 +134,12 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - More pertinent suggestions in case of unknown macro or parameter.
 - More coherent error messages.
 - Resetting Plume is much faster.
+- Plume now detects if a Lua block is a statement or an expression without error. Plume syntax used inside a Lua string is now ignored by the tokenizer.
 
 ### Internal changes
 - Rewrite unitary testing: cleaner code and much clearer output.
-- A lot of code rewriting, cleaning, and spaces added.
+- Rewrite tokenizer and parser. Cleaner and now context-sensitive. Move some part of render to it.
+- A lot of other code rewriting, cleaning, and spaces added.
 
 
 See the [changelog](doc/changelog.md) for older version

@@ -185,3 +185,4 @@ end
 function plume.error_invalid_name (token, name, kind)
     plume.error(token, "'" .. name .. "' is an invalid name for a " .. kind .. ".")
 end
+

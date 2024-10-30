@@ -39,7 +39,7 @@ File 'string', line 1 : ${...} cannot return value.
 
 \-- Test 'script implicit render'
 \macro foo[x] {
-    ${x:match(".\$")}
+    ${x:match(".$")}
 }
 \--
 \foo bar

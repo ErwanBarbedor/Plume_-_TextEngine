@@ -49,21 +49,24 @@ function plume.tokenizer:tokenize (code, file)
         local char = self.code:sub(self.pos, self.pos)
 
         local current_context = self.context[#self.context]
-        
+
         if char == "\n" then
             self:write (nil, 0)
             self:newtoken ("newline", "\n", 1)
             self.noline = self.noline + 1
             self.linepos = self.pos+1
+        
         elseif current_context == "plume" then
-            self:handle_context_plume (char)
+            self:handle_context_plume ()
+        
         elseif current_context == "lua" then
-            self:handle_context_lua (char)
+            self:handle_context_lua ()
         end
 
         self.pos = self.pos + 1
     end
     
+    -- Write any remaining char in the accumulator
     self:write ()
 
     return self.result
@@ -101,55 +104,30 @@ function plume.tokenizer:write(current, delta)
     end
 end
 
---- This function handles plume syntax
+--- Handles plume syntax
 -- @param char string The syntax character to be handled
-function plume.tokenizer:handle_context_plume (char)
+function plume.tokenizer:handle_context_plume ()
+    local char = self.code:sub(self.pos, self.pos)
 
     -- Used in optionnal parameter between key and value
     if char == plume.syntax.opt_assign then
         self:write()
         self:newtoken("opt_assign", plume.syntax.opt_assign, 1)
     
+    -- Check for comment
+    elseif self:check_for_comment () then
+        plume.tokenizer:handle_comment ()
+
     -- If char is an escape, look ahead.
     elseif char == plume.syntax.escape then
         local next  = self.code:sub(self.pos+1, self.pos+1)
-        local next2 = self.code:sub(self.pos+2, self.pos+2)
 
         -- If the following char is a valid identifier, assume that it is a macro call  
         if next:match(plume.syntax.identifier_begin) then
             self:write()
             self.mode = "macro"
             table.insert(self.acc, char)
-        
-        -- If it is a comment begin, capture char until line end
-        elseif next == plume.syntax.comment and next == next2 then
-            self:write("comment")
-            table.insert(self.acc, char)
-            local find_newline
 
-            -- Iterate over char until end or a newline
-            repeat
-                self.pos = self.pos + 1
-                next = self.code:sub(self.pos, self.pos)
-
-                -- Capture spaces just after the newline
-                if find_newline and not next:match "[ \t]" then
-                    self.pos = self.pos - 1
-                    break
-                end
-
-                table.insert(self.acc, next)
-                if next == "\n" then
-                    find_newline = self.pos+1
-                end
-            until self.pos >= #self.code
-
-            -- Update position
-            if find_newline then
-                self.noline = self.noline + 1
-                self.linepos = find_newline
-            end
-        
         -- Else, just write the following char
         else
             self:write()
@@ -174,21 +152,9 @@ function plume.tokenizer:handle_context_plume (char)
         self:write ("space")
         table.insert(self.acc, char)
     
+    -- "$" is the begin of a lua block
     elseif char == plume.syntax.eval then
-        -- If nexts chars are alphanumeric, capture the next
-        -- identifier as a block, and not %S+.
-        -- So "#a+1" is interpreted as "\eval{a}+1", and not "\eval{a+1}".
-        self:write()
-        self.pos = self.pos + 1
-        self:newtoken ("eval", char)
-        local next = self.code:sub(self.pos, self.pos)
-        if next:match(plume.syntax.identifier_begin) then
-            local name = self.code:sub(self.pos, -1):match(plume.syntax.identifier .. '+')
-            self.pos = self.pos + #name-1
-            self:newtoken ("text", name)
-        else
-            self.pos = self.pos - 1
-        end
+        self:handle_lua_block_begin (char)
 
     -- If in macro mode, add the current char to the macro name or,
     -- if the char it isn't a valid identifier, end the macro.
@@ -200,5 +166,125 @@ function plume.tokenizer:handle_context_plume (char)
             self:write ("text")
         end
         table.insert(self.acc, char)
+    end
+end
+
+
+--- Handles lua syntax
+-- This is far from a complete lua tokenizer. Used to implement 
+-- syntax like ${a = "$foo", b = ${bar}}
+-- with "$foo" detected as a simple string, and ${bar} detected
+-- as a plume block.
+-- Also used to determine if the code is an expression or a statement.
+-- @param char string The syntax character to be handled
+function plume.tokenizer:handle_context_lua ()
+    local char = self.code:sub(self.pos, self.pos)
+
+    -- Manage deepness with detecting opening and closing braces
+    if char == plume.syntax.block_begin then
+        table.insert(self.context, "lua")
+    elseif char == plume.syntax.block_end then
+        table.remove(self.context)
+    end
+    
+    local current_context = self.context[#self.context]
+
+    -- Checks if the mode is always lua
+    if current_context == "lua" then
+        -- Checks for plume comment
+        if self:check_for_comment () then
+            self:handle_comment ()
+        else
+            self:write ("lua_code")
+            table.insert(self.acc, char)
+        end
+
+    -- If mode is not anymore "lua", close the lua block
+    else
+        self:write()
+        self:newtoken ("block_end", plume.syntax.block_end, 1)
+    end
+end
+
+--- Checks if the current position is the start of a comment
+-- @return boolean
+function plume.tokenizer:check_for_comment (char)
+    local char = self.code:sub(self.pos, self.pos)
+
+    -- A comment start by an escape
+    if char == plume.syntax.escape then
+        local next  = self.code:sub(self.pos+1, self.pos+1)
+        local next2 = self.code:sub(self.pos+2, self.pos+2)
+
+        -- Followed by two "minus"
+        if next == plume.syntax.comment and next == next2 then
+            return true
+        end
+    end
+
+    return false
+end
+
+--- Handles comments
+-- This function captures comment text and advances through the code until 
+-- a newline is encountered (and captures also all spaces following the new line)
+function plume.tokenizer:handle_comment ()
+    self:write("comment")
+    table.insert(self.acc, char)
+    local find_newline
+
+    -- Iterate over characters until end of code or a newline is found
+    repeat
+        self.pos = self.pos + 1
+        next = self.code:sub(self.pos, self.pos)
+
+        -- Check for spaces or tabs following the newline to stop reading
+        if find_newline and not next:match "[ \t]" then
+            self.pos = self.pos - 1
+            break
+        end
+
+        table.insert(self.acc, next)
+        if next == "\n" then
+            find_newline = self.pos + 1
+        end
+    until self.pos >= #self.code
+
+    -- Update line number and line position if a newline was found
+    if find_newline then
+        self.noline = self.noline + 1
+        self.linepos = find_newline
+    end
+end
+
+
+--- Handles the beginning of a Lua block
+-- Checks if the following code is an identifier or a block
+function plume.tokenizer:handle_lua_block_begin ()
+    local char = self.code:sub(self.pos, self.pos)
+
+    self:write()
+    self.pos = self.pos + 1
+    self:newtoken ("eval", char)
+    local next = self.code:sub(self.pos, self.pos)
+
+    -- If the next characters are alphanumeric, capture the next
+    -- identifier as a block and not %S+.
+    -- So "$a+1" is interpreted as "\eval{a}+1", not "\eval{a+1}".
+    if next:match(plume.syntax.identifier_begin) then
+        local name = self.code:sub(self.pos, -1):match(plume.syntax.identifier .. '+')
+        self.pos = self.pos + #name - 1
+        self:newtoken ("text", name)
+
+    -- Otherwise, if the next character is the beginning of a block, switch context to parse Lua code
+    elseif next == plume.syntax.block_begin then
+        self:newtoken ("block_begin", plume.syntax.block_begin, 1)
+        table.insert(self.context, "lua")
+
+    -- The "$" character must be followed by "{" or an identifier, otherwise raise an error.
+    else
+        -- Create a token for the error message
+        self:newtoken ("invalid", next)
+        plume.syntax_error_wrong_eval (self.result[#self.result-1], next)
     end
 end
