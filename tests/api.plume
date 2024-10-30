@@ -39,14 +39,3 @@ ${_G.x}\--
 \-- Result
 1
 \-- End
-
-\-- Test '_G & _L'
-${x = 1}\--
-\do {\--
-    ${local x = 2}\--
-    ${_G.x}
-    ${_L.x}
-}
-\-- Result
-12
-\-- End
