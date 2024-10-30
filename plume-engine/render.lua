@@ -350,26 +350,3 @@ function plume.renderTokenLua (self)
         return tonumber(result) or result
     end
 end
-
--- <DEV>
-function plume.print_params(params)
-    print('-------')
-    for k, v in pairs(params) do
-        print(k)
-
-        if k == "others" then
-            for kk, vv in pairs(v) do
-                print('\t' .. kk)
-                for kkk, vvv in pairs(vv) do
-                print('\t\t' .. kkk, vvv:render())
-            end
-            end
-        else
-            for kk, vv in pairs(v) do
-                print('\t' .. kk, vv:render())
-            end
-        end
-    end
-    print('-------')
-end
--- </DEV>
