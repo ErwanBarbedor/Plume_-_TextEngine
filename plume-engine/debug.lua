@@ -30,6 +30,6 @@ function plume.debug.print_tokens(tokens)
 end
 
 function plume.debug.tokenize (code)
-    local tokens = plume.tokenize(code, file)
+    local tokens = plume.tokenizer:tokenize(code, file)
     plume.debug.print_tokens(tokens)
 end

@@ -46,7 +46,7 @@ require "plume-engine.messages.warnings"
 function plume.render (code, file)
     local tokens, result
     
-    tokens = plume.tokenize(code, file)
+    tokens = plume.tokenizer:tokenize(code, file)
     tokens = plume.parse(tokens)
     result = tokens:render()
     
