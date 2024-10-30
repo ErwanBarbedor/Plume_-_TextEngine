@@ -102,7 +102,7 @@ local function capture_macro_doc (result, source)
         local options_nokw = {}
         local desc, alias, other_options
 
-        doc = doc:gsub('\n%-%-%s*', '\n')
+        doc = doc:gsub('\n    %-%-%s*', '\n')
         if doc:match('@') then
             desc, doc = doc:match('(.-)(@.*)')
         else

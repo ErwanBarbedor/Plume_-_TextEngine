@@ -7,8 +7,7 @@ _Generated from source._
 
 **Usage:** `\for {iterator} {body}`
 
-**Description:** -- Implements a custom iteration mechanism that mimics Lua's for loop behavior.
-    --
+**Description:** Implements a custom iteration mechanism that mimics Lua's for loop behavior.
 
 **Positionnal Parameters:**
 - `iterator` Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
@@ -20,8 +19,7 @@ _Generated from source._
 
 **Usage:** `\while {condition} {body}`
 
-**Description:** -- Implements a custom iteration mechanism that mimics Lua's while loop behavior.
-    --
+**Description:** Implements a custom iteration mechanism that mimics Lua's while loop behavior.
 
 **Positionnal Parameters:**
 - `condition` Anything that follow syntax of a lua expression, to evaluate.
@@ -33,8 +31,7 @@ _Generated from source._
 
 **Usage:** `\if {condition} {body}`
 
-**Description:** -- Implements a custom mechanism that mimics Lua's if behavior.
-    --
+**Description:** Implements a custom mechanism that mimics Lua's if behavior.
 
 **Positionnal Parameters:**
 - `condition` Anything that follow syntax of a lua expression, to evaluate.
@@ -44,8 +41,7 @@ _Generated from source._
 
 **Usage:** `\else {body}`
 
-**Description:** -- Implements a custom mechanism that mimics Lua's else behavior.
-    --
+**Description:** Implements a custom mechanism that mimics Lua's else behavior.
 
 **Positionnal Parameters:**
 - `body` A block that will be rendered, only if the last condition isn't verified.
@@ -56,8 +52,7 @@ _Generated from source._
 
 **Usage:** `\elseif {condition} {body}`
 
-**Description:** -- Implements a custom mechanism that mimics Lua's elseif behavior.
-    --
+**Description:** Implements a custom mechanism that mimics Lua's elseif behavior.
 
 **Positionnal Parameters:**
 - `condition` Anything that follow syntax of a lua expression, to evaluate.
@@ -69,8 +64,7 @@ _Generated from source._
 
 **Usage:** `\do {body}`
 
-**Description:** -- Implements a custom mechanism that mimics Lua's do behavior.
-    --
+**Description:** Implements a custom mechanism that mimics Lua's do behavior.
 
 **Positionnal Parameters:**
 - `body` A block that will be rendered in a new scope.
@@ -81,8 +75,7 @@ _Generated from source._
 
 **Usage:** `\require {path}`
 
-**Description:** -- Execute a Lua file in the current scope.
-    --
+**Description:** Execute a Lua file in the current scope.
 
 **Positionnal Parameters:**
 - `path` Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
@@ -93,8 +86,7 @@ _Generated from source._
 
 **Usage:** `\include[...] {path}`
 
-**Description:** -- Execute a plume file in the current scope.
-    --
+**Description:** Execute a plume file in the current scope.
 
 **Positionnal Parameters:**
 - `path` Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.plume` and `name/init.plume`.
@@ -105,8 +97,7 @@ _Generated from source._
 
 **Usage:** `\extern {path}`
 
-**Description:** -- Insert content of the file without execution. Quite similar to `\raw`, but for a file.
-    --
+**Description:** Insert content of the file without execution. Quite similar to `\raw`, but for a file.
 
 **Positionnal Parameters:**
 - `path` Path of the file to include. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... 
@@ -115,8 +106,7 @@ _Generated from source._
 
 **Usage:** `\file {path} {note}`
 
-**Description:** -- Render a plume chunck and save the output in the given file.
-    --
+**Description:** Render a plume chunck and save the output in the given file.
 
 **Positionnal Parameters:**
 - `path` Name of the file to write.
@@ -128,8 +118,7 @@ _Generated from source._
 
 **Usage:** `\eval[thousand_separator={} decimal_separator=. join=_ <format> remove_zeros silent no_join_table] {code}`
 
-**Description:** -- Evaluate the given expression or execute the given statement.
-    --
+**Description:** Evaluate the given expression or execute the given statement.
 
 **Positionnal Parameters:**
 - `code` The code to evaluate or execute.
@@ -158,8 +147,7 @@ _Generated from source._
 
 **Usage:** `\n[<n>]`
 
-**Description:** -- Output a newline. 
-    --
+**Description:** Output a newline.
 
 
 **Flags :**
@@ -171,8 +159,7 @@ _Generated from source._
 
 **Usage:** `\s[<n>]`
 
-**Description:** -- Output a space.
-    --
+**Description:** Output a space.
 
 
 **Flags :**
@@ -184,8 +171,7 @@ _Generated from source._
 
 **Usage:** `\t[<n>]`
 
-**Description:** -- Output a tabulation.
-    --
+**Description:** Output a tabulation.
 
 
 **Flags :**
@@ -197,8 +183,7 @@ _Generated from source._
 
 **Usage:** `\set_space_mode {mode}`
 
-**Description:** -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
-    --
+**Description:** Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
 
 **Positionnal Parameters:**
 - `mode` Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
@@ -209,8 +194,7 @@ _Generated from source._
 
 **Usage:** `\set {key} {value}`
 
-**Description:** -- Affect a value to a variable.
-    --
+**Description:** Affect a value to a variable.
 
 **Positionnal Parameters:**
 - `key` The name of the variable.
@@ -222,8 +206,7 @@ _Generated from source._
 
 **Usage:** `\local_set {key} {value}`
 
-**Description:** -- Affect a value to a variable locally.
-    --
+**Description:** Affect a value to a variable locally.
 
 **Positionnal Parameters:**
 - `key` The name of the variable.
@@ -237,8 +220,7 @@ _Generated from source._
 
 **Usage:** `\raw {body}`
 
-**Description:** -- Return the given body without render it.
-    --
+**Description:** Return the given body without render it.
 
 **Positionnal Parameters:**
 - `body` 
@@ -247,8 +229,7 @@ _Generated from source._
 
 **Usage:** `\config {key} {value}`
 
-**Description:** -- Edit plume configuration.
-    --
+**Description:** Edit plume configuration.
 
 **Positionnal Parameters:**
 - `key` Name of the parameter.
@@ -260,8 +241,7 @@ _Generated from source._
 
 **Usage:** `\lconfig {key} {value}`
 
-**Description:** -- Edit plume configuration in local scope.
-    --
+**Description:** Edit plume configuration in local scope.
 
 **Positionnal Parameters:**
 - `key` Name of the parameter.
@@ -273,8 +253,7 @@ _Generated from source._
 
 **Usage:** `\deprecate {name} {version} {alternative}`
 
-**Description:** -- Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
-    --
+**Description:** Mark a macro as "deprecated". An error message will be printed each time you call it, except if you set `plume.config.show_deprecation_warnings` to `false`.
 
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
@@ -287,8 +266,7 @@ _Generated from source._
 
 **Usage:** `\macro[...] {name} {body}`
 
-**Description:** -- Define a new macro.
-    --
+**Description:** Define a new macro.
 
 **Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
@@ -302,8 +280,7 @@ _Generated from source._
 
 **Usage:** `\local_macro[...] {name} {body}`
 
-**Description:** -- Define a new macro locally.
-    --
+**Description:** Define a new macro locally.
 
 **Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
@@ -317,8 +294,7 @@ _Generated from source._
 
 **Usage:** `\lmacro[...] {name} {body}`
 
-**Description:** -- Alias for [local_macro](#local_macro)
-    --
+**Description:** Alias for [local_macro](#local_macro)
 
 **Positionnal Parameters:**
 - `name` Name must be a valid lua identifier
@@ -330,8 +306,7 @@ _Generated from source._
 
 **Usage:** `\alias[local] {name1} {name2}`
 
-**Description:** -- name2 will be a new way to call name1.
-    --
+**Description:** name2 will be a new way to call name1.
 
 **Positionnal Parameters:**
 - `name1` Name of an existing macro.
@@ -345,8 +320,7 @@ _Generated from source._
 
 **Usage:** `\local_alias {name1} {name2}`
 
-**Description:** -- Make an alias locally
-    --
+**Description:** Make an alias locally
 
 **Positionnal Parameters:**
 - `name1` Name of an existing macro.
@@ -358,8 +332,7 @@ _Generated from source._
 
 **Usage:** `\lalias {name1} {name2}`
 
-**Description:** -- Alias for [local_alias](#local_alias)
-    --
+**Description:** Alias for [local_alias](#local_alias)
 
 **Positionnal Parameters:**
 - `name1` Name of an existing macro.
@@ -369,8 +342,7 @@ _Generated from source._
 
 **Usage:** `\default[...] {name}`
 
-**Description:** -- set (or reset) default params of a given macro.
-    --
+**Description:** set (or reset) default params of a given macro.
 
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
@@ -381,8 +353,7 @@ _Generated from source._
 
 **Usage:** `\local_default[...] {name}`
 
-**Description:** -- set  localy (or reset) default params of a given macro.
-    --
+**Description:** set  localy (or reset) default params of a given macro.
 
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
@@ -395,8 +366,7 @@ _Generated from source._
 
 **Usage:** `\ldefault[...] {name}`
 
-**Description:** -- alias for [local_default](#local_default).
-    --
+**Description:** alias for [local_default](#local_default).
 
 **Positionnal Parameters:**
 - `name` Name of an existing macro.
