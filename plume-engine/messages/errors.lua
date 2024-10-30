@@ -155,3 +155,30 @@ function plume.error_unknown_parameter (token, macro_name, parameter, valid_para
 
     plume.error (token, msg)
 end
+
+--- Handles error when the end of a block is reached.
+-- This function is used to report an error when a macro does not receive the expected number of arguments.
+-- @param token table The token associated with the macro call.
+-- @param x number The number of arguments received.
+-- @param y number The number of arguments expected.
+function plume.error_end_block_reached(token, x, y)
+    local msg = "End of block reached, not enough arguments for macro '" .. token.value .. "'. "
+    msg = msg .. x .. " instead of " .. y .. "."
+
+    plume.error(token, msg)
+end
+
+
+function plume.error_macro_call_without_braces (macro_token, token, n)
+    local msg = "Macro call cannot be a parameter"
+    msg = msg .. " (here, parameter #"
+        msg = msg .. n
+        msg = msg .. " of the macro '"
+        msg = msg .. macro_token.value
+        msg = msg .. "', line "
+        msg = msg .. macro_token.line
+    msg = msg .. ") "
+    msg = msg .. "without being surrounded by braces."
+
+    plume.error(token, msg)
+end

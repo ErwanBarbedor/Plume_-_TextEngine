@@ -124,10 +124,73 @@ function plume.parse_opt_params (macro, params, opt_params, context)
     end
 end
 
+--- Captures macro arguments from a token list, ensuring correct syntax and handling optional blocks.
+-- @param tokenlist table The list of tokens to parse.
+-- @param macro_token table The macro token used as reference for error messages.
+-- @param pos number The current position in the token list.
+-- @param nargs number The number of arguments to capture.
+-- @return number The new position in the token list after processing.
+-- @return table The list of captured macro arguments.
+-- @return table|nil The optional parameter, if any.
+function plume.capture_macro_args(tokenlist, macro_token, pos, nargs)
+    local params = {}
+    local opt_params
+
+    -- Iterate over token list child until getting enough parameters
+    while #params < nargs do
+        pos = pos + 1
+
+        -- End reached, but not enough arguments
+        if not tokenlist[pos] then
+            plume.error_end_block_reached(macro_token, #params, nargs)
+        
+        elseif tokenlist[pos].kind == "macro" then
+            -- Macro as a parameter must be enclosed in braces
+            if tokenlist[pos].value ~= plume.syntax.eval then
+                plume.error_macro_call_without_braces (macro_token, tokenlist[pos], #params + 1)
+                
+            -- Lua block is the only exception. Capture its parameter here.
+            else
+                if not tokenlist[pos + 1] then
+                    plume.error_end_block_reached(macro_token, 0, 1)
+                end
+                local eval = plume.tokenlist()
+                table.insert(eval, tokenlist[pos])
+                table.insert(eval, tokenlist[pos + 1])
+
+                if tokenlist[pos + 2] and tokenlist[pos + 2].kind == "opt_block" then
+                    table.insert(eval, tokenlist[pos + 2])
+                    pos = pos + 1
+                end
+
+                table.insert(params, eval)
+                pos = pos + 1
+            end
+        
+        -- Register an optional argument, or raise an error if too many.
+        elseif tokenlist[pos].kind == "opt_block" then
+            
+            if opt_params then
+                plume.error(tokenlist[pos], "Too many optional blocks given for macro '" .. macro_token.value .. "'")
+            else
+                opt_params = tokenlist[pos]
+            end
+            
+        -- If it is not a space or newline, add the current block
+        -- to the argument list
+        elseif tokenlist[pos].kind ~= "space" and tokenlist[pos].kind ~= "newline" then
+            table.insert(params, tokenlist[pos])
+        end
+    end
+
+    return pos, params, opt_params
+end
+
+
 --- @api_method Get tokenlist rendered.
 -- @name render
 -- @return output The string rendered tokenlist.
-function plume.renderToken (self)
+function plume.render_token (self)
     local pos = 1
     local result = {}
 
@@ -140,13 +203,14 @@ function plume.renderToken (self)
 
     local scope = plume.get_scope (self.context)
 
+    -- Iterate over token childs
     while pos <= #self do
+        local token = self[pos]
+
         -- Get current configuration
         local config_filter_newlines    = scope:get("config", "filter_newlines")
         local config_filter_spaces      = scope:get("config", "filter_spaces")
         local config_max_callstack_size = scope:get("config", "max_callstack_size")
-
-        local token = self[pos]
 
         -- Break the chain if encounter non macro non space token
         if token.kind ~= "newline" and token.kind ~= "space" and token.kind ~= "macro" and token.kind ~= "comment" then
@@ -158,27 +222,26 @@ function plume.renderToken (self)
             last_is_newline = false
         end
 
-        if token.kind == "block_text" then
+        -- Call recursively render method on block
+        if token.kind == "block_text" or token.kind == "block" then
             table.insert(result, token:render())
 
-        elseif token.kind == "block" then
-            table.insert(result, token:render())
+        -- No special render for text
+        elseif token.kind == "text" or token.kind == "escaped_text" then
+            table.insert(result, token.value)
 
+        -- If optionnal blocks or assign are encoutered here, there
+        -- are outside of a macro call, so treat it as raw text
         elseif token.kind == "opt_block" then
             table.insert(result,
                 plume.syntax.opt_block_begin
                 .. token:render() 
-                .. plume.syntax.opt_block_end)
-
+                .. plume.syntax.opt_block_end
+            )
         elseif token.kind == "opt_assign" then
             table.insert(result, token.value)
 
-        elseif token.kind == "text" then
-            table.insert(result, token.value)
-
-        elseif token.kind == "escaped_text" then
-            table.insert(result, token.value)
-        
+        -- For space and newline, apply filter if exist.
         elseif token.kind == "newline" then
             if config_filter_newlines then
                 if not last_is_newline then
@@ -190,7 +253,6 @@ function plume.renderToken (self)
             else
                 table.insert(result, token:render())
             end
-        
         elseif token.kind == "space" then
             if config_filter_spaces then
                 if last_is_newline then
@@ -228,51 +290,8 @@ function plume.renderToken (self)
                 plume.error_macro_not_found(token, name)
             end
 
-            local params = {}
-            local opt_params
-
-            while #params < #macro.params do
-                pos = pos+1
-                if not self[pos] then
-                    -- End reached, but not enough arguments
-                    plume.error(token, "End of block reached, not enough arguments for macro '" .. token.value.."'. " .. #params.." instead of " .. #macro.params .. ".")
-                
-                elseif self[pos].kind == "macro" then
-                    -- Raise an error. (except for '#') 
-                    -- Macro as parameter must be enclosed in braces
-                    if self[pos].value == plume.syntax.eval then
-                        if not self[pos+1] then
-                            plume.error(token, "End of block reached, not enough arguments for macro '$'.0 instead of 1.")
-                        end
-                        local eval = plume.tokenlist ()
-                        table.insert(eval, self[pos])
-                        table.insert(eval, self[pos+1])
-
-                        if self[pos+2] and self[pos+2].kind == "opt_block" then
-                            table.insert(eval, self[pos+2])
-                            pos = pos + 1
-                        end
-
-                        table.insert(params, eval)
-                        pos = pos + 1
-                    else
-                        plume.error(self[pos], "Macro call cannot be a parameter (here, parameter #"..(#params+1).." of the macro '\\" .. name .."', line" .. token.line .. ") without being surrounded by braces.")
-                    end
-                
-                elseif self[pos].kind == "opt_block" then
-                    -- Register an opt arg, or raise an error if too many.
-                    if opt_params then
-                        plume.error(self[pos], "To many optional blocks given for macro '\\" .. name .. "'")
-                    else
-                        opt_params = self[pos]
-                    end
-                    
-                elseif self[pos].kind ~= "space" and self[pos].kind ~= "newline" then
-                    -- If it is not a space, add the current block
-                    -- to the argument list
-                    table.insert(params, self[pos])
-                end
-            end
+            local params, opt_params
+            pos, params, opt_params = plume.capture_macro_args (self,  token, pos, #macro.params)
 
             -- Try to capture optional block,
             -- Even after parameters.
@@ -341,9 +360,9 @@ function plume.renderToken (self)
 end
 
 --- @api_method Get tokenlist rendered. If the tokenlist first child is an eval block, evaluate it and return the result as a lua object. Otherwise, render the tokenlist.
--- @name renderLua
+-- @name render_lua
 -- @return lua_objet Result of evaluation
-function plume.renderTokenLua (self)
+function plume.render_token_lua (self)
     if self:is_eval_block () then
         local result = plume.call_lua_chunk(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then

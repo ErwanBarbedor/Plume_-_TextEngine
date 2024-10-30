@@ -50,7 +50,7 @@ end
 --- @api_method Get a variable value by name in the current scope.
 -- @param key string The variable name.
 -- @return value The required variable.
--- @note `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
+-- @note `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):render_lua ()`. See [get_render](#get_render) and [get_render_lua](#get_render_lua).
 function api.get (key)
     local scope = plume.get_scope()
     return scope:get("variables", key)
@@ -71,15 +71,15 @@ function api.get_render (key)
 end
 api.getr = api.get_render
 
---- @api_method Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#renderLua)), call it and return the result. Otherwise, return the variable.
+--- @api_method Get a variable value by name in the current scope. If the variable has a render_lua method (see [render_lua](#render_lua)), call it and return the result. Otherwise, return the variable.
 -- @param key string The variable name
 -- @alias lget
 -- @return value The required variable.
 function api.lua_get (key)
     local scope = plume.get_scope()
     local result = scope:get("variables", key)
-    if type(result) == table and result.renderLua then
-        return result:renderLua ()
+    if type(result) == table and result.render_lua then
+        return result:render_lua ()
     else
         return result
     end

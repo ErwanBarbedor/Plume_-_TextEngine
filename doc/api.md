@@ -54,7 +54,7 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Return:** `value`The required variable.
 
-**Note:** `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
+**Note:** `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):render_lua ()`. See [get_render](#get_render) and [get_render_lua](#get_render_lua).
 
 ### get_render
 
@@ -73,7 +73,7 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Usage :** `value = plume.lua_get(key)`
 
-**Description:**  Get a variable value by name in the current scope. If the variable has a renderLua method (see [renderLua](#renderLua)), call it and return the result. Otherwise, return the variable.
+**Description:**  Get a variable value by name in the current scope. If the variable has a render_lua method (see [render_lua](#render_lua)), call it and return the result. Otherwise, return the variable.
 
 **Parameters :**
 - `key` _string_  The variable name
@@ -165,7 +165,7 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Notes:**
 - Mainly internal use, you shouldn't use this function.
-- `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):renderLua ()`. See [get_render](#get_render) and [get_renderLua](#get_renderLua).
+- `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):render_lua ()`. See [get_render](#get_render) and [get_render_lua](#get_render_lua).
 
 **Alias :** `plume.lget`
 
@@ -193,9 +193,9 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 **Return:** `output`The string rendered tokenlist.
 
-### renderLua
+### render_lua
 
-**Usage :** `lua_objet = tokenlist:renderLua()`
+**Usage :** `lua_objet = tokenlist:render_lua()`
 
 **Description:**  Get tokenlist rendered. If the tokenlist first child is an eval block, evaluate it and return the result as a lua object. Otherwise, render the tokenlist.
 

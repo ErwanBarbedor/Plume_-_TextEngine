@@ -149,10 +149,10 @@ foo
 0.3 0.3
 \-- End
 
-\-- Test 'To many optional blocks'
+\-- Test 'Too many optional blocks'
 \macro[x][x] foo bar
 \-- Error
-File 'string', line 1 : To many optional blocks given for macro '\macro'
+File 'string', line 1 : Too many optional blocks given for macro '\macro'
     \macro[x][x] foo bar
              ^^^
 \-- End

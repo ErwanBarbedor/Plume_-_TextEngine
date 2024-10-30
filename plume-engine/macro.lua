@@ -59,8 +59,8 @@ end
 -- @param x
 -- Usefull for macro, that can have no-token default parameters.
 function plume.render_if_token (x)
-    if type(x) == "table" and x.renderLua then
-        return x:renderLua( )
+    if type(x) == "table" and x.render_lua then
+        return x:render_lua( )
     end
     return x
 end

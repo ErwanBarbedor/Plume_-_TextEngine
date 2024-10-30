@@ -172,7 +172,7 @@ function plume.tokenlist (x)
             return result
         end
 
-        local rendered = self:renderLua ()
+        local rendered = self:render_lua ()
         if type(rendered) == "string" then
             if string[key] then
                 -- Handle both token:method and token.method call.
@@ -359,8 +359,8 @@ function plume.tokenlist (x)
         is_empty = function (self)
             return #self:render() == 0
         end,
-        render    = plume.renderToken,
-        renderLua = plume.renderTokenLua
+        render    = plume.render_token,
+        render_lua = plume.render_token_lua
     }, metatable)
 
     for k, v in ipairs(t) do

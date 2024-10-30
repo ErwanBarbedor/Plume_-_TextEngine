@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+-- Following Lua best practices, plume should be local.
+-- But given the current organization of the code, this would require a major rewrite.
 plume = {}
 plume._VERSION = "Plume - TextEngine 0.11.0"
 

@@ -78,7 +78,7 @@ return function ()
     -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
     plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
         local name   = params.positionnals.name:render ()
-        local value  = params.positionnals.value:renderLua ()
+        local value  = params.positionnals.value:render_lua ()
         local scope = plume.get_scope()
 
         if scope.config[name] == nil then
@@ -95,7 +95,7 @@ return function ()
     -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
     plume.register_macro("lconfig", {"name", "value"}, {}, function(params, calling_token)
         local name   = params.positionnals.name:render ()
-        local value  = params.positionnals.value:renderLua ()
+        local value  = params.positionnals.value:render_lua ()
         local scope = plume.get_scope(calling_token.context)
 
         if scope.config[name] == nil then
