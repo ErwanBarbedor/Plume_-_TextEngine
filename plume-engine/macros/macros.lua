@@ -47,7 +47,7 @@ return function ()
 
         -- Check if the name is a valid identifier
         if not plume.is_identifier(name) then
-            plume.error(macro_parameters.positionnals.name, "'" .. name .. "' is an invalid name for a macro.")
+            plume.error_invalid_name (macro_parameters.positionnals.name, name, "macro")
         end
 
         -- If define globaly, check if a macro with this name already exist
@@ -58,7 +58,7 @@ return function ()
         -- Check if parameters names are valid and register flags
         for name, _ in pairs(macro_parameters.others.keywords) do
             if not plume.is_identifier(name) then
-                plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
+                plume.error_invalid_name (calling_token, name, "parameter")
             end
         end
 

@@ -168,7 +168,6 @@ function plume.error_end_block_reached(token, x, y)
     plume.error(token, msg)
 end
 
-
 function plume.error_macro_call_without_braces (macro_token, token, n)
     local msg = "Macro call cannot be a parameter"
     msg = msg .. " (here, parameter #"
@@ -181,4 +180,8 @@ function plume.error_macro_call_without_braces (macro_token, token, n)
     msg = msg .. "without being surrounded by braces."
 
     plume.error(token, msg)
+end
+
+function plume.error_invalid_name (token, name, kind)
+    plume.error(token, "'" .. name .. "' is an invalid name for a " .. kind .. ".")
 end

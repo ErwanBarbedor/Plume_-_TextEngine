@@ -173,10 +173,10 @@ File 'string', line 1 : Expected parameter name, not '='.
                 ^
 \-- End
 
-\-- Test 'Bad argument name'
+\-- Test 'Bad parameter name'
 \macro foo [@=foo] {}
 \-- Error
-File 'string', line 1 : '@' is an invalid parameter name.
+File 'string', line 1 : '@' is an invalid name for a parameter.
     \macro foo [@=foo] {}
     ^^^^^^
 \-- End
