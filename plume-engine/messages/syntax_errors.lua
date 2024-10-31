@@ -37,3 +37,15 @@ end
 function plume.syntax_error_brace_unclosed (token)
     plume.error(token, "Syntax error : this brace was never closed.")
 end
+
+function plume.syntax_error_cannot_use_inside_optionnal_block (token)
+    plume.error(token, "Syntax error : cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
+end
+
+function plume.syntax_error_expected_parameter_value(token)
+    plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
+end
+
+function plume.syntax_error_expected_parameter_name(token)
+    plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
+end

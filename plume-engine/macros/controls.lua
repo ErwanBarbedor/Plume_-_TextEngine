@@ -81,7 +81,7 @@ return function ()
             -- Update and check loop limit
             iteration_count = iteration_count + 1
             if iteration_count > max_loop_size then
-                plume.error(calling_token, "To many loop repetition (over the configurated limit of " .. up_limit .. ").")
+                plume.error_to_many_loop (calling_token, max_loop_size)
             end
 
             -- Iteration scope
@@ -169,7 +169,7 @@ return function ()
             table.insert(result, body:render())
             i = i + 1
             if i > max_loop_size then
-                plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. max_loop_size .. ").")
+                plume.error_to_many_loop (calling_token, max_loop_size)
             end
 
             -- exit local scope

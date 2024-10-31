@@ -187,20 +187,25 @@ function plume.error_invalid_name (token, name, kind)
 end
 
 function plume.error_expecting_an_eval_block (param)
-        local source = param:source()
-        local correct_source = source
+    local source = param:source()
+    local correct_source = source
 
-        local msg = "This parameter must be an eval block. "
-        if source:sub(1, 1) ~= "{" then
-            correct_source = "{" .. correct_source
-        end
-
-        if source:sub(-1, -1) ~= "}" then
-            correct_source = correct_source .. "}" 
-        end
-
-        msg = msg .. "Write '$" .. correct_source .. "' "
-        msg = msg .. "instead of '" .. source .. "' "
-
-        plume.error(param, msg)
+    local msg = "This parameter must be an eval block. "
+    if source:sub(1, 1) ~= "{" then
+        correct_source = "{" .. correct_source
     end
+
+    if source:sub(-1, -1) ~= "}" then
+        correct_source = correct_source .. "}" 
+    end
+
+    msg = msg .. "Write '$" .. correct_source .. "' "
+    msg = msg .. "instead of '" .. source .. "' "
+
+    plume.error(param, msg)
+end
+
+
+function plume.error_to_many_loop (token, max_loop_size)
+    plume.error(token, "To many loop repetition (over the configurated limit of " .. max_loop_size .. ").")
+end

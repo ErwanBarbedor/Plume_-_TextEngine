@@ -51,35 +51,20 @@ function plume.make_opt_params (macro, params, opt_params, context)
     while i < #opt_params do
         i = i + 1
         token = opt_params[i]
-        -- See ${...} as {${...}}
-        if token.kind == "macro" and token.value == plume.syntax.eval then
-            local eval = plume.tokenlist("block")
-            table.insert(eval, token)
-
-            i = i + 1
-            if not opt_params[i] then
-                plume.error(token, "End of block reached, not enough arguments for macro '$'.0 instead of 1.")
-            end
-            table.insert(eval, opt_params[i])
-
-            if opt_params[i+1] and opt_params[i+1].kind == "opt_block" then
-                i = i + 1
-                table.insert(eval, opt_params[i])
-            end
-            token = eval
+        
         -- Anything that is not ${...}, "=", a block, a comment or a space (in fact, macros)
         -- will lead to an error
-        elseif token.kind ~= "opt_assign" and token.kind ~= "comment"
+        if token.kind ~= "opt_assign" and token.kind ~= "comment"
             and token.kind ~= "block" and token.kind ~= "block_text"
             and token.kind  ~= "space" and token.kind  ~= "newline" and token.kind  ~= "code" then
-            plume.error(token, "Cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
+            plume.syntax_error_cannot_use_inside_optionnal_block (token)
         end
 
         if key then
             if token.kind == "space" or token.kind == "newline" or token.kind == "comment" then
             elseif eq then
                 if token.kind == "opt_assign" then
-                    plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
+                    plume.syntax_error_expected_parameter_value(token)
                 end
                 
                 capture_keyword (key, token)
@@ -93,7 +78,7 @@ function plume.make_opt_params (macro, params, opt_params, context)
                 key = token
             end
         elseif token.kind == "opt_assign" then
-            plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
+            plume.syntax_error_expected_parameter_name(token)
         elseif token.kind ~= "space" and token.kind ~= "newline" and token.kind ~= "comment" then
             key = token
         end

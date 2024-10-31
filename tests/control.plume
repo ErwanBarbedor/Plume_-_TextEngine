@@ -48,10 +48,7 @@ ${a=0}\--
 \-- Error
 File 'string', line 2 : To many loop repetition (over the configurated limit of 1000).
     \while ${a < 10000} {${a = a+1} $a}
-            ^^^^^^^^^^^
-Traceback :
-    File 'string', line 2 : \while ${a < 10000} {${a = a+1} $a}
-                            ^^^^^^
+    ^^^^^^
 \-- End
 
 \-- Test 'simple for'
