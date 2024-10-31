@@ -310,11 +310,11 @@ function plume.tokenlist (x)
 
                 -- It is a plume block inside lua code.
                 -- Insert a reference to the parsed tokenlist.
-                elseif token.kind == "macro" and token.value == plume.syntax.eval then
+                elseif token.kind == "code" then
                     local index = math.random (1, 100000)
                     while temp['token' .. index] do index = index + 1 end
 
-                    local text = token.code_content
+                    local text = token[2]
                     temp['token' .. index] = text
                     table.insert(result, "plume.temp.token" .. index)
                     
