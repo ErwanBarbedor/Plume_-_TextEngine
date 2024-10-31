@@ -23,21 +23,14 @@ return function ()
         -- The macro uses coroutines to handle the iteration process, which allows for flexible
         -- iteration over various types of iterables without implementing a full Lua parser.
         local result = {}
-        local iterator_token
         local scope = plume.get_scope (calling_token.context)
         local max_loop_size = scope:get("config", "max_loop_size")
 
-        if params.positionnals.iterator:is_eval_block() then
-            iterator_token  = params.positionnals.iterator[2]
+        if params.positionnals.iterator.kind == "code" then
+            iterator_code  = params.positionnals.iterator[2]:sourceLua ()
         else
-            local source = params.positionnals.iterator:source()
-            local message = "Iterator must be an eval block. Use '\\for ${" .. source .. "}' instead of '\\for " .. source .. "'. In the future, this will lead to an error."
-
-            plume.error(params.positionnals.iterator, message)
+            plume.error_expecting_an_eval_block (params.positionnals.iterator)
         end
-
-        local iterator_source = iterator_token:source ()
-
          
         local join = plume.render_if_token(params.keywords.join)
 
@@ -48,17 +41,17 @@ return function ()
         -- Try to parse the iterator syntax
         -- First, attempt to match the "var = iterator" syntax
         if not var then
-            var, iterator = iterator_source:match('%s*([a-zA-Z_][a-zA-Z0-9_]*)%s*=%s*(.-)$')
+            var, iterator = iterator_code:match('%s*([a-zA-Z_][a-zA-Z0-9_]*)%s*=%s*(.-)$')
         end
 
         --- If the first attempt fails, try to match the "var in iterator" syntax
         if not var then
-            var, iterator = iterator_source:match('%s*(.-[^,])%s+in%s*(.-)$')
+            var, iterator = iterator_code:match('%s*(.-[^,])%s+in%s*(.-)$')
         end
         
         -- If both attempts fail, raise an error
         if not var then
-            plume.error(iterator_token, "Non valid syntax for iterator.")
+            plume.error(params.positionnals.iterator, "Non valid syntax for iterator.")
         end
 
         -- Extract all variable names from the iterator
@@ -68,7 +61,7 @@ return function ()
         end
 
         -- Construct a Lua coroutine to handle the iteration
-        local coroutine_code = "return coroutine.create(function () for " .. iterator_source .. " do"
+        local coroutine_code = "return coroutine.create(function () for " .. iterator_code .. " do"
         coroutine_code = coroutine_code .. " coroutine.yield(" .. var .. ")"
         coroutine_code = coroutine_code .. " end end)"
 
@@ -115,12 +108,12 @@ return function ()
 
             -- Check for Lua errors in the coroutine
             if not sucess or not co then
-                plume.error(iterator_token, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+                plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
             end
 
             -- Verify that the number of variables matches the number of values
             if #values_list ~= #variables_list then
-                plume.error(iterator_token,
+                plume.error(params.positionnals.iterator,
                     "Wrong number of variables, "
                     .. #variables_list
                     .. " instead of "
@@ -160,18 +153,14 @@ return function ()
         local result = {}
         local i = 0
 
-        local condition_token
-
-        if params.positionnals.condition:is_eval_block() then
-            condition_token  = params.positionnals.condition[2]
+        local condition_code
+        if params.positionnals.condition.kind == "code" then
+            condition_code  = params.positionnals.condition[2]:sourceLua ()
         else
-            local source = params.positionnals.iterator:source()
-            local message = "Condition must be an eval block. Use '\\while ${" .. source .. "}' instead of '\\while " .. source .. "'. In the future, this will lead to an error."
-
-            plume.error(params.positionnals.iterator, message)
+            plume.error_expecting_an_eval_block (params.positionnals.condition)
         end
 
-        while plume.call_lua_chunk (condition_token) do
+        while plume.call_lua_chunk (params.positionnals.condition, condition_code) do
             -- Each iteration have it's own local scope
             plume.push_scope (params.positionnals.body.context)
             
@@ -180,7 +169,7 @@ return function ()
             table.insert(result, body:render())
             i = i + 1
             if i > max_loop_size then
-                plume.error(condition_token, "To many loop repetition (over the configurated limit of " .. max_loop_size .. ").")
+                plume.error(params.positionnals.condition, "To many loop repetition (over the configurated limit of " .. max_loop_size .. ").")
             end
 
             -- exit local scope
@@ -198,18 +187,15 @@ return function ()
         -- Have the same behavior of the lua if control structure.
         -- Send a message "true" or "false" for activate (or not)
         -- following "else" or "elseif"
-        local condition_token
+        local condition_code
 
-        if params.positionnals.condition:is_eval_block() then
-            condition_token  = params.positionnals.condition[2]
+        if params.positionnals.condition.kind == "code" then
+            condition_code  = params.positionnals.condition[2]:sourceLua ()
         else
-            local source = params.positionnals.iterator:source()
-            local message = "Condition must be an eval block. Use '\\if ${" .. source .. "}' instead of '\\if " .. source .. "'. In the future, this will lead to an error."
-
-            plume.error(params.positionnals.iterator, message)
+            plume.error_expecting_an_eval_block (params.positionnals.condition)
         end
 
-        local condition = plume.call_lua_chunk(condition_token)
+        local condition = plume.call_lua_chunk(params.positionnals.condition, condition_code)
         if condition then
             return params.positionnals.body:render()
         end
@@ -246,18 +232,15 @@ return function ()
 
         local condition_token
 
-        if params.positionnals.condition:is_eval_block() then
-            condition_token  = params.positionnals.condition[2]
+        if params.positionnals.condition.kind == "code" then
+            condition_code  = params.positionnals.condition[2]:sourceLua ()
         else
-            local source = params.positionnals.iterator:source()
-            local message = "Condition must be an eval block. Use '\\elseif ${" .. source .. "}' instead of '\\elseif " .. source .. "'. In the future, this will lead to an error."
-
-            plume.error(params.positionnals.iterator, message)
+            plume.error_expecting_an_eval_block (params.positionnals.condition)
         end
 
         local condition
         if chain_message then
-            condition = plume.call_lua_chunk(condition_token)
+            condition = plume.call_lua_chunk(params.positionnals.condition, condition_code)
             if condition then
                 return params.positionnals.body:render()
             end

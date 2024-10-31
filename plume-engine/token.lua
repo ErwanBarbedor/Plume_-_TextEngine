@@ -314,8 +314,7 @@ function plume.tokenlist (x)
                     local index = math.random (1, 100000)
                     while temp['token' .. index] do index = index + 1 end
 
-                    i = i+1
-                    local text = self[i]
+                    local text = token.code_content
                     temp['token' .. index] = text
                     table.insert(result, "plume.temp.token" .. index)
                     
@@ -391,6 +390,11 @@ end
 function plume.token_info (token)
 
     local file, token_noline, token_line, code, beginpos, endpos
+
+    -- code token is just a container
+    if token.kind == "code" then
+        token = token[2]
+    end
 
     -- Find all informations about the token
     if token.kind == "opt_block" or token.kind == "block" then

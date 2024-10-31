@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @return tokenlist The parsed nested structure
 function plume.parse (tokenlist)
     local stack = {plume.tokenlist("block")}
-    local eval_var = 0 -- #a+1 must be seen as \eval{a}+1, not \eval{a+1}
 
     for _, token in ipairs(tokenlist) do
         local top = stack[#stack]
@@ -30,63 +29,76 @@ function plume.parse (tokenlist)
         
         elseif token.kind == "block_end" then
             eval_var = 0
-            local last = table.remove(stack)
+            local block = table.remove(stack)
             local top = stack[#stack]
 
             -- Check if match the oppening brace
             if not top then
-                plume.error(token, "This brace close nothing.")
-            elseif last.kind ~= "block" then
-                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.opening_token.value.."'.")
+                plume.syntax_error_brace_close_nothing (token)
+            elseif block.kind ~= "block" then
+                plume.syntax_error_unpaired_braces (token, block.opening_token.value)
             end
             
-            last.closing_token = token
-            table.insert(stack[#stack], last)
+            block.closing_token = token
+
+            local parent = stack[#stack]
+            table.insert(parent, block)
         
         elseif token.kind == "opt_block_begin" then
-            eval_var = 0
             table.insert(stack, plume.tokenlist("opt_block"))
             stack[#stack].opening_token = token
         
         elseif token.kind == "opt_block_end" then
-            eval_var = 0
             local last = table.remove(stack)
             local top = stack[#stack]
 
             -- Check if match the oppening brace
             if not top then
-                plume.error(token, "This brace close nothing.")
+                plume.syntax_error_brace_close_nothing (token)
             elseif last.kind ~= "opt_block" then
-                plume.error(token, "This brace doesn't matching the opening brace, which was '"..last.opening_token.value.."'.")
+                plume.syntax_error_unpaired_braces (token, last.opening_token.value)
             end
 
             last.closing_token = token
-            table.insert(stack[#stack], last)
+            local parent = stack[#stack]
+            
+            -- Check if last token is an eval without optionnal block
+            local previous = parent[#parent]
+            if previous and previous.kind == "code" and #previous == 2 then
+                parent = previous
+            end
+
+            table.insert(parent, last)
         
         elseif token.kind == "text" 
             or token.kind == "escaped_text" 
             or token.kind == "opt_assign" and top.kind ~= "opt_block" then
-            -- or token.kind:match('^lua_.*') then
 
             local last = stack[#stack]
-            if #last == 0 or last[#last].kind ~= "block_text" or eval_var > 0 then
-                eval_var = eval_var - 1
+            if #last == 0 or last[#last].kind ~= "block_text" then
                 table.insert(last, plume.tokenlist("block_text"))
             end
             table.insert(last[#last], token)
         
         elseif token.kind == "eval" then
-            token.kind = "macro"
-            eval_var = 2
+            table.insert(stack, plume.tokenlist("code"))
             table.insert(stack[#stack], token)
             
         else
-            eval_var = 0
             table.insert(stack[#stack], token)
+        end
+
+        -- If last block is code, close it after capture two tokens.
+        local last = stack[#stack]
+        if last.kind == "code" and #last == 2 then
+            local code   = table.remove(stack)
+            local parent =  stack[#stack]
+
+            table.insert(parent, code)
         end
     end
     if #stack > 1 then
-        plume.error(stack[#stack].opening_token, "This brace was never closed")
+        plume.syntax_error_brace_unclosed (stack[#stack].opening_token)
     end
     return stack[1] 
 end

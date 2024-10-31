@@ -8,7 +8,7 @@ function underline(txt)
 end
 
 function bgred(txt)
-    return "\27[41m" .. txt .. "\27[0m"
+    return "\27[41m\27[37m" .. txt .. "\27[0m"
 end
 
 function colred(txt)
@@ -21,6 +21,20 @@ end
 
 function colyellow(txt)
     return "\27[33m" .. txt .. "\27[0m"
+end
+
+function colyellowdiff(txt, expected)
+    local result = {"\27[33m"}
+    for i = 1, #txt do
+        if txt:sub(i, i) == expected:sub(i, i) then
+            table.insert(result, txt:sub(i, i))
+        else
+            table.insert(result, "\27[31m" .. txt:sub(i, i) .. "\27[33m")
+        end
+    end
+
+    table.insert(result, "\27[0m")
+    return table.concat(result)
 end
 
 function bggreen(txt)
@@ -119,22 +133,28 @@ local function addUnexpectedError (errors, test, message)
 end
 
 local function addWrongOutputError (errors, test, result)
+    result = result:gsub('\r', '\\r\r'):gsub('\t', '\t\\t'):gsub(' ', '_'):gsub('\n', '\\n\n\t\t')
+    local expected = test.expectedOutput:gsub('\r', '\\r\r'):gsub('\t', '\t\\t'):gsub(' ', '_'):gsub('\n', '\\n\n\t\t')
+
     table.insert(errors,
         colred("Test '" .. test.name .. "'" .. " wrong output :") .. "\n"
         .. "\t" .. underline("Expected :") .. "\n\t\t"
-        .. colyellow(test.expectedOutput:gsub('\n', '\n\t\t')) .. "\n"
+        .. colyellow(expected) .. "\n"
         .. "\t" .. underline("Obtained :") .. "\n\t\t"
-        .. colyellow(result:gsub('\n', '\n\t\t')) .. '\n\n'
+        .. colyellow(result) .. '\n\n'
     )
 end
 
 local function addWrongErrorError (errors, test, result)
+    result = result:gsub('\r', '\\r\r'):gsub('\t', '\t\\t'):gsub(' ', '_'):gsub('\n', '\\n\n\t\t')
+    local expected = test.expectedOutput:gsub('\r', '\\r\r'):gsub('\t', '\t\\t'):gsub(' ', '_'):gsub('\n', '\\n\n\t\t')
+
     table.insert(errors,
         colred("Test '" .. test.name .. "'" .. " wrong error :") .. "\n"
         .. "\t" .. underline("Expected error :") .. "\n\t\t"
-        .. colyellow(test.expectedOutput:gsub('\n', '\n\t\t')) .. "\n"
+        .. colyellow(expected) .. "\n"
         .. "\t" .. underline("Obtained error :") .. "\n\t\t"
-        .. colyellow(result:gsub('\n', '\n\t\t')) .. '\n\n'
+        .. colyellowdiff(result, expected) .. '\n\n'
     )
 end
 
@@ -148,12 +168,17 @@ local function addUnexpectedSucessError (errors, test, result)
     )
 end
 
-local function printErrorDetail (errors)
+local function printErrorDetail (errors, n)
     if #errors == 0 then return end
+    n = n or 1
     print('\n')
-    for _, error in ipairs(errors) do
-        print(error)
+    for i=1, math.min(n, #errors) do
+        print(errors[i])
     end
+    if #errors > n then
+        print((#errors-n) .. " more errors.")
+    end
+
     print('\n')
 end
 

@@ -186,3 +186,21 @@ function plume.error_invalid_name (token, name, kind)
     plume.error(token, "'" .. name .. "' is an invalid name for a " .. kind .. ".")
 end
 
+function plume.error_expecting_an_eval_block (param)
+        local source = param:source()
+        local correct_source = source
+
+        local msg = "This parameter must be an eval block. "
+        if source:sub(1, 1) ~= "{" then
+            correct_source = "{" .. correct_source
+        end
+
+        if source:sub(-1, -1) ~= "}" then
+            correct_source = correct_source .. "}" 
+        end
+
+        msg = msg .. "Write '$" .. correct_source .. "' "
+        msg = msg .. "instead of '" .. source .. "' "
+
+        plume.error(param, msg)
+    end

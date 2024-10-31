@@ -219,7 +219,7 @@ right
 \-- Test 'Parameter must be an eval block'
 \for i=1,10 foo
 \-- Error
-File 'string', line 1 : Iterator must be an eval block. Use '\for ${i=1,10}' instead of '\for i=1,10'. In the future, this will lead to an error.
+File 'string', line 1 : This parameter must be an eval block. Write '${i=1,10}' instead of 'i=1,10' 
     \for i=1,10 foo
          ^^^^^^
 Traceback :

@@ -1,7 +1,7 @@
 \-- Test 'Wrong brace 1'
 }
 \-- Error
-File 'string', line 1 : This brace close nothing.
+File 'string', line 1 : Syntax error : this brace close nothing.
     }
     ^
 \-- End
@@ -9,7 +9,7 @@ File 'string', line 1 : This brace close nothing.
 \-- Test 'Wrong brace 2'
 {}}
 \-- Error
-File 'string', line 1 : This brace close nothing.
+File 'string', line 1 : Syntax error : this brace close nothing.
     {}}
       ^
 \-- End
@@ -17,7 +17,7 @@ File 'string', line 1 : This brace close nothing.
 \-- Test 'Wrong brace 3'
 {
 \-- Error
-File 'string', line 1 : This brace was never closed
+File 'string', line 1 : Syntax error : this brace was never closed.
     {
     ^
 \-- End
@@ -25,7 +25,7 @@ File 'string', line 1 : This brace was never closed
 \-- Test 'Wrong brace 4'
 [}
 \-- Error
-File 'string', line 1 : This brace doesn't matching the opening brace, which was '['.
+File 'string', line 1 : Syntax error : this brace doesn't matching the opening brace, which was '['.
     [}
      ^
 \-- End
@@ -34,7 +34,7 @@ File 'string', line 1 : This brace doesn't matching the opening brace, which was
 \-- Test 'No space in error message'
         }
 \-- Error
-File 'string', line 1 : This brace close nothing.
+File 'string', line 1 : Syntax error : this brace close nothing.
     }
     ^
 \-- End
@@ -42,7 +42,17 @@ File 'string', line 1 : This brace close nothing.
 \-- Test 'Wrong $ usage'
 $@
 \-- Error
-File 'string', line 1 : Syntax error. $ must be followed by an identifier or '{', not '@'
+File 'string', line 1 : Syntax error : '$' must be followed by an identifier or '{', not '@'.
     $@
     ^
+\-- End
+
+\-- Test 'Wrong $ usage inside lua'
+${
+    a = $b
+}
+\-- Error
+File 'string', line 2 : Syntax error : inside a lua bloc, '$' must be followed by '{', not 'b'.
+    a = $b
+         ^
 \-- End

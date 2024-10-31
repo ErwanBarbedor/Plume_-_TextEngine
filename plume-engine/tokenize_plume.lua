@@ -100,13 +100,13 @@ end
 
 --- Handles comments
 -- This function captures comment text and advances through the code until 
--- a newline is encountered (and captures also all spaces following the new line)
+-- a newline is encountered (and captures also all spaces following the newline)
 function plume.tokenizer:handle_comment ()
     self:write("comment")
     table.insert(self.acc, char)
     local find_newline
 
-    -- Iterate over characters until end of code or a newline is found
+    -- Iterate over characters until the end of the code or a newline is found
     repeat
         self.pos = self.pos + 1
         next = self.code:sub(self.pos, self.pos)
@@ -123,7 +123,7 @@ function plume.tokenizer:handle_comment ()
         end
     until self.pos >= #self.code
 
-    -- Update line number and line position if a newline was found
+    -- Update of line number and line position if a new line has been found
     if find_newline then
         self.noline = self.noline + 1
         self.linepos = find_newline

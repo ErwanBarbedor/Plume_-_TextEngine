@@ -71,7 +71,7 @@ function plume.make_opt_params (macro, params, opt_params, context)
         -- will lead to an error
         elseif token.kind ~= "opt_assign" and token.kind ~= "comment"
             and token.kind ~= "block" and token.kind ~= "block_text"
-            and token.kind  ~= "space" and token.kind  ~= "newline" then
+            and token.kind  ~= "space" and token.kind  ~= "newline" and token.kind  ~= "code" then
             plume.error(token, "Cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
         end
 
@@ -136,6 +136,12 @@ function plume.capture_macro_args(tokenlist, macro_token, pos, nargs)
     local params = {}
     local opt_params
 
+    -- if it is an eval token, parameter is saved inside
+    if macro_token.kind == "code" then
+        table.insert(params, macro_token[2])
+        opt_params = macro_token[3]
+    end
+
     -- Iterate over token list child until getting enough parameters
     while #params < nargs do
         pos = pos + 1
@@ -144,28 +150,15 @@ function plume.capture_macro_args(tokenlist, macro_token, pos, nargs)
         if not tokenlist[pos] then
             plume.error_end_block_reached(macro_token, #params, nargs)
         
+        -- Macro as a parameter must be enclosed in braces, to avoid
+        -- nested parameters capture
         elseif tokenlist[pos].kind == "macro" then
-            -- Macro as a parameter must be enclosed in braces
-            if tokenlist[pos].value ~= plume.syntax.eval then
-                plume.error_macro_call_without_braces (macro_token, tokenlist[pos], #params + 1)
-
-            -- Lua block is the only exception. Capture its parameter here.
-            else
-                if not tokenlist[pos + 1] then
-                    plume.error_end_block_reached(macro_token, 0, 1)
-                end
-                local eval = plume.tokenlist()
-                table.insert(eval, tokenlist[pos])
-                table.insert(eval, tokenlist[pos + 1])
-
-                if tokenlist[pos + 2] and tokenlist[pos + 2].kind == "opt_block" then
-                    table.insert(eval, tokenlist[pos + 2])
-                    pos = pos + 1
-                end
-
-                table.insert(params, eval)
-                pos = pos + 1
-            end
+            plume.error_macro_call_without_braces (macro_token, tokenlist[pos], #params + 1)
+       
+        -- Lua block is the only exception, because it's parameter is already
+        -- captured in the parser.
+        elseif tokenlist[pos].kind == "code" then
+            table.insert(params, tokenlist[pos])
         
         -- Register an optional argument, or raise an error if too many.
         elseif tokenlist[pos].kind == "opt_block" then
@@ -224,9 +217,10 @@ function plume.call_macro (macro, calling_token, parameters, chain_sender, chain
             plume.error(calling_token, "Unexpected lua error running the macro : " .. macro_call_result)
         end
 
-        chain_sender = calling_token.value
-
-        
+        -- code is a tokenlist, not a token
+        if calling_token.kind ~= "code" then
+            chain_sender = calling_token.value
+        end
     -- end of call
     table.remove(plume.traceback)
 
@@ -239,6 +233,13 @@ end
 function plume.render_token (self)
     local pos = 0
     local result = {}
+
+    -- dirty fix
+    if self.kind == "code" then
+        local container = plume.tokenlist ("block")
+        table.insert(container, self)
+        return container:render()
+    end
 
     -- Chain of information passed to adjacent macros
     -- Used to achieve \if \else behavior
@@ -313,8 +314,7 @@ function plume.render_token (self)
             end
 
         -- Capture required number of parameters after the macro, then call it
-        elseif token.kind == "macro" then
-            
+        elseif token.kind == "macro" or token.kind == "code" then
             -- If more than config_max_callstack_size macro are running, throw an error.
             -- Mainly to adress "\macro foo \foo" kind of infinite loop.
             local up_limit = config_max_callstack_size
@@ -324,17 +324,20 @@ function plume.render_token (self)
             end
 
             -- Remove the "\" in front of macro to get the name
-            local name = token.value:gsub("^"..plume.syntax.escape , "")
+            local name
 
             -- "$" is a syntax sugar for "eval"
-            if name == plume.syntax.eval then
+            if token.kind == "code" then
                 name = "eval"
+            else
+                name = token.value:gsub("^"..plume.syntax.escape , "")
             end
 
             -- Check if the given name is a valid identifier
             if not plume.is_identifier(name) then
                 plume.error_invalid_macro_name (token, name, "macro")
             end
+            
 
             -- Check if macro exist
             local macro = scope:get("macros", name)
@@ -344,7 +347,7 @@ function plume.render_token (self)
 
             -- Capture parameters
             local params, opt_params
-            pos, params, opt_params = plume.capture_macro_args (self,  token, pos, #macro.params)
+            pos, params, opt_params = plume.capture_macro_args (self, token, pos, #macro.params)
 
             -- Rearange parameters for the call
             local macro_params = {
@@ -356,6 +359,7 @@ function plume.render_token (self)
                     flags={}
                 }
             }
+
 
             -- All captured parameters are postionnals
             for k, v in ipairs(params) do

@@ -140,7 +140,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### Internal changes
 - Rewrite unitary testing: cleaner code and much clearer output.
-- Rewrite tokenizer and parser. Cleaner and now context-sensitive, add a limited lua parser.
+- Rewrite tokenizer. Cleaner and now context-sensitive
+- Move somme parts of render to parser.
+- Write a limited lua parser.
 - Move all errors message to dedicateds files.
 - A lot of other code rewriting, cleaning, and comments added.
 
