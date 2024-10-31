@@ -133,14 +133,14 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Can now use `return` inside a lua block.
 
 ## Enhancement
+- Plume now detects if a Lua block is a statement or an expression without error.
 - More pertinent suggestions in case of unknown macro or parameter.
 - More coherent error messages.
 - Resetting Plume is much faster.
-- Plume now detects if a Lua block is a statement or an expression without error.
 
 ### Internal changes
 - Rewrite unitary testing: cleaner code and much clearer output.
-- Rewrite tokenizer and parser. Cleaner and now context-sensitive. Move some part of render to it.
+- Rewrite tokenizer and parser. Cleaner and now context-sensitive, add a limited lua parser.
 - Move all errors message to dedicateds files.
 - A lot of other code rewriting, cleaning, and comments added.
 

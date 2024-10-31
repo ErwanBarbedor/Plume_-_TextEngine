@@ -1,0 +1,55 @@
+[1mdiff --git a/plume-engine/syntax.lua b/plume-engine/syntax.lua[m
+[1mindex a10446a..5ca4e3b 100644[m
+[1m--- a/plume-engine/syntax.lua[m
+[1m+++ b/plume-engine/syntax.lua[m
+[36m@@ -33,7 +33,10 @@[m [mplume.lua_syntax = {[m
+     identifier_begin = plume.syntax.identifier_begin,[m
+     simple_quote     = "'",[m
+     double_quote     = '"',[m
+[31m-    escape           = "\\"[m
+[32m+[m[32m    escape           = "\\",[m
+[32m+[m
+[32m+[m[32m    call_begin       = "(",[m
+[32m+[m[32m    call_end         = ")"[m
+ }[m
+ [m
+ --- Checks if a string is a valid identifier.[m
+[1mdiff --git a/plume-engine/tokenize.lua b/plume-engine/tokenize.lua[m
+[1mindex 3a52140..3364dd4 100644[m
+[1m--- a/plume-engine/tokenize.lua[m
+[1m+++ b/plume-engine/tokenize.lua[m
+[36m@@ -205,12 +205,12 @@[m [mfunction plume.tokenizer:handle_context_lua ()[m
+ [m
+         -- Checks for strings[m
+         elseif char == plume.lua_syntax.simple_quote then[m
+[31m-            self:write ("lua_code")[m
+[32m+[m[32m            self:write ("lua_block")[m
+             table.insert(self.acc, char)[m
+ [m
+             table.insert(self.context, "lua_simple_quote")[m
+         elseif char == plume.lua_syntax.double_quote then[m
+[31m-            self:write ("lua_code")[m
+[32m+[m[32m            self:write ("lua_block")[m
+             table.insert(self.acc, char)[m
+ [m
+             table.insert(self.context, "lua_double_quote")[m
+[36m@@ -233,6 +233,10 @@[m [mfunction plume.tokenizer:handle_context_lua ()[m
+ [m
+             self.pos = self.pos + 1[m
+ [m
+[32m+[m[32m        -- check for identifier[m
+[32m+[m[32m        elseif char:match(plume.lua_syntax.identifier) then[m
+[32m+[m[32m            self:write("lua_word")[m
+[32m+[m[32m            table.insert(self.acc, char)[m
+         else[m
+             self:write ("lua_code")[m
+             table.insert(self.acc, char)[m
+[36m@@ -249,7 +253,7 @@[m [mend[m
+ -- @param delimiter string The delimiter that marks the end of the Lua string.[m
+ function plume.tokenizer:handle_context_lua_string(delimiter)[m
+     local char = self.code:sub(self.pos, self.pos)[m
+[31m-    self:write("lua_code")[m
+[32m+[m[32m    self:write("lua_string")[m
+ [m
+     -- If char is the delimiter, exit from string context[m
+     if char == delimiter then[m

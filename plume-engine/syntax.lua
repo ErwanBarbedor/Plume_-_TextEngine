@@ -33,7 +33,10 @@ plume.lua_syntax = {
     identifier_begin = plume.syntax.identifier_begin,
     simple_quote     = "'",
     double_quote     = '"',
-    escape           = "\\"
+    escape           = "\\",
+
+    call_begin       = "(",
+    call_end         = ")"
 }
 
 --- Checks if a string is a valid identifier.
