@@ -19,3 +19,9 @@ function plume.syntax_error_wrong_eval (token, char)
     msg = msg .. "not '" .. char .. "'"
     plume.error (token,  msg)
 end
+
+function plume.syntax_error_wrong_eval_inside_lua (token, char)
+    local msg = "Syntax error. " .. plume.syntax.eval .. " must be followed by '" .. plume.syntax.block_begin .. "', "
+    msg = msg .. "not '" .. char .. "'"
+    plume.error (token,  msg)
+end

@@ -107,36 +107,36 @@ ${
 2
 \-- End
 
-\-- \-- Test 'Eval - Plume block'
-\-- ${
-\--     a = ${bonjour}
-\-- }
-\-- $a
-\-- \-- Result
-\-- bonjour
-\-- \-- End
-
-\-- \-- Test 'Eval - write'
-\-- ${--
-\--     plume.write(${Bonjour\n})
-\--     plume.write("Bonjour")
-\-- }
-\-- \-- Result
-\-- Bonjour
-\-- Bonjour
+\-- Test 'Eval - Plume block'
+${
+    a = ${bonjour}
+}
+$a
+\-- Result
+bonjour
 \-- End
 
-\-- \-- Test 'Eval - write (nested)'
-\-- ${--
-\--     plume.write(${
-\--         foo : ${--
-\--             plume.write(1+1)
-\--         }
-\--     })
-\-- }
-\-- \-- Result
-\-- foo : 2
-\-- \-- End
+\-- Test 'Eval - write'
+${--
+    plume.write(${Bonjour\n})
+    plume.write("Bonjour")
+}
+\-- Result
+Bonjour
+Bonjour
+\-- End
+
+\-- Test 'Eval - write (nested)'
+${--
+    plume.write(${
+        foo : ${--
+            plume.write(1+1)
+        }
+    })
+}
+\-- Result
+foo : 2
+\-- End
 
 \-- Test 'Render table 1'
 ${

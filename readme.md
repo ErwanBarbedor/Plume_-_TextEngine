@@ -127,20 +127,22 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ## Last version : 0.11.0
 
 ## Change
-- As planned, `\for`, `\if`, `\while` and `\elseif`'s first parameter must now be an lua block.
+- As planned, `\for`, `\if`, `\while` and `\elseif` first parameter must now be an lua block.
 - Remove `_L`, too complex to implement without being useful.
+- No need anymore to escape "$" or braces inside lua string. Escaped "$" or braces will now raise an error.
+- Can now use `return` inside a lua block.
 
 ## Enhancement
 - More pertinent suggestions in case of unknown macro or parameter.
 - More coherent error messages.
 - Resetting Plume is much faster.
-- Plume now detects if a Lua block is a statement or an expression without error. Plume syntax used inside a Lua string is now ignored by the tokenizer.
+- Plume now detects if a Lua block is a statement or an expression without error.
 
 ### Internal changes
 - Rewrite unitary testing: cleaner code and much clearer output.
 - Rewrite tokenizer and parser. Cleaner and now context-sensitive. Move some part of render to it.
-- A lot of other code rewriting, cleaning, and spaces added.
-
+- Move all errors message to dedicateds files.
+- A lot of other code rewriting, cleaning, and comments added.
 
 See the [changelog](doc/changelog.md) for older version
 

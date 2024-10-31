@@ -121,7 +121,7 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
     end
     
     -- Then add all traceback
-    if show_traceback then
+    if show_traceback and plume.traceback then
         for i=#plume.traceback, 1, -1 do
             if (plume.traceback[i].kind ~= "macro" or plume.traceback[i].value ~= plume.syntax.eval)
                 and not (token == plume.traceback[i] and i==1) then

@@ -28,6 +28,14 @@ plume.syntax = {
     eval                 = "$"
 }
 
+plume.lua_syntax = {
+    identifier       = plume.syntax.identifier,
+    identifier_begin = plume.syntax.identifier_begin,
+    simple_quote     = "'",
+    double_quote     = '"',
+    escape           = "\\"
+}
+
 --- Checks if a string is a valid identifier.
 -- @param s string The string to check
 -- @return boolean True if the string is a valid identifier, false otherwise
