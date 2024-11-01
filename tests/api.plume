@@ -39,3 +39,41 @@ ${_G.x}\--
 \-- Result
 1
 \-- End
+
+\-- Test 'Source 1'
+\raw {
+    \foo[bar ?baz] barbar
+}
+\-- Result
+
+    \foo[bar ?baz] barbar
+
+\-- End
+
+\-- Test 'Source 2'
+\raw {
+    \for ${i=1, 10} {
+        {i} = ${i+1}
+    }
+}
+\-- Result
+
+    \for ${i=1, 10} {
+        {i} = ${i+1}
+    }
+
+\-- End
+
+\-- Test 'Source 3'
+\raw ${
+    if a == 2 then
+        return 5
+    end
+}
+\-- Result
+${
+    if a == 2 then
+        return 5
+    end
+}
+\-- End

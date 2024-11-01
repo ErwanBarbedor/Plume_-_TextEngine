@@ -274,30 +274,14 @@ function plume.tokenlist (x)
 
             local result = {}
             for _, token in ipairs(self) do
-                if token.kind == "block" then
-                    table.insert(result, plume.syntax.block_begin)
-                elseif token.kind == "opt_block" then
-                    table.insert(result, plume.syntax.opt_block_begin)
-                elseif token.kind == "lua_call" then
-                    table.insert(result, token.opening_token.value)
-                elseif token.kind == "lua_index" then
-                    table.insert(result, token.opening_token.value)
-                elseif token.kind == "lua_table" then
-                    table.insert(result, token.opening_token.value)
+                if token.opening_token then
+                    table.insert(result, token.opening_token:source ())
                 end
 
                 table.insert(result, token:source())
                 
-                if token.kind == "block" then
-                    table.insert(result, plume.syntax.block_end)
-                elseif token.kind == "opt_block" then
-                    table.insert(result, plume.syntax.opt_block_end)
-                elseif token.kind == "lua_call" then
-                    table.insert(result, token.closing_token.value)
-                elseif token.kind == "lua_index" then
-                    table.insert(result, token.closing_token.value)
-                elseif token.kind == "lua_table" then
-                    table.insert(result, token.closing_token.value)
+                if token.closing_token then
+                    table.insert(result, token.closing_token:source ())
                 end
             end
             
