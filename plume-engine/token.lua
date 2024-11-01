@@ -335,7 +335,7 @@ function plume.tokenlist (x)
                     is_expression = false
                 elseif token.kind == "lua_function" then
                     table.insert(result, token.opening_token.value)
-                elseif token.kind == "lua_code" and token.value:match("=") and not token.value:match("==") and not token.value:match("~=") then
+                elseif token.kind == "lua_code" and token.value == "=" then
                     is_expression = false
                 elseif token.kind == "lua_statement_alone" then
                     is_expression = false
