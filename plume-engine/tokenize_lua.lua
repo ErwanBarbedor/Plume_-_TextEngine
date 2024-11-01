@@ -179,7 +179,7 @@ function plume.tokenizer:handle_lua_block_begin ()
 end
 
 function plume.tokenizer:lua_checks_keywords (mode, word)
-    if plume.lua_syntax.statement:match(" " .. word .. " ") and (self.lua_last_keyword ~= "for" or word ~= "do")then
+    if plume.lua_syntax.statement:match(" " .. word .. " ") and (self.lua_last_keyword ~= "for" or word ~= "do") and (self.lua_last_keyword ~= "while" or word ~= "do")then
         self.lua_last_keyword = word
         return "lua_statement"
     elseif plume.lua_syntax.keyword:match(" " .. word .. " ") then
