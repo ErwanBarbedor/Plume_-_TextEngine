@@ -117,3 +117,23 @@ h2 {
 #github-button:hover {
   background-color: #444c56; /* Darker shade on hover */
 }
+
+table {
+  table-layout: fixed;
+  width: 100%;
+/*  border-collapse: collapse;*/
+
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  
+}
+
+td, tr {
+/*  border: 1px solid black;*/
+}
+
+td:nth-child(1) {
+  margin: 5px;
+  border-right: 2px solid #e0e6ed;
+}

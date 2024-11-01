@@ -1,0 +1,163 @@
+<head>
+    <style>
+        {{CSS}}
+    </style>
+    <title>Plume - TextEngine</title>
+</head>
+
+<body>
+    <div>
+        <h2>Enter your code here</h2>
+        <textarea id="input">\macro bold[x] {<strong>$x</strong>}
+\macro exemple[x] {
+    <table>
+        <tr>
+            <td>\bold{The code}</td>
+            <td>\bold{Gives}</td>
+        </tr>
+        <tr>
+            <td><pre>${x:source()}</pre></td>
+            <td><pre>$x</pre></td>
+        </tr>
+    </table>
+}
+Welcome to \bold{${plume._VERSION}}.
+
+Plume is a logicfull minimalistic templating langage.
+
+Plume is based on a simple macro system :
+\exemple{
+    \macro foo bar
+    \foo
+}
+
+But powerfull :
+
+\exemple {
+    \macro double[x] {$x $x}
+    \double foo
+}
+
+\exemple{
+    \macro hello[name=World ?polite] {
+        \if $polite {
+            Good morning $name.
+        }
+        \else {
+            Yo $name!
+        }
+    }
+    \hello
+    \hello[name=sir polite]
+}
+
+You can also take the full power of Lua, with simple call:
+\exemple {
+    1+1 = ${1+1}
+    sin of 0.5 is ${math.sin(0.5)}
+}
+
+Or inside for and if macro :
+
+\exemple {
+    \for ${i=1, 5} {
+        \if ${i%2 == 0} {
+            $i is odd!
+        }
+    }
+}
+
+Or even with including full lua script!
+\exemple {
+    ${
+        factorial = function (n)
+            local result = 1
+            for i=1, n do
+                result = result * n
+            end
+            return result
+        end
+    }
+
+    5! = ${factorial(5)}
+}
+
+For some specific case, you can also use Plume inside Lua:
+
+\exemple {
+    ${
+        a = 5
+        b = ${It is a Plume block!}
+
+        if a == 5 then
+            return b
+        end
+    }
+}
+
+        </textarea>
+    </div>
+    <div >
+        <h2>Output</h2>
+        <!-- <pre id="output"></pre> -->
+        <div id="output"></div>
+    </div>
+    <h1>
+        <img src="https://app.barbedor.bzh/plume.png" width="200" height="100">
+        <p>Version {{VERSION-NUMBER}}</p>
+    </h1>
+    <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
+        View on GitHub
+    </a>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+
+<script type="application/lua">
+    {{PLUME}}
+</script>
+
+<script type="application/lua">
+js = require("js")
+global = js.global
+local document = global.document
+
+local function updateOutput()
+    plume.init()
+    plume.running_api.config.filter_spaces   = " "
+    plume.running_api.config.filter_newlines = "</p><p>"
+
+    local inputElement = document:getElementById("input")
+    local outputElement = document:getElementById("output")
+
+    local sucess, result = pcall(plume.render, inputElement.value)
+
+    outputElement.innerHTML = "<p>" .. result .. "</p>"
+end
+
+local inputElement = document:getElementById("input")
+
+inputElement:addEventListener("input", updateOutput)
+
+local function handle_tab(self, event)
+    if event.key == "Tab" then
+        event:preventDefault()
+
+        local input = document:getElementById("input")
+        local start = input.selectionStart
+        local finish = input.selectionEnd
+        
+        -- Add the tab character
+        input.value = input.value:sub(1, start) .. "\t" .. input.value:sub(finish + 1)
+
+        -- Move the cursor to the correct position after the tab
+        input.selectionStart = start + 1
+        input.selectionEnd = start + 1
+    end
+end
+
+document:getElementById("input"):addEventListener("keydown", handle_tab)
+
+updateOutput()
+
+</script>
