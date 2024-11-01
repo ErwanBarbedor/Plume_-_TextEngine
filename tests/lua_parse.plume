@@ -1,0 +1,72 @@
+\-- Test 'Special char inside lua 1'
+${"$"}
+\-- Result
+$
+\-- End
+
+\-- Test 'Special char inside lua 2'
+${"}"}
+\-- Result
+}
+\-- End
+
+\-- Test 'Expression 1'
+${math.max(2, 3)+1}
+\-- Result
+4
+\-- End
+
+\-- Test 'Statement 1'
+${
+    if foo then
+        do_nothing ()
+    else
+        return 3
+    end
+}
+\-- Result
+3
+\-- End
+
+\-- Test 'Statement 2'
+${
+    local i=5
+    for j=1, 2 do
+        i = i * j
+    end
+    return i
+}
+\-- Result
+10
+\-- End
+
+\-- Test 'Capture local 1'
+${
+    local i=5
+    if i < 10 then
+        return
+    end
+}
+$i
+\-- Result
+5
+\-- End
+
+\-- Test 'Comment 1'
+${
+    -- return 6
+    return 5
+}
+$i
+\-- Result
+5
+\-- End
+
+\-- Test 'Comment 2'
+${
+    \-- A comment
+    1+1
+}
+\-- Result
+2
+\-- End

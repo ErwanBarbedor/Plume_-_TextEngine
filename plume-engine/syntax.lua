@@ -34,6 +34,7 @@ plume.lua_syntax = {
     simple_quote     = "'",
     double_quote     = '"',
     escape           = "\\",
+    comment          = "-",
 
     call_begin       = "(",
     call_end         = ")",

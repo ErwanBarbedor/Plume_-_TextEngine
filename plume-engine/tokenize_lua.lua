@@ -34,7 +34,7 @@ function plume.tokenizer:handle_context_lua ()
     -- Check if the mode is always lua
     if current_context == "lua" then
         -- Check for plume comment
-        if self:check_for_comment () then
+        if self:check_for_comment () or self:check_for_lua_comment () then
             self:handle_comment ()
 
         -- Check for strings
@@ -91,13 +91,14 @@ function plume.tokenizer:handle_context_lua ()
 
             self.pos = self.pos + 1
 
-        -- check for identifier
+        -- Check for identifier
         elseif char:match(plume.lua_syntax.identifier) then
             self:write("lua_word")
             table.insert(self.acc, char)
         elseif char:match("%s") then
             self:write ("space")
             table.insert(self.acc, char)
+
         else
             self:write ("lua_code")
             table.insert(self.acc, char)
@@ -167,6 +168,7 @@ function plume.tokenizer:handle_lua_block_begin ()
     elseif next == plume.syntax.block_begin then
         self:newtoken ("block_begin", plume.syntax.block_begin, 1)
         table.insert(self.context, "lua")
+        self.lua_last_keyword = ""
 
     -- The "$" character must be followed by "{" or an identifier, otherwise raise an error.
     else
@@ -177,7 +179,8 @@ function plume.tokenizer:handle_lua_block_begin ()
 end
 
 function plume.tokenizer:lua_checks_keywords (mode, word)
-    if plume.lua_syntax.statement:match(" " .. word .. " ") then
+    if plume.lua_syntax.statement:match(" " .. word .. " ") and (self.lua_last_keyword ~= "for" or word ~= "do")then
+        self.lua_last_keyword = word
         return "lua_statement"
     elseif plume.lua_syntax.statement_alone:match(" " .. word .. " ") then
         return "lua_statement_alone"
@@ -190,4 +193,20 @@ function plume.tokenizer:lua_checks_keywords (mode, word)
     end
 
     return mode
+end
+
+--- Checks if the current position is the start of a clua omment
+-- @return boolean
+function plume.tokenizer:check_for_lua_comment (char)
+    local char = self.code:sub(self.pos, self.pos)
+
+    if char == plume.lua_syntax.comment then
+        local next  = self.code:sub(self.pos+1, self.pos+1)
+
+        if next == char then
+            return true
+        end
+    end
+
+    return false
 end

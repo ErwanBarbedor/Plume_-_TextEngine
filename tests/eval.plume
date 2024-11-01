@@ -98,15 +98,6 @@ ${5/3}
 1.67
 \-- End
 
-\-- Test 'Comment in lua'
-${
-    \-- A comment
-    1+1
-}
-\-- Result
-2
-\-- End
-
 \-- Test 'Eval - Plume block'
 ${
     a = ${bonjour}
@@ -151,7 +142,7 @@ File 'string', line 1 : Cannot end a lua script with '+'.
 \-- End
 
 
-\-- Test 'Chain errors (eval) 5.1 and jit'
+\-- Test 'Chain errors (eval) 5.1 5.2 and jit'
 ${
     function foo()
         bar()
@@ -162,7 +153,7 @@ ${
 }
 
 ${foo()}
-\-- Error Lua 5.1 Lua jit
+\-- Error Lua 5.1 5.2 Lua jit
 File 'string', line 6 : (lua error) attempt to call global 'baz' (a nil value)
     baz ()
     ^^^^^^
@@ -173,7 +164,7 @@ Traceback :
                               ^^^^^^^
 \-- End
 
-\-- Test 'Chain errors (eval) 5.4'
+\-- Test 'Chain errors (eval) 5.3 5.4'
 ${
     function foo()
         bar()
@@ -184,7 +175,7 @@ ${
 }
 
 ${foo()}
-\-- Error Lua 5.4
+\-- Error Lua 5.3 5.4
 File 'string', line 6 : (lua error) attempt to call a nil value (global 'baz')
     baz ()
     ^^^^^^
@@ -208,7 +199,7 @@ Traceback :
                             ^^^
 \-- End
 
-\-- Test 'Error in control implicit block 5.4'
+\-- Test 'Error in control implicit block 5.3 5.4'
 \if ${#opt==0} ${print(#opt)}
 \-- Error Lua 5.3 Lua 5.4
 File 'string', line 1 : (lua error) attempt to get length of a nil value (global 'opt')

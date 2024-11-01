@@ -322,7 +322,7 @@ function plume.tokenlist (x)
 
                 if last_kind and token.kind == "lua_word" and last_kind == "lua_word" then
                     is_expression = false
-                elseif (last_kind == "lua_function" or last_kind == "lua_call") and token.kind ~= "space" and token.kind ~= "newline" and token.kind ~= "lua_index" then
+                elseif (last_kind == "lua_function" or last_kind == "lua_call") and (token.kind == "lua_word" or token.kind == "lua_function") then
                     is_expression = false
                 end
 
@@ -365,10 +365,11 @@ function plume.tokenlist (x)
                         table.insert(result, '\n')
                     end
                 elseif token.kind == "lua_return" then
+                    is_expression = false
                     if can_alter_return then
-                        table.insert(result, ";plume.capture_local (); return")
+                        table.insert(result, " plume.capture_local () return ")
                     else
-                        table.insert(result, "return")
+                        table.insert(result, " return ")
                     end
                     found_return  = true
                 elseif token.kind == "lua_function" or token.kind == "lua_call" or token.kind == "lua_index" or token.kind == "lua_table" then
