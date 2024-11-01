@@ -205,7 +205,7 @@ Or inside for and if macro :
     }
 }
 
-Or event with including full lua script!
+Or even with including full lua script!
 \exemple {
     ${
         factorial = function (n)
@@ -4158,7 +4158,11 @@ local function updateOutput()
 
     local sucess, result = pcall(plume.render, inputElement.value)
 
-    outputElement.innerHTML = "<p>" .. result .. "</p>"
+    if sucess then
+        outputElement.innerHTML = "<p>" .. result .. "</p>"
+    else
+        outputElement.innerHTML = "<pre>" .. result .. "</pre>"
+    end
 end
 
 local inputElement = document:getElementById("input")

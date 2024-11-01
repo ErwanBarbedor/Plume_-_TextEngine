@@ -66,6 +66,6 @@ plume_template = plume_template:gsub('%{%{PLUME%}%}', function () return plume_c
 plume_template = plume_template:gsub('%{%{CSS%}%}', function () return css_code end)
 plume_template = plume_template:gsub('%{%{VERSION%-NUMBER%}%}', version)
 
-io.open("plume.html", "w"):write(plume_template)
+io.open("web/plume.html", "w"):write(plume_template)
 
 print("Website generated.")
