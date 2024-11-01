@@ -29,7 +29,7 @@ return function ()
         
         -- If the macro is already defined and warnings are enabled, issue a warning
         if macro and show_macro_overwrite_warnings then
-            plume.warning_macro_already_exists(token, name)
+            plume.warning_macro_already_exists(token, macro)
         end
     end
 
