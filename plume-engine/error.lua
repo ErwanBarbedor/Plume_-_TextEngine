@@ -123,7 +123,8 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
     -- Then add all traceback, except "$" call and the token itself
     if show_traceback and plume.traceback then
         for i=#plume.traceback, 1, -1 do
-            if (plume.traceback[i].kind ~= "code") and not (token == plume.traceback[i] and i==1) then
+            if (plume.traceback[i].kind ~= "eval")
+            and not (token == plume.traceback[i] and i==1) then
                 table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
             end
         end

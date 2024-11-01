@@ -183,8 +183,14 @@ function plume.capture_macro_args(tokenlist, macro_token, pos, nargs)
 end
 
 function plume.call_macro (macro, calling_token, parameters, chain_sender, chain_message)
+        
+    local traceback_token = calling_token
+    if calling_token.kind == "code" then
+        traceback_token = calling_token[1]
+    end
+
     -- Update traceback
-    table.insert(plume.traceback, calling_token)
+    table.insert(plume.traceback, traceback_token)
         -- call the macro
         local success, macro_call_result = pcall(function ()
             return { macro.macro (
