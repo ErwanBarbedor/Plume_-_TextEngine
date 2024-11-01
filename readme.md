@@ -139,6 +139,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - More pertinent suggestions in case of unknown macro or parameter.
 - More coherent error messages.
 - Resetting Plume is much faster.
+- More accurate spaces filtering.
 
 ### Internal changes
 - Rewrite unitary testing: cleaner code and much clearer output.

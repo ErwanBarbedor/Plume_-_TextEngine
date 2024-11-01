@@ -179,8 +179,9 @@ bar
     bar
 }
 baz
+foo
 \-- Result
-!!?foo?bar?!baz
+!!?foo?bar?baz!foo
 \-- End
 
 \-- Test 'local_config (script)'
@@ -191,6 +192,7 @@ ${plume.config.filter_newlines = "!"}
     bar
 }
 baz
+foo
 \-- Result
-!!?foo?bar?!baz
+!!?foo?bar?baz!foo
 \-- End

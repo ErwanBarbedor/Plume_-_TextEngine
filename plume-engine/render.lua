@@ -237,7 +237,7 @@ function plume.render_token (self)
     local chain_sender, chain_message
 
     -- Used to skip space at line beginning
-    local last_is_newline = false
+    -- local last_is_newline = false
 
     local scope = plume.get_scope (self.context)
 
@@ -259,7 +259,8 @@ function plume.render_token (self)
         end
 
         if token.kind ~= "space" and token.kind ~= "newline" then
-            last_is_newline = false
+            -- print(token.kind)
+            plume.last_is_newline = false
         end
 
         -- Call recursively render method on block
@@ -284,9 +285,9 @@ function plume.render_token (self)
         -- For space and newline, apply filter if exist.
         elseif token.kind == "newline" then
             if config_filter_newlines then
-                if not last_is_newline then
+                if not plume.last_is_newline then
                     table.insert(result, config_filter_newlines)
-                    last_is_newline = true
+                    plume.last_is_newline = true
                 end
             elseif token.__type == "token" then
                 table.insert(result, token.value)
@@ -295,8 +296,8 @@ function plume.render_token (self)
             end
         elseif token.kind == "space" then
             if config_filter_spaces then
-                if last_is_newline then
-                    last_is_newline = false
+                if plume.last_is_newline then
+                    plume.last_is_newline = false
                 else
                     table.insert(result, config_filter_spaces)
                 end
