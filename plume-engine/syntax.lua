@@ -44,6 +44,7 @@ plume.lua_syntax = {
     table_end        = "}",
 
     statement        = " for if while repeat do ",
+    keyword          = " not and or in ",
     statement_alone  = " local ",
     function_keyword = "function",
     end_keyword      = "end",

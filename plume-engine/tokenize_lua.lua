@@ -182,6 +182,8 @@ function plume.tokenizer:lua_checks_keywords (mode, word)
     if plume.lua_syntax.statement:match(" " .. word .. " ") and (self.lua_last_keyword ~= "for" or word ~= "do")then
         self.lua_last_keyword = word
         return "lua_statement"
+    elseif plume.lua_syntax.keyword:match(" " .. word .. " ") then
+        return "lua_code"
     elseif plume.lua_syntax.statement_alone:match(" " .. word .. " ") then
         return "lua_statement_alone"
     elseif plume.lua_syntax.function_keyword == word then

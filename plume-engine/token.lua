@@ -315,7 +315,7 @@ function plume.tokenlist (x)
             local is_expression = true
             local found_return  = false
             local last_kind = nil
-            -- for _, token in ipairs(self) do
+
             while i < #self do
                 i = i+1
                 local token = self[i]
@@ -326,7 +326,6 @@ function plume.tokenlist (x)
                     is_expression = false
                 end
 
-
                 if token.kind ~= "space" and token.kind ~= "newline" then
                     last_kind = token.kind
                 end
@@ -336,7 +335,7 @@ function plume.tokenlist (x)
                     is_expression = false
                 elseif token.kind == "lua_function" then
                     table.insert(result, token.opening_token.value)
-                elseif token.kind == "lua_code" and token.value:match("=") and not token.value:match("==") then
+                elseif token.kind == "lua_code" and token.value:match("=") and not token.value:match("==") and not token.value:match("~=") then
                     is_expression = false
                 elseif token.kind == "lua_statement_alone" then
                     is_expression = false
