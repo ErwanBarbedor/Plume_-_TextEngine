@@ -36,7 +36,17 @@ plume.lua_syntax = {
     escape           = "\\",
 
     call_begin       = "(",
-    call_end         = ")"
+    call_end         = ")",
+    index_begin      = "[",
+    index_end        = "]",
+    table_begin      = "{",
+    table_end        = "}",
+
+    statement        = " for if while repeat do ",
+    statement_alone  = " local ",
+    function_keyword = "function",
+    end_keyword      = "end",
+    return_keyword   = "return"
 }
 
 --- Checks if a string is a valid identifier.

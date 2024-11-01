@@ -31,23 +31,47 @@ function plume.tokenizer:handle_context_lua ()
     
     local current_context = self.context[#self.context]
 
-    -- Checks if the mode is always lua
+    -- Check if the mode is always lua
     if current_context == "lua" then
-        -- Checks for plume comment
+        -- Check for plume comment
         if self:check_for_comment () then
             self:handle_comment ()
 
-        -- Checks for strings
+        -- Check for strings
         elseif char == plume.lua_syntax.simple_quote then
             self:write ("lua_block")
             table.insert(self.acc, char)
-
             table.insert(self.context, "lua_simple_quote")
         elseif char == plume.lua_syntax.double_quote then
             self:write ("lua_block")
             table.insert(self.acc, char)
 
             table.insert(self.context, "lua_double_quote")
+        
+        -- Check for parentheses
+        elseif char == plume.lua_syntax.call_begin then
+            self:write ()
+            self:newtoken ("lua_call_begin", char)
+        elseif char == plume.lua_syntax.call_end then
+            self:write ()
+            self:newtoken ("lua_call_end", char)
+
+        -- Check for brackets
+        elseif char == plume.lua_syntax.index_begin then
+            self:write ()
+            self:newtoken ("lua_index_begin", char)
+        elseif char == plume.lua_syntax.index_end then
+            self:write ()
+            self:newtoken ("lua_index_end", char)
+
+        -- Check for braces
+        elseif char == plume.lua_syntax.table_begin then
+            self:write ()
+            self:newtoken ("lua_table_begin", char)
+        elseif char == plume.lua_syntax.table_end then
+            self:write ()
+            self:newtoken ("lua_table_end", char)
+        
 
         -- Check for plume block
         elseif char == plume.syntax.eval then
@@ -71,6 +95,9 @@ function plume.tokenizer:handle_context_lua ()
         elseif char:match(plume.lua_syntax.identifier) then
             self:write("lua_word")
             table.insert(self.acc, char)
+        elseif char:match("%s") then
+            self:write ("space")
+            table.insert(self.acc, char)
         else
             self:write ("lua_code")
             table.insert(self.acc, char)
@@ -79,6 +106,15 @@ function plume.tokenizer:handle_context_lua ()
     -- If mode is not anymore "lua", close the lua block
     else
         self:write()
+
+        -- Plume will add code a the end of the used script.
+        -- So do somme simple checks to avoid confusing error message.
+        local last = self.tokenlist[#self.tokenlist]
+        if last.kind == "lua_code" then
+            self:newtoken ("invalid", last, 2)
+            plume.syntax_error_lua_eof (last)
+        end
+
         self:newtoken ("block_end", plume.syntax.block_end, 1)
     end
 end
@@ -116,6 +152,7 @@ function plume.tokenizer:handle_lua_block_begin ()
     self:write()
     self.pos = self.pos + 1
     self:newtoken ("eval", char)
+    self.tokenlist[#self.tokenlist].is_lua_code = true
     local next = self.code:sub(self.pos, self.pos)
 
     -- If the next characters are alphanumeric, capture the next
@@ -137,4 +174,20 @@ function plume.tokenizer:handle_lua_block_begin ()
         self:newtoken ("invalid", next)
         plume.syntax_error_wrong_eval (self.tokenlist[#self.tokenlist], next)
     end
+end
+
+function plume.tokenizer:lua_checks_keywords (mode, word)
+    if plume.lua_syntax.statement:match(" " .. word .. " ") then
+        return "lua_statement"
+    elseif plume.lua_syntax.statement_alone:match(" " .. word .. " ") then
+        return "lua_statement_alone"
+    elseif plume.lua_syntax.function_keyword == word then
+        return "lua_function"
+    elseif plume.lua_syntax.end_keyword == word then
+        return "lua_end"
+    elseif plume.lua_syntax.return_keyword == word then
+        return "lua_return"
+    end
+
+    return mode
 end

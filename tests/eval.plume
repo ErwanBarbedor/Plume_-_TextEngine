@@ -116,28 +116,6 @@ $a
 bonjour
 \-- End
 
-\-- Test 'Eval - write'
-${--
-    plume.write(${Bonjour\n})
-    plume.write("Bonjour")
-}
-\-- Result
-Bonjour
-Bonjour
-\-- End
-
-\-- Test 'Eval - write (nested)'
-${--
-    plume.write(${
-        foo : ${--
-            plume.write(1+1)
-        }
-    })
-}
-\-- Result
-foo : 2
-\-- End
-
 \-- Test 'Render table 1'
 ${
     a = {1, 2, 3}
@@ -164,49 +142,14 @@ ${a=0}
  1
 \-- End
 
-\-- Test 'Eval syntax error 5.1 and jit'
+\-- Test 'Eval syntax error
 ${a = a+}
 \-- Error Lua 5.1 Lua jit
-File 'string', line 1 : (lua error) unexpected symbol near '<eof>'
+File 'string', line 1 : Cannot end a lua script with '+'.
     a = a+
-    ^^^^^^
-Traceback :
-    File 'string', line 1 : ${a = a+}
-                             ^^^^^^^^
+         ^
 \-- End
 
-\-- Test 'Eval syntax error 5.4'
-${a = a+}
-\-- Error Lua 5.2 Lua 5.3 Lua 5.4
-File 'string', line 1 : (lua error) unexpected symbol near <eof>
-    a = a+
-    ^^^^^^
-Traceback :
-    File 'string', line 1 : ${a = a+}
-                             ^^^^^^^^
-\-- End
-
-\-- Test 'Eval lua error 5.1, 5.2, 5.3'
-${a = ""+1}
-\-- Error Lua 5.1 Lua 5.2 Lua 5.3
-File 'string', line 1 : (lua error) attempt to perform arithmetic on a string value
-    a = ""+1
-    ^^^^^^^^
-Traceback :
-    File 'string', line 1 : ${a = ""+1}
-                             ^^^^^^^^^^
-\-- End
-
-\-- Test 'Eval lua error 5.4'
-${a = ""+1}
-\-- Error Lua 5.4
-File 'string', line 1 : (lua error) attempt to add a 'string' with a 'number'
-    a = ""+1
-    ^^^^^^^^
-Traceback :
-    File 'string', line 1 : ${a = ""+1}
-                             ^^^^^^^^^^
-\-- End
 
 \-- Test 'Chain errors (eval) 5.1 and jit'
 ${

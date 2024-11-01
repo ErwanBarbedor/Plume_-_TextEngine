@@ -34,7 +34,9 @@ function plume.debug.print_parsed_tokens(tokens, indent)
     indent = indent or ""
     for _, token in ipairs(tokens) do
         local infos = norm(token.kind)
-        if token.kind == "block_text" or token.kind == "space" or token.kind:match('^lua_.*') then
+        if token.kind == "lua_statement"  then
+            infos = infos .. "\t" .. token.opening_token.value
+        elseif token.kind == "block_text" or token.kind == "space" or token.kind:match('^lua_.*') then
             infos = infos .. "\t'" .. token:source():gsub("\n", "\\n"):gsub("\r", "\\r"):gsub("%s", "_") .. "'"
         elseif token.kind == "macro"  then
             infos = infos .. "\t" .. token.value
@@ -43,7 +45,7 @@ function plume.debug.print_parsed_tokens(tokens, indent)
 
         print(indent .. "->", infos)
 
-        if token.kind == "block" or token.kind == "opt_block" then
+        if token.kind == "block" or token.kind == "opt_block"  or token.kind == "lua_statement" then
             plume.debug.print_parsed_tokens (token, indent .. "\t")
         elseif token.kind == "code" then
             plume.debug.print_parsed_tokens (token[2], indent .. "\t")

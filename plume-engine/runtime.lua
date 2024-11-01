@@ -55,46 +55,6 @@ elseif _VERSION == "Lua 5.2" or _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" t
     end
 end
 
--- This function checks if a given string represents a Lua expression or statement based on its initial keywords.
--- It returns true for expressions and false for statements.
--- @param s The string to check
--- @return boolean
-local function is_lua_expression(s)
-    local statement_keywords = {
-        "if", "local", "for", "while", "repeat", "return", "break", "goto", "do"
-    }
-    local first_word = s:match("%s*(%S+)")
-
-    for _, keyword in ipairs(statement_keywords) do
-        if first_word == keyword then
-            return false
-        end
-    end
-
-    -- any identifier follower by "," or "=" cannot be an expression
-    if s:match("^%s*[a-z-A-Z_][%w_%.]-%s*,") then
-        return false
-    end
-
-    -- any identifier follower by "=" (and not "=") cannot be an expression
-    if s:match("^%s*[a-z-A-Z_][%w_%.]-%s*=%s*[^=]") then
-        return false
-    end
-
-    -- Any string begining with a comment cannot be an expression.
-    -- Trick to force statement detection.
-    if s:match("^%s*%-%-+") then
-        return false
-    end
-
-    -- Any string begining with a function declaration cannot be an expression.
-    if s:match("^%s*function%s*[a-zA-Z]") then
-        return false
-    end
-
-    return true
-end
-
 --- Loads, caches, and executes Lua code.
 -- @param token table The token containing the code
 -- or, if code is given, token used to throw error
@@ -114,46 +74,21 @@ function plume.call_lua_chunk(token, code, filename)
         -- share the same code. A more elegant solution certainly exists,
         -- but this does the trick for now.
         plume.chunk_count = plume.chunk_count + 1
-        local plume_code
-        local lua_expression = is_lua_expression (code)
-        if lua_expression then
-            code = "--chunk" .. plume.chunk_count .. '\nreturn ' .. code
-            plume_code = code
-        else
-             -- Script cannot return value
-            local end_code = code:gsub('%s+$', ''):match('[^;\n]-$')
-            if end_code and end_code:match('^%s*return') then
-                plume.error(token, "${...} cannot return value.")
-            end
-
-            code = "--chunk" .. plume.chunk_count .. '\n' .. code
-            -- Add function to capture local variables at the end of the provided code.
-            plume_code = code .. "\nplume.capture_local()"
-        end
+        code = "--chunk" .. plume.chunk_count .. '\n' .. code
         
-        -- Load the given code, without any change
-        -- to keep syntax error message
         local loaded_function, load_err = plume.load_lua_chunk(code)
+
         -- In case of syntax error
         if not loaded_function then
             -- save it in the cache anyway, so
             -- that the error handler can find it 
             token.lua_cache = {code=code, filename=filename}
             table.insert(plume.lua_cache, token)
-            if lua_expression then
-                load_err = load_err .. "\nPlume has assumed that this chunk of code is an expression. If it is in fact a statement, start your code with a comment to force Plume to see it."
-            end
             plume.error(token, load_err, true)
         end
 
-        -- If no syntax error, load the edited code
-        if code ~= plume_code then
-            loaded_function, load_err = plume.load_lua_chunk(plume_code)
-        end
-            
-
         local chunck = setmetatable({
-            code              = plume_code,
+            code              = code,
             filename          = filename,
             is_lua_expression = lua_expression
         },{
@@ -191,12 +126,6 @@ function plume.call_lua_chunk(token, code, filename)
 
     if not sucess then
         plume.error(token, result[1], true)
-    end
-
-    local write_result = table.concat(table.remove(plume.write_stack))
-    
-    if not token.lua_cache.is_lua_expression then
-        result[1] = write_result
     end
 
     return (unpack or table.unpack)(result)

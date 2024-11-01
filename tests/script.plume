@@ -29,14 +29,6 @@ ${
 5 3  3
 \-- End
 
-\-- Test 'script cannot return value'
-${return 5}
-\-- Error
-File 'string', line 1 : ${...} cannot return value.
-    ${return 5}
-     ^^^^^^^^^^
-\-- End
-
 \-- Test 'script implicit render'
 \macro foo[x] {
     ${x:match(".$")}

@@ -49,3 +49,11 @@ end
 function plume.syntax_error_expected_parameter_name(token)
     plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
 end
+
+function plume.syntax_error_lua_eof (token)
+    plume.error(token, "Cannot end a lua script with '" .. token.value .. "'.")
+end
+
+function plume.error_syntax_invalid_for_iterator (token)
+    plume.error(token, "Non valid syntax for iterator.")
+end

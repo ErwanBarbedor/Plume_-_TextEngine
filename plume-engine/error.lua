@@ -38,7 +38,7 @@ local function lua_info (lua_message)
     
     local token = plume.lua_cache[chunk_id]
     if not token then
-        plume.error(nil, "Internal error : " .. lua_message .. "\nPlease report it on #GITHUB#")
+        plume.error(nil, "Internal error : " .. lua_message .. "\nPlease report it on Github : https://github.com/ErwanBarbedor/Plume_-_TextEngine")
     end
 
     -- If error occuring from extern file

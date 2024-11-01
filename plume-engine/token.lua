@@ -202,7 +202,6 @@ function plume.tokenlist (x)
         lua_cache = false,       --- For eval tokens, cached loaded lua code.
         opening_token = false, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
         closing_token = false, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
-
         
         --- @intern_method Return debug informations about the tokenlist.
         -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
@@ -272,38 +271,81 @@ function plume.tokenlist (x)
         --- @api_method Returns the raw code of the tokenlist, as is writed in the source file.
         -- @return string The source code
         source = function (self)
+
             local result = {}
             for _, token in ipairs(self) do
                 if token.kind == "block" then
                     table.insert(result, plume.syntax.block_begin)
                 elseif token.kind == "opt_block" then
                     table.insert(result, plume.syntax.opt_block_begin)
+                elseif token.kind == "lua_call" then
+                    table.insert(result, token.opening_token.value)
+                elseif token.kind == "lua_index" then
+                    table.insert(result, token.opening_token.value)
+                elseif token.kind == "lua_table" then
+                    table.insert(result, token.opening_token.value)
                 end
+
                 table.insert(result, token:source())
+                
                 if token.kind == "block" then
                     table.insert(result, plume.syntax.block_end)
                 elseif token.kind == "opt_block" then
                     table.insert(result, plume.syntax.opt_block_end)
+                elseif token.kind == "lua_call" then
+                    table.insert(result, token.closing_token.value)
+                elseif token.kind == "lua_index" then
+                    table.insert(result, token.closing_token.value)
+                elseif token.kind == "lua_table" then
+                    table.insert(result, token.closing_token.value)
                 end
             end
-
+            
             return table.concat(result, "")
         end,
 
         --- @api_method Get lua code as writed in the code file, after deleting comment and insert plume blocks.
         -- @return string The source code
-        sourceLua = function (self, temp)
+        sourceLua = function (self, temp, can_return, can_alter_return)
+            if can_return == nil then can_return = true end
+            if can_alter_return == nil then can_alter_return = true end
+
             local result = {}
             local i = 0
+            local is_expression = true
+            local found_return  = false
+            local last_kind = nil
             -- for _, token in ipairs(self) do
             while i < #self do
                 i = i+1
                 local token = self[i]
+
+                if last_kind and token.kind == "lua_word" and last_kind == "lua_word" then
+                    is_expression = false
+                elseif (last_kind == "lua_function" or last_kind == "lua_call") and token.kind ~= "space" and token.kind ~= "newline" and token.kind ~= "lua_index" then
+                    is_expression = false
+                end
+
+
+                if token.kind ~= "space" and token.kind ~= "newline" then
+                    last_kind = token.kind
+                end
                 
-                if token.kind == "block" then
-                    table.insert(result, plume.syntax.block_begin)
-                elseif token.kind == "opt_block" then
-                    table.insert(result, plume.syntax.opt_block_begin)
+                if token.kind == "lua_statement" then
+                    table.insert(result, token.opening_token.value)
+                    is_expression = false
+                elseif token.kind == "lua_function" then
+                    table.insert(result, token.opening_token.value)
+                elseif token.kind == "lua_code" and token.value:match("=") and not token.value:match("==") then
+                    is_expression = false
+                elseif token.kind == "lua_statement_alone" then
+                    is_expression = false
+                elseif token.kind == "lua_call" then
+                    table.insert(result, plume.lua_syntax.call_begin)
+                elseif token.kind == "lua_index" then
+                    table.insert(result, plume.lua_syntax.index_begin)
+                elseif token.kind == "lua_table" then
+                    table.insert(result, plume.lua_syntax.table_begin)
                 end
 
                 if token.kind == "comment" then
@@ -322,15 +364,35 @@ function plume.tokenlist (x)
                     for _ in text:source():gmatch('\n') do
                         table.insert(result, '\n')
                     end
-                    
+                elseif token.kind == "lua_return" then
+                    if can_alter_return then
+                        table.insert(result, ";plume.capture_local (); return")
+                    else
+                        table.insert(result, "return")
+                    end
+                    found_return  = true
+                elseif token.kind == "lua_function" or token.kind == "lua_call" or token.kind == "lua_index" or token.kind == "lua_table" then
+                    table.insert(result, token:sourceLua(temp, false, false))
                 else
-                    table.insert(result, token:sourceLua(temp))
+                    table.insert(result, token:sourceLua(temp, false, true))
                 end
 
-                if token.kind == "block" then
-                    table.insert(result, plume.syntax.block_end)
-                elseif token.kind == "opt_block" then
-                    table.insert(result, plume.syntax.opt_block_end)
+                if token.kind == "lua_statement" or token.kind == "lua_function" then
+                    table.insert(result, token.closing_token.value)
+                elseif token.kind == "lua_call" then
+                    table.insert(result, plume.lua_syntax.call_end)
+                elseif token.kind == "lua_index" then
+                    table.insert(result, plume.lua_syntax.index_end)
+                elseif token.kind == "lua_table" then
+                    table.insert(result, plume.lua_syntax.table_end)
+                end
+            end
+
+            if can_return then
+                if is_expression then
+                    table.insert(result, 1, "return ")
+                elseif not found_return then
+                    table.insert(result, "\nplume.capture_local ()")
                 end
             end
 

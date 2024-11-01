@@ -105,7 +105,7 @@ return function ()
 
         local file, filepath = plume.open (params.positionnals.path, formats, path)
 
-        local f = plume.call_lua_chunk (calling_token, "function ()\n" .. file:read("*a") .. "\n end", filepath)
+        local f = plume.call_lua_chunk (calling_token, "return function ()\n" .. file:read("*a") .. "\n end", filepath)
 
         return f()
     end, nil, false, true)

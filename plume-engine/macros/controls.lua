@@ -14,6 +14,27 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define for, while, if, elseif, else control structures
 return function ()
+    local function extract_variables_names (token)
+        local result = {}
+        local pos = 1
+
+        while pos <= #token do
+            local child = token[pos]
+            if child.kind == "lua_word" then
+                if child.value == "in" then
+                    break
+                else
+                    table.insert(result, child.value)
+                end
+            elseif (child.kind == "lua_code" and child.value:match('=')) then
+                break
+            end
+            pos = pos+1
+        end
+
+        return result
+    end
+
     --- \for
     -- Implements a custom iteration mechanism that mimics Lua's for loop behavior.
     -- @param iterator Anything that follow the lua iterator syntax, such as `i=1, 10` or `foo in pairs(t)`.
@@ -26,52 +47,31 @@ return function ()
         local scope = plume.get_scope (calling_token.context)
         local max_loop_size = scope:get("config", "max_loop_size")
 
-        if params.positionnals.iterator.kind == "code" then
-            iterator_code  = params.positionnals.iterator[2]:sourceLua ()
-        else
-            plume.error_expecting_an_eval_block (params.positionnals.iterator)
+        if params.positionnals.iterator.kind ~= "code" then
+           plume.error_expecting_an_eval_block (params.positionnals.iterator)
         end
          
         local join = plume.render_if_token(params.keywords.join)
 
-        local var, var1, var2, first, last
-
-        local mode = 1
-
-        -- Try to parse the iterator syntax
-        -- First, attempt to match the "var = iterator" syntax
-        if not var then
-            var, iterator = iterator_code:match('%s*([a-zA-Z_][a-zA-Z0-9_]*)%s*=%s*(.-)$')
-        end
-
-        --- If the first attempt fails, try to match the "var in iterator" syntax
-        if not var then
-            var, iterator = iterator_code:match('%s*(.-[^,])%s+in%s*(.-)$')
-        end
-        
-        -- If both attempts fail, raise an error
-        if not var then
-            plume.error(params.positionnals.iterator, "Non valid syntax for iterator.")
-        end
-
-        -- Extract all variable names from the iterator
-        local variables_list = {}
-        for name in var:gmatch('[^%s,]+') do
-            table.insert(variables_list, name)
-        end
+        -- Get iterator code and extract the names of the variables
+        local iterator_token = params.positionnals.iterator[2]
+        local iterator_code  = iterator_token:sourceLua ({}, false, false)
+        local variables_list  = extract_variables_names (iterator_token)
 
         -- Construct a Lua coroutine to handle the iteration
         local coroutine_code = "return coroutine.create(function () for " .. iterator_code .. " do"
-        coroutine_code = coroutine_code .. " coroutine.yield(" .. var .. ")"
+        coroutine_code = coroutine_code .. " coroutine.yield(" .. table.concat(variables_list, ",") .. ")"
         coroutine_code = coroutine_code .. " end end)"
 
         -- Load and create the coroutine
-        -- plume.push_scope ()
         local iterator_coroutine = plume.load_lua_chunk (coroutine_code)
+        if not iterator_coroutine then
+            plume.error_syntax_invalid_for_iterator (iterator_token)
+        end
+
         local scope = plume.get_scope (calling_token.context)
         plume.setfenv (iterator_coroutine, scope:bridge_to("variables"))
         local co = iterator_coroutine ()
-        -- plume.pop_scope ()
         
         -- Limiting loop iterations to avoid infinite loop
         local iteration_count  = 0

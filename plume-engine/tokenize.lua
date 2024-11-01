@@ -101,7 +101,16 @@ function plume.tokenizer:write(current, delta)
     if not current or current ~= self.mode then
         -- If acc isn't empty, create a new token
         if #self.acc > 0 then
-            self:newtoken(self.mode, table.concat(self.acc, ""), delta)
+            local word = table.concat(self.acc, "")
+
+            -- Checks for lua keywords
+            mode = self.mode
+
+            if mode == "lua_word" then
+                mode = plume.tokenizer:lua_checks_keywords (mode, word)
+            end
+
+            self:newtoken(mode, word, delta)
         end
 
         -- Update the mode to the current mode and reset the accumulator.

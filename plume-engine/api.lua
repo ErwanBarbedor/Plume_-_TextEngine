@@ -142,13 +142,6 @@ function api.is_called_by (name)
     return false
 end
 
---- @api_method Write content to the return value of the current script
--- @param content anything
-function api.write(content)
-    local content = plume.render_if_token (content)
-    table.insert(plume.write_stack[#plume.write_stack], content)
-end
-
 --- Initializes the API methods visible to the user through `plume` variable.
 function plume.init_api ()
     local plume_reference = {}

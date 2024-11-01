@@ -69,7 +69,43 @@ function plume.parse (tokenlist)
             end
 
             table.insert(parent, last)
+
+        elseif token.kind == "lua_statement" or token.kind == "lua_function" then
+            table.insert(stack, plume.tokenlist(token.kind))
+            stack[#stack].opening_token = token
+        elseif token.kind == "lua_end" then
+            local block = table.remove(stack)
+            block.closing_token = token
+            local parent = stack[#stack]
+            table.insert(parent, block)
+
+        elseif token.kind == "lua_call_begin" then
+            table.insert(stack, plume.tokenlist("lua_call"))
+            stack[#stack].opening_token = token
+        elseif token.kind == "lua_call_end" then
+            local block = table.remove(stack)
+            block.closing_token = token
+            local parent = stack[#stack]
+            table.insert(parent, block)
         
+        elseif token.kind == "lua_index_begin" then
+            table.insert(stack, plume.tokenlist("lua_index"))
+            stack[#stack].opening_token = token
+        elseif token.kind == "lua_index_end" then
+            local block = table.remove(stack)
+            block.closing_token = token
+            local parent = stack[#stack]
+            table.insert(parent, block)
+
+        elseif token.kind == "lua_table_begin" then
+            table.insert(stack, plume.tokenlist("lua_table"))
+            stack[#stack].opening_token = token
+        elseif token.kind == "lua_table_end" then
+            local block = table.remove(stack)
+            block.closing_token = token
+            local parent = stack[#stack]
+            table.insert(parent, block)
+
         elseif token.kind == "text" 
             or token.kind == "escaped_text" 
             or token.kind == "opt_assign" and top.kind ~= "opt_block" then
@@ -97,8 +133,11 @@ function plume.parse (tokenlist)
             table.insert(parent, code)
         end
     end
+
+    -- Check if all braces are closed
     if #stack > 1 then
         plume.syntax_error_brace_unclosed (stack[#stack].opening_token)
     end
+
     return stack[1] 
 end
