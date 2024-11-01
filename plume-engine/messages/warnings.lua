@@ -18,6 +18,12 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param token table The token containing the macro name
 -- @param macro table Reference to already existing macro
 function plume.warning_macro_already_exists(token, macro)
+    local scope = plume.get_scope(token.context)
+    
+    if scope:get("config", "show_macro_overwrite_warnings") ~= true then
+        return
+    end
+
     local msg = "The macro '" .. macro.name .. "' already exists"
     local first_definition = macro.token
 
