@@ -21,12 +21,8 @@ return function ()
         while pos <= #token do
             local child = token[pos]
             if child.kind == "lua_word" then
-                if child.value == "in" then
-                    break
-                else
-                    table.insert(result, child.value)
-                end
-            elseif (child.kind == "lua_code" and child.value:match('=')) then
+                table.insert(result, child.value)
+            elseif (child.kind == "lua_code" and (child.value:match('=') or child.value == "in")) then
                 break
             end
             pos = pos+1
