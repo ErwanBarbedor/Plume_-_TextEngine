@@ -13,9 +13,9 @@ Plume's philosophy is to combine the best of both worlds: text input is at the c
 To illustrate, consider the task of generating ten files, each containing a multiplication table for a specific number. This can certainly be achieved in Python or Lua, but of Plume offers a more intuitive approach:
 
 ```plume
-\for {i=1,10} {
+\for ${i=1,10} {
     \file {table-$i.txt} {
-        \for {j=1,10}{
+        \for ${j=1,10}{
             $i * $j = ${i*j}
         }
     }
@@ -32,7 +32,7 @@ Write the following in a file `input.plume` inside the `plume` folder:
 
 ```plume
 \macro table[x] {
-    \for {i=1, 10} {
+    \for ${i=1, 10} {
         $x * $i = ${x*i}
     }
 }
