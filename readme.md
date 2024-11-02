@@ -133,7 +133,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Can now use `return` inside a lua block.
 - In consequence, remove `plume.write`.
 - Can now use arbitrary complexe lua iterator in the `\for` macro.
-- Token implicit conversion now only work if used with string method.
+- Token implicit conversion now only works if used with string methods or operators.
 
 ## Enhancement
 - Plume should now detects if a Lua block is a statement or an expression without error.
