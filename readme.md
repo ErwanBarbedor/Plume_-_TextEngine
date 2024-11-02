@@ -126,13 +126,14 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.11.0
 
-## Change
+## Changes
 - As planned, `\for`, `\if`, `\while` and `\elseif` first parameters must now be lua blocks.
 - Remove `_L`, too complex to implement without being useful.
 - No need anymore to escape `$` or braces inside lua string. Escaped `$` or braces will now raise an error.
 - Can now use `return` inside a lua block.
 - In consequence, remove `plume.write`.
 - Can now use arbitrary complexe lua iterator in the `\for` macro.
+- Token implicit conversion now only work if used with string method.
 
 ## Enhancement
 - Plume should now detects if a Lua block is a statement or an expression without error.

@@ -3383,36 +3383,31 @@ function plume.tokenlist (x)
             return result
         end
 
-        local rendered = self:render_lua ()
-        if type(rendered) == "string" then
-            if string[key] then
-                -- Handle both token:method and token.method call.
-                return function (caller, ...)
-                    if caller == self then
-                        return string[key] (rendered, ...)
-                    else
-                        return string[key] (caller, ...)
-                    end
-                end
-            else
-                return
-            end
-        elseif type(rendered) ~= "table" then
+        -- Implicit rendering if key is a string method
+        if not string[key] then
             return
         end
 
-        return rawget(rendered, key)
+        local rendered = tostring(self:render_lua ())
+        -- Handle both token:method and token.method call.
+        return function (caller, ...)
+            if caller == self then
+                return string[key] (rendered, ...)
+            else
+                return string[key] (caller, ...)
+            end
+        end
+
     end
 
     local tokenlist = setmetatable({
         __type    = "tokenlist", --- Type of the table. Value : `"tokenlist"`
         kind      = kind,        --- Kind of tokenlist. Can be : `"block"`, `"opt_block"`, `"block_text"`, `"render-block"`.
-        
-        -- Set to false instead of nil, so read these value don't trigger __index method.
-        context   = false,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
-        lua_cache = false,       --- For eval tokens, cached loaded lua code.
-        opening_token = false, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
-        closing_token = false, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
+
+        context   = nil,       --- The scope of the tokenlist. If set to false (default), search vars in the current scope.
+        lua_cache = nil,       --- For eval tokens, cached loaded lua code.
+        opening_token = nil, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the opening brace, to track token list position in the code.
+        closing_token = nil, --- If the tokenlist is a "block" or an "opt_block",keep a reference to the closing brace, to track token list position in the code.
         
         --- @intern_method Return debug informations about the tokenlist.
         -- @return debug_info A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
