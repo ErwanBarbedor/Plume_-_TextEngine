@@ -70,3 +70,14 @@ ${
 \-- Result
 2
 \-- End
+
+\-- Test 'Function 1'
+${
+    function foo ()
+        return "foo"
+    end
+}
+${foo()}
+\-- Result
+foo
+\-- End

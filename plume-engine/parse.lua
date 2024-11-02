@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with Plu
 function plume.parse (tokenlist)
     local stack = {plume.tokenlist("block")}
 
-    for _, token in ipairs(tokenlist) do
+    for pos, token in ipairs(tokenlist) do
         local top = stack[#stack]
 
         if token.kind == "block_begin" then
@@ -70,8 +70,24 @@ function plume.parse (tokenlist)
 
             table.insert(parent, last)
 
-        elseif token.kind == "lua_statement" or token.kind == "lua_function" then
+        elseif token.kind == "lua_statement" then
             table.insert(stack, plume.tokenlist(token.kind))
+            stack[#stack].opening_token = token
+        elseif token.kind == "lua_function" then
+            local kind = "lua_function"
+            -- Checks if it as named function or not
+            local look_ahead = pos
+            while look_ahead < #tokenlist do
+                look_ahead = look_ahead + 1
+                local token = tokenlist[look_ahead]
+                if token.kind == "lua_word" then
+                    kind = "lua_statement"
+                    break
+                elseif token.kind ~= "space" then
+                    break
+                end
+            end
+            table.insert(stack, plume.tokenlist(kind))
             stack[#stack].opening_token = token
         elseif token.kind == "lua_end" then
             local block = table.remove(stack)
