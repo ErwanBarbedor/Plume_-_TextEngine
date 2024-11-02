@@ -197,7 +197,7 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 ### get_line
 
-**Usage :** `string, string, boolean, bool, string = tokenlist:get_line(source, noline)`
+**Usage :** `string, string, bool, string = tokenlist:get_line(source, noline)`
 
 **Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
 
@@ -208,7 +208,6 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 **Return:**
 - `string`The source code
 - `string`The source code
-- `boolean`Returns true if the block is an evaluation block, false otherwise
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
 
@@ -228,14 +227,6 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 **Return:** `string`The source code
 
-### is_eval_block
-
-**Usage :** `boolean = tokenlist:is_eval_block()`
-
-**Description:**  Determines if the block is an evaluation block (like `${1+1}`)
-
-**Return:** `boolean`Returns true if the block is an evaluation block, false otherwise
-
 ### is_empty
 
 **Usage :** `bool = tokenlist:is_empty()`
@@ -250,7 +241,7 @@ The user have access to theses methods, but shouldn't use it.
 
 ### get_line
 
-**Usage :** `debug_info, tokenlist, string, string, boolean, bool, string = tokenlist:get_line(scope, forced, source, noline)`
+**Usage :** `debug_info, tokenlist, string, string, bool, string = tokenlist:get_line(scope, forced, source, noline)`
 
 **Description:**  Return debug informations about the tokenlist.
 
@@ -265,7 +256,6 @@ The user have access to theses methods, but shouldn't use it.
 - `tokenlist`The copied tokenlist.
 - `string`The source code
 - `string`The source code
-- `boolean`Returns true if the block is an evaluation block, false otherwise
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
 

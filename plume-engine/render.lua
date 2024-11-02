@@ -383,7 +383,7 @@ end
 -- @name render_lua
 -- @return lua_objet Result of evaluation
 function plume.render_token_lua (self)
-    if self:is_eval_block () then
+    if self.kind == "code" then
         local result = plume.call_lua_chunk(self[2])
         if type(result) == "table" and result.__type == "tokenlist" then
             result = result:render ()

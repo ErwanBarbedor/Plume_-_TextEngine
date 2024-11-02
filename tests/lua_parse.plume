@@ -81,3 +81,12 @@ ${foo()}
 \-- Result
 foo
 \-- End
+
+\-- Test 'Function 2'
+\macro exec[x] {${x:render_lua()()}}
+\exec ${
+    function () return "foo" end
+}
+\-- Result
+foo
+\-- End
