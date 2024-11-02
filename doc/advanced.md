@@ -12,7 +12,7 @@ Behind the scenes, Plume doesn't manipulate strings but custom tables named **to
 ```
 This will print... `table: 0x560002d8ad30` or something like that, and not `bar`.
 
-To see the tokenlist content, you can call `tokenlist:source()`, which will return raw text, or `tokenlist:render()` to get final content.
+To see the tokenlist content, you can call `tokenlist:source()`, which will return raw text, `tokenlist:render()` to get final content as string or `tokenlist:render_lua()` to get result as a lua object.
 
 _If x is a tokenlist, `$x` is the same as `${x:render()}`._
 
@@ -34,7 +34,7 @@ ${1+1}
 
 Plume does an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
 
-_If x and y are tokenlists, `${x+y}` is roughly equivalent to `${tonumber(x:render())+tonumber(y:render())}`._
+_If x and y are tokenlists, `${x+y}` is roughly equivalent to `${tonumber(x:render()) + tonumber(y:render())}`._
 
 ## Macro Parameters
 
@@ -46,7 +46,7 @@ A macro can have 3 kinds of parameters:
 \macro double[x y] {$x $x $y $y}
 \double bar baz
 ```
-`x` and `y` are _positional parameters_. They must follow the macro call in the same order as declared. They will not be rendered until the user decides to.
+`x` and `y` are _positional parameters_. They must follow the macro call in the same order as declared. They will not be rendered until the user decides to (In this exemple, it will be rendered twice : `$x $x`).
 
 ### Keyword Parameters
 
@@ -75,12 +75,12 @@ In `\hello[salutation=Greeting]`, `salutation` will be rendered during the macro
 `?polite` is a _flag_. It is a shorthand for:
 
 ```plume
-\macro hello[polite={${false}}] {
-    ${polite = polite:render()}
+\macro hello[polite=${false}] {
+    ${polite = polite:render_lua()}
     [...]
 }
 \hello
-\hello[polite={${true}}]
+\hello[polite=${true}]
 ```
 
 As you can see and similarly to keyword parameters, `polite` will be rendered during the macro call.
@@ -163,7 +163,10 @@ Like macros, each iteration has it's own scope.
 Variables used as parameters retain the scope in which the macro was called.
 
 ```plume
-\macro foo[bar] {\local_set x 3 $bar}
+\macro foo[bar] {
+    \local_set x 3
+    $bar
+}
 \set x 1 
 \foo {$x}
 ```
@@ -210,14 +213,33 @@ You can also see [spaces macros](macros.md#spaces)) to have more controls over s
 
 In some cases, you want to switch from _a lot of text with some Lua_ to _a lot of Lua with some text_.
 
+Or just want to call a macro within a lua script.
+
 To do that, you can just declare a Plume block inside the Lua script:
 
 ``` Plume
+\macro bar {
+    baz
+}
+
 ${
     function foo ()
-        return ${bar}
+        return ${Call macro : \bar}
     end
 }
 
-${foo()} -> bar
+${foo()} -> Call macro : baz
 ```
+
+Limitation:
+``` Plume
+${
+    local a = 4
+    local b = ${ a is $a}
+    local c =  b:render ()
+    return c
+}
+```
+Output .. `a is `, and not `a is 4`.
+
+In fact, plume capture lua variable one time at the end of the block. So, with this syntax, you can't use local variable inside the inserted plume code.

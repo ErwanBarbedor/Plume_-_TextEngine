@@ -165,7 +165,20 @@ Output:
 The factorial of 5 is: 120
 ```
 
-`${...}` cannot contain return statement.
+You can return values :
+
+```plume
+${
+    a = 1+1
+    a = a * 2
+    return a
+}
+```
+Output:
+Output:
+```
+4
+```
 
 ### Require
 
@@ -176,10 +189,10 @@ You can execute an external Lua file with `\require {path}`.
 ${some_function ()}
 ```
 
-Or with `plume.require` inside `\script`:
+Or with `plume.require` inside an eval block :
 
 ```plume
-\script {
+${
     plume.require "my_lib"
 }
 ```
