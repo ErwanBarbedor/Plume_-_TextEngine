@@ -21,7 +21,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 -- Following Lua best practices, plume should be local.
 -- But given the current organization of the code, this would require a major rewrite.
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.11.0"
+plume._VERSION = "Plume - TextEngine 0.11.1"
 
 require "plume-engine.config"
 require "plume-engine.syntax"

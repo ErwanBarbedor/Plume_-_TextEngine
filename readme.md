@@ -1,6 +1,6 @@
 <p align="center"><img src="https://app.barbedor.bzh/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.11.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.11.1-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -124,9 +124,11 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
-## Last version : 0.11.0
+## Last version : 0.11.1
 
-## Changes
+
+##  0.11.0
+### Changes
 - As planned, `\for`, `\if`, `\while` and `\elseif` first parameters must now be lua blocks.
 - Remove `_L`, too complex to implement without being useful.
 - No need anymore to escape `$` or braces inside lua string. Escaped `$` or braces will now raise an error.
@@ -135,7 +137,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Can now use arbitrary complexe lua iterator in the `\for` macro.
 - Token implicit conversion now only works if used with string methods or operators.
 
-## Enhancement
+### Enhancement
 - Plume should now detects if a Lua block is a statement or an expression without error.
 - More pertinent suggestions in case of unknown macro or parameter.
 - More coherent error messages.
