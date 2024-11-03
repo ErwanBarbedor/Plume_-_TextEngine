@@ -51,7 +51,7 @@ baz
  0
 \-- End
 
-\-- Test 'Variable block scope 5'
+\-- Test 'Variable block scope 7'
 \macro foo[x] {$x}
 \foo {\for ${i=1,4} {$i}}
 \-- Result
@@ -195,4 +195,26 @@ baz
 foo
 \-- Result
 !!?foo?bar?baz!foo
+\-- End
+
+\-- Test 'local with return 1'
+${
+    local a = 5
+    return a+1
+}
+$a
+\-- Result
+65
+\-- End
+
+\-- Test 'local with return 2'
+${
+    local i=5
+    for i=1, 10 do
+        return i
+    end
+}
+$i
+\-- Result
+11
 \-- End
