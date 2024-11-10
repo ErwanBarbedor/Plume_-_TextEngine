@@ -186,7 +186,7 @@ function cli.main ()
     end
 
     -- Print the result if the print_output flag is set, or if in direct mode
-    if success and (print_output or (direct_mode and not output_file)) then    
+    if success and (print_output or (direct_mode and not output_file)) then
         print(result)
     end
 

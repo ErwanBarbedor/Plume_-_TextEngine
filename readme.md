@@ -125,9 +125,13 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
 ## Last version : 0.11.1
+### Changes
+- Plume will no longer print output by default.
 
+### Bugfix
+- Fix a bug specific to Linux.
 
-##  0.11.0
+## Last minor version : 0.11.0
 ### Changes
 - As planned, `\for`, `\if`, `\while` and `\elseif` first parameters must now be lua blocks.
 - Remove `_L`, too complex to implement without being useful.
