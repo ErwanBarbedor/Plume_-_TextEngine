@@ -1,3 +1,10 @@
-#!/bin/sh
-export LUA_PATH="`dirname \"$0\"`/?/init.lua;`dirname \"$0\"`/?.lua;$LUA_PATH"
-lua54 "$(dirname "$0")/cli.lua" -p "$@"
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+export LUA_PATH="${SCRIPT_DIR}/?/init.lua;${SCRIPT_DIR}/?.lua;${LUA_PATH:-}"
+
+if [ -z "$LUA_EXEC" ]; then
+    export LUA_EXEC=lua
+fi
+
+"$LUA_EXEC" "${SCRIPT_DIR}/cli.lua" -p "$@"

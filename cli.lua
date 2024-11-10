@@ -105,6 +105,10 @@ local function absolutePath(dir, path)
         end
     end
 
+    if dir:sub(1, 1) == "/" then
+        table.insert(parts, 1, "")
+    end
+    
     return table.concat(parts, "/")
 end
 

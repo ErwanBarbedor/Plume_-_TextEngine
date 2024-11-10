@@ -51,9 +51,10 @@ return function ()
             for _, format in ipairs(formats) do
                 filepath = format:gsub('?', path)
                 filepath = (folder .. "/" .. filepath)
-                filepath = filepath:gsub('^/', '')
+                -- filepath = filepath:gsub('^/', '')
+                
+                file, msg = io.open(filepath, mode)
 
-                file = io.open(filepath, mode)
                 if file then
                     break
                 else
@@ -120,7 +121,7 @@ return function ()
 
         local formats = {}
         
-        table.insert(formats, "?")
+        -- table.insert(formats, "?")
         table.insert(formats, "?.plume")
         table.insert(formats, "?/init.plume")  
 
