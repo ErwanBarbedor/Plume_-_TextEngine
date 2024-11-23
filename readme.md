@@ -127,6 +127,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ## Last bugfix version : 0.11.2
 ### Enhancement
 - Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
+- New error message when trying to include a directory.
 
 ## Last minor version : 0.11.0
 ### Changes

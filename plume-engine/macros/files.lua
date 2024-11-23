@@ -152,7 +152,13 @@ return function ()
             scope:set_local("variables", "__file_params", __file_params)
 
             -- Render file content
-            local result = plume.render(file:read("*a"), filepath)
+            local content = file:read("*a")
+
+            if content == nil then
+                plume.error(params.positionnals["$path"], "This path exists, but has no content. This may be a directory.")
+            end
+
+            local result = plume.render(content, filepath)
 
         -- Exit from file scope
         plume.pop_scope ()
