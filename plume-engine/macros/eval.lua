@@ -124,7 +124,7 @@ return function ()
             elseif not scinot and flag:match('%.[0-9]+s') then
                 scinot = flag:match('%.([0-9]+)s')
             else
-                plume.error(arg, "Unknow arg '" .. flag .. "'.")
+                plume.error(calling_token, "Unknow arg '" .. flag .. "'.")
             end
         end
 

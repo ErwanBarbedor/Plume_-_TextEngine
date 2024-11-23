@@ -131,6 +131,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### Bugfix
 - Fix a bug specific to Linux.
 - Fix an error occurring when trying to open a file in the same folder.
+- Fix an error occurring when giving an unknown flag to the `eval` macro.
 
 ## Last minor version : 0.11.0
 ### Changes
