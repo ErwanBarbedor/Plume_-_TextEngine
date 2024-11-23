@@ -1,6 +1,6 @@
 <p align="center"><img src="https://app.barbedor.bzh/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.11.1-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.11.2-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -124,15 +124,7 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
-## Last bugfix version : 0.11.1
-### Changes
-- Plume will no longer print output by default.
-- Rewrite the Linux launcher. You can choose the Lua executable by setting the `LUA_EXEC` environnement variable.
-
-### Bugfix
-- Fix a bug specific to Linux.
-- Fix an error occurring when trying to open a file in the same folder.
-- Fix an error occurring when giving an unknown flag to the `eval` macro.
+## Last bugfix version : 0.11.2
 
 ## Last minor version : 0.11.0
 ### Changes

@@ -1,4 +1,9 @@
-### 0.10.0
+#### 0.11.1
+### Changes
+- Plume will no longer print output by default.
+- Rewrite the Linux launcher. You can choose the Lua executable by setting the `LUA_EXEC` environnement variable.
+
+#### 0.10.0
 
 ### Changes
 - As planned, remove compatibilty for old syntax `#` and `\\`

@@ -242,7 +242,7 @@ For some specific case, you can also use Plume inside Lua:
     </div>
     <h1>
         <img src="https://app.barbedor.bzh/plume.png" width="200" height="100">
-        <p>Version 0.11.1</p>
+        <p>Version 0.11.2</p>
     </h1>
     <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
         View on GitHub
@@ -622,7 +622,7 @@ return function ()
             elseif not scinot and flag:match('%.[0-9]+s') then
                 scinot = flag:match('%.([0-9]+)s')
             else
-                plume.error(arg, "Unknow arg '" .. flag .. "'.")
+                plume.error(calling_token, "Unknow arg '" .. flag .. "'.")
             end
         end
 
@@ -2179,7 +2179,7 @@ plume_files['plume-engine.init'] = function ()
 -- Following Lua best practices, plume should be local.
 -- But given the current organization of the code, this would require a major rewrite.
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.11.1"
+plume._VERSION = "Plume - TextEngine 0.11.2"
 
 require "plume-engine.config"
 require "plume-engine.syntax"
