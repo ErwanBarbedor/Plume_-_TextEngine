@@ -48,9 +48,16 @@ return function ()
 
         local file, filepath
         for _, folder in ipairs(parent_paths) do
+            
+            -- "/path" isn't a valid path, so if not a parent folder,
+            -- simply use "path"
+            if folder ~= "" then
+                folder = folder .. "/"
+            end
+
             for _, format in ipairs(formats) do
                 filepath = format:gsub('?', path)
-                filepath = (folder .. "/" .. filepath)
+                filepath = (folder.. filepath)
                 -- filepath = filepath:gsub('^/', '')
                 
                 file, msg = io.open(filepath, mode)
@@ -121,7 +128,7 @@ return function ()
 
         local formats = {}
         
-        -- table.insert(formats, "?")
+        table.insert(formats, "?")
         table.insert(formats, "?.plume")
         table.insert(formats, "?/init.plume")  
 
