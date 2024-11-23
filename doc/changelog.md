@@ -3,6 +3,11 @@
 - Plume will no longer print output by default.
 - Rewrite the Linux launcher. You can choose the Lua executable by setting the `LUA_EXEC` environnement variable.
 
+### Bugfix
+- Fix a bug specific to Linux.
+- Fix an error occurring when trying to open a file in the same folder.
+- Fix an error occurring when giving an unknown flag to the eval macro.
+
 #### 0.10.0
 
 ### Changes

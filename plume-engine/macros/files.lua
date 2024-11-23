@@ -128,9 +128,9 @@ return function ()
 
         local formats = {}
         
-        table.insert(formats, "?")
         table.insert(formats, "?.plume")
-        table.insert(formats, "?/init.plume")  
+        table.insert(formats, "?/init.plume")
+        table.insert(formats, "?")  
 
         local file, filepath = plume.open (params.positionnals["$path"], formats, path)
 

@@ -129,6 +129,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
 - New error message when trying to include a directory.
 
+### Bugfix
+- When giving a path directory to include, first try to open `path/init.plume` before trying to open `path`.
+
 ## Last minor version : 0.11.0
 ### Changes
 - As planned, `\for`, `\if`, `\while` and `\elseif` first parameters must now be lua blocks.
