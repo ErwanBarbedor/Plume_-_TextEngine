@@ -127,6 +127,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ## Last bugfix version : 0.11.1
 ### Changes
 - Plume will no longer print output by default.
+- Rewrite the Linux launcher. You can choose the Lua executable by setting the `LUA_EXEC` environnement variable.
 
 ### Bugfix
 - Fix a bug specific to Linux.
