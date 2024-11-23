@@ -125,6 +125,8 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
 ## Last bugfix version : 0.11.2
+### Enhancement
+- Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
 
 ## Last minor version : 0.11.0
 ### Changes

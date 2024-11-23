@@ -65,6 +65,60 @@ local function sort(t)
     return sortedTable
 end
 
+--- Initialize the combination table
+-- @param n number The size of the combination table
+-- @return table A table initialized with values from 1 to n
+local function init_comb(n)
+    local t = {}
+    for i = 1, n do
+        table.insert(t, i)
+    end
+    return t
+end
+
+--- Increment the combination
+-- @param t table The current combination table
+-- @param n number The maximum allowable number in the combination
+-- @param i number The current index to increment, defaults to the length of t if not provided
+-- @return boolean Returns true if the operation was successful, else returns nil
+local function inc_comb(t, n, i)
+    i = i or #t
+    t[i] = t[i] + 1
+
+    -- Normalize the current index if it exceeds the maximum number
+    if t[i] > n then
+        t[i] = 1
+        if i == 1 then
+            return
+        end
+        if not inc_comb(t, n, i - 1) then
+            return
+        end
+    end
+
+    -- Ensure no duplicate numbers exist in the combination
+    for j = 1, i - 1 do
+        if t[j] == t[i] then
+            return inc_comb(t, n, i)
+        end
+    end
+
+    return true
+end
+
+--- Iterator function for generating combinations
+-- @param n number The size of the combination
+-- @return function A function that, when called, returns the next combination table or nil if done
+local function iter_comb(n)
+    local t = init_comb(n)
+    return function()
+        if inc_comb(t, n) then
+            return t
+        end
+    end
+end
+
+
 --- Generates error message for error occuring in plume internal functions
 -- @param error_message string The error message
 function plume.internal_error (error_message)
@@ -78,6 +132,45 @@ function plume.internal_error (error_message)
     end
 
     plume.error(plume.lua_cache[#plume.lua_cache], error_message, true)
+end
+
+--- Checks and corrects the order of words in a name based on scope.
+-- @param name string The name to be checked and potentially corrected.
+-- @param scope string The scope to determine the correct order of words.
+-- @return string The name with the correct word order based on the given scope.
+function test_word_order(name, scope)
+    local result = {}
+
+    for _, config in ipairs({
+            {pattern="[^_]+",         sep="_"},
+            {pattern="[A-Z]-[^A-Z]+", sep="", lower_first=true, upper_second=true}
+        }) do
+        local words = {}
+        for word in name:gmatch(config.pattern) do
+            table.insert(words, word)
+        end
+        
+        for comb in iter_comb(#words) do
+            local suggestion = {}
+            for i, k in ipairs(comb) do
+                local word = words[k]
+                if config.lower_first and i==1 then
+                    word = word:sub(1, 1):lower() .. word:sub(2, -1)
+                elseif config.upper_second and i>1 then
+                    word = word:sub(1, 1):upper() .. word:sub(2, -1)
+                end
+
+                table.insert(suggestion, word)
+            end
+
+            local suggestion = table.concat(suggestion, config.sep)
+            if scope:get("macros", suggestion) then
+                table.insert(result, suggestion)
+            end
+        end
+    end
+
+    return result
 end
 
 --- Generates error message for macro not found.
@@ -102,10 +195,16 @@ function plume.error_macro_not_found (token, macro_name)
     end
 
     -- Suggestions for possible typing errors
+    
+    -- Character suppressions or substitutions, like using "foo" instead of "foo"
     for _, name in ipairs(scope:get_all("macros")) do
         if word_distance (name, macro_name) <= math.max(math.min(3, #macro_name - 2), 1) then
             suggestions_table[name] = true
         end
+    end
+    -- Wrong word order, like using "local_macro" instead of "macro_local"
+    for _, name in ipairs(test_word_order(macro_name, scope)) do
+        suggestions_table[name] = true
     end
 
     local suggestions_list = sort(suggestions_table)

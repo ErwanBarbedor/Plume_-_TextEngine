@@ -1,9 +1,27 @@
-\-- Test 'Unknow macro'
+\-- Test 'Unknow macro 1'
 \foo
 \-- Error
 File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
     \foo
     ^^^^
+\-- End
+
+\-- Test 'Unknow macro 2'
+\macro bar_foo {}
+\foo_bar
+\-- Error
+File 'string', line 2 : Unknow macro 'foo_bar'. Perhaps you mean 'bar_foo'?
+    \foo_bar
+    ^^^^^^^^
+\-- End
+
+\-- Test 'Unknow macro 3'
+\macro barFoo {}
+\fooBar
+\-- Error
+File 'string', line 2 : Unknow macro 'fooBar'. Perhaps you mean 'barFoo' or 'for'?
+    \fooBar
+    ^^^^^^^
 \-- End
 
 \-- Test 'Invalid macro name'
