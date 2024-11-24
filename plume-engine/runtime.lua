@@ -224,7 +224,7 @@ function plume.create_scope (parent)
         -- If no parent or if the variable is already registered
         -- save it in this scope
         -- Otherwise send the value to the parent
-        if not parent or rawget(scope[field], key)  then
+        if not parent or rawget(scope[field], key) ~= nil  then
             rawset (scope[field], key, value)
         else
             parent:set (field, key, value)
@@ -238,7 +238,7 @@ function plume.create_scope (parent)
         -- If the value is nil, recursively call the parent.
         local value = rawget(scope[field], key)
 
-        if value then
+        if value ~= nil then
             return value
         elseif parent then
             return parent:get(field, key)
