@@ -2059,6 +2059,9 @@ end
 plume_files['plume-engine.error'] = function ()
 
 
+-- Max number of character before cutting the line
+local MAX_LINE_LENGTH = 80
+
 --- Extracts information from a Lua error message.
 -- @param message string The error message
 -- @return table A table containing file, line number, line content, and position information
@@ -2195,6 +2198,25 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
         end
 
         local indicator
+
+        if #line > MAX_LINE_LENGTH then
+            local cut_right = math.min(#line, math.max (endpos, MAX_LINE_LENGTH))
+            local cut_left  = math.max(1, math.min (beginpos, #line - cut_right + 1))
+            
+            local lline = #line
+            line = line:sub(cut_left, cut_right)
+            if cut_right < lline then
+                line = line .. "[...]"
+            end
+            if cut_left > 1 then
+                line = "[...]" .. line
+                beginpos = beginpos + 6
+                endpos   = endpos   + 6
+            end
+
+            beginpos = beginpos - cut_left
+            endpos   = endpos   - cut_left
+        end
 
         if i==1 then
             line_info = line_info .. error_message .. "\n\t"

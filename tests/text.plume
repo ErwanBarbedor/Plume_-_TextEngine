@@ -75,3 +75,19 @@ Bar!
 \-- Result
 []
 \-- End
+
+\-- Test 'Long line error 2'
+\foo abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+\-- Error
+File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
+    \foo abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvw[...]
+    ^^^^
+\-- End
+
+\-- Test 'Long line error 2'
+abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz \foo abcdefghijklmnopqrstuvwxyz
+\-- Error
+File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
+    [...]efghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz \foo abcdefghijklmnopqrstuv[...]
+                                                          ^^^^
+\-- End

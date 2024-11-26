@@ -128,6 +128,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### Enhancement
 - Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
 - New error message when trying to include a directory.
+- In error messages, cut lines if they are too long.
 
 ### Bugfix
 - When giving a path directory to include, first try to open `path/init.plume` before trying to open `path`.
