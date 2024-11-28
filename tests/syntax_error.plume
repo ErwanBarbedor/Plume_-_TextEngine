@@ -56,3 +56,23 @@ File 'string', line 2 : Syntax error : inside a lua bloc, '$' must be followed b
     a = $b
          ^
 \-- End
+
+\-- Test 'Lua - Missing end'
+${
+    if a==1 then
+}
+\-- Error
+File 'string', line 3 : Syntax error : expecting 'end' to close 'if'.
+    }
+    ^
+\-- End
+
+\-- Test 'Lua - To many end'
+${
+    if a==1 then end end
+}
+\-- Error
+File 'string', line 2 : Syntax error : this is an unexpected way to close '{'.
+    if a==1 then end end
+                     ^^^
+\-- End

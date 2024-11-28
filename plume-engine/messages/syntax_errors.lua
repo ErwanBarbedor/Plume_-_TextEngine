@@ -30,9 +30,29 @@ function plume.syntax_error_brace_close_nothing (token)
     plume.error(token, "Syntax error : this brace close nothing.")
 end
 
+function plume.syntax_error_wrong_block_end (token, opening)
+    local braces = "%[%]{}"
+
+    local escaped_opening = opening:gsub('([%%%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
+    local escaped_token_source = token:source():gsub('([%%%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
+    if braces:match(escaped_opening) and braces:match(escaped_token_source) then
+        plume.syntax_error_unpaired_braces (token, opening)
+    elseif ("if elseif do for while function"):match(escaped_opening) then
+        plume.syntax_error_lua_missing_end (token, opening)
+    else
+        plume.error(token, "Syntax error : this is an unexpected way to close '"..opening.."'.")
+    end
+end
+
+
 function plume.syntax_error_unpaired_braces (token, opening_brace)
     plume.error(token, "Syntax error : this brace doesn't matching the opening brace, which was '"..opening_brace.."'.")
 end
+
+function plume.syntax_error_lua_missing_end (token, opening)
+    plume.error(token, "Syntax error : expecting 'end' to close '"..opening.."'.")
+end
+
 
 function plume.syntax_error_brace_unclosed (token)
     plume.error(token, "Syntax error : this brace was never closed.")

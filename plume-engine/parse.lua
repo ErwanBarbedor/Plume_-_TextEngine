@@ -36,7 +36,7 @@ function plume.parse (tokenlist)
             if not top then
                 plume.syntax_error_brace_close_nothing (token)
             elseif block.kind ~= "block" then
-                plume.syntax_error_unpaired_braces (token, block.opening_token.value)
+                plume.syntax_error_wrong_block_end (token, block.opening_token.value)
             end
             
             block.closing_token = token
@@ -56,7 +56,7 @@ function plume.parse (tokenlist)
             if not top then
                 plume.syntax_error_brace_close_nothing (token)
             elseif last.kind ~= "opt_block" then
-                plume.syntax_error_unpaired_braces (token, last.opening_token.value)
+                plume.syntax_error_wrong_block_end (token, block.opening_token.value)
             end
 
             last.closing_token = token
@@ -90,10 +90,18 @@ function plume.parse (tokenlist)
             table.insert(stack, plume.tokenlist(kind))
             stack[#stack].opening_token = token
         elseif token.kind == "lua_end" then
-            local block = table.remove(stack)
-            block.closing_token = token
-            local parent = stack[#stack]
-            table.insert(parent, block)
+            local last = table.remove(stack)
+            local top = stack[#stack]
+
+            -- Check if match the oppening brace
+            if not top then
+                plume.syntax_error_brace_close_nothing (token)
+            elseif last.opening_token.value ~= "if" and last.opening_token.value ~= "for" and last.opening_token.value ~= "do" and last.opening_token.value ~= "while" and last.opening_token.value ~= "elseif" and last.opening_token.value ~= "function" then
+                plume.syntax_error_wrong_block_end (token, last.opening_token.value)
+            end
+
+            last.closing_token = token
+            table.insert(top, last)
 
         elseif token.kind == "lua_call_begin" then
             table.insert(stack, plume.tokenlist("lua_call"))
