@@ -91,3 +91,25 @@ File 'string', line 1 : Unknow macro 'foo'. Perhaps you mean 'for'?
     [...]efghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz \foo abcdefghijklmnopqrstuv[...]
                                                           ^^^^
 \-- End
+
+\-- Test 'Line counter with comment 1'
+\-- Hello!
+\foo
+\-- Error
+File 'string', line 2 : Unknow macro 'foo'. Perhaps you mean 'for'?
+    \foo
+    ^^^^
+\-- End
+
+\-- Test 'Line counter with comment 2'
+${
+    a()
+}
+\-- Error Lua 5.4
+File 'string', line 2 : (lua error) attempt to call a nil value (global 'a')
+    a()
+    ^^^
+Traceback :
+    File 'string', line 1 : ${
+                             ^
+\-- End
