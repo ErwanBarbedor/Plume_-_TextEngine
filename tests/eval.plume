@@ -90,6 +90,18 @@ ${5213}[silent]
 
 \-- End
 
+\-- Test 'Format eval 5'
+${1.0}[remove_zeros]
+\-- Result
+1
+\-- End
+
+\-- Test 'Format eval 6'
+${10}[remove_zeros]
+\-- Result
+10
+\-- End
+
 \-- Test 'Default eval'
 ${format = ".2f"}\--
 \default eval[{$format}]\--
