@@ -80,7 +80,7 @@ return function ()
             end
 
             if remove_zeros then
-                result = tostring(result):gsub(d_sep..'([0-9]-)0+$', d_sep.."%1")
+                result = tostring(result):gsub("%"..d_sep..'([0-9]-)0+$', "%"..d_sep.."%1")
             end
         elseif type(result) == "table" and join_table then
             local table_result = {}

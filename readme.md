@@ -125,6 +125,8 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
 ## Last bugfix & enhancement version : 0.11.3
+### Bugfix
+- Fix a case when `${10.0}` output `.`
 
 ## Last minor version : 0.11.0
 ### Changes
