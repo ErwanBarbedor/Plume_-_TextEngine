@@ -1,3 +1,14 @@
+#### 0.11.2
+### Enhancement
+- Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
+- New error message when trying to include a directory.
+- In error messages, cut lines if they are too long.
+- Better error messages in case of Lua syntax error raised by Plume parser.
+
+### Bugfix
+- When giving a path directory to include, first try to open `path/init.plume` before trying to open `path`.
+- Fix a bug preventing access to a local variable if its value is `false`.
+
 #### 0.11.1
 ### Changes
 - Plume will no longer print output by default.

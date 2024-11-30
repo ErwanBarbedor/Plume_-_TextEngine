@@ -1,6 +1,6 @@
 <p align="center"><img src="https://app.barbedor.bzh/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.11.2-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.11.3-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -124,16 +124,7 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
-## Last bugfix & enhancement version : 0.11.2
-### Enhancement
-- Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
-- New error message when trying to include a directory.
-- In error messages, cut lines if they are too long.
-- Better error messages in case of Lua syntax error raised by Plume parser.
-
-### Bugfix
-- When giving a path directory to include, first try to open `path/init.plume` before trying to open `path`.
-- Fix a bug preventing access to a local variable if its value is `false`.
+## Last bugfix & enhancement version : 0.11.3
 
 ## Last minor version : 0.11.0
 ### Changes
