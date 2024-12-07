@@ -101,7 +101,9 @@ end
 --- Handles comments
 -- This function captures comment text and advances through the code until 
 -- a newline is encountered (and captures also all spaces following the newline)
-function plume.tokenizer:handle_comment ()
+-- @param keep_all_spaces bool If false, all following spaces are removed.
+-- It is the default behavior in plume code, but Lua code needs to keep these spaces.
+function plume.tokenizer:handle_comment (keep_all_spaces)
     self:write("comment")
     table.insert(self.acc, char)
     local find_newline
@@ -119,7 +121,12 @@ function plume.tokenizer:handle_comment ()
 
         table.insert(self.acc, next)
         if next == "\n" then
-            find_newline = self.pos + 1
+            if keep_all_spaces then
+                self.pos  = self.pos-1
+                break
+            else
+                find_newline = self.pos + 1
+            end
         end
     until self.pos >= #self.code
 

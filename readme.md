@@ -128,6 +128,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### Bugfix
 - Fix a case when `${10.0}` output `.`
 - Fix an error in documentation generation.
+- Fix an error causing Lua comment to remove the end line, causing syntax errors.
 
 ## Last minor version : 0.11.0
 ### Changes

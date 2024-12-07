@@ -90,3 +90,12 @@ foo
 \-- Result
 foo
 \-- End
+
+\-- Test 'Comment dont remove line end'
+${
+    x=1-- an usefull comment
+    math.random()
+}
+\-- Result
+
+\-- End

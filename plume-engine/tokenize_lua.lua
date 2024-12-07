@@ -35,7 +35,7 @@ function plume.tokenizer:handle_context_lua ()
     if current_context == "lua" then
         -- Check for plume comment
         if self:check_for_comment () or self:check_for_lua_comment () then
-            self:handle_comment ()
+            self:handle_comment (true)
 
         -- Check for strings
         elseif char == plume.lua_syntax.simple_quote then
@@ -197,7 +197,7 @@ function plume.tokenizer:lua_checks_keywords (mode, word)
     return mode
 end
 
---- Checks if the current position is the start of a clua omment
+--- Checks if the current position is the start of a lua comment
 -- @return boolean
 function plume.tokenizer:check_for_lua_comment (char)
     local char = self.code:sub(self.pos, self.pos)
