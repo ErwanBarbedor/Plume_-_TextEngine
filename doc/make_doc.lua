@@ -86,7 +86,7 @@ local function capture_api_doc (result, source, usage, capture)
         capture_api_method_doc (result, doc, method_name, usage)
     end
 
-    for doc, method_name in source:gmatch("%-%-%- @"..capture.."(.-)[\n\r]+%s*([A-Za-z0-9_]+) = function") do
+    for doc, method_name in source:gmatch("%-%-%- @"..capture.."([^\n\r]-)[\n\r]+%s*([A-Za-z0-9_]+) = function") do
         capture_api_method_doc (result, doc, method_name, usage)
     end
 end

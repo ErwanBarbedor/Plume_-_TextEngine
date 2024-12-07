@@ -126,43 +126,6 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Return:** `bool`True if we are inside a macro with the given name, false otherwise.
 
-### __newindex
-
-**Usage :** `file, founded_path, value, value, value, lib, bool = plume.__newindex(path, key, key, key, path, name, arg_number, is_local, name, arg_number, is_local, name, open_mode, silent_fail)`
-
-**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
-
-**Parameters :**
-- `path` _string_  The path where to search for the file.
-- `key` _string_  The variable name.
-- `key` _string_  The variable name
-- `key` _string_  The variable name
-- `path` _string_  Path of the lua file to load
-- `name` _string_  Name of the macro
-- `arg_number` _Number_  of paramters to capture
-- `is_local` _bool_  Is the new macro local?
-- `name` _string_  Name of the macro
-- `arg_number` _Number_  of paramters to capture
-- `is_local` _bool_  Is the new macro local?
-- `name` _string_  the name of the macro
-- `open_mode` _string_ Mode to open the file. _(optional, default `"r"`)_
-- `silent_fail` _boolean_ If true, the search will not raise an error if no file is found. _(optional, default `false`)_
-
-**Return:**
-- `file`The file found during the search, opened in the given mode.
-- `founded_path`The path of the file founded.
-- `value`The required variable.
-- `value`The required variable.
-- `value`The required variable.
-- `lib`The require lib
-- `bool`True if we are inside a macro with the given name, false otherwise.
-
-**Notes:**
-- Mainly internal use, you shouldn't use this function.
-- `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):render_lua ()`. See [get_render](#get_render) and [get_render_lua](#get_render_lua).
-
-**Alias :** `plume.lget`
-
 ## Tokenlist
 
 Tokenlists are Lua representations of Plume structures. `plume.get` will often return `tokenlists`, and macro arguments are also `tokenlists`.
@@ -211,30 +174,6 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
 
-### source
-
-**Usage :** `string = tokenlist:source()`
-
-**Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
-
-**Return:** `string`The source code
-
-### sourceLua
-
-**Usage :** `string = tokenlist:sourceLua()`
-
-**Description:**  Get lua code as writed in the code file, after deleting comment and insert plume blocks.
-
-**Return:** `string`The source code
-
-### is_empty
-
-**Usage :** `bool = tokenlist:is_empty()`
-
-**Description:**  Render the tokenlist and return true if it is empty
-
-**Return:** `bool`Is the tokenlist empty?
-
 ## Tokenlist - intern methods
 
 The user have access to theses methods, but shouldn't use it.
@@ -258,21 +197,3 @@ The user have access to theses methods, but shouldn't use it.
 - `string`The source code
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
-
-### info
-
-**Usage :** `debug_info = tokenlist:info()`
-
-**Description:**  Return debug informations about the tokenlist.
-
-**Return:** `debug_info`A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
-
-### set_context
-
-**Usage :** `tokenlist:set_context(scope, forced)`
-
-**Description:**  Freezes the scope for all tokens in the list.
-
-**Parameters :**
-- `scope` _table_  The scope to freeze.
-- `forced` _boolean_  Force to re-freeze already frozen children?
