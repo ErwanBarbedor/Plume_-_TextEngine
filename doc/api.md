@@ -26,7 +26,7 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
 
-**Note:** Mainly internal use, you shouldn't use this function.
+**Note:** Mainly for internal use, except in one case: when rendering a plume block declared inside Lua, because by default capture occurs only at the end of the chunk.
 
 ### open
 
