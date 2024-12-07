@@ -174,8 +174,11 @@ end
 function plume.create_scope (parent)
     local scope = {}
 
-    -- Store all variables, accessibles from user
+    -- Store all variables values, accessibles from user
     make_field (scope, "variables", parent)
+    -- Store references to declared local variables in the current scope,
+    -- but with a nil value
+    make_field (scope, "nil_local", parent)
     -- Store macro
     make_field (scope, "macros",    parent)
     -- Store default parameters for macro
@@ -214,7 +217,14 @@ function plume.create_scope (parent)
     -- @param key string The key to set
     -- @param value any The value to set
     function scope.set_local(self, field, key, value)
-        rawset (scope[field], key, value)
+        
+        if value then
+            rawset (scope[field], key, value)
+        else
+            -- If the value is nil, keep a reference
+            -- '@' is to make the name unique
+            rawset (scope["nil_local"], field .. "@" .. key, true)
+        end
     end
 
     --- Registers a variable globaly
@@ -238,7 +248,7 @@ function plume.create_scope (parent)
         -- If the value is nil, recursively call the parent.
         local value = rawget(scope[field], key)
 
-        if value ~= nil then
+        if value ~= nil or rawget(scope.nil_local, field.."@"..key) then
             return value
         elseif parent then
             return parent:get(field, key)
