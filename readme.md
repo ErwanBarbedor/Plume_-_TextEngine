@@ -131,6 +131,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Fix an error causing Lua comment to remove the end line, causing syntax errors.
 - Fix a bug causing the ignoring of a local variable with a nil value and getting instead the parent value.
 
+### Enhancements
+- A rendered flag that is nil doesn't raise an error anymore.
+- If a rendered flag is provided, trim spaces before checking if this flag exists.
 
 ## Last minor version : 0.11.0
 ### Changes

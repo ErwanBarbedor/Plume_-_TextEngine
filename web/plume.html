@@ -2715,6 +2715,15 @@ function plume.make_opt_params (macro, params, opt_params, context)
 
     local function capture_flag (key)
         local name = key:render ()
+
+        -- trim name
+        name = name:gsub('^%s+', ''):gsub('%s+$', '')
+
+        -- empty flag don't raise an error
+        if #name == 0 then
+            return
+        end
+
         if macro.variable_parameters_number then
             table.insert(params.others.flags, name)
         elseif macro.default_opt_params[name] == nil then

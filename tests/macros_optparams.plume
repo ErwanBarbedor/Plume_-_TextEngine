@@ -73,6 +73,20 @@ bar
 bar 
 \-- End
 
+\-- Test 'Flag 3'
+\macro foo[?bar] {\if $bar {bar} \else {foo}}\--
+\foo[{\if ${1+1==2} bar \else foo}]
+\-- Result
+bar 
+\-- End
+
+\-- Test 'Flag 4'
+\macro foo[?bar] {\if $bar {bar} \else {foo}}\--
+\foo[{\if ${1+1==0} bar}]
+\-- Result
+ foo
+\-- End
+
 \-- Test 'Variable parameters number'
 \macro foo[...] {
     ${__params.x}\n
