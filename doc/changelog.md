@@ -1,4 +1,18 @@
-#### 0.11.2
+## 0.11.3
+### Bugfix
+- Fix a case when `${10.0}` output `.`
+- Fix an error in documentation generation.
+- Fix an error causing Lua comment to remove the end line, causing syntax errors.
+- Fix a bug causing the ignoring of a local variable with a nil value and getting instead the parent value.
+- Fix a bug occurring when trying to require a directory.
+- Fix a bug causing external file Lua error to be treated as Plume internal errors.
+
+### Enhancements
+- A rendered flag that is empty doesn't raise an error anymore.
+- If a rendered flag is provided, trim spaces before checking if this flag exists.
+- Add a warning when globally editing `eval` default parameters.
+
+## 0.11.2
 ### Enhancement
 - Macro name suggestion in case of error like using "foo_bar" instead of "bar_foo", or "fooBar" instead of "barFoo".
 - New error message when trying to include a directory.
@@ -9,7 +23,7 @@
 - When giving a path directory to include, first try to open `path/init.plume` before trying to open `path`.
 - Fix a bug preventing access to a local variable if its value is `false`.
 
-#### 0.11.1
+## 0.11.1
 ### Changes
 - Plume will no longer print output by default.
 - Rewrite the Linux launcher. You can choose the Lua executable by setting the `LUA_EXEC` environnement variable.
@@ -19,36 +33,61 @@
 - Fix an error occurring when trying to open a file in the same folder.
 - Fix an error occurring when giving an unknown flag to the eval macro.
 
-#### 0.10.0
+## 0.11.0
+### Changes
+- As planned, `\for`, `\if`, `\while` and `\elseif` first parameters must now be lua blocks.
+- Remove `_L`, too complex to implement without being useful.
+- No need anymore to escape `$` or braces inside lua string. Escaped `$` or braces will now raise an error.
+- Can now use `return` inside a lua block.
+- In consequence, remove `plume.write`.
+- Can now use arbitrary complexe lua iterator in the `\for` macro.
+- Token implicit conversion now only works if used with string methods or operators.
+
+### Enhancement
+- Plume should now detects if a Lua block is a statement or an expression without error.
+- More pertinent suggestions in case of unknown macro or parameter.
+- More coherent error messages.
+- Resetting Plume is much faster.
+- More accurate spaces filtering.
+
+### Internal changes
+- Rewrite unitary testing: cleaner code and much clearer output.
+- Rewrite tokenizer. Cleaner and now context-sensitive
+- Move somme parts of render to parser.
+- Write a limited lua parser.
+- Move errors message to dedicateds files.
+- A lot of other code rewriting, cleaning, and comments added.
+
+## 0.10.0
 
 ### Changes
 - As planned, remove compatibilty for old syntax `#` and `\\`
 - As planned, remove compatibilty for old configuration `config.ignore_spaces`
 
 
-### 0.9.0
+## 0.9.0
 
-#### Changes
+### Changes
 - Plume is no longer a standalone Lua file.
 - As planned, remove `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced`.
 
-#### CLI
+### CLI
 
-##### Changes
+#### Changes
 - New option `-c --config` to edit configuration before executing the file or the given code.
 
-##### Enhancements
+#### Enhancements
 - Rewrite doc
 - New tests specifics to CLI
 
-##### Fixes
+#### Fixes
 - No longer see the first error message for each error.
 - Fixe an error preventing to see plume output.
 - Error is now writted on stderr, not stdin.
 
-### 0.8.0
+## 0.8.0
 
-#### Changes
+### Changes
 - Can now use `${...}` in parameter names and parameter values.
 - Configuration can now be local.
 - `${...}[i]` will now round, not floor.
@@ -61,23 +100,23 @@
 - Remove implicit render on `token.__eq`
 - Remove access to the Lua table `arg` from plume.
 
-#### Enhancement
+### Enhancement
 - When an error occurs in a Lua-defined macro, the line will no longer be printed twice in the error message.
 - Can now use comments inside optional parameter declaration.
 - Better error message for syntax error in lua code.
 
-#### Fixes
+### Fixes
 - Fix a bug causing `local_macro` and `lmacro` to be global.
 - Fix a bug causing an eval block to be evaluated 3 times instead of once.
 
-#### Deprecation
+### Deprecation
 - `\def`, `\defl`, `\def_local`, `\setl`, `\set_local`, `\default_local`, `\alias_local`, `\aliasl`, `\redef` and `\redef_forced` will be removed in `v0.9`
 - Old syntax `#` and `//` compatibility will be removed in `v0.10`.
 - Non-lua block as parameter of `\if`, `\elseif`, `\for` and `\while` will no longer be accepted in `v0.11`.
 
-### 0.7.0
+## 0.7.0
 
-#### Changes
+### Changes
 - Default space mode is now `light`.
 - Rework a lot of naming:
     - `\def` became `\macro`.
@@ -98,29 +137,29 @@ Originally, `#` was chosen to adhere to the LaTeX macro syntax, `\newcommand \do
 
 As for comments, the idea was to reduce the number of special characters to two in order to avoid the need for escaping as much as possible. (For example, `//` is used in URLs). So, start with `\`. It couldn't be `\\` (because it prints the character `\`) and `\$` was pretty weird, so `\--` was chosen in alignment with the `--` used by Lua. 
 
-#### Enhancement
+### Enhancement
 - Plume comment will now work in Lua blocks.
 - Remove useless lines from traceback.
 - Warnings will be printed only one time per faulty code chunk.
 
-#### Fixes
+### Fixes
 - Fix wrong space mode name.
 - Plume no longer see `a==4` as a statement.
 - Fix an error causing Plume to crash if a for loop go over the iteration limit.
 
-### 0.6.1
+## 0.6.1
 
-#### Enhancement
+### Enhancement
 - When giving an unknown parameter to a macro, the debug message proposes some close words that could be valid parameters.
 - Now auto-detect lua code like `a, b = 1, 2` as statement, and not expression. Improve comment detection to force statement interpretation.
 
-#### Fixes
+### Fixes
 - Fix some cli errors.
 - Fix an error causing the plume to always search for the default value of parameters in the last scope instead of in the scope of the evaluated token.
 - Fix a case when unnecessary `0`s will not be removed by `#`, even with the option `remove_zeros`.
 
 
-### 0.6.0
+## 0.6.0
 
 ### Changes
 - Rework macros parameters into positionals/keywords/flags.
@@ -141,9 +180,9 @@ As for comments, the idea was to reduce the number of special characters to two 
 ### Fixes
 - Fix CLI error on params numbering
 
-### 0.5.0
+## 0.5.0
 
-#### Changes
+### Changes
 - Macros now use scopes, like variables. (but cannot be accessed from plume script)
 - New macro `\defl`.
 - New macro `\deprecate`
@@ -160,12 +199,12 @@ As for comments, the idea was to reduce the number of special characters to two 
 - New configuration `plume.config.filter_spaces`, and `plume.config.filter_newlines`.
 - New macro `set_space_mode`
 
-#### Fixes
+### Fixes
 - Preventing somme infinite loop when use `#` inside `\default eval`
 
-### 0.4.0
+## 0.4.0
 
-#### Changes
+### Changes
 - Create one `plume.lua` file per Lua version.
 - Add error message (instead of crash) for wrong type in operation on token with implicit rendering.
 - Add error message (instead of crash) for errors in external Lua files.
@@ -176,29 +215,29 @@ As for comments, the idea was to reduce the number of special characters to two 
 - New `token:is_empty ()`
 - New `api.export ()`
 
-#### Fixes
+### Fixes
 - Fix implicit rendering not working with string methods.
 - Fix `token.__unm` not working.
 - Fix an error occurring when there are comments between `\if` and `\else`.
 
-### 0.3.2
+## 0.3.2
 
-#### Fixes
+### Fixes
 - A lot of scope error fixes
 
 
-### 0.3.1
+## 0.3.1
 
-#### Fixes
+### Fixes
 - Fix old code in `api.require`
 - Fix parsing error in the macro `\for`
 - Fix scope non closing in the macro `\for`
 - Fix an error occurring when using a local variable in a macro used as a parameter of another macro.
 - Fix a case where scope won't be frozen.
 
-### 0.3.0
+## 0.3.0
 
-#### Changes
+### Changes
 - Remove macro chain call: `\foo \foo x` will no longer be equivalent to `\foo {\foo x}`, but will raise an error. However, `\foo #{x}` still works.
 - The `\script` macro can no longer return a value.
 - Implement closures.
@@ -210,7 +249,7 @@ As for comments, the idea was to reduce the number of special characters to two 
 - New `api.open`
 - Remove `plume.set_local`.
 
-#### Fixes
+### Fixes
 - Fix an error causing development sections to be included in the final code.
 - Fix an error where calling methods on `tokenlist` via implicit call to `render` doesn't work.
 - Fix an error when calling a macro as an argument of another macro with the same name.
@@ -218,9 +257,9 @@ As for comments, the idea was to reduce the number of special characters to two 
 - Fix an error causing the `setl` macro to not work at all.
 - Fix an error where the character `\` doesn't display if it appears alone at the start of the line.
 
-### 0.2.0
+## 0.2.0
 
-#### Changes
+### Changes
 - Replace `\include[extern]` by `\extern`
 - Remove `extern` option for `\include`
 - Can give argument to included files.
@@ -228,6 +267,6 @@ As for comments, the idea was to reduce the number of special characters to two 
 - Alias cannot erase existing macros.
 - `\config` second argument isn't converted automaticaly anymore.
 
-### 0.1.0
+## 0.1.0
 
 Initial release

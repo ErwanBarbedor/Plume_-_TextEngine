@@ -1,6 +1,6 @@
 <p align="center"><img src="https://app.barbedor.bzh/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.11.3-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.12.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -124,44 +124,8 @@ This is essential for improving Plume, but it currently makes it incompatible wi
 
 Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
 
-## Last bugfix & enhancement version : 0.11.3
-### Bugfix
-- Fix a case when `${10.0}` output `.`
-- Fix an error in documentation generation.
-- Fix an error causing Lua comment to remove the end line, causing syntax errors.
-- Fix a bug causing the ignoring of a local variable with a nil value and getting instead the parent value.
-- Fix a bug occurring when trying to require a directory.
-- Fix a bug causing external file Lua error to be treated as Plume internal errors.
+## Last version : 0.12.0
 
-### Enhancements
-- A rendered flag that is empty doesn't raise an error anymore.
-- If a rendered flag is provided, trim spaces before checking if this flag exists.
-- Add a warning when globally editing `eval` default parameters.
-
-## Last minor version : 0.11.0
-### Changes
-- As planned, `\for`, `\if`, `\while` and `\elseif` first parameters must now be lua blocks.
-- Remove `_L`, too complex to implement without being useful.
-- No need anymore to escape `$` or braces inside lua string. Escaped `$` or braces will now raise an error.
-- Can now use `return` inside a lua block.
-- In consequence, remove `plume.write`.
-- Can now use arbitrary complexe lua iterator in the `\for` macro.
-- Token implicit conversion now only works if used with string methods or operators.
-
-### Enhancement
-- Plume should now detects if a Lua block is a statement or an expression without error.
-- More pertinent suggestions in case of unknown macro or parameter.
-- More coherent error messages.
-- Resetting Plume is much faster.
-- More accurate spaces filtering.
-
-### Internal changes
-- Rewrite unitary testing: cleaner code and much clearer output.
-- Rewrite tokenizer. Cleaner and now context-sensitive
-- Move somme parts of render to parser.
-- Write a limited lua parser.
-- Move errors message to dedicateds files.
-- A lot of other code rewriting, cleaning, and comments added.
 
 See the [changelog](doc/changelog.md) for older version
 
