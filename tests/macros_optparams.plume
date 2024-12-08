@@ -87,6 +87,22 @@ bar
  foo
 \-- End
 
+\-- Test 'Flag 5'
+\macro foo[?bar] {\if $bar {bar} \else {foo}}\--
+\foo[?bar]
+\-- Result
+ foo
+\-- End
+
+\-- Test 'Flag 6'
+\macro foo[?bar] {\if $bar {bar} \else {foo}}\--
+${bar = true}
+\foo[?bar]
+\-- Result
+bar 
+\-- End
+
+
 \-- Test 'Variable parameters number'
 \macro foo[...] {
     ${__params.x}\n

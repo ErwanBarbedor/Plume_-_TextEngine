@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with Plu
 function plume.make_opt_params (macro, params, opt_params, context)
     local key, eq, space
     local flags = {}
+    local scope = plume.get_scope (context)
 
     local function capture_keyword(key, value)
         local name = key:render ()
@@ -44,6 +45,18 @@ function plume.make_opt_params (macro, params, opt_params, context)
         -- empty flag don't raise an error
         if #name == 0 then
             return
+        end
+
+        -- Handle the sugar syntax "?flag", except for the macro "macro"
+        if name:sub(1, 1) == "?" and macro.name ~= "macro" then
+            name = name:sub(2, -1)
+
+            -- If value of "$flag" is false or nil, abort
+            if not scope:get("variables", name) then
+                return
+            end
+            -- Otherwise, continue as if the user had supplied
+            -- the word “flag” as an optional parameter. 
         end
 
         if macro.variable_parameters_number then
@@ -96,7 +109,7 @@ function plume.make_opt_params (macro, params, opt_params, context)
         capture_flag(key)
     end
 
-    local scope = plume.get_scope (context)
+    
     for k, _ in pairs(macro.default_opt_params) do
         if not params.keywords[k] then
             local keyword_name = tostring(macro) .. "@" .. k
