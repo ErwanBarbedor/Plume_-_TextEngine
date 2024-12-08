@@ -41,7 +41,7 @@ function plume.token (kind, value, line, pos, file, code)
 
          --- Returns the source code of the token
         -- @return string The source code
-        sourceLua = function (self)
+        source_lua = function (self)
             return self.value
         end,
     }, {})
@@ -285,7 +285,7 @@ function plume.tokenlist (x)
 
         --- @api_method Get lua code as writed in the code file, after deleting comment and insert plume blocks.
         -- @return string The source code
-        sourceLua = function (self, temp, can_return, can_alter_return)
+        source_lua = function (self, temp, can_return, can_alter_return)
             if can_return == nil then can_return = true end
             if can_alter_return == nil then can_alter_return = true end
 
@@ -351,9 +351,9 @@ function plume.tokenlist (x)
                     end
                     found_return  = true
                 elseif token.kind == "lua_function" or token.kind == "lua_call" or token.kind == "lua_index" or token.kind == "lua_table" then
-                    table.insert(result, token:sourceLua(temp, false, false))
+                    table.insert(result, token:source_lua(temp, false, false))
                 else
-                    table.insert(result, token:sourceLua(temp, false, true))
+                    table.insert(result, token:source_lua(temp, false, true))
                 end
 
                 if token.kind == "lua_statement" or token.kind == "lua_function" then

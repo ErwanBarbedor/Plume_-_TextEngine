@@ -51,7 +51,7 @@ return function ()
 
         -- Get iterator code and extract the names of the variables
         local iterator_token = params.positionnals.iterator[2]
-        local iterator_code  = iterator_token:sourceLua ({}, false, false)
+        local iterator_code  = iterator_token:source_lua ({}, false, false)
         local variables_list  = extract_variables_names (iterator_token)
 
         -- Construct a Lua coroutine to handle the iteration
@@ -151,7 +151,7 @@ return function ()
 
         local condition_code
         if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:sourceLua ()
+            condition_code  = params.positionnals.condition[2]:source_lua ()
         else
             plume.error_expecting_an_eval_block (params.positionnals.condition)
         end
@@ -186,7 +186,7 @@ return function ()
         local condition_code
 
         if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:sourceLua ()
+            condition_code  = params.positionnals.condition[2]:source_lua ()
         else
             plume.error_expecting_an_eval_block (params.positionnals.condition)
         end
@@ -229,7 +229,7 @@ return function ()
         local condition_token
 
         if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:sourceLua ()
+            condition_code  = params.positionnals.condition[2]:source_lua ()
         else
             plume.error_expecting_an_eval_block (params.positionnals.condition)
         end

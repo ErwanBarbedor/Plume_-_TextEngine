@@ -129,6 +129,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### Changes
 - All warnings are now disables by default.
 - New `api.warnings_all()`
+- `token:sourceLua(), tokenlist:sourceLua()` -> `token:source_lua(), tokenlist:source_lua()`
 
 ### CLI changes
 - New `-w, --warnings` option

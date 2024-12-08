@@ -64,7 +64,7 @@ end
 function plume.call_lua_chunk(token, code, filename)
     -- Used to store references to inserted plume blocks
     local temp = {}
-    code = code or token:sourceLua (temp)
+    code = code or token:source_lua (temp)
 
     if not token.lua_cache then
         -- Edit the code to add a "return", in case of an expression,
