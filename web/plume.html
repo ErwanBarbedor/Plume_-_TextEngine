@@ -726,11 +726,7 @@ return function ()
             if silent_fail then
                 return nil, nil, msg
             else
-                if token then
-                    plume.error(token, msg)
-                else
-                    error(msg)
-                end
+                plume.error(token or plume.traceback[i], msg)
             end
         end
 

@@ -131,6 +131,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Fix an error causing Lua comment to remove the end line, causing syntax errors.
 - Fix a bug causing the ignoring of a local variable with a nil value and getting instead the parent value.
 - Fix a bug occurring when trying to require a directory.
+- Fix a bug causing external file Lua error to be treated as Plume internal errors.
 
 ### Enhancements
 - A rendered flag that is empty doesn't raise an error anymore.
