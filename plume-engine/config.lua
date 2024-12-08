@@ -35,3 +35,6 @@ plume.config.show_deprecation_warnings  = true
 
 -- Show warning occuring when overwriting already existing macro
 plume.config.show_macro_overwrite_warnings = true
+
+-- Show some warnings for unexperimented users
+plume.config.show_beginner_warnings = true

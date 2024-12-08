@@ -136,6 +136,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### Enhancements
 - A rendered flag that is empty doesn't raise an error anymore.
 - If a rendered flag is provided, trim spaces before checking if this flag exists.
+- Add a warning when globally editing `eval` default parameters.
 
 ## Last minor version : 0.11.0
 ### Changes

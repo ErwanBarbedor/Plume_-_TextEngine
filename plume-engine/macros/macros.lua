@@ -251,6 +251,14 @@ return function ()
     local function default(token, name, keywords, flags, is_local)
         local scope = plume.get_scope(token.context)
         local macro = scope:get("macros", name)
+
+        -- Warning if edit "eval"
+        if name == "eval" and not is_local then
+            if scope:get("config", "show_beginner_warnings") then
+                plume.warning_using_global_default_on_eval (token)
+            end
+        end
+
         -- Check if this macro exists
         if not macro then
             plume.error_macro_not_found(token, name)

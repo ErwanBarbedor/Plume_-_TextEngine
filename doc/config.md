@@ -12,3 +12,4 @@ Change configuration using `${plume.config.key = value}` or using the macro [con
 | filter_newlines | "\n" |  If set to false, no effect. If set to `x`, the `x` character will replace any group of newlines. See [spaces macros](macros.md#spaces) for more details about space control. |
 | show_deprecation_warnings | true |  Show deprecation warnings created with [deprecate](macros.md#deprecate). |
 | show_macro_overwrite_warnings | true |  Show warning occuring when overwriting already existing macro |
+| show_beginner_warnings | true |  Show some warnings for unexperimented users |

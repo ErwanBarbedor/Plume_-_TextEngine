@@ -119,6 +119,7 @@ local function resetPlume ()
     plume.running_api.config.filter_newlines = ""
     plume.running_api.config.show_macro_overwrite_warnings = false
     plume.running_api.config.show_deprecation_warnings = false
+    plume.running_api.config.show_beginner_warnings = false
 end
 
 local function addUnexpectedError (errors, test, message)

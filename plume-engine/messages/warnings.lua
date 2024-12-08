@@ -46,15 +46,25 @@ function plume.warning_macro_already_exists(token, macro)
     plume.warning(token, msg)
 end
 
---- Generates a warning message for macros that are deprecated, indicating the version in which they will be removed and suggesting an alternative.
--- @param token string The token containing the macro name
--- @param name string The name of the deprecated macro
--- @param version string The version in which the macro will be removed
--- @param alternative string The suggested alternative macro
+--- Generates a warning message for deprecated macros, indicating the version in which they will be removed and suggesting an alternative.
+-- @param token string The token containing the macro name.
+-- @param name string The name of the deprecated macro.
+-- @param version string The version in which the macro will be removed.
+-- @param alternative string The suggested alternative macro.
+-- @return string A formatted warning message about the deprecated macro.
 function plume.warning_deprecated_macro(token, name, version, alternative)
     local msg = "Macro '" .. name .. "' is deprecated, "
     msg = msg .. "and will be removed in version " .. version .. ". "
     msg = msg .. "Use '" .. alternative .. "' instead."
     
     return msg
+end
+
+--- Issues a warning when the global default value for evaluation is used.
+-- This function warns users about potential errors when editing the eval default value due to its extensive use across Plume files.
+-- @param token string The token associated with the evaluation context.
+function plume.warning_using_global_default_on_eval(token)
+    local msg = "Editing the eval default value globally can cause unexpected errors, as '$' is widely used across Plume files. Consider using \\local_default."
+    
+    plume.warning(token, msg)
 end
