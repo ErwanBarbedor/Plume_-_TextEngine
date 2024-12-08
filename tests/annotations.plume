@@ -1,0 +1,103 @@
+\-- Test 'Annotation: string'
+\macro foo[x:string] {
+    ${type(x)}
+}
+\foo bar
+\-- Result
+string
+\-- End
+
+\-- Test 'Annotation: number 1'
+\macro foo[x:number] {
+    ${type(x)}
+}
+\foo 52
+\-- Result
+number
+\-- End
+
+\-- Test 'Annotation: number 2'
+\macro foo[x:number] {
+    ${type(x)}
+}
+\foo bar
+\-- Result
+nil
+\-- End
+
+\-- Test 'Annotation: ref'
+\macro foo[x:ref] {
+    ${x:render()}
+}
+\foo bar
+\-- Result
+bar
+\-- End
+
+\-- Test 'Annotation: default'
+\macro foo[x] {
+    ${x:render()}
+}
+\foo bar
+\-- Result
+bar
+\-- End
+
+\-- Test 'Annotation: user'
+${
+    function braced (x)
+        return "(" .. x:render() .. ")"
+    end
+}
+\macro foo[x:braced] {
+    $x
+}
+\foo bar
+\-- Result
+(bar)
+\-- End
+
+\-- Test 'Annotation on optionnal'
+\macro foo[x:number=1] {
+    ${type(x)}
+}
+\foo\n
+\foo[x=bar]
+\-- Result
+number
+nil
+\-- End
+
+\-- Test 'Multiples annotations'
+\macro foo[x:string y:number=1] {
+    ${type(x)}:${type(y)}
+}
+\foo bar
+\-- Result
+string:number
+\-- End
+
+\-- Test 'Unknow annotation'
+\macro foo[x:candy=pink] {}
+\foo
+\-- Error
+File 'string', line 1 : 'candy' doesn't exist. Cannot use it to annotate parameters.
+    \macro foo[x:candy=pink] {}
+    ^^^^^^
+Traceback :
+    File 'string', line 2 : \foo
+                            ^^^^
+\-- End
+
+\-- Test 'Wrong annotation type'
+${candy=1}
+\macro foo[x:candy=pink] {}
+\foo
+\-- Error
+File 'string', line 2 : 'candy' is not a function, but a 'number'. Cannot use it to annotate parameters.
+    \macro foo[x:candy=pink] {}
+    ^^^^^^
+Traceback :
+    File 'string', line 3 : \foo
+                            ^^^^
+\-- End

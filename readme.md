@@ -127,10 +127,15 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ## Last version : 0.12.0
 
 ### Changes
+- New syntax: type annotation. In the macro definition, users can give the name of the function to call on a parameter: `\macro double [x:number] ${2*x}`
 - All warnings are now disables by default.
 - New `api.warnings_all()`
 - `token:sourceLua(), tokenlist:sourceLua()` -> `token:source_lua(), tokenlist:source_lua()`
 - Sugar syntax : `\foo[?bar]` is a shortcut for `\foo[{\if $bar bar}]`
+
+### Future deprecation
+- Default annotation for all parameters is `ref`, but in the future it will be shifted to `string`.
+- All tokenlist implicit conversion will be remove at the same time.
 
 ### CLI changes
 - New `-w, --warnings` option

@@ -858,6 +858,49 @@ plume_files['plume-engine.macros.macros'] = function ()
 
 -- Define macro-related macros
 return function ()
+
+    --- Applies an annotation to the value based on the given key.
+    -- @param token table The token associated with the annotation process.
+    -- @param scope table The current scope containing potential annotation methods.
+    -- @param k string The key used to determine which annotation to apply.
+    -- @param v table The value to be annotated.
+    -- @param annotations table A map of keys to their respective annotation types.
+    -- @return any The resulting value after annotation is applied.
+    local function apply_annotation (macro_token, calling_token, scope, k, v, annotations)
+        local annotation = annotations[k] or "ref"
+
+        if annotation == "number" then
+            return tonumber(v:render_lua())
+        elseif annotation == "string" then
+            return v:render()
+        elseif annotation == "lua" then
+            return v:render_lua()
+        elseif annotation == "ref" then
+            return v
+        else
+            local method = scope:get("variables", annotation)
+            
+            -- Check if the method exists in the scope and if it's a function
+            if method == nil then
+                plume.error(macro_token,"'" .. annotation .. "' doesn't exist. Cannot use it to annotate parameters.")
+            elseif type(method) ~= "function" then
+                plume.error(macro_token, "'" .. annotation .. "' is not a function, but a '" .. type(method) .. "'. Cannot use it to annotate parameters.")
+            end
+            
+            local method_wrapper = function () return method(v) end
+
+            local result = { xpcall (method_wrapper, plume.error_handler) }
+            local sucess = result[1]
+            table.remove(result, 1)
+
+            if not sucess then
+                plume.error(calling_token, result[1], true)
+            end
+
+            return result
+        end
+    end
+
     --- Checks if a macro is already defined in the current scope and issues a warning if it is.
     -- @param token tokenlist
     -- @param name string The name of the macro to check.
@@ -882,12 +925,12 @@ return function ()
     -- @param def_parameters table The arguments for the macro definition
     -- @param is_local boolean Whether the macro is local
     -- @param calling_token token The token where the macro is being defined
-    local function new_macro (macro_parameters, is_local, calling_token)
+    local function new_macro (macro_parameters, is_local, macro_token)
         -- Get the provided macro name
         local name = macro_parameters.positionnals.name:render()
         local variable_parameters_number = false
 
-        local scope  = plume.get_scope(calling_token.context)
+        local scope  = plume.get_scope(macro_token.context)
 
         -- Check if the name is a valid identifier
         if not plume.is_identifier(name) then
@@ -899,11 +942,30 @@ return function ()
             check_macro_availability (macro_parameters.positionnals.name, name)
         end
 
+        local annotations = {}
+
         -- Check if parameters names are valid and register flags
-        for name, _ in pairs(macro_parameters.others.keywords) do
-            if not plume.is_identifier(name) then
-                plume.error_invalid_name (calling_token, name, "parameter")
+        -- Also extract annotations
+        local to_remove = {}
+        local to_add    = {}
+        for name, value in pairs(macro_parameters.others.keywords) do
+            if name:match(':') then
+                table.insert(to_remove, name)
+                name, annotation = name:match('(.-):(.*)')
+                annotations[name] = annotation
+                to_add[name] = value
             end
+            if not plume.is_identifier(name) then
+                plume.error_invalid_name (macro_token, name, "parameter")
+            end
+        end
+
+        for i, name in ipairs(to_remove) do
+            macro_parameters.others.keywords[name] = nil
+        end
+
+        for name, value in pairs(to_add) do
+            macro_parameters.others.keywords[name] = value
         end
 
         local parameters_names = {}
@@ -912,17 +974,26 @@ return function ()
                 variable_parameters_number = true
             else
                 local flag = false
+                local annotation = nil
                 if name:sub(1, 1) == "?" then
                     name = name:sub(2, -1)
                     flag = true
                 end
+                if name:match(':') then
+                    name, annotation = name:match('(.-):(.*)')
+                    if flag then
+                        plume.error(macro_token, "Cannot annotate flags.")
+                    end
+                end
+
                 if not plume.is_identifier(name) then
-                    plume.error(calling_token, "'" .. name .. "' is an invalid parameter name.")
+                    plume.error(macro_token, "'" .. name .. "' is an invalid parameter name.")
                 end
                 if flag then
                     macro_parameters.others.keywords[name] = false
                 else
                     table.insert(parameters_names, name)
+                    annotations[name] = annotation
                 end
             end
         end
@@ -968,9 +1039,11 @@ return function ()
 
             -- add all params in the current scope
             for k, v in pairs(params.positionnals) do
+                v = apply_annotation (macro_token, calling_token, scope, k, v, annotations)
                 scope:set_local("variables", k, v)
             end
             for k, v in pairs(params.keywords) do
+                v = apply_annotation (macro_token, calling_token, scope, k, v, annotations)
                 scope:set_local("variables", k, v)
             end
             for _, k in pairs(params.flags) do

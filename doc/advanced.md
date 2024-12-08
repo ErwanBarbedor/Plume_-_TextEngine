@@ -117,6 +117,43 @@ Output:
 bar
 baz
 ```
+## Annotations
+Instead of:
+```plume
+\macro foo[x] {
+    ${x = tonumber(x:render())}
+    ...
+}
+```
+
+You can write:
+```plume
+\macro foo[x:number] {
+    ...
+}
+```
+
+Available types are:
+- `number`: convert to a number
+- `string`: convert to a string
+- `lua`: try to return a Lua value, if it fails, return a string
+- `ref` (default behavior): return a tokenlist, cf tokenlist section.
+
+Plume doesn't do any _type checking_: with the previously defined `foo`, `\foo bar` will just convert `bar` to `nil`, without error.
+
+You can also use any function as an annotation:
+
+```plume
+${
+    function braced(x)
+        return "(" .. x:render() .. ")"
+    end
+}
+\macro foo[x:braced] {
+    $x
+}
+\foo bar -> (bar)
+```
 
 ## Scopes
 ### Variables Scope

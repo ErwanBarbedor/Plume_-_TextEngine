@@ -46,7 +46,7 @@ function bgwhite(txt)
 end
 
 
-local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optparams", "scope", "cli", "lua_parse"}
+local files = {"text", "api", "eval", "macros_error", "macros", "syntax_error", "control", "extern", "script", "alias", "macros_optparams", "scope", "cli", "lua_parse", "annotations"}
 
 local function readFile(filename)
     local file = io.open("tests/"..filename..".plume", "r")
