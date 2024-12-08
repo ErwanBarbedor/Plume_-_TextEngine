@@ -242,7 +242,7 @@ For some specific case, you can also use Plume inside Lua:
     </div>
     <h1>
         <img src="https://app.barbedor.bzh/plume.png" width="200" height="100">
-        <p>Version 0.11.3</p>
+        <p>Version 0.12.0</p>
     </h1>
     <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
         View on GitHub
@@ -1956,6 +1956,17 @@ function api.is_called_by (name)
     return false
 end
 
+function api.warnings_all ()
+    local scope = plume.get_scope()
+    for warning in (
+        [[show_deprecation_warnings 
+        show_macro_overwrite_warnings
+        show_beginner_warning
+        ]]):gmatch('%S+') do
+        scope:set("config", warning, true)
+    end
+end
+
 --- Initializes the API methods visible to the user through `plume` variable.
 function plume.init_api ()
     local plume_reference = {}
@@ -2031,13 +2042,13 @@ plume.config.filter_spaces = " "
 plume.config.filter_newlines = "\n"
 
 -- Show deprecation warnings created with [deprecate](macros.md#deprecate).
-plume.config.show_deprecation_warnings  = true
+plume.config.show_deprecation_warnings  = false
 
 -- Show warning occuring when overwriting already existing macro
-plume.config.show_macro_overwrite_warnings = true
+plume.config.show_macro_overwrite_warnings = false
 
 -- Show some warnings for unexperimented users
-plume.config.show_beginner_warnings = true
+plume.config.show_beginner_warnings = false
 end
 plume_files['plume-engine.debug'] = function ()
 
@@ -2350,7 +2361,7 @@ plume_files['plume-engine.init'] = function ()
 -- Following Lua best practices, plume should be local.
 -- But given the current organization of the code, this would require a major rewrite.
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.11.3"
+plume._VERSION = "Plume - TextEngine 0.12.0"
 
 require "plume-engine.config"
 require "plume-engine.syntax"
