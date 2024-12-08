@@ -117,7 +117,7 @@ Output:
 bar
 baz
 ```
-## Annotations
+## Conversion Annotations
 Instead of:
 ```plume
 \macro foo[x] {
