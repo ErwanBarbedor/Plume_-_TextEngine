@@ -28,6 +28,7 @@ Options:
   -p, --print         Display the result (true if -s is present)
   -s, --string        Evaluate the input
   -c, --config        Edit plume configuration
+  -w, --warnings      Activate warnings
 
 Examples:
   plume --help
@@ -118,7 +119,7 @@ function cli.main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
-    local print_output, direct_mode, config
+    local print_output, direct_mode, config, warnings
     local output_file, input_file
 
     while #arg > 0 do
@@ -130,6 +131,9 @@ function cli.main ()
             return
         elseif arg[1] == "-p" or arg[1] == "--print" then
             print_output = true
+            table.remove(arg, 1)
+        elseif arg[1] == "-w" or arg[1] == "--warnings" then
+            warnings = true
             table.remove(arg, 1)
         elseif arg[1] == "-s" or arg[1] == "--string" then
             direct_mode = true
@@ -158,7 +162,7 @@ function cli.main ()
 
     if not input then
         plume.init()
-        cli.config(plume, config)
+        cli.config(plume, config, warnings)
         return cli.interactive_mode (plume)
     end
 
@@ -245,7 +249,7 @@ end
 -- If an invalid format is encountered or a key does not exist, an error message is written to stderr.
 -- @param plume table The plume main table
 -- @param config string A semicolon-separated string of "key=value" pairs representing configuration settings.
-function cli.config(plume, config)
+function cli.config(plume, config, warnings)
     for info in (config or ""):gmatch('[^;]+') do
         local key, value = info:match('([^=]+)=(.+)')
         if not value then
@@ -268,6 +272,10 @@ function cli.config(plume, config)
         else
             io.stderr:write("Unknown configuration '" .. key .. "'\n")
         end
+    end
+
+    if warnings then
+        plume.running_api.warnings_all ()
     end
 end
 

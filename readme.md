@@ -128,6 +128,10 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### Changes
 - All warnings are now disables by default.
+- New `api.warning_all()` 
+
+### CLI changes
+- New `-w, --warnings` option
 
 See the [changelog](doc/changelog.md) for older version
 
