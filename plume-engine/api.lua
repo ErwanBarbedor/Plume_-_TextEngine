@@ -142,6 +142,17 @@ function api.is_called_by (name)
     return false
 end
 
+function api.warnings_all ()
+    local scope = plume.get_scope()
+    for warning in (
+        [[show_deprecation_warnings 
+        show_macro_overwrite_warnings
+        show_beginner_warning
+        ]]):gmatch('%S+') do
+        scope:set("config", warning, true)
+    end
+end
+
 --- Initializes the API methods visible to the user through `plume` variable.
 function plume.init_api ()
     local plume_reference = {}
