@@ -113,7 +113,14 @@ return function ()
 
         local file, filepath = plume.open (params.positionnals.path, formats, path)
 
-        local f = plume.call_lua_chunk (calling_token, "return function ()\n" .. file:read("*a") .. "\n end", filepath)
+        -- Render file content
+        local content = file:read("*a")
+
+        if content == nil then
+            plume.error(params.positionnals["$path"], "This path exists, but has no content. This may be a directory.")
+        end
+
+        local f = plume.call_lua_chunk (calling_token, "return function ()\n" .. content .. "\n end", filepath)
 
         return f()
     end, nil, false, true)
