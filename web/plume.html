@@ -3326,7 +3326,7 @@ function plume.create_scope (parent)
     -- @param value any The value to set
     function scope.set_local(self, field, key, value)
         
-        if value then
+        if value ~= nil then
             rawset (scope[field], key, value)
         else
             -- If the value is nil, keep a reference

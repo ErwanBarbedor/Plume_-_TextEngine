@@ -134,6 +134,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 ### CLI changes
 - New `-w, --warnings` option
 
+### Bugfixs
+- Fix a bug causing non-provided flags to be `nil` instead of `false`.
+
 See the [changelog](doc/changelog.md) for older version
 
 ## License
