@@ -126,6 +126,8 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.12.0
 
+### Changes
+- All warnings are now disables by default.
 
 See the [changelog](doc/changelog.md) for older version
 
