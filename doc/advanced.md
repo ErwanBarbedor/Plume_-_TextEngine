@@ -1,41 +1,5 @@
 # Advanced Documentation
 
-## Tokenlist
-
-Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
-
-```plume
-\macro foo[x]{
-    ${print(x)}
-}
-\foo{bar}
-```
-This will print... `table: 0x560002d8ad30` or something like that, and not `bar`.
-
-To see the tokenlist content, you can call `tokenlist:source()`, which will return raw text, `tokenlist:render()` to get final content as string or `tokenlist:render_lua()` to get result as a lua object.
-
-_If x is a tokenlist, `$x` is the same as `${x:render()}`._
-
-Example:
-
-```plume
-\macro foo[x]{
-    ${x:source()}
-    ${x:render()}
-}
-\foo{${1+1}}
-```
-Gives:
-
-```plume
-${1+1}
-2
-```
-
-Plume does an implicit conversion each time you call a string method (like `gsub` or `match`) or an arithmetic method on it.
-
-_If x and y are tokenlists, `${x+y}` is roughly equivalent to `${tonumber(x:render()) + tonumber(y:render())}`._
-
 ## Macro Parameters
 
 A macro can have 3 kinds of parameters:
@@ -153,6 +117,53 @@ ${
     $x
 }
 \foo bar -> (bar)
+```
+## Dynamic parameters
+```plume
+${i=0}
+\macro repeat[x] {$x $x}
+\repeat ${i=i+1 return i}
+```
+
+Will return... `1 1`, because `${i=i+1 return i}` will be rendered before being passed to `repeat`.
+
+If you want to render `x` two times, use 
+```plume
+${i=0}
+\macro repeat[x:ref] {$x $x}
+\repeat ${i=i+1 return i}
+```
+
+## Tokenlist
+
+Behind the scenes, Plume doesn't manipulate strings but custom tables named **tokenlists**. For example:
+
+```plume
+\macro foo[x:ref]{
+    ${print(x)}
+}
+\foo{bar}
+```
+This will print... `table: 0x560002d8ad30` or something like that, and not `bar`.
+
+To see the tokenlist content, you can call `tokenlist:source()`, which will return raw text, `tokenlist:render()` to get final content as string or `tokenlist:render_lua()` to get result as a lua object.
+
+_If x is a tokenlist, `$x` is the same as `${x:render()}`._
+
+Example:
+
+```plume
+\macro foo[x:ref]{
+    ${x:source()}
+    ${x:render()}
+}
+\foo{${1+1}}
+```
+Gives:
+
+```plume
+${1+1}
+2
 ```
 
 ## Scopes
