@@ -1977,15 +1977,22 @@ function api.get_lua (key)
     end
 end
 
-function api.set (key, value)
+--- Sets a global variable in the current scope.
+-- @param key string The key for the variable to set.
+-- @param value any The value to associate with the key.
+function api.set(key, value)
     local scope = plume.get_scope()
     scope:set("variables", key, value)
 end
 
-function api.local_set (key, value)
+--- Sets a local variable in the current scope.
+-- @param key string The key for the local variable to set.
+-- @param value any The value to associate with the key.
+function api.local_set(key, value)
     local scope = plume.get_scope()
     scope:set_local("variables", key, value)
 end
+
 api.lset = api.local_set
 
 
