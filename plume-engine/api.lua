@@ -75,7 +75,7 @@ api.getr = api.get_render
 -- @param key string The variable name
 -- @alias lget
 -- @return value The required variable.
-function api.lua_get (key)
+function api.get_lua (key)
     local scope = plume.get_scope()
     local result = scope:get("variables", key)
     if type(result) == table and result.render_lua then
@@ -84,7 +84,18 @@ function api.lua_get (key)
         return result
     end
 end
-api.lget = api.lua_get
+
+function api.set (key, value)
+    local scope = plume.get_scope()
+    scope:set("variables", key, value)
+end
+
+function api.local_set (key, value)
+    local scope = plume.get_scope()
+    scope:set_local("variables", key, value)
+end
+api.lset = api.local_set
+
 
 --- @api_method Works like Lua's require, but uses Plume's file search system.
 -- @param path string Path of the lua file to load

@@ -69,9 +69,9 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Alias :** `plume.getr`
 
-### lua_get
+### get_lua
 
-**Usage :** `value = plume.lua_get(key)`
+**Usage :** `value = plume.get_lua(key)`
 
 **Description:**  Get a variable value by name in the current scope. If the variable has a render_lua method (see [render_lua](#render_lua)), call it and return the result. Otherwise, return the variable.
 

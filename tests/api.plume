@@ -12,11 +12,28 @@ ${plume.get "a"}
 1
 \-- End
 
-\-- Test 'lget'
+\-- Test 'getl'
 ${a = {21}}\--
-${plume.lget "a"[1]}
+${plume.get_lua "a"[1]}
 \-- Result
 21
+\-- End
+
+\-- Test 'set'
+${plume.set ("a", 5)}
+$a
+\-- Result
+5
+\-- End
+
+\-- Test 'set local'
+\do {
+    ${plume.lset ("a", 5)}
+    $a
+}
+$a
+\-- Result
+5
 \-- End
 
 \-- Test 'export'
