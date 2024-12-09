@@ -29,28 +29,8 @@ ${
 5 3  3
 \-- End
 
-\-- Test 'script implicit render'
-\macro foo[x] {
-    ${x:match(".$")}
-}
-\--
-\foo bar
-\-- Result
-r
-\-- End
-
-\-- Test 'script implicit render - nil key'
-\macro foo[x] {
-    ${x.bar}
-}
-\--
-\foo 1
-\-- Result
-
-\-- End
-
-\-- Test 'script implicit render - test empty'
-\macro foo[x={}] {
+\-- Test 'test empty'
+\macro foo[x:ref={}] {
     \if ${x:is_empty()} {No argument provided.\n}
     \else {The arg is $x.}
 }

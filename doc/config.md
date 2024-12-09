@@ -13,3 +13,4 @@ Change configuration using `${plume.config.key = value}` or using the macro [con
 | show_deprecation_warnings | false |  Show deprecation warnings created with [deprecate](macros.md#deprecate). |
 | show_macro_overwrite_warnings | false |  Show warning occuring when overwriting already existing macro |
 | show_beginner_warnings | false |  Show some warnings for unexperimented users |
+| default_annotation | "string" |  Set default annotation. Used for compatibilty with 0.11.x, will be removed in the future |

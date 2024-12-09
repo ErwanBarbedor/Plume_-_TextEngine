@@ -83,7 +83,7 @@ foo
 \-- End
 
 \-- Test 'Function 2'
-\macro exec[x] {${x:render_lua()()}}
+\macro exec[x:ref] {${x:render_lua()()}}
 \exec ${
     function () return "foo" end
 }

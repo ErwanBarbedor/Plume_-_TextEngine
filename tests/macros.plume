@@ -23,7 +23,7 @@ foo foo
 \-- End
 
 \-- Test 'macro with simple params 2'
-\macro add[x y] ${x+y}\add{1}{2}
+\macro add[x:number y:number] ${x+y}\add{1}{2}
 \-- Result
 3
 \-- End

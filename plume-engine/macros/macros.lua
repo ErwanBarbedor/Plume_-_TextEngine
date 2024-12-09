@@ -23,7 +23,12 @@ return function ()
     -- @param annotations table A map of keys to their respective annotation types.
     -- @return any The resulting value after annotation is applied.
     local function apply_annotation (macro_token, calling_token, scope, k, v, annotations)
-        local annotation = annotations[k] or "ref"
+        local annotation = annotations[k] or scope:get("config", "default_annotation")
+
+        -- If v is a boolean, then k is a flag
+        if v==true or v==false then
+            return v
+        end
 
         if annotation == "number" then
             return tonumber(v:render_lua())

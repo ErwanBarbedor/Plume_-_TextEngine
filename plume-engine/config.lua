@@ -38,3 +38,6 @@ plume.config.show_macro_overwrite_warnings = false
 
 -- Show some warnings for unexperimented users
 plume.config.show_beginner_warnings = false
+
+-- Set default annotation. Used for compatibilty with 0.11.x, will be removed in the future
+plume.config.default_annotation = "string"

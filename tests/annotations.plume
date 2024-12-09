@@ -34,13 +34,23 @@ nil
 bar
 \-- End
 
-\-- Test 'Annotation: default'
+\-- Test 'Annotation: default (string)'
 \macro foo[x] {
-    ${x:render()}
+    ${type(x)}
 }
 \foo bar
 \-- Result
-bar
+string
+\-- End
+
+\-- Test 'Annotation: set default'
+\lconfig default_annotation ref
+\macro foo[x] {
+    ${type(x)}
+}
+\foo bar
+\-- Result
+table
 \-- End
 
 \-- Test 'Annotation: user'

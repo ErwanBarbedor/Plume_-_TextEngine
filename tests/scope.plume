@@ -99,8 +99,8 @@ baz
 \-- End
 
 \-- Test 'Closure in Expression'
-\macro create_multiplier[multiplier] {
-    \macro multiply_by[x] { ${x*multiplier} }
+\macro create_multiplier[multiplier:number] {
+    \macro multiply_by[x:number] { ${x*multiplier} }
     \multiply_by {3}
 }
 \create_multiplier {2}
