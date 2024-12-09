@@ -82,6 +82,26 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Alias :** `plume.lget`
 
+### set
+
+**Usage :** `plume.set(key, value)`
+
+**Description:**  Sets a global variable in the current scope.
+
+**Parameters :**
+- `key` _string_  The key for the variable to set.
+- `value` _any_  The value to associate with the key.
+
+### local_set
+
+**Usage :** `plume.local_set(key, value)`
+
+**Description:**  Sets a local variable in the current scope.
+
+**Parameters :**
+- `key` _string_  The key for the local variable to set.
+- `value` _any_  The value to associate with the key.
+
 ### require
 
 **Usage :** `lib = plume.require(path)`
