@@ -219,6 +219,11 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
     end
 
     error_message = table.concat(error_lines, "\n")
+
+    -- In debug mode, add internal traceback
+    if plume.debug_mode then
+        error_message = error_message .. "\n" .. debug.traceback()
+    end
     
     return error_message
 end

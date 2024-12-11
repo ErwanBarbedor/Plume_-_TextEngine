@@ -29,6 +29,7 @@ Options:
   -s, --string        Evaluate the input
   -c, --config        Edit plume configuration
   -w, --warnings      Activate warnings
+  -d, --debug         Activate debug mode
 
 Examples:
   plume --help
@@ -122,7 +123,7 @@ function cli.main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
-    local print_output, direct_mode, config, warnings
+    local print_output, direct_mode, config, warnings, debug_mode, input
     local output_file, input_file
 
     while #arg > 0 do
@@ -137,6 +138,9 @@ function cli.main ()
             table.remove(arg, 1)
         elseif arg[1] == "-w" or arg[1] == "--warnings" then
             warnings = true
+            table.remove(arg, 1)
+        elseif arg[1] == "-d" or arg[1] == "--debug" then
+            debug_mode = true
             table.remove(arg, 1)
         elseif arg[1] == "-s" or arg[1] == "--string" then
             direct_mode = true
@@ -165,7 +169,7 @@ function cli.main ()
 
     if not input then
         plume.init()
-        cli.config(plume, config, warnings)
+        cli.config(plume, config, warnings, debug_mode)
         return cli.interactive_mode (plume)
     end
 
@@ -175,13 +179,13 @@ function cli.main ()
     local success, result
     if direct_mode then
         plume.init ()
-        cli.config(plume, config)
+        cli.config(plume, config, warnings, debug_mode)
         -- Render the given string and capture success or error
         success, result = pcall(plume.render, input)
     else
         input_file = input
-        plume.init (input_file)
-        cli.config(plume, config)
+        plume.init ()
+        cli.config(plume, config, warnings, debug_mode)
 
         --- @api_variable If use in command line, path of the input file.
         plume.get_scope().variables.plume.input_file  = absolutePath(currentDirectory, input_file)
@@ -252,7 +256,7 @@ end
 -- If an invalid format is encountered or a key does not exist, an error message is written to stderr.
 -- @param plume table The plume main table
 -- @param config string A semicolon-separated string of "key=value" pairs representing configuration settings.
-function cli.config(plume, config, warnings)
+function cli.config(plume, config, warnings, debug_mode)
     for info in (config or ""):gmatch('[^;]+') do
         local key, value = info:match('([^=]+)=(.+)')
         if not value then
@@ -280,6 +284,8 @@ function cli.config(plume, config, warnings)
     if warnings then
         plume.running_api.warnings_all ()
     end
+
+    plume.debug_mode = debug_mode
 end
 
 cli.main ()

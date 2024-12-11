@@ -688,7 +688,7 @@ return function ()
             table.insert(parent_paths, plume.directory .. "/lib")
         end
 
-        local file, filepath
+        local file, filepath, msg
         for _, folder in ipairs(parent_paths) do
             
             -- "/path" isn't a valid path, so if not a parent folder,
@@ -702,6 +702,25 @@ return function ()
                 filepath = (folder.. filepath)
                 -- filepath = filepath:gsub('^/', '')
                 
+                for i = #plume.traceback, 1, -1 do
+                    if filepath == plume.traceback[i].file then
+                        local msg
+                        if i==#plume.traceback then
+                            msg = "A file cannot include itself."
+                        else
+                            msg = "Loop in include."
+                            for j = i, #plume.traceback-1 do
+                                msg = msg .. "\n\t - " .. plume.traceback[j].file .. " include " .. plume.traceback[j+1].file
+                            end
+                            msg = msg .. "\n\t - " .. plume.traceback[#plume.traceback].file .. " try to include " .. filepath
+
+                            msg = msg .. "\n"
+                        end
+
+                        plume.error(token or plume.traceback[#plume.traceback], msg)
+                    end
+                end
+
                 file, msg = io.open(filepath, mode)
 
                 if file then
@@ -726,7 +745,7 @@ return function ()
             if silent_fail then
                 return nil, nil, msg
             else
-                plume.error(token or plume.traceback[i], msg)
+                plume.error(token or plume.traceback[#plume.traceback], msg)
             end
         end
 
@@ -876,6 +895,8 @@ return function ()
 
         if annotation == "number" then
             return tonumber(v:render_lua())
+        elseif annotation == "int" then
+            return math.floor(tonumber(v:render_lua())+0.5)
         elseif annotation == "string" then
             return v:render()
         elseif annotation == "lua" then
@@ -2435,6 +2456,11 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
     end
 
     error_message = table.concat(error_lines, "\n")
+
+    -- In debug mode, add internal traceback
+    if plume.debug_mode then
+        error_message = error_message .. "\n" .. debug.traceback()
+    end
     
     return error_message
 end
@@ -2475,6 +2501,9 @@ plume_files['plume-engine.init'] = function ()
 -- But given the current organization of the code, this would require a major rewrite.
 plume = {}
 plume._VERSION = "Plume - TextEngine 0.12.0"
+
+-- Add whole traceback in errors messages
+plume.debug_mode = false
 
 require "plume-engine.config"
 require "plume-engine.syntax"
