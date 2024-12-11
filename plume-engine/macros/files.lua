@@ -46,7 +46,7 @@ return function ()
             table.insert(parent_paths, plume.directory .. "/lib")
         end
 
-        local file, filepath
+        local file, filepath, msg
         for _, folder in ipairs(parent_paths) do
             
             -- "/path" isn't a valid path, so if not a parent folder,
@@ -60,6 +60,25 @@ return function ()
                 filepath = (folder.. filepath)
                 -- filepath = filepath:gsub('^/', '')
                 
+                for i = #plume.traceback, 1, -1 do
+                    if filepath == plume.traceback[i].file then
+                        local msg
+                        if i==#plume.traceback then
+                            msg = "A file cannot include itself."
+                        else
+                            msg = "Loop in include."
+                            for j = i, #plume.traceback-1 do
+                                msg = msg .. "\n\t - " .. plume.traceback[j].file .. " include " .. plume.traceback[j+1].file
+                            end
+                            msg = msg .. "\n\t - " .. plume.traceback[#plume.traceback].file .. " try to include " .. filepath
+
+                            msg = msg .. "\n"
+                        end
+
+                        plume.error(token or plume.traceback[#plume.traceback], msg)
+                    end
+                end
+
                 file, msg = io.open(filepath, mode)
 
                 if file then
@@ -84,7 +103,7 @@ return function ()
             if silent_fail then
                 return nil, nil, msg
             else
-                plume.error(token or plume.traceback[i], msg)
+                plume.error(token or plume.traceback[#plume.traceback], msg)
             end
         end
 
