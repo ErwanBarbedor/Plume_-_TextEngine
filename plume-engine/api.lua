@@ -171,6 +171,8 @@ function api.warnings_all ()
     end
 end
 
+
+
 --- Initializes the API methods visible to the user through `plume` variable.
 function plume.init_api ()
     local plume_reference = {}
@@ -181,35 +183,48 @@ function plume.init_api ()
     -- keep a reference to the user `plume` variable
     plume.running_api = plume_reference
 
+    --- Creates field accessors for global and local scopes.
+    -- Sets up tables in `plume_reference` allowing field access and modification.
+    -- Fields are accessed either in a global context or a local context.
+    -- @param field string The name of the field to create accessor functions for.
+    local function make_field_access(field)
+        -- Create global scope accessor and modifier for the specified field.
+        plume_reference[field] = setmetatable({}, {
+            __newindex = function(self, k, v)
+                global_scope:set(field, k, v)
+            end,
+
+            __index = function(self, k)
+                return global_scope:get(field, k)
+            end
+        })
+
+        -- Create local scope accessor and modifier for the specified field.
+        plume_reference["local_" .. field] = setmetatable({}, {
+            __newindex = function(self, k, v)
+                local scope = plume.get_scope()
+                scope:set_local(field, k, v)
+            end,
+
+            __index = function(self, k)
+                local scope = plume.get_scope()
+                return scope:get(field, k)
+            end
+        })
+
+        -- Create an alias for local
+        plume_reference["l" .. field] = plume_reference["local_" .. field]
+    end
+
+
     for k, v in pairs(api) do
         plume_reference[k] = v
     end
 
-    --- User can edit configuration through a table
-    plume_reference.config = setmetatable({}, {
-        __newindex = function (self, k, v)
-            global_scope:set ("config", k, v)
-        end,
-
-        __index = function (self, k)
-            return global_scope:get("config", k)
-        end
-    })
-
-    --- User can also edit configuration locally
-    plume_reference.local_config = setmetatable({}, {
-        __newindex = function (self, k, v)
-            local scope = plume.get_scope()
-            scope:set_local("config", k, v)
-        end,
-
-        __index = function (self, k)
-            local scope = plume.get_scope()
-            return scope:get("config", k)
-        end
-    })
-
-    plume_reference.lconfig = plume_reference.local_config
+    -- User can edit configuration and annotations,
+    -- locally and globally, through a table
+    make_field_access ("config")
+    make_field_access ("annotations")
 
     -- Used to pass temp variable
     plume_reference.temp = setmetatable({},

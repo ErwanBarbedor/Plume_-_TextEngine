@@ -55,7 +55,7 @@ table
 
 \-- Test 'Annotation: user'
 ${
-    function braced (x)
+    plume.annotations.braced = function (x)
         return "(" .. x:render() .. ")"
     end
 }
@@ -91,7 +91,7 @@ string:number
 \macro foo[x:candy=pink] {}
 \foo
 \-- Error
-File 'string', line 1 : 'candy' doesn't exist. Cannot use it to annotate parameters.
+File 'string', line 1 : Unknown annotation 'candy'.
     \macro foo[x:candy=pink] {}
     ^^^^^^
 Traceback :
@@ -100,14 +100,16 @@ Traceback :
 \-- End
 
 \-- Test 'Wrong annotation type'
-${candy=1}
+${
+    plume.annotations.candy = 1
+}
 \macro foo[x:candy=pink] {}
 \foo
 \-- Error
-File 'string', line 2 : 'candy' is not a function, but a 'number'. Cannot use it to annotate parameters.
+File 'string', line 4 : 'candy' is not a function, but a 'number'. Cannot use it to annotate parameters.
     \macro foo[x:candy=pink] {}
     ^^^^^^
 Traceback :
-    File 'string', line 3 : \foo
+    File 'string', line 5 : \foo
                             ^^^^
 \-- End

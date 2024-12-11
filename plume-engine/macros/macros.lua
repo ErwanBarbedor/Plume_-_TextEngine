@@ -39,13 +39,13 @@ return function ()
         elseif annotation == "ref" then
             return v
         else
-            local method = scope:get("variables", annotation)
+            local method = scope:get("annotations", annotation)
             
             -- Check if the method exists in the scope and if it's a function
             if method == nil then
-                plume.error(macro_token,"'" .. annotation .. "' doesn't exist. Cannot use it to annotate parameters.")
+                plume.error(macro_token,"Unknown annotation '" .. annotation .. "'.")
             elseif type(method) ~= "function" then
-                plume.error(macro_token, "'" .. annotation .. "' is not a function, but a '" .. type(method) .. "'. Cannot use it to annotate parameters.")
+                plume.error(macro_token, "'"..annotation.."' is not a function, but a '"..type(method).."'. Cannot use it to annotate parameters.")
             end
             
             local method_wrapper = function () return method(v) end

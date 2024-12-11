@@ -99,9 +99,9 @@ You can write:
 
 Available types are:
 - `number`: convert to a number
-- `string`: convert to a string
+- `string`(default behavior): convert to a string
 - `lua`: try to return a Lua value, if it fails, return a string
-- `ref` (default behavior): return a tokenlist, cf tokenlist section.
+- `ref`: return a tokenlist, cf tokenlist section.
 
 Plume doesn't do any _type checking_: with the previously defined `foo`, `\foo bar` will just convert `bar` to `nil`, without error.
 
@@ -109,7 +109,7 @@ You can also use any function as an annotation:
 
 ```plume
 ${
-    function braced(x)
+    plume.annotations.braced = function (x)
         return "(" .. x:render() .. ")"
     end
 }

@@ -174,16 +174,18 @@ function plume.create_scope (parent)
     local scope = {}
 
     -- Store all variables values, accessibles from user
-    make_field (scope, "variables", parent)
+    make_field (scope, "variables",   parent)
     -- Store references to declared local variables in the current scope,
     -- but with a nil value
-    make_field (scope, "nil_local", parent)
+    make_field (scope, "nil_local",   parent)
     -- Store macro
-    make_field (scope, "macros",    parent)
+    make_field (scope, "macros",      parent)
     -- Store default parameters for macro
-    make_field (scope, "default",   parent)
+    make_field (scope, "default",     parent)
     -- Store configuration
-    make_field (scope, "config",    parent)
+    make_field (scope, "config",      parent)
+    -- Store annotations functions
+    make_field (scope, "annotations", parent)
 
     --- Returns all variables of the given field that are visible from this scope.
     -- @param self table The current scope.
@@ -194,6 +196,12 @@ function plume.create_scope (parent)
         
         for k, _ in pairs(self[field]) do
             table.insert(t, k)
+        end
+
+        if field == "variables" then
+            for k, _ in pairs(self["nil_local"]) do
+                table.insert(t, k)
+            end
         end
 
         -- If a parent scope exists, recursively get variables from the parent's field
