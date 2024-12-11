@@ -23,12 +23,10 @@ function plume.parse (tokenlist)
         local top = stack[#stack]
 
         if token.kind == "block_begin" then
-            eval_var = 0
             table.insert(stack, plume.tokenlist("block"))
             stack[#stack].opening_token = token
         
         elseif token.kind == "block_end" then
-            eval_var = 0
             local block = table.remove(stack)
             local top = stack[#stack]
 
@@ -56,7 +54,7 @@ function plume.parse (tokenlist)
             if not top then
                 plume.syntax_error_brace_close_nothing (token)
             elseif last.kind ~= "opt_block" then
-                plume.syntax_error_wrong_block_end (token, block.opening_token.value)
+                plume.syntax_error_wrong_block_end (token, last.opening_token.value)
             end
 
             last.closing_token = token

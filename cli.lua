@@ -56,6 +56,9 @@ local function getCurrentDirectory ()
 
     -- Execute the proper command to get the current directory
     local handle = io.popen(command)
+    if handle == nil then
+        return
+    end
     local currentDir = handle:read("*a")
     handle:close()
     
@@ -167,7 +170,7 @@ function cli.main ()
     end
 
     -- Initialize with the input file
-    local currentDirectory = getCurrentDirectory ()
+    local currentDirectory = getCurrentDirectory () or "/"
 
     local success, result
     if direct_mode then
@@ -235,7 +238,7 @@ function cli.interactive_mode(plume)
         print(result)
 
         -- Reset traceback and error
-        if not sucess then
+        if not success then
             plume.last_error = nil
             plume.traceback = {}
         end

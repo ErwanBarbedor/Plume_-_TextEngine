@@ -3,27 +3,27 @@ package.path = package.path .. ";?/init.lua"
 plume = require "plume-engine"
 
 -- Some ascii codes
-function underline(txt)
+local function underline(txt)
     return "\27[4m" .. txt .. "\27[0m"
 end
 
-function bgred(txt)
+local function bgred(txt)
     return "\27[41m\27[37m" .. txt .. "\27[0m"
 end
 
-function colred(txt)
+local function colred(txt)
     return "\27[31m" .. txt .. "\27[0m"
 end
 
-function bgyellow(txt)
+local function bgyellow(txt)
     return "\27[43m\27[30m" .. txt .. "\27[0m"
 end
 
-function colyellow(txt)
+local function colyellow(txt)
     return "\27[33m" .. txt .. "\27[0m"
 end
 
-function colyellowdiff(txt, expected)
+local function colyellowdiff(txt, expected)
     local result = {"\27[33m"}
     for i = 1, #txt do
         if txt:sub(i, i) == expected:sub(i, i) then
@@ -37,11 +37,11 @@ function colyellowdiff(txt, expected)
     return table.concat(result)
 end
 
-function bggreen(txt)
+local function bggreen(txt)
     return "\27[42m" .. txt .. "\27[0m"
 end
 
-function bgwhite(txt)
+local function bgwhite(txt)
     return "\27[47m\27[30m" .. txt .. "\27[0m"
 end
 
@@ -192,10 +192,16 @@ local function runTests(tests)
         local sucess, result
 
         if test.cli then
-            sucess = true
+            
             local handle = io.popen(test.input)
+            if handle ~= nil then
+                sucess = true
                 result = handle:read("*a"):gsub('\n$', '')
-            handle:close()
+                handle:close()
+            else
+                sucess = false
+                result = "Error during command call"
+            end
         else
             resetPlume ()
             sucess, result = pcall (plume.render, test.input)

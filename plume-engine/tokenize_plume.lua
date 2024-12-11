@@ -64,7 +64,7 @@ function plume.tokenizer:handle_context_plume ()
     
     -- "$" is the begin of a lua block
     elseif char == plume.syntax.eval then
-        self:handle_lua_block_begin (char)
+        self:handle_lua_block_begin ()
 
     -- If in macro mode, add the current char to the macro name or,
     -- if the char it isn't a valid identifier, end the macro.
@@ -105,7 +105,6 @@ end
 -- It is the default behavior in plume code, but Lua code needs to keep these spaces.
 function plume.tokenizer:handle_comment (keep_all_spaces)
     self:write("comment")
-    table.insert(self.acc, char)
     local find_newline
 
     -- Iterate over characters until the end of the code or a newline is found

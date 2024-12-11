@@ -104,7 +104,7 @@ function plume.tokenizer:write(current, delta)
             local word = table.concat(self.acc, "")
 
             -- Checks for lua keywords
-            mode = self.mode
+            local mode = self.mode
 
             if mode == "lua_word" then
                 mode = plume.tokenizer:lua_checks_keywords (mode, word)

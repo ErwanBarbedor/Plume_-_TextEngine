@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param opt_params table The optional arguments to parse
 -- @param context table Scope to search default parameters for
 function plume.make_opt_params (macro, params, opt_params, context)
-    local key, eq, space
+    local key, eq
     local flags = {}
     local scope = plume.get_scope (context)
 
@@ -72,7 +72,7 @@ function plume.make_opt_params (macro, params, opt_params, context)
     local i=0
     while i < #opt_params do
         i = i + 1
-        token = opt_params[i]
+        local token = opt_params[i]
         
         -- Anything that is not ${...}, "=", a block, a comment or a space (in fact, macros)
         -- will lead to an error

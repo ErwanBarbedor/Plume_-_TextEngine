@@ -89,8 +89,7 @@ function plume.call_lua_chunk(token, code, filename)
 
         local chunck = setmetatable({
             code              = code,
-            filename          = filename,
-            is_lua_expression = lua_expression
+            filename          = filename
         },{
             __call = function ()
                 -- The function can write and read variable of the current scope
@@ -193,14 +192,8 @@ function plume.create_scope (parent)
     function scope.get_all(self, field)
         local t = {}
         
-        if source then
-            for _, k in ipairs(source:get_all(field)) do
-                table.insert(t, k)
-            end
-        else
-            for k, _ in pairs(self[field]) do
-                table.insert(t, k)
-            end
+        for k, _ in pairs(self[field]) do
+            table.insert(t, k)
         end
 
         -- If a parent scope exists, recursively get variables from the parent's field

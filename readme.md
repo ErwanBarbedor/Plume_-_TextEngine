@@ -138,6 +138,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - `token:sourceLua(), tokenlist:sourceLua()` -> `token:source_lua(), tokenlist:source_lua()`
 - Sugar syntax : `\foo[?bar]` is a shortcut for `\foo[{\if $bar bar}]`
 
+### Interns changes
+- Code cleaning
+
 ### Deprecation
 - `tokenlist:is_empty ()` is deprecated
 - All tokenlist implicit conversions will be removed in the future.

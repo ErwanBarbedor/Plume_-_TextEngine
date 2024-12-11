@@ -24,11 +24,11 @@ You should have received a copy of the GNU General Public License along with Plu
 -- @param std bool It is a standard macro? (optionnal - defaults false)
 -- @param variable_parameters_number bool Accept unknow parameters? (optionnal - defaults false)
 function plume.register_macro (name, params, default_opt_params, macro, token, is_local, std, variable_parameters_number)
-    local macro = {
+    macro = {
         name                       = name,
-        params                       = params,
-        default_opt_params           = default_opt_params,
-        user_opt_params              = {},
+        params                     = params,
+        default_opt_params         = default_opt_params,
+        user_opt_params            = {},
         macro                      = macro,
         token                      = token,
         variable_parameters_number = variable_parameters_number

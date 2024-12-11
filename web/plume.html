@@ -2220,9 +2220,9 @@ local MAX_LINE_LENGTH = 80
 -- @param message string The error message
 -- @return table A table containing file, line number, line content, and position information
 local function lua_info (lua_message)
-    local file, noline, message = lua_message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
+    local file, noline = lua_message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
     if not file then
-        file, noline, message = lua_message:match("^%s*(.-):([0-9]+): (.*)")
+        file, noline = lua_message:match("^%s*(.-):([0-9]+): (.*)")
     end
     if not file then
         return {
@@ -2306,7 +2306,6 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
                     if first_line then
                         first_line = false
                     else
-                        local infos = lua_info (line)
                         table.insert(error_lines_infos, lua_info (line))
                         -- check if we arn't last line
                         if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
@@ -2420,7 +2419,7 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
         delta = delta + count
     end
 
-    local error_message = table.concat(error_lines, "\n")
+    error_message = table.concat(error_lines, "\n")
     
     return error_message
 end
@@ -2435,7 +2434,7 @@ function plume.error (token, error_message, is_lua_error)
     end
 
     -- Create a formatted error message.
-    local error_message = plume.make_error_message (token, error_message, is_lua_error, true)
+    error_message = plume.make_error_message (token, error_message, is_lua_error, true)
 
     -- Save the error message.
     plume.last_error = error_message
@@ -2611,11 +2610,11 @@ plume_files['plume-engine.macro'] = function ()
 -- @param std bool It is a standard macro? (optionnal - defaults false)
 -- @param variable_parameters_number bool Accept unknow parameters? (optionnal - defaults false)
 function plume.register_macro (name, params, default_opt_params, macro, token, is_local, std, variable_parameters_number)
-    local macro = {
+    macro = {
         name                       = name,
-        params                       = params,
-        default_opt_params           = default_opt_params,
-        user_opt_params              = {},
+        params                     = params,
+        default_opt_params         = default_opt_params,
+        user_opt_params            = {},
         macro                      = macro,
         token                      = token,
         variable_parameters_number = variable_parameters_number
@@ -2678,12 +2677,10 @@ function plume.parse (tokenlist)
         local top = stack[#stack]
 
         if token.kind == "block_begin" then
-            eval_var = 0
             table.insert(stack, plume.tokenlist("block"))
             stack[#stack].opening_token = token
         
         elseif token.kind == "block_end" then
-            eval_var = 0
             local block = table.remove(stack)
             local top = stack[#stack]
 
@@ -2711,7 +2708,7 @@ function plume.parse (tokenlist)
             if not top then
                 plume.syntax_error_brace_close_nothing (token)
             elseif last.kind ~= "opt_block" then
-                plume.syntax_error_wrong_block_end (token, block.opening_token.value)
+                plume.syntax_error_wrong_block_end (token, last.opening_token.value)
             end
 
             last.closing_token = token
@@ -2830,7 +2827,7 @@ plume_files['plume-engine.render'] = function ()
 -- @param opt_params table The optional arguments to parse
 -- @param context table Scope to search default parameters for
 function plume.make_opt_params (macro, params, opt_params, context)
-    local key, eq, space
+    local key, eq
     local flags = {}
     local scope = plume.get_scope (context)
 
@@ -2884,7 +2881,7 @@ function plume.make_opt_params (macro, params, opt_params, context)
     local i=0
     while i < #opt_params do
         i = i + 1
-        token = opt_params[i]
+        local token = opt_params[i]
         
         -- Anything that is not ${...}, "=", a block, a comment or a space (in fact, macros)
         -- will lead to an error
@@ -3309,8 +3306,7 @@ function plume.call_lua_chunk(token, code, filename)
 
         local chunck = setmetatable({
             code              = code,
-            filename          = filename,
-            is_lua_expression = lua_expression
+            filename          = filename
         },{
             __call = function ()
                 -- The function can write and read variable of the current scope
@@ -3413,14 +3409,8 @@ function plume.create_scope (parent)
     function scope.get_all(self, field)
         local t = {}
         
-        if source then
-            for _, k in ipairs(source:get_all(field)) do
-                table.insert(t, k)
-            end
-        else
-            for k, _ in pairs(self[field]) do
-                table.insert(t, k)
-            end
+        for k, _ in pairs(self[field]) do
+            table.insert(t, k)
         end
 
         -- If a parent scope exists, recursively get variables from the parent's field
@@ -4108,7 +4098,7 @@ function plume.tokenizer:write(current, delta)
             local word = table.concat(self.acc, "")
 
             -- Checks for lua keywords
-            mode = self.mode
+            local mode = self.mode
 
             if mode == "lua_word" then
                 mode = plume.tokenizer:lua_checks_keywords (mode, word)
@@ -4382,7 +4372,7 @@ function plume.tokenizer:handle_context_plume ()
     
     -- "$" is the begin of a lua block
     elseif char == plume.syntax.eval then
-        self:handle_lua_block_begin (char)
+        self:handle_lua_block_begin ()
 
     -- If in macro mode, add the current char to the macro name or,
     -- if the char it isn't a valid identifier, end the macro.
@@ -4423,7 +4413,6 @@ end
 -- It is the default behavior in plume code, but Lua code needs to keep these spaces.
 function plume.tokenizer:handle_comment (keep_all_spaces)
     self:write("comment")
-    table.insert(self.acc, char)
     local find_newline
 
     -- Iterate over characters until the end of the code or a newline is found

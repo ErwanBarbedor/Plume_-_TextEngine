@@ -19,9 +19,9 @@ local MAX_LINE_LENGTH = 80
 -- @param message string The error message
 -- @return table A table containing file, line number, line content, and position information
 local function lua_info (lua_message)
-    local file, noline, message = lua_message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
+    local file, noline = lua_message:match("^%s*%[(.-)%]:([0-9]+): (.*)")
     if not file then
-        file, noline, message = lua_message:match("^%s*(.-):([0-9]+): (.*)")
+        file, noline = lua_message:match("^%s*(.-):([0-9]+): (.*)")
     end
     if not file then
         return {
@@ -105,7 +105,6 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
                     if first_line then
                         first_line = false
                     else
-                        local infos = lua_info (line)
                         table.insert(error_lines_infos, lua_info (line))
                         -- check if we arn't last line
                         if line:match('^%s*[string "%-%-chunk[0-9]+..."]:[0-9]+: in function <[string "--chunk[0-9]+..."]') then
@@ -219,7 +218,7 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
         delta = delta + count
     end
 
-    local error_message = table.concat(error_lines, "\n")
+    error_message = table.concat(error_lines, "\n")
     
     return error_message
 end
@@ -234,7 +233,7 @@ function plume.error (token, error_message, is_lua_error)
     end
 
     -- Create a formatted error message.
-    local error_message = plume.make_error_message (token, error_message, is_lua_error, true)
+    error_message = plume.make_error_message (token, error_message, is_lua_error, true)
 
     -- Save the error message.
     plume.last_error = error_message
