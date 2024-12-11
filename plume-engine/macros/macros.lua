@@ -32,6 +32,8 @@ return function ()
 
         if annotation == "number" then
             return tonumber(v:render_lua())
+        elseif annotation == "int" then
+            return math.floor(tonumber(v:render_lua())+0.5)
         elseif annotation == "string" then
             return v:render()
         elseif annotation == "lua" then

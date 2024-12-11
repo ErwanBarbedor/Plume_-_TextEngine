@@ -98,10 +98,11 @@ You can write:
 ```
 
 Available types are:
-- `number`: convert to a number
-- `string`(default behavior): convert to a string
-- `lua`: try to return a Lua value, if it fails, return a string
-- `ref`: return a tokenlist, cf tokenlist section.
+- `number`: converts to a number
+- `int`: converts to an integer. Rounds it if necessary.
+- `string` (default behavior): converts to a string
+- `lua`: tries to return a Lua value, if it fails, returns a string
+- `ref`: returns a tokenlist, see the tokenlist section.
 
 Plume doesn't do any _type checking_: with the previously defined `foo`, `\foo bar` will just convert `bar` to `nil`, without error.
 
