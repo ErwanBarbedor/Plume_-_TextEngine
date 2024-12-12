@@ -48,7 +48,7 @@ baz
 \-- Test 'Variable block scope 6'
 \macro foo[x]{$x}\macro bar[x]{$x}\bar {\foo {${local x=0} $x}}
 \-- Result
- 0
+0
 \-- End
 
 \-- Test 'Variable block scope 7'

@@ -98,6 +98,10 @@ You can write:
 ```
 
 Available types are:
+- `auto` (default behavior) : try, in this order:
+    - To return a number
+    - To return a Lua object
+    - To return a string
 - `number`: converts to a number
 - `int`: converts to an integer. Rounds it if necessary.
 - `string` (default behavior): converts to a string
@@ -119,6 +123,22 @@ ${
 }
 \foo bar -> (bar)
 ```
+
+**Warning:** in this case,
+
+```
+\macro foo[x=${1/3}[i]] ${$x}
+```
+
+`foo` will return... `0.333...`, and not `0`, because `:auto` annotation tries to return the Lua value of `${1/3}`, without formatting.
+
+If you want the optional parameter `i` to apply, use:
+
+```
+\macro foo[x:string=${1/3}[i]] ${$x}
+```
+
+
 ## Dynamic parameters
 ```plume
 ${i=0}

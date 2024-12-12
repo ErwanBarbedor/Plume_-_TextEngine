@@ -34,13 +34,40 @@ nil
 bar
 \-- End
 
-\-- Test 'Annotation: default (string)'
+\-- Test 'Annotation: string'
+\macro foo[x:string] {
+    ${type(x)}
+}
+\foo bar
+\-- Result
+string
+\-- End
+
+\-- Test 'Annotation: default (auto) 1'
 \macro foo[x] {
     ${type(x)}
 }
 \foo bar
 \-- Result
 string
+\-- End
+
+\-- Test 'Annotation: default (auto) 2'
+\macro foo[x] {
+    ${type(x)}
+}
+\foo 1
+\-- Result
+number
+\-- End
+
+\-- Test 'Annotation: default (auto) 3'
+\macro foo[x] {
+    ${type(x)}
+}
+\foo ${{}}
+\-- Result
+table
 \-- End
 
 \-- Test 'Annotation: set default'

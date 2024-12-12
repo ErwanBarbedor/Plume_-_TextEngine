@@ -146,7 +146,7 @@ true
 \-- End
 
 \-- Test 'Eval in parameter value 2'
-\macro foo[x=${1/3}[i]] {
+\macro foo[x:ref=${1/3}[i]] {
     $x
 }
 \foo
@@ -171,7 +171,7 @@ foo
 \-- End
 
 \-- Test 'Capture eval optionnal block'
-\macro double[x] {
+\macro double[x:ref] {
     $x $x
 }
 \double ${1/3}[.1f]

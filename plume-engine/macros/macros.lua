@@ -30,38 +30,26 @@ return function ()
             return v
         end
 
-        if annotation == "number" then
-            return tonumber(v:render_lua())
-        elseif annotation == "int" then
-            return math.floor(tonumber(v:render_lua())+0.5)
-        elseif annotation == "string" then
-            return v:render()
-        elseif annotation == "lua" then
-            return v:render_lua()
-        elseif annotation == "ref" then
-            return v
-        else
-            local method = scope:get("annotations", annotation)
-            
-            -- Check if the method exists in the scope and if it's a function
-            if method == nil then
-                plume.error(macro_token,"Unknown annotation '" .. annotation .. "'.")
-            elseif type(method) ~= "function" then
-                plume.error(macro_token, "'"..annotation.."' is not a function, but a '"..type(method).."'. Cannot use it to annotate parameters.")
-            end
-            
-            local method_wrapper = function () return method(v) end
-
-            local result = { xpcall (method_wrapper, plume.error_handler) }
-            local sucess = result[1]
-            table.remove(result, 1)
-
-            if not sucess then
-                plume.error(calling_token, result[1], true)
-            end
-
-            return result
+        local method = scope:get("annotations", annotation)
+        
+        -- Check if the method exists in the scope and if it's a function
+        if method == nil then
+            plume.error(macro_token,"Unknown annotation '" .. annotation .. "'.")
+        elseif type(method) ~= "function" then
+            plume.error(macro_token, "'"..annotation.."' is not a function, but a '"..type(method).."'. Cannot use it to annotate parameters.")
         end
+        
+        local method_wrapper = function () return method(v) end
+
+        local result = { xpcall (method_wrapper, plume.error_handler) }
+        local sucess = result[1]
+        table.remove(result, 1)
+
+        if not sucess then
+            plume.error(calling_token, result[1], true)
+        end
+
+        return (unpack or table.unpack) (result)
     end
 
     --- Checks if a macro is already defined in the current scope and issues a warning if it is.

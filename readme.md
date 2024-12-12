@@ -128,8 +128,8 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ### Changes
 - New syntax: conversion annotation. In the macro definition, users can give the name of a function to call on a parameter to convert it: `\macro double [x:number] ${2*x}`
-- Default annotation to all parameters is `string`, even if old default behavior is `ref`.
-- New `config.default_annotation` for compatibility with `0.11.x`.
+- Default annotation to all parameters is `auto`, even if old default behavior is `ref`.
+- New `config.default_annotation`.
 - New `plume.set`, `plume.local_set` and `plume.lset`.
 - Rename `plume.lua_get` to `plume.get_lua`
 - Remove `plume.lget`

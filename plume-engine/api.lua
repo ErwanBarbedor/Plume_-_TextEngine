@@ -244,5 +244,8 @@ function plume.init_api ()
             end
         }
     )
+
+    -- Import annotations
+    require "plume-engine.annotations" (global_scope)
 end
 
