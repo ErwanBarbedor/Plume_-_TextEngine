@@ -95,20 +95,29 @@ ${
 }
 \-- End
 
-\-- Test 'call_macro 1'
+\-- Test 'call_macro positional 1'
 \macro double[x] {$x $x}
 ${
-    plume.call_macro ("double", {}, "foo")
+    plume.call_macro ("double", {"foo"})
 }
 \-- Result
 foo foo
 \-- End
 
-\-- Test 'call_macro 2'
+\-- Test 'call_macro positional 2'
 \macro double[x] {$x $x}
 ${
-    plume.call_macro ("double", {}, ${foo})
+    plume.call_macro ("double", {${foo}})
 }
 \-- Result
 foo foo
+\-- End
+
+\-- Test 'call_macro optionnal'
+\macro double[x=1] {$x $x}
+${
+    plume.call_macro ("double", {}, {x=1})
+}
+\-- Result
+1 1
 \-- End

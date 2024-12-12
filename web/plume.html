@@ -291,14 +291,14 @@ return function ()
         local scope = plume.get_scope (calling_token.context)
         local max_loop_size = scope:get("config", "max_loop_size")
 
-        if params.positionnals.iterator.kind ~= "code" then
-           plume.error_expecting_an_eval_block (params.positionnals.iterator)
+        if params.positionals.iterator.kind ~= "code" then
+           plume.error_expecting_an_eval_block (params.positionals.iterator)
         end
          
         local join = plume.render_if_token(params.keywords.join)
 
         -- Get iterator code and extract the names of the variables
-        local iterator_token = params.positionnals.iterator[2]
+        local iterator_token = params.positionals.iterator[2]
         local iterator_code  = iterator_token:source_lua ({}, false, false)
         local variables_list  = extract_variables_names (iterator_token)
 
@@ -329,7 +329,7 @@ return function ()
             end
 
             -- Iteration scope
-            plume.push_scope (params.positionnals.body.context)
+            plume.push_scope (params.positionals.body.context)
 
             -- Resume the coroutine to get the next set of values
             local values_list = { coroutine.resume(co) }
@@ -352,12 +352,12 @@ return function ()
 
             -- Check for Lua errors in the coroutine
             if not sucess or not co then
-                plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+                plume.error(params.positionals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
             end
 
             -- Verify that the number of variables matches the number of values
             if #values_list ~= #variables_list then
-                plume.error(params.positionnals.iterator,
+                plume.error(params.positionals.iterator,
                     "Wrong number of variables, "
                     .. #variables_list
                     .. " instead of "
@@ -371,7 +371,7 @@ return function ()
             end
 
             -- Render the body of the loop and add it to the result
-            local body = params.positionnals.body:copy ()
+            local body = params.positionals.body:copy ()
             body:set_context(plume.get_scope(), true)
             table.insert(result, body:render())
 
@@ -398,17 +398,17 @@ return function ()
         local i = 0
 
         local condition_code
-        if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:source_lua ()
+        if params.positionals.condition.kind == "code" then
+            condition_code  = params.positionals.condition[2]:source_lua ()
         else
-            plume.error_expecting_an_eval_block (params.positionnals.condition)
+            plume.error_expecting_an_eval_block (params.positionals.condition)
         end
 
-        while plume.call_lua_chunk (params.positionnals.condition, condition_code) do
+        while plume.call_lua_chunk (params.positionals.condition, condition_code) do
             -- Each iteration have it's own local scope
-            plume.push_scope (params.positionnals.body.context)
+            plume.push_scope (params.positionals.body.context)
             
-            local body = params.positionnals.body:copy ()
+            local body = params.positionals.body:copy ()
             body:set_context(plume.get_scope(), true)
             table.insert(result, body:render())
             i = i + 1
@@ -433,15 +433,15 @@ return function ()
         -- following "else" or "elseif"
         local condition_code
 
-        if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:source_lua ()
+        if params.positionals.condition.kind == "code" then
+            condition_code  = params.positionals.condition[2]:source_lua ()
         else
-            plume.error_expecting_an_eval_block (params.positionnals.condition)
+            plume.error_expecting_an_eval_block (params.positionals.condition)
         end
 
-        local condition = plume.call_lua_chunk(params.positionnals.condition, condition_code)
+        local condition = plume.call_lua_chunk(params.positionals.condition, condition_code)
         if condition then
-            return params.positionnals.body:render()
+            return params.positionals.body:render()
         end
         return "", not condition
     end, nil, false, true)
@@ -457,7 +457,7 @@ return function ()
         end
 
         if chain_message then
-            return params.positionnals.body:render()
+            return params.positionals.body:render()
         end
 
         return ""
@@ -476,17 +476,17 @@ return function ()
 
         local condition_token
 
-        if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:source_lua ()
+        if params.positionals.condition.kind == "code" then
+            condition_code  = params.positionals.condition[2]:source_lua ()
         else
-            plume.error_expecting_an_eval_block (params.positionnals.condition)
+            plume.error_expecting_an_eval_block (params.positionals.condition)
         end
 
         local condition
         if chain_message then
-            condition = plume.call_lua_chunk(params.positionnals.condition, condition_code)
+            condition = plume.call_lua_chunk(params.positionals.condition, condition_code)
             if condition then
-                return params.positionnals.body:render()
+                return params.positionals.body:render()
             end
         else
             condition = true
@@ -500,7 +500,7 @@ return function ()
     plume.register_macro("do", {"body"}, {}, function(params, self_token)
         
         plume.push_scope ()
-            local result = params.positionnals.body:render ()
+            local result = params.positionals.body:render ()
         plume.pop_scope ()
 
         return result
@@ -635,7 +635,7 @@ return function ()
         d_sep = plume.render_if_token(params.keywords.decimal_separator)
         table_separator = plume.render_if_token(params.keywords.join)
 
-        local result = plume.call_lua_chunk(params.positionnals.expr)
+        local result = plume.call_lua_chunk(params.positionals.expr)
 
         -- if result is a token, render it
         if type(result) == "table" and result.render then
@@ -757,7 +757,7 @@ return function ()
     -- @param path Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
     -- @note Unlike the Lua `require` function, `\require` macro does not perform any caching.
     plume.register_macro("require", {"path"}, {}, function(params, calling_token)
-        local path = params.positionnals.path:render ()
+        local path = params.positionals.path:render ()
 
         local formats = {}
         
@@ -768,13 +768,13 @@ return function ()
             table.insert(formats, "?/init.lua") 
         end
 
-        local file, filepath = plume.open (params.positionnals.path, formats, path)
+        local file, filepath = plume.open (params.positionals.path, formats, path)
 
         -- Render file content
         local content = file:read("*a")
 
         if content == nil then
-            plume.error(params.positionnals["$path"], "This path exists, but has no content. This may be a directory.")
+            plume.error(params.positionals["$path"], "This path exists, but has no content. This may be a directory.")
         end
 
         local f = plume.call_lua_chunk (calling_token, "return function ()\n" .. content .. "\n end", filepath)
@@ -788,7 +788,7 @@ return function ()
     -- @other_options Any argument will be accessible from the included file, in the field `__file_params`.
     plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
         --  Execute the given file and return the output
-        local path = params.positionnals["$path"]:render ()
+        local path = params.positionals["$path"]:render ()
 
         local formats = {}
         
@@ -796,7 +796,7 @@ return function ()
         table.insert(formats, "?/init.plume")
         table.insert(formats, "?")  
 
-        local file, filepath = plume.open (params.positionnals["$path"], formats, path)
+        local file, filepath = plume.open (params.positionals["$path"], formats, path)
 
         -- file scope
         plume.push_scope ()
@@ -819,7 +819,7 @@ return function ()
             local content = file:read("*a")
 
             if content == nil then
-                plume.error(params.positionnals["$path"], "This path exists, but has no content. This may be a directory.")
+                plume.error(params.positionals["$path"], "This path exists, but has no content. This may be a directory.")
             end
 
             local result = plume.render(content, filepath)
@@ -836,13 +836,13 @@ return function ()
     plume.register_macro("extern", {"path"}, {}, function(params, calling_token)
         -- Include a file without execute it
 
-        local path = params.positionnals.path:render ()
+        local path = params.positionals.path:render ()
 
         local formats = {}
         
         table.insert(formats, "?")
 
-        local file, filepath = plume.open (params.positionnals.path, formats, path)
+        local file, filepath = plume.open (params.positionals.path, formats, path)
 
         return file:read("*a")
     end, nil, false, true)
@@ -855,14 +855,14 @@ return function ()
         -- Capture content and save it in a file.
         -- Return nothing.
         -- \file {foo.txt} {...}
-        local path = params.positionnals.path:render ()
+        local path = params.positionals.path:render ()
         local file = io.open(path, "w")
 
             if not file then
                 plume.error (calling_token, "Cannot write file '" .. path .. "'")
             end
 
-            local content = params.positionnals.content:render ()
+            local content = params.positionals.content:render ()
             file:write(content)
 
         file:close ()
@@ -941,19 +941,19 @@ return function ()
     -- @param calling_token token The token where the macro is being defined
     local function new_macro (macro_parameters, is_local, macro_token)
         -- Get the provided macro name
-        local name = macro_parameters.positionnals.name:render()
+        local name = macro_parameters.positionals.name:render()
         local variable_parameters_number = false
 
         local scope  = plume.get_scope(macro_token.context)
 
         -- Check if the name is a valid identifier
         if not plume.is_identifier(name) then
-            plume.error_invalid_name (macro_parameters.positionnals.name, name, "macro")
+            plume.error_invalid_name (macro_parameters.positionals.name, name, "macro")
         end
 
         -- If define globaly, check if a macro with this name already exist
         if not is_local then
-            check_macro_availability (macro_parameters.positionnals.name, name)
+            check_macro_availability (macro_parameters.positionals.name, name)
         end
 
         local annotations = {}
@@ -1023,10 +1023,10 @@ return function ()
             -- a reference to current lua scope
             -- (affect only scripts and evals tokens)
             local last_scope = plume.get_scope ()
-            for k, v in pairs(params.positionnals) do
+            for k, v in pairs(params.positionals) do
                 if type(params.keywords[k]) == "table" then
-                    params.positionnals[k] = v:copy ()
-                    params.positionnals[k]:set_context (last_scope)
+                    params.positionals[k] = v:copy ()
+                    params.positionals[k]:set_context (last_scope)
                 end
             end
             for k, v in pairs(params.keywords) do
@@ -1054,7 +1054,7 @@ return function ()
             local scope = plume.push_scope ()
 
             -- add all params in the current scope
-            for k, v in pairs(params.positionnals) do
+            for k, v in pairs(params.positionals) do
                 v = apply_annotation (macro_token, calling_token, scope, k, v, annotations)
                 scope:set_local("variables", k, v)
             end
@@ -1072,7 +1072,7 @@ return function ()
             
             scope:set_local("variables", "__message", {sender = chain_sender, content = chain_message})
 
-            local body = macro_parameters.positionnals.body:copy ()
+            local body = macro_parameters.positionals.body:copy ()
             body:set_context (scope, true)
             local result = body:render()
 
@@ -1149,8 +1149,8 @@ return function ()
     -- @param name2 Any valid lua identifier.
     -- @flag local Is the new macro local to the current scope.
     plume.register_macro("alias", {"name1", "name2"}, {}, function(params, calling_token)
-        local name1 = params.positionnals.name1:render()
-        local name2 = params.positionnals.name2:render()
+        local name1 = params.positionals.name1:render()
+        local name2 = params.positionals.name2:render()
         alias (name1, name2, calling_token, false)
     end, nil, false, true)
 
@@ -1160,8 +1160,8 @@ return function ()
     -- @param name2 Any valid lua identifier.
     -- @alias `\lalias`
     plume.register_macro("local_alias", {"name1", "name2"}, {}, function(params, calling_token)
-        local name1 = params.positionnals.name1:render()
-        local name2 = params.positionnals.name2:render()
+        local name1 = params.positionals.name1:render()
+        local name2 = params.positionals.name2:render()
         alias (name1, name2, calling_token, true)
     end, nil, false, true)
 
@@ -1170,8 +1170,8 @@ return function ()
     -- @param name1 Name of an existing macro.
     -- @param name2 Any valid lua identifier.
     plume.register_macro("lalias", {"name1", "name2"}, {}, function(params, calling_token)
-        local name1 = params.positionnals.name1:render()
-        local name2 = params.positionnals.name2:render()
+        local name1 = params.positionals.name1:render()
+        local name2 = params.positionals.name2:render()
         alias (name1, name2, calling_token, true)
     end, nil, false, true)
 
@@ -1254,7 +1254,7 @@ return function ()
     -- @param name Name of an existing macro.
     -- @other_options Any parameters used by the given macro.
     plume.register_macro("default", {"name"}, {}, function(params, calling_token)
-        local name = params.positionnals.name:render()
+        local name = params.positionals.name:render()
         default (calling_token, name, params.others.keywords, params.others.flags, false)
     end, nil, false, true, true)
 
@@ -1264,7 +1264,7 @@ return function ()
     -- @other_options Any parameters used by the given macro.
     -- @alias `\ldefault`
     plume.register_macro("local_default", {"name"}, {}, function(params, calling_token)
-        local name = params.positionnals.name:render()
+        local name = params.positionals.name:render()
         default (calling_token, name, params.others.keywords, params.others.flags, true)
 
     end, nil, false, true, true)
@@ -1274,7 +1274,7 @@ return function ()
     -- @param name Name of an existing macro.
     -- @other_options Any parameters used by the given macro.
     plume.register_macro("ldefault", {"name"}, {}, function(params, calling_token)
-        local name = params.positionnals.name:render()
+        local name = params.positionals.name:render()
         default (calling_token, name, params.others.keywords, params.others.flags, true)
 
     end, nil, false, true, true)
@@ -1325,7 +1325,7 @@ return function ()
     -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
     -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
     plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
-        local mode = params.positionnals.mode:render ()
+        local mode = params.positionals.mode:render ()
         local scope = plume.get_scope(calling_token.context)
 
         if mode == "normal" then
@@ -1355,12 +1355,12 @@ return function ()
     --- Affect a value to a variable
     local function set(params, calling_token, is_local)
         -- A macro to set variable to a value
-        local key = params.positionnals.key:render()
+        local key = params.positionals.key:render()
         if not plume.is_identifier(key) then
-            plume.error(params.positionnals.key, "'" .. key .. "' is an invalid name for a variable.")
+            plume.error(params.positionals.key, "'" .. key .. "' is an invalid name for a variable.")
         end
 
-        local value = params.positionnals.value:render ()
+        local value = params.positionals.value:render ()
         local scope = plume.get_scope(calling_token.context)
 
         if is_local then
@@ -1405,7 +1405,7 @@ return function ()
     -- Return the given body without render it.
     -- @param body 
     plume.register_macro("raw", {"body"}, {}, function(params)
-        return params.positionnals['body']:source ()
+        return params.positionals['body']:source ()
     end, nil, false, true)
 
     --- \config
@@ -1414,8 +1414,8 @@ return function ()
     -- @param value New value to save.
     -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
     plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
-        local name   = params.positionnals.name:render ()
-        local value  = params.positionnals.value:render_lua ()
+        local name   = params.positionals.name:render ()
+        local value  = params.positionals.value:render_lua ()
         local scope = plume.get_scope()
 
         if scope.config[name] == nil then
@@ -1431,8 +1431,8 @@ return function ()
     -- @param value New value to save.
     -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
     plume.register_macro("lconfig", {"name", "value"}, {}, function(params, calling_token)
-        local name   = params.positionnals.name:render ()
-        local value  = params.positionnals.value:render_lua ()
+        local name   = params.positionals.name:render ()
+        local value  = params.positionals.value:render_lua ()
         local scope = plume.get_scope(calling_token.context)
 
         if scope.config[name] == nil then
@@ -1471,12 +1471,12 @@ return function ()
     -- @param version Version where the macro will be deleted.
     -- @param alternative Give an alternative to replace this macro.
     plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(params, calling_token)
-        local name        = params.positionnals.name:render()
-        local version     = params.positionnals.version:render()
-        local alternative = params.positionnals.alternative:render()
+        local name        = params.positionals.name:render()
+        local version     = params.positionals.version:render()
+        local alternative = params.positionals.alternative:render()
 
         if not plume.deprecate(name, version, alternative) then
-            plume.error_macro_not_found(params.positionnals.name, name)
+            plume.error_macro_not_found(params.positionals.name, name)
         end
 
     end, nil, false, true)
@@ -2008,23 +2008,36 @@ api.lset = api.local_set
 
 --- Calls a macro with the specified name and optional parameters.
 -- @param name string The name of the macro to call.
+-- @param positionals table A table of positional parameters for the macro.
 -- @param optionals table A table of optional parameters for the macro.
--- @param ... any A variable number of positional parameters for the macro.
 -- @return any The result of the macro call.
+function api.call_macro(name, positionals, optionals)
+    local scope = plume.get_scope()
+    local macro = scope:get("macros", name)
 
-function api.call_macro(name, optionals, ...)
-    local scope = plume.get_scope() -- Get the current scope
-    local macro = scope:get("macros", name) -- Retrieve the macro by name
-
-    local positionals = {...}
     local params = plume.init_macro_params()
 
-    for k, v in ipairs(macro.params) do
-        params.positionnals[v] = positionals[k]
+    positionals = positionals or {}
+    optionals = optionals or {}
+
+    for index, name in ipairs(macro.params) do
+        params.positionals[name] = positionals[index]
+    end
+
+    for name, value in pairs(optionals) do
+         if macro.default_opt_params[name] == nil then
+            if macro.variable_parameters_number then
+                params.others.keywords[name] = value
+            else
+                plume.error_unknown_parameter (nil, macro.name, name, macro.default_opt_params)
+            end
+        else
+            params.keywords[name] = value
+        end
     end
 
     local result = plume.call_macro(macro, plume.traceback[#plume.traceback], params)
-    return result -- Return the result of the macro call
+    return result
 end
 
 
@@ -2055,7 +2068,7 @@ function api.export(name, params_number, f, is_local)
     plume.register_macro(name, macro_params, {}, function (params)
         local rparams = {}
         for i=1, params_number do
-            rparams[i] = params.positionnals['x' .. i]:render()
+            rparams[i] = params.positionals['x' .. i]:render()
         end
         return f(plume.unpack(rparams))
     end, nil, is_local)
@@ -3075,23 +3088,6 @@ function plume.call_macro (macro, calling_token, parameters, chain_sender, chain
 
     -- Update traceback
     table.insert(plume.traceback, traceback_token)
-        -- -- call the macro
-        -- local success, macro_call_result = pcall(function ()
-        --     return { macro.macro (
-        --         parameters,
-        --         calling_token, -- send self token to throw error, if any
-        --         chain_sender,
-        --         chain_message
-        --     ) }
-        -- end)
-
-        -- local call_result
-        -- if success then
-        --     call_result, chain_message = macro_call_result[1], macro_call_result[2]
-        -- else
-        --     plume.error(calling_token, "Unexpected lua error running the macro : " .. macro_call_result)
-        -- end
-
         local call_result, chain_message = macro.macro (
             parameters,
             calling_token, -- send self token to throw error, if any
@@ -3111,7 +3107,7 @@ end
 
 function plume.init_macro_params ()
     return {
-        positionnals={}, -- positionnal parameters
+        positionals={}, -- positionnal parameters
         keywords={},     -- optionnal parameters
         flags={},        -- syntax suger for some optionnal parameters
         others={         -- "others" is used if a macro accepts a variable number of parameters.
@@ -3249,7 +3245,7 @@ function plume.render_token (self)
 
             -- All captured parameters are postionnals
             for k, v in ipairs(params) do
-                macro_params.positionnals[macro.params[k]] = v
+                macro_params.positionals[macro.params[k]] = v
             end
 
             -- Parse and add optionnals one. Add default values if any

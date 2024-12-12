@@ -213,23 +213,6 @@ function plume.call_macro (macro, calling_token, parameters, chain_sender, chain
 
     -- Update traceback
     table.insert(plume.traceback, traceback_token)
-        -- -- call the macro
-        -- local success, macro_call_result = pcall(function ()
-        --     return { macro.macro (
-        --         parameters,
-        --         calling_token, -- send self token to throw error, if any
-        --         chain_sender,
-        --         chain_message
-        --     ) }
-        -- end)
-
-        -- local call_result
-        -- if success then
-        --     call_result, chain_message = macro_call_result[1], macro_call_result[2]
-        -- else
-        --     plume.error(calling_token, "Unexpected lua error running the macro : " .. macro_call_result)
-        -- end
-
         local call_result, chain_message = macro.macro (
             parameters,
             calling_token, -- send self token to throw error, if any

@@ -105,19 +105,32 @@ api.lset = api.local_set
 
 --- Calls a macro with the specified name and optional parameters.
 -- @param name string The name of the macro to call.
+-- @param positionals table A table of positional parameters for the macro.
 -- @param optionals table A table of optional parameters for the macro.
--- @param ... any A variable number of positional parameters for the macro.
 -- @return any The result of the macro call.
-
-function api.call_macro(name, optionals, ...)
+function api.call_macro(name, positionals, optionals)
     local scope = plume.get_scope()
     local macro = scope:get("macros", name)
 
-    local positionals = {...}
     local params = plume.init_macro_params()
 
-    for k, v in ipairs(macro.params) do
-        params.positionals[v] = positionals[k]
+    positionals = positionals or {}
+    optionals = optionals or {}
+
+    for index, name in ipairs(macro.params) do
+        params.positionals[name] = positionals[index]
+    end
+
+    for name, value in pairs(optionals) do
+         if macro.default_opt_params[name] == nil then
+            if macro.variable_parameters_number then
+                params.others.keywords[name] = value
+            else
+                plume.error_unknown_parameter (plume.traceback[#plume.traceback], macro.name, name, macro.default_opt_params)
+            end
+        else
+            params.keywords[name] = value
+        end
     end
 
     local result = plume.call_macro(macro, plume.traceback[#plume.traceback], params)
