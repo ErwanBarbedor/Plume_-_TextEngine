@@ -117,7 +117,7 @@ function api.call_macro(name, optionals, ...)
     local params = plume.init_macro_params()
 
     for k, v in ipairs(macro.params) do
-        params.positionnals[v] = positionals[k]
+        params.positionals[v] = positionals[k]
     end
 
     local result = plume.call_macro(macro, plume.traceback[#plume.traceback], params)
@@ -152,7 +152,7 @@ function api.export(name, params_number, f, is_local)
     plume.register_macro(name, macro_params, {}, function (params)
         local rparams = {}
         for i=1, params_number do
-            rparams[i] = params.positionnals['x' .. i]:render()
+            rparams[i] = params.positionals['x' .. i]:render()
         end
         return f(plume.unpack(rparams))
     end, nil, is_local)

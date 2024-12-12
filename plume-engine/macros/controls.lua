@@ -43,14 +43,14 @@ return function ()
         local scope = plume.get_scope (calling_token.context)
         local max_loop_size = scope:get("config", "max_loop_size")
 
-        if params.positionnals.iterator.kind ~= "code" then
-           plume.error_expecting_an_eval_block (params.positionnals.iterator)
+        if params.positionals.iterator.kind ~= "code" then
+           plume.error_expecting_an_eval_block (params.positionals.iterator)
         end
          
         local join = plume.render_if_token(params.keywords.join)
 
         -- Get iterator code and extract the names of the variables
-        local iterator_token = params.positionnals.iterator[2]
+        local iterator_token = params.positionals.iterator[2]
         local iterator_code  = iterator_token:source_lua ({}, false, false)
         local variables_list  = extract_variables_names (iterator_token)
 
@@ -81,7 +81,7 @@ return function ()
             end
 
             -- Iteration scope
-            plume.push_scope (params.positionnals.body.context)
+            plume.push_scope (params.positionals.body.context)
 
             -- Resume the coroutine to get the next set of values
             local values_list = { coroutine.resume(co) }
@@ -104,12 +104,12 @@ return function ()
 
             -- Check for Lua errors in the coroutine
             if not sucess or not co then
-                plume.error(params.positionnals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
+                plume.error(params.positionals.iterator, "(lua error)" .. first_value:gsub('.-:[0-9]+:', ''))
             end
 
             -- Verify that the number of variables matches the number of values
             if #values_list ~= #variables_list then
-                plume.error(params.positionnals.iterator,
+                plume.error(params.positionals.iterator,
                     "Wrong number of variables, "
                     .. #variables_list
                     .. " instead of "
@@ -123,7 +123,7 @@ return function ()
             end
 
             -- Render the body of the loop and add it to the result
-            local body = params.positionnals.body:copy ()
+            local body = params.positionals.body:copy ()
             body:set_context(plume.get_scope(), true)
             table.insert(result, body:render())
 
@@ -150,17 +150,17 @@ return function ()
         local i = 0
 
         local condition_code
-        if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:source_lua ()
+        if params.positionals.condition.kind == "code" then
+            condition_code  = params.positionals.condition[2]:source_lua ()
         else
-            plume.error_expecting_an_eval_block (params.positionnals.condition)
+            plume.error_expecting_an_eval_block (params.positionals.condition)
         end
 
-        while plume.call_lua_chunk (params.positionnals.condition, condition_code) do
+        while plume.call_lua_chunk (params.positionals.condition, condition_code) do
             -- Each iteration have it's own local scope
-            plume.push_scope (params.positionnals.body.context)
+            plume.push_scope (params.positionals.body.context)
             
-            local body = params.positionnals.body:copy ()
+            local body = params.positionals.body:copy ()
             body:set_context(plume.get_scope(), true)
             table.insert(result, body:render())
             i = i + 1
@@ -185,15 +185,15 @@ return function ()
         -- following "else" or "elseif"
         local condition_code
 
-        if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:source_lua ()
+        if params.positionals.condition.kind == "code" then
+            condition_code  = params.positionals.condition[2]:source_lua ()
         else
-            plume.error_expecting_an_eval_block (params.positionnals.condition)
+            plume.error_expecting_an_eval_block (params.positionals.condition)
         end
 
-        local condition = plume.call_lua_chunk(params.positionnals.condition, condition_code)
+        local condition = plume.call_lua_chunk(params.positionals.condition, condition_code)
         if condition then
-            return params.positionnals.body:render()
+            return params.positionals.body:render()
         end
         return "", not condition
     end, nil, false, true)
@@ -209,7 +209,7 @@ return function ()
         end
 
         if chain_message then
-            return params.positionnals.body:render()
+            return params.positionals.body:render()
         end
 
         return ""
@@ -228,17 +228,17 @@ return function ()
 
         local condition_token
 
-        if params.positionnals.condition.kind == "code" then
-            condition_code  = params.positionnals.condition[2]:source_lua ()
+        if params.positionals.condition.kind == "code" then
+            condition_code  = params.positionals.condition[2]:source_lua ()
         else
-            plume.error_expecting_an_eval_block (params.positionnals.condition)
+            plume.error_expecting_an_eval_block (params.positionals.condition)
         end
 
         local condition
         if chain_message then
-            condition = plume.call_lua_chunk(params.positionnals.condition, condition_code)
+            condition = plume.call_lua_chunk(params.positionals.condition, condition_code)
             if condition then
-                return params.positionnals.body:render()
+                return params.positionals.body:render()
             end
         else
             condition = true
@@ -252,7 +252,7 @@ return function ()
     plume.register_macro("do", {"body"}, {}, function(params, self_token)
         
         plume.push_scope ()
-            local result = params.positionnals.body:render ()
+            local result = params.positionals.body:render ()
         plume.pop_scope ()
 
         return result

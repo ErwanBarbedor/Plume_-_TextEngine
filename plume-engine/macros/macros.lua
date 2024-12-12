@@ -78,19 +78,19 @@ return function ()
     -- @param calling_token token The token where the macro is being defined
     local function new_macro (macro_parameters, is_local, macro_token)
         -- Get the provided macro name
-        local name = macro_parameters.positionnals.name:render()
+        local name = macro_parameters.positionals.name:render()
         local variable_parameters_number = false
 
         local scope  = plume.get_scope(macro_token.context)
 
         -- Check if the name is a valid identifier
         if not plume.is_identifier(name) then
-            plume.error_invalid_name (macro_parameters.positionnals.name, name, "macro")
+            plume.error_invalid_name (macro_parameters.positionals.name, name, "macro")
         end
 
         -- If define globaly, check if a macro with this name already exist
         if not is_local then
-            check_macro_availability (macro_parameters.positionnals.name, name)
+            check_macro_availability (macro_parameters.positionals.name, name)
         end
 
         local annotations = {}
@@ -160,10 +160,10 @@ return function ()
             -- a reference to current lua scope
             -- (affect only scripts and evals tokens)
             local last_scope = plume.get_scope ()
-            for k, v in pairs(params.positionnals) do
+            for k, v in pairs(params.positionals) do
                 if type(params.keywords[k]) == "table" then
-                    params.positionnals[k] = v:copy ()
-                    params.positionnals[k]:set_context (last_scope)
+                    params.positionals[k] = v:copy ()
+                    params.positionals[k]:set_context (last_scope)
                 end
             end
             for k, v in pairs(params.keywords) do
@@ -191,7 +191,7 @@ return function ()
             local scope = plume.push_scope ()
 
             -- add all params in the current scope
-            for k, v in pairs(params.positionnals) do
+            for k, v in pairs(params.positionals) do
                 v = apply_annotation (macro_token, calling_token, scope, k, v, annotations)
                 scope:set_local("variables", k, v)
             end
@@ -209,7 +209,7 @@ return function ()
             
             scope:set_local("variables", "__message", {sender = chain_sender, content = chain_message})
 
-            local body = macro_parameters.positionnals.body:copy ()
+            local body = macro_parameters.positionals.body:copy ()
             body:set_context (scope, true)
             local result = body:render()
 
@@ -286,8 +286,8 @@ return function ()
     -- @param name2 Any valid lua identifier.
     -- @flag local Is the new macro local to the current scope.
     plume.register_macro("alias", {"name1", "name2"}, {}, function(params, calling_token)
-        local name1 = params.positionnals.name1:render()
-        local name2 = params.positionnals.name2:render()
+        local name1 = params.positionals.name1:render()
+        local name2 = params.positionals.name2:render()
         alias (name1, name2, calling_token, false)
     end, nil, false, true)
 
@@ -297,8 +297,8 @@ return function ()
     -- @param name2 Any valid lua identifier.
     -- @alias `\lalias`
     plume.register_macro("local_alias", {"name1", "name2"}, {}, function(params, calling_token)
-        local name1 = params.positionnals.name1:render()
-        local name2 = params.positionnals.name2:render()
+        local name1 = params.positionals.name1:render()
+        local name2 = params.positionals.name2:render()
         alias (name1, name2, calling_token, true)
     end, nil, false, true)
 
@@ -307,8 +307,8 @@ return function ()
     -- @param name1 Name of an existing macro.
     -- @param name2 Any valid lua identifier.
     plume.register_macro("lalias", {"name1", "name2"}, {}, function(params, calling_token)
-        local name1 = params.positionnals.name1:render()
-        local name2 = params.positionnals.name2:render()
+        local name1 = params.positionals.name1:render()
+        local name2 = params.positionals.name2:render()
         alias (name1, name2, calling_token, true)
     end, nil, false, true)
 
@@ -391,7 +391,7 @@ return function ()
     -- @param name Name of an existing macro.
     -- @other_options Any parameters used by the given macro.
     plume.register_macro("default", {"name"}, {}, function(params, calling_token)
-        local name = params.positionnals.name:render()
+        local name = params.positionals.name:render()
         default (calling_token, name, params.others.keywords, params.others.flags, false)
     end, nil, false, true, true)
 
@@ -401,7 +401,7 @@ return function ()
     -- @other_options Any parameters used by the given macro.
     -- @alias `\ldefault`
     plume.register_macro("local_default", {"name"}, {}, function(params, calling_token)
-        local name = params.positionnals.name:render()
+        local name = params.positionals.name:render()
         default (calling_token, name, params.others.keywords, params.others.flags, true)
 
     end, nil, false, true, true)
@@ -411,7 +411,7 @@ return function ()
     -- @param name Name of an existing macro.
     -- @other_options Any parameters used by the given macro.
     plume.register_macro("ldefault", {"name"}, {}, function(params, calling_token)
-        local name = params.positionnals.name:render()
+        local name = params.positionals.name:render()
         default (calling_token, name, params.others.keywords, params.others.flags, true)
 
     end, nil, false, true, true)

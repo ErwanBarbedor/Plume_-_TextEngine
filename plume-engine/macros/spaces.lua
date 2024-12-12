@@ -54,7 +54,7 @@ return function ()
     -- Shortand for common value of `plume.config.filter_spaces` and `plume.config.filter_newlines` (see [config](config.md)).
     -- @param mode Can be `normal` (take all spaces), `no_spaces` (ignore all spaces), `compact` (replace all space/tabs/newlines sequence with " ") and `light` (replace all space sequence with " ", all newlines block with a single `\n`)
     plume.register_macro("set_space_mode", {"mode"}, {}, function(params, calling_token)
-        local mode = params.positionnals.mode:render ()
+        local mode = params.positionals.mode:render ()
         local scope = plume.get_scope(calling_token.context)
 
         if mode == "normal" then

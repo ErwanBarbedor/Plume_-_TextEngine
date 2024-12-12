@@ -115,7 +115,7 @@ return function ()
     -- @param path Path of the file to require. Use the plume search system: first, try to find the file relative to the file where the macro was called. Then relative to the file of the macro that called `\require`, etc... If `name` was provided as path, search for files `name`, `name.lua` and `name/init.lua`.
     -- @note Unlike the Lua `require` function, `\require` macro does not perform any caching.
     plume.register_macro("require", {"path"}, {}, function(params, calling_token)
-        local path = params.positionnals.path:render ()
+        local path = params.positionals.path:render ()
 
         local formats = {}
         
@@ -126,13 +126,13 @@ return function ()
             table.insert(formats, "?/init.lua") 
         end
 
-        local file, filepath = plume.open (params.positionnals.path, formats, path)
+        local file, filepath = plume.open (params.positionals.path, formats, path)
 
         -- Render file content
         local content = file:read("*a")
 
         if content == nil then
-            plume.error(params.positionnals["$path"], "This path exists, but has no content. This may be a directory.")
+            plume.error(params.positionals["$path"], "This path exists, but has no content. This may be a directory.")
         end
 
         local f = plume.call_lua_chunk (calling_token, "return function ()\n" .. content .. "\n end", filepath)
@@ -146,7 +146,7 @@ return function ()
     -- @other_options Any argument will be accessible from the included file, in the field `__file_params`.
     plume.register_macro("include", {"$path"}, {}, function(params, calling_token)
         --  Execute the given file and return the output
-        local path = params.positionnals["$path"]:render ()
+        local path = params.positionals["$path"]:render ()
 
         local formats = {}
         
@@ -154,7 +154,7 @@ return function ()
         table.insert(formats, "?/init.plume")
         table.insert(formats, "?")  
 
-        local file, filepath = plume.open (params.positionnals["$path"], formats, path)
+        local file, filepath = plume.open (params.positionals["$path"], formats, path)
 
         -- file scope
         plume.push_scope ()
@@ -177,7 +177,7 @@ return function ()
             local content = file:read("*a")
 
             if content == nil then
-                plume.error(params.positionnals["$path"], "This path exists, but has no content. This may be a directory.")
+                plume.error(params.positionals["$path"], "This path exists, but has no content. This may be a directory.")
             end
 
             local result = plume.render(content, filepath)
@@ -194,13 +194,13 @@ return function ()
     plume.register_macro("extern", {"path"}, {}, function(params, calling_token)
         -- Include a file without execute it
 
-        local path = params.positionnals.path:render ()
+        local path = params.positionals.path:render ()
 
         local formats = {}
         
         table.insert(formats, "?")
 
-        local file, filepath = plume.open (params.positionnals.path, formats, path)
+        local file, filepath = plume.open (params.positionals.path, formats, path)
 
         return file:read("*a")
     end, nil, false, true)
@@ -213,14 +213,14 @@ return function ()
         -- Capture content and save it in a file.
         -- Return nothing.
         -- \file {foo.txt} {...}
-        local path = params.positionnals.path:render ()
+        local path = params.positionals.path:render ()
         local file = io.open(path, "w")
 
             if not file then
                 plume.error (calling_token, "Cannot write file '" .. path .. "'")
             end
 
-            local content = params.positionnals.content:render ()
+            local content = params.positionals.content:render ()
             file:write(content)
 
         file:close ()

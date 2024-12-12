@@ -249,7 +249,7 @@ end
 
 function plume.init_macro_params ()
     return {
-        positionnals={}, -- positionnal parameters
+        positionals={}, -- positionnal parameters
         keywords={},     -- optionnal parameters
         flags={},        -- syntax suger for some optionnal parameters
         others={         -- "others" is used if a macro accepts a variable number of parameters.
@@ -387,7 +387,7 @@ function plume.render_token (self)
 
             -- All captured parameters are postionnals
             for k, v in ipairs(params) do
-                macro_params.positionnals[macro.params[k]] = v
+                macro_params.positionals[macro.params[k]] = v
             end
 
             -- Parse and add optionnals one. Add default values if any

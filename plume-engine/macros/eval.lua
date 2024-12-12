@@ -137,7 +137,7 @@ return function ()
         d_sep = plume.render_if_token(params.keywords.decimal_separator)
         table_separator = plume.render_if_token(params.keywords.join)
 
-        local result = plume.call_lua_chunk(params.positionnals.expr)
+        local result = plume.call_lua_chunk(params.positionals.expr)
 
         -- if result is a token, render it
         if type(result) == "table" and result.render then

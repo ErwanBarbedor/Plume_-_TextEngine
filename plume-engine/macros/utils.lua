@@ -18,12 +18,12 @@ return function ()
     --- Affect a value to a variable
     local function set(params, calling_token, is_local)
         -- A macro to set variable to a value
-        local key = params.positionnals.key:render()
+        local key = params.positionals.key:render()
         if not plume.is_identifier(key) then
-            plume.error(params.positionnals.key, "'" .. key .. "' is an invalid name for a variable.")
+            plume.error(params.positionals.key, "'" .. key .. "' is an invalid name for a variable.")
         end
 
-        local value = params.positionnals.value:render ()
+        local value = params.positionals.value:render ()
         local scope = plume.get_scope(calling_token.context)
 
         if is_local then
@@ -68,7 +68,7 @@ return function ()
     -- Return the given body without render it.
     -- @param body 
     plume.register_macro("raw", {"body"}, {}, function(params)
-        return params.positionnals['body']:source ()
+        return params.positionals['body']:source ()
     end, nil, false, true)
 
     --- \config
@@ -77,8 +77,8 @@ return function ()
     -- @param value New value to save.
     -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
     plume.register_macro("config", {"name", "value"}, {}, function(params, calling_token)
-        local name   = params.positionnals.name:render ()
-        local value  = params.positionnals.value:render_lua ()
+        local name   = params.positionals.name:render ()
+        local value  = params.positionals.value:render_lua ()
         local scope = plume.get_scope()
 
         if scope.config[name] == nil then
@@ -94,8 +94,8 @@ return function ()
     -- @param value New value to save.
     -- @note Will raise an error if the key doesn't exist. See [config](config.md) to get all available parameters.
     plume.register_macro("lconfig", {"name", "value"}, {}, function(params, calling_token)
-        local name   = params.positionnals.name:render ()
-        local value  = params.positionnals.value:render_lua ()
+        local name   = params.positionals.name:render ()
+        local value  = params.positionals.value:render_lua ()
         local scope = plume.get_scope(calling_token.context)
 
         if scope.config[name] == nil then
@@ -134,12 +134,12 @@ return function ()
     -- @param version Version where the macro will be deleted.
     -- @param alternative Give an alternative to replace this macro.
     plume.register_macro("deprecate", {"name", "version", "alternative"}, {}, function(params, calling_token)
-        local name        = params.positionnals.name:render()
-        local version     = params.positionnals.version:render()
-        local alternative = params.positionnals.alternative:render()
+        local name        = params.positionals.name:render()
+        local version     = params.positionals.version:render()
+        local alternative = params.positionals.alternative:render()
 
         if not plume.deprecate(name, version, alternative) then
-            plume.error_macro_not_found(params.positionnals.name, name)
+            plume.error_macro_not_found(params.positionals.name, name)
         end
 
     end, nil, false, true)
