@@ -122,15 +122,17 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
         table.insert(error_lines_infos, plume.token_info (token))
     end
     
-    -- Then add all traceback, except "$" call and the token itself
+    -- Then add all traceback, except (if token ~= nil) "$" call and the token itself
     if show_traceback and plume.traceback then
         for i=#plume.traceback, 1, -1 do
-            if (plume.traceback[i].kind ~= "eval")
+            if (plume.traceback[i].kind ~= "eval" or not token)
             and not (token == plume.traceback[i] and i==1) then
                 table.insert(error_lines_infos, plume.token_info (plume.traceback[i]))
             end
         end
     end
+
+    -- If error_lines_infos is empty, add
 
     -- Now, for each line print line info (file, noline, line content)
     -- For the first line, also print the error message.
@@ -219,11 +221,6 @@ function plume.make_error_message (token, error_message, is_lua_error, show_trac
     end
 
     error_message = table.concat(error_lines, "\n")
-
-    -- In debug mode, add internal traceback
-    if plume.debug_mode then
-        error_message = error_message .. "\n" .. debug.traceback()
-    end
     
     return error_message
 end
@@ -233,6 +230,7 @@ end
 -- @param is_lua_error boolean Indicates if the error is related to Lua script.
 function plume.error (token, error_message, is_lua_error)
     -- If there is already an existing error, throw it.
+
     if plume.last_error then
         error(plume.last_error, -1)
     end

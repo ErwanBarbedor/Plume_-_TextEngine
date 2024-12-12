@@ -137,7 +137,9 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - New `api.warnings_all()`
 - `token:sourceLua(), tokenlist:sourceLua()` -> `token:source_lua(), tokenlist:source_lua()`
 - Sugar syntax : `\foo[?bar]` is a shortcut for `\foo[{\if $bar bar}]`
-- New debug mode : show the full internal traceback in case of error.
+
+### Enhancements
+- Betters error message for internals errors.
 
 ### Interns changes
 - Code cleaning

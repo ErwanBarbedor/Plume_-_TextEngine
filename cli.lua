@@ -29,8 +29,6 @@ Options:
   -s, --string        Evaluate the input
   -c, --config        Edit plume configuration
   -w, --warnings      Activate warnings
-  -d, --debug         Activate debug mode
-
 Examples:
   plume --help
     Display this message.
@@ -123,7 +121,7 @@ function cli.main ()
     -- Save plume directory
     plume.directory = arg[0]:gsub('[/\\][^/\\]*$', '')
 
-    local print_output, direct_mode, config, warnings, debug_mode, input
+    local print_output, direct_mode, config, warnings, input
     local output_file, input_file
 
     while #arg > 0 do
@@ -138,9 +136,6 @@ function cli.main ()
             table.remove(arg, 1)
         elseif arg[1] == "-w" or arg[1] == "--warnings" then
             warnings = true
-            table.remove(arg, 1)
-        elseif arg[1] == "-d" or arg[1] == "--debug" then
-            debug_mode = true
             table.remove(arg, 1)
         elseif arg[1] == "-s" or arg[1] == "--string" then
             direct_mode = true
@@ -169,7 +164,7 @@ function cli.main ()
 
     if not input then
         plume.init()
-        cli.config(plume, config, warnings, debug_mode)
+        cli.config(plume, config, warnings)
         return cli.interactive_mode (plume)
     end
 
@@ -179,13 +174,13 @@ function cli.main ()
     local success, result
     if direct_mode then
         plume.init ()
-        cli.config(plume, config, warnings, debug_mode)
+        cli.config(plume, config, warnings)
         -- Render the given string and capture success or error
         success, result = pcall(plume.render, input)
     else
         input_file = input
         plume.init ()
-        cli.config(plume, config, warnings, debug_mode)
+        cli.config(plume, config, warnings)
 
         --- @api_variable If use in command line, path of the input file.
         plume.get_scope().variables.plume.input_file  = absolutePath(currentDirectory, input_file)
@@ -284,8 +279,6 @@ function cli.config(plume, config, warnings, debug_mode)
     if warnings then
         plume.running_api.warnings_all ()
     end
-
-    plume.debug_mode = debug_mode
 end
 
 cli.main ()

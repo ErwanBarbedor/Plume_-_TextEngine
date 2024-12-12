@@ -23,9 +23,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 plume = {}
 plume._VERSION = "Plume - TextEngine 0.12.0"
 
--- Add whole traceback in errors messages
-plume.debug_mode = false
-
 require "plume-engine.config"
 require "plume-engine.syntax"
 require "plume-engine.render"
