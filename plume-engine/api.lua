@@ -103,15 +103,27 @@ end
 
 api.lset = api.local_set
 
-function api.call_macro (name)
+--- Calls a macro with the specified name and optional parameters.
+-- @param name string The name of the macro to call.
+-- @param optionals table A table of optional parameters for the macro.
+-- @param ... any A variable number of positional parameters for the macro.
+-- @return any The result of the macro call.
+
+function api.call_macro(name, optionals, ...)
     local scope = plume.get_scope()
     local macro = scope:get("macros", name)
 
-    local params = plume.init_macro_params ()
+    local positionals = {...}
+    local params = plume.init_macro_params()
 
-    local result = plume.call_macro (macro, plume.traceback[1], params)
+    for k, v in ipairs(macro.params) do
+        params.positionnals[v] = positionals[k]
+    end
+
+    local result = plume.call_macro(macro, plume.traceback[#plume.traceback], params)
     return result
 end
+
 
 --- @api_method Works like Lua's require, but uses Plume's file search system.
 -- @param path string Path of the lua file to load

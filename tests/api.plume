@@ -94,3 +94,21 @@ ${
     end
 }
 \-- End
+
+\-- Test 'call_macro 1'
+\macro double[x] {$x $x}
+${
+    plume.call_macro ("double", {}, "foo")
+}
+\-- Result
+foo foo
+\-- End
+
+\-- Test 'call_macro 2'
+\macro double[x] {$x $x}
+${
+    plume.call_macro ("double", {}, ${foo})
+}
+\-- Result
+foo foo
+\-- End

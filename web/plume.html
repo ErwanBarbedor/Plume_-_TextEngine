@@ -1024,8 +1024,10 @@ return function ()
             -- (affect only scripts and evals tokens)
             local last_scope = plume.get_scope ()
             for k, v in pairs(params.positionnals) do
-                params.positionnals[k] = v:copy ()
-                params.positionnals[k]:set_context (last_scope)
+                if type(params.keywords[k]) == "table" then
+                    params.positionnals[k] = v:copy ()
+                    params.positionnals[k]:set_context (last_scope)
+                end
             end
             for k, v in pairs(params.keywords) do
                 if type(params.keywords[k]) == "table" then
@@ -2004,15 +2006,27 @@ end
 
 api.lset = api.local_set
 
-function api.call_macro (name)
-    local scope = plume.get_scope()
-    local macro = scope:get("macros", name)
+--- Calls a macro with the specified name and optional parameters.
+-- @param name string The name of the macro to call.
+-- @param optionals table A table of optional parameters for the macro.
+-- @param ... any A variable number of positional parameters for the macro.
+-- @return any The result of the macro call.
 
-    local params = plume.init_macro_params ()
+function api.call_macro(name, optionals, ...)
+    local scope = plume.get_scope() -- Get the current scope
+    local macro = scope:get("macros", name) -- Retrieve the macro by name
 
-    local result = plume.call_macro (macro, plume.traceback[1], params)
-    return result
+    local positionals = {...}
+    local params = plume.init_macro_params()
+
+    for k, v in ipairs(macro.params) do
+        params.positionnals[v] = positionals[k]
+    end
+
+    local result = plume.call_macro(macro, plume.traceback[#plume.traceback], params)
+    return result -- Return the result of the macro call
 end
+
 
 --- @api_method Works like Lua's require, but uses Plume's file search system.
 -- @param path string Path of the lua file to load

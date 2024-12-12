@@ -161,8 +161,10 @@ return function ()
             -- (affect only scripts and evals tokens)
             local last_scope = plume.get_scope ()
             for k, v in pairs(params.positionnals) do
-                params.positionnals[k] = v:copy ()
-                params.positionnals[k]:set_context (last_scope)
+                if type(params.keywords[k]) == "table" then
+                    params.positionnals[k] = v:copy ()
+                    params.positionnals[k]:set_context (last_scope)
+                end
             end
             for k, v in pairs(params.keywords) do
                 if type(params.keywords[k]) == "table" then
