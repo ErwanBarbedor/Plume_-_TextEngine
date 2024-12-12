@@ -103,6 +103,15 @@ end
 
 api.lset = api.local_set
 
+function api.call_macro (name)
+    local scope = plume.get_scope()
+    local macro = scope:get("macros", name)
+
+    local params = plume.init_macro_params ()
+
+    local result = plume.call_macro (macro, plume.traceback[1], params)
+    return result
+end
 
 --- @api_method Works like Lua's require, but uses Plume's file search system.
 -- @param path string Path of the lua file to load

@@ -247,6 +247,18 @@ function plume.call_macro (macro, calling_token, parameters, chain_sender, chain
     return call_result, chain_sender, chain_message
 end
 
+function plume.init_macro_params ()
+    return {
+        positionnals={}, -- positionnal parameters
+        keywords={},     -- optionnal parameters
+        flags={},        -- syntax suger for some optionnal parameters
+        others={         -- "others" is used if a macro accepts a variable number of parameters.
+            keywords={},
+            flags={}
+        }
+    }
+end
+
 --- @api_method Get tokenlist rendered.
 -- @name render
 -- @return output The string rendered tokenlist.
@@ -371,16 +383,7 @@ function plume.render_token (self)
             pos, params, opt_params = plume.capture_macro_args (self, token, pos, #macro.params)
 
             -- Rearange parameters for the call
-            local macro_params = {
-                positionnals={}, -- positionnal parameters
-                keywords={},     -- optionnal parameters
-                flags={},        -- syntax suger for some optionnal parameters
-                others={         -- "others" is used if a macro accepts a variable number of parameters.
-                    keywords={},
-                    flags={}
-                }
-            }
-
+            local macro_params = plume.init_macro_params ()
 
             -- All captured parameters are postionnals
             for k, v in ipairs(params) do
