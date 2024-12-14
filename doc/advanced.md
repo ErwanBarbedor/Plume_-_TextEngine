@@ -110,7 +110,7 @@ Available types are:
 
 Plume doesn't do any _type checking_: with the previously defined `foo`, `\foo bar` will just convert `bar` to `nil`, without error.
 
-You can also use any function as an annotation:
+You can also use any function as an annotation, using tables `plume.annotations` and `plume.local_annotations`.
 
 ```plume
 ${
