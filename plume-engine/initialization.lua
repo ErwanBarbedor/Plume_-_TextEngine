@@ -53,6 +53,9 @@ function plume.init ()
 
     -- Used to pass temp variable
     plume.temp = {}
+
+    -- load macros
+    plume.load_macros()
     
     -- Init methods that are visible from user
     plume.init_api ()
@@ -81,7 +84,7 @@ function plume.init ()
         global_scope:set("config", k, v)
     end
 
-    plume.load_macros()
+    
 
     -- Deprecate
     -- plume.deprecate("name", "version removal", "alternative")

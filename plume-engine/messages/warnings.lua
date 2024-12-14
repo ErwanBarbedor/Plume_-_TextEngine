@@ -57,7 +57,21 @@ function plume.warning_deprecated_macro(token, name, version, alternative)
     msg = msg .. "and will be removed in version " .. version .. ". "
     msg = msg .. "Use '" .. alternative .. "' instead."
     
-    return msg
+    plume.warning(token, msg)
+end
+
+--- Generates a warning message for deprecated methods, indicating the version in which they will be removed and suggesting an alternative.
+-- @param token string The token containing the method name.
+-- @param name string The name of the deprecated method.
+-- @param version string The version in which the method will be removed.
+-- @param alternative string The suggested alternative method.
+-- @return string A formatted warning message about the deprecated method.
+function plume.warning_deprecated_method(token, name, version, alternative)
+    local msg = "Method '" .. name .. "' is deprecated, "
+    msg = msg .. "and will be removed in version " .. version .. ". "
+    msg = msg .. alternative
+    
+    plume.warning(token, msg)
 end
 
 --- Issues a warning when the global default value for evaluation is used.

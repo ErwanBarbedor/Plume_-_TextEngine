@@ -123,6 +123,17 @@ if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" then
     metamethods_unary_numeric.bnot = load("return function (x) return ~x end")()
 end
 
+local function deprecate_implicit_render (f)
+    return function (...)
+        local scope = plume.get_scope ()
+        local show_deprecation_warnings = scope:get("config", "show_deprecation_warnings")
+        if show_deprecation_warnings then
+            plume.warning(plume.traceback[#plume.traceback], 'implicit renderning will be removed in a future version. You will have to explicitly call render method, or use annotations.')
+        end
+        return f(...)
+    end
+end
+
 --- Creates a new tokenlist.
 -- @param x string|table Either a kind string or a table of tokens
 -- @return tokenlist A new tokenlist object
@@ -140,25 +151,25 @@ function plume.tokenlist (x)
 
     for name, method in pairs(metamethods_binary_numeric) do
         metatable["__" .. name] = function (x, y)
-            return method (tokens2number(x), tokens2number(y))
+            return deprecate_implicit_render(method)(tokens2number(x), tokens2number(y))
         end
     end
 
     for name, method in pairs(metamethods_unary_numeric) do
         metatable["__" .. name] = function (x)
-            return method (tokens2number(x))
+            return deprecate_implicit_render(method)(tokens2number(x))
         end
     end
 
     for name, method in pairs(metamethods_binary_string) do
         metatable["__" .. name] = function (x, y)
-            return method (tokens2string(x), tokens2string(y))
+            return deprecate_implicit_render(method)(tokens2number(x), tokens2number(y))
         end
     end
 
     for name, method in pairs(metamethods_unary_numeric) do
         metatable["__" .. name] = function (x)
-            return method (tokens2string(x))
+            return deprecate_implicit_render(method)(tokens2number(x))
         end
     end
 
@@ -175,6 +186,12 @@ function plume.tokenlist (x)
         -- Implicit rendering if key is a string method
         if not string[key] then
             return
+        end
+
+        local scope = plume.get_scope ()
+        local show_deprecation_warnings = scope:get("config", "show_deprecation_warnings")
+        if show_deprecation_warnings then
+            plume.warning(plume.traceback[#plume.traceback], 'implicit renderning will be removed in a future version. You will have to explicitly call render method, or use annotations.')
         end
 
         local rendered = tostring(self:render_lua ())
@@ -381,6 +398,11 @@ function plume.tokenlist (x)
         --- @api_method Render the tokenlist and return true if it is empty
         -- @return bool Is the tokenlist empty?
         is_empty = function (self)
+            local scope = plume.get_scope (self.context)
+            local show_deprecation_warnings = scope:get("config", "show_deprecation_warnings")
+            if show_deprecation_warnings then
+                plume.warning_deprecated_method (self, 'token:is_empty()', "0.15.0", "Use :string or :ref + render(), and then checks the length.")
+            end
             return #self:render() == 0
         end,
         render    = plume.render_token,

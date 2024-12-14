@@ -272,5 +272,8 @@ function plume.init_api ()
 
     -- Import annotations
     require "plume-engine.annotations" (global_scope)
+
+    -- Add deprecations
+    -- plume.deprecate (name, version, alternative)
 end
 
