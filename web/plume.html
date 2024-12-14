@@ -242,7 +242,7 @@ For some specific case, you can also use Plume inside Lua:
     </div>
     <h1>
         <img src="https://app.barbedor.bzh/plume.png" width="200" height="100">
-        <p>Version 0.12.0</p>
+        <p>Version 0.13.0</p>
     </h1>
     <a id="github-button" href="https://github.com/ErwanBarbedor/Plume_-_TextEngine">
         View on GitHub
@@ -2074,7 +2074,7 @@ end
 -- @param arg_number Number of paramters to capture
 -- @param f function
 -- @param is_local bool Is the new macro local?
-function api.export(name, params_number, f, is_local)
+function api.register_macro(name, params_number, f, is_local)
     local macro_params = {}
     for i=1, params_number do
         table.insert(macro_params, "x"..i)
@@ -2082,7 +2082,7 @@ function api.export(name, params_number, f, is_local)
     plume.register_macro(name, macro_params, {}, function (params)
         local rparams = {}
         for i=1, params_number do
-            rparams[i] = params.positionals['x' .. i]:render()
+            rparams[i] = params.positionals['x' .. i]
         end
         return f(plume.unpack(rparams))
     end, nil, is_local)
@@ -2542,7 +2542,7 @@ plume_files['plume-engine.init'] = function ()
 -- Following Lua best practices, plume should be local.
 -- But given the current organization of the code, this would require a major rewrite.
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.12.0"
+plume._VERSION = "Plume - TextEngine 0.13.0"
 
 require "plume-engine.config"
 require "plume-engine.syntax"

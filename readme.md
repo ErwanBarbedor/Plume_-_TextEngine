@@ -126,6 +126,10 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 
 ## Last version : 0.13.0
 
+### Changes
+- Rename `plume.export` to `plume.register_macro`.
+- Parameters of `plume.register_macro` are no longer rendered before the macro call.
+
 See the [changelog](doc/changelog.md) for older version
 
 ## License

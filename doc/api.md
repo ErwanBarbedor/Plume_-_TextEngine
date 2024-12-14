@@ -113,9 +113,9 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 **Return:** `lib`The require lib
 
-### export
+### register_macro
 
-**Usage :** `plume.export(name, arg_number, is_local)`
+**Usage :** `plume.register_macro(name, arg_number, is_local)`
 
 **Description:**  Create a macro from a lua function.
 

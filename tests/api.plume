@@ -39,10 +39,12 @@ $a
 \-- Test 'export'
 ${
     function add(x, y)
+        x = plume.annotations.number(x)
+        y = plume.annotations.number(y)
         return math.floor(x+y)
     end
 
-    plume.export("add", 2, add)
+    plume.register_macro("add", 2, add)
 }\--
 \--
 \add{1}{2}
