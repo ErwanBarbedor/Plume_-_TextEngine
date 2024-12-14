@@ -1,3 +1,33 @@
+## 0.12.0
+### Changes
+- New syntax: conversion annotation. In the macro definition, users can give the name of a function to call on a parameter to convert it: `\macro double [x:number] ${2*x}`
+- Default annotation to all parameters is `auto`, even if old default behavior is `ref`.
+- New `config.default_annotation`.
+- New `plume.set`, `plume.local_set` and `plume.lset`.
+- Rename `plume.lua_get` to `plume.get_lua`
+- Remove `plume.lget`
+- All warnings are now disables by default.
+- New `api.warnings_all()`
+- `token:sourceLua(), tokenlist:sourceLua()` -> `token:source_lua(), tokenlist:source_lua()`
+- Sugar syntax : `\foo[?bar]` is a shortcut for `\foo[{\if $bar bar}]`
+
+### Enhancements
+- Betters error message for internals errors.
+
+### Interns changes
+- Code cleaning
+
+### Deprecation
+- `tokenlist:is_empty ()` is deprecated
+- All tokenlist implicit conversions will be removed in the future.
+
+### CLI changes
+- New `-w, --warnings` option
+
+### Bugfixs
+- Fix a bug causing non-provided flags to be `nil` instead of `false`.
+- Preventing a file from including itself with the macro `\include`, or creating an infinite loop.
+
 ## 0.11.3
 ### Bugfix
 - Fix a case when `${10.0}` output `.`

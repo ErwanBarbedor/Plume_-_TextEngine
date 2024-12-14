@@ -1,5 +1,5 @@
 --[[
-Plume - TextEngine 0.12.0
+Plume - TextEngine 0.13.0
 Copyright (C) 2024 Erwan Barbedor
 
 Check https://github.com/ErwanBarbedor/Plume_-_TextEngine
@@ -21,7 +21,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 -- Following Lua best practices, plume should be local.
 -- But given the current organization of the code, this would require a major rewrite.
 plume = {}
-plume._VERSION = "Plume - TextEngine 0.12.0"
+plume._VERSION = "Plume - TextEngine 0.13.0"
 
 require "plume-engine.config"
 require "plume-engine.syntax"
