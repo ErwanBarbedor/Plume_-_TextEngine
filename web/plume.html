@@ -1949,11 +1949,22 @@ end
 
 --- @api_method Get a variable value by name in the current scope.
 -- @param key string The variable name.
+-- @param annotation string (optionnal) name of the annotation to pass result on
 -- @return value The required variable.
 -- @note `plume.get` may return a tokenlist, so may have to call `plume.get (name):render ()` or `plume.get (name):render_lua ()`. See [get_render](#get_render) and [get_render_lua](#get_render_lua).
-function api.get (key)
+function api.get (key, annotation)
     local scope = plume.get_scope()
-    return scope:get("variables", key)
+    local result = scope:get("variables", key)
+
+    if annotation then
+        annotation = scope:get("annotations", "number")
+    end
+
+    if annotation then
+        result = annotation(result)
+    end
+
+    return result
 end
 
 --- @api_method Get a variable value by name in the current scope. If the variable has a render method (see [render](#render)), call it and return the result. Otherwise, return the variable.

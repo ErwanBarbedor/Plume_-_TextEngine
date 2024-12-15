@@ -5,6 +5,14 @@ ${plume.get "a"}
 1
 \-- End
 
+\-- Test 'get - annotation'
+${a = "1"}\--
+${type(plume.get ("a", "number"))}
+\-- Result
+number
+\-- End
+
+
 \-- Test 'get local'
 ${local a = 1}\--
 ${plume.get "a"}

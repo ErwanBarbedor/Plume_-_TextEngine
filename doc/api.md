@@ -37,12 +37,13 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 ### get
 
-**Usage :** `value = plume.get(key)`
+**Usage :** `value = plume.get(key, annotation)`
 
 **Description:**  Get a variable value by name in the current scope.
 
 **Parameters :**
 - `key` _string_  The variable name.
+- `annotation` _string_  (optionnal) name of the annotation to pass result on
 
 **Return:** `value`The required variable.
 
