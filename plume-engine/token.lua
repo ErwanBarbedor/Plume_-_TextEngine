@@ -343,25 +343,49 @@ function plume.tokenlist (x)
                                 name_pos = name_pos + 1
                             end
 
-                            -- Capture next token (can be "=", function name or beginning of the next statement)
-                            local next_pos = name_pos+1
-                            while next_pos <= #self and self[next_pos].kind == "space" do
-                                next_pos = next_pos + 1
-                            end
-
                             local name = self[name_pos]
-                            local next = self[next_pos]
-                            -- print("<", self[name_pos].kind, ">")
-                            -- print("<", self[next_pos].kind, self[next_pos].value, ">")
 
                             -- local can be used with variable declaration or affectation
                             if name.kind == "lua_word" then
-                                table.insert(result, "plume.local_set('" .. name.value .. "')")
+                                local variables_names = {}
+                                table.insert(variables_names, name.value)
+
+                                local last_is_variable = true
+                                local last
+                                
+                                -- Capture a succession of variables, separated by commas.
+                                while true do
+                                    name_pos = name_pos+1
+                                    -- print(last_is_variable, self[name_pos] and self[name_pos].kind )
+                                    if name_pos > #self then
+                                        last = nil
+                                        break
+                                    elseif self[name_pos].kind == "space" then
+                                    elseif last_is_variable then
+                                        if self[name_pos].kind ~= "lua_code" or self[name_pos].value ~= "," then
+                                            last = self[name_pos]
+                                            break
+                                        end
+                                        last_is_variable = false
+                                    else
+                                        if self[name_pos].kind == "lua_word" then
+                                            table.insert(variables_names, self[name_pos].value)
+                                            last_is_variable = true
+                                        else
+                                            last = nil
+                                            break
+                                        end
+                                    end
+                                end
+
+                                for _, name in ipairs(variables_names) do
+                                    table.insert(result, "plume.local_set('" .. name .. "')")
+                                end
 
                                 -- If local declaration without affectation,
                                 -- don't write variable name two times
-                                if not next or next.value:sub(1, 1) ~= "=" then
-                                    i = next_pos-1
+                                if not last or not last.value or last.value:sub(1, 1) ~= "=" then
+                                    i = name_pos-1
                                 end
 
                             -- Or with function declaration

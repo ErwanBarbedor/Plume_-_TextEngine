@@ -120,3 +120,24 @@ plume.local_set('a')
 \-- Result
 plume.local_set('foo') function foo () end
 \-- End
+
+\-- Test 'Capture local 4'
+\macro lua[x:ref] ${x[2]:source_lua ()}
+\lua ${local a, b}
+\-- Result
+plume.local_set('a')plume.local_set('b')
+\-- End
+
+\-- Test 'Capture local 5'
+\macro lua[x:ref] ${x[2]:source_lua ()}
+\lua ${local a, b = 0, 1}
+\-- Result
+plume.local_set('a')plume.local_set('b') a, b = 0, 1
+\-- End
+
+\-- Test 'Capture local 6'
+\macro lua[x:ref] ${x[2]:source_lua ()}
+\lua ${local a, b c()}
+\-- Result
+plume.local_set('a')plume.local_set('b')c()
+\-- End

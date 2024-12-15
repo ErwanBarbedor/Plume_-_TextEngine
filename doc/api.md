@@ -170,9 +170,9 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 **Return:** `lua_objet`Result of evaluation
 
-### name
+### declaration
 
-**Usage :** `string, string = tokenlist:name()`
+**Usage :** `string, string = tokenlist:declaration()`
 
 **Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
 
@@ -198,9 +198,9 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 The user have access to theses methods, but shouldn't use it.
 
-### name
+### declaration
 
-**Usage :** `debug_info, tokenlist, string, string = tokenlist:name(scope, forced)`
+**Usage :** `debug_info, tokenlist, string, string = tokenlist:declaration(scope, forced)`
 
 **Description:**  Return debug informations about the tokenlist.
 
