@@ -20,14 +20,6 @@ Méthodes et variables Lua accessibles in any `$` macro.
 
 
 
-### capture_local
-
-**Usage :** `plume.capture_local()`
-
-**Description:**  Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
-
-**Note:** Mainly for internal use, except in one case: when rendering a plume block declared inside Lua, because by default capture occurs only at the end of the chunk.
-
 ### open
 
 **Usage :** `file, founded_path = plume.open(path, open_mode, silent_fail)`
@@ -178,19 +170,27 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 **Return:** `lua_objet`Result of evaluation
 
-### get_line
+### name
 
-**Usage :** `string, string, bool, string = tokenlist:get_line(source, noline)`
+**Usage :** `string, string = tokenlist:name()`
 
 **Description:**  Returns the raw code of the tokenlist, as is writed in the source file.
+
+**Return:**
+- `string`The source code
+- `string`The source code
+
+### get_line
+
+**Usage :** `bool, string = tokenlist:get_line(source, noline)`
+
+**Description:**  Render the tokenlist and return true if it is empty
 
 **Parameters :**
 - `source` _string_  The source code
 - `noline` _number_  The line number to retrieve
 
 **Return:**
-- `string`The source code
-- `string`The source code
 - `bool`Is the tokenlist empty?
 - `string`The line at the specified line number
 
@@ -198,22 +198,18 @@ In the same way, if you call all `string` methods on a tokenlist, the call to `r
 
 The user have access to theses methods, but shouldn't use it.
 
-### get_line
+### name
 
-**Usage :** `debug_info, tokenlist, string, string, bool, string = tokenlist:get_line(scope, forced, source, noline)`
+**Usage :** `debug_info, tokenlist, string, string = tokenlist:name(scope, forced)`
 
 **Description:**  Return debug informations about the tokenlist.
 
 **Parameters :**
 - `scope` _table_  The scope to freeze.
 - `forced` _boolean_  Force to re-freeze already frozen children?
-- `source` _string_  The source code
-- `noline` _number_  The line number to retrieve
 
 **Return:**
 - `debug_info`A table containing fields : `file`, `line` (the first line of this code chunck), `lastline`, `pos` (first position of the code in the first line), `endpos`, `code` (The full code of the file).
 - `tokenlist`The copied tokenlist.
 - `string`The source code
 - `string`The source code
-- `bool`Is the tokenlist empty?
-- `string`The line at the specified line number

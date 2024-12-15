@@ -20,23 +20,6 @@ api._VERSION = plume._VERSION
 --- @api_variable Hook to the internal `plume` table, for experimented users.
 api.engine   = plume
 
---- @api_method Capture the local _lua_ variable and save it in the _plume_ local scope. This is automatically called by plume at the end of lua block in statement-mode.
--- @note Mainly for internal use, except in one case: when rendering a plume block declared inside Lua, because by default capture occurs only at the end of the chunk.
-function api.capture_local()
-    local index = 1
-    local calling_token = plume.traceback[#plume.traceback]
-    while true do
-        local key, value = debug.getlocal(2, index)
-        if key then
-            local scope = plume.get_scope (calling_token.context)
-            scope:set_local("variables", key, value)
-        else
-            break
-        end
-        index = index + 1 
-    end
-end
-
 --- @api_method Searches for a file using the [plume search system](macros.md#include) and open it in the given mode. Return the opened file and the full path of the file.
 -- @param path string The path where to search for the file.
 -- @param open_mode="r" string Mode to open the file.

@@ -99,3 +99,24 @@ ${
 \-- Result
 
 \-- End
+
+\-- Test 'Capture local 1'
+\macro lua[x:ref] ${x[2]:source_lua ()}
+\lua ${local a = 5}
+\-- Result
+plume.local_set('a') a = 5
+\-- End
+
+\-- Test 'Capture local 2'
+\macro lua[x:ref] ${x[2]:source_lua ()}
+\lua ${local a}
+\-- Result
+plume.local_set('a')
+\-- End
+
+\-- Test 'Capture local 3'
+\macro lua[x:ref] ${x[2]:source_lua ()}
+\lua ${local function foo () end}
+\-- Result
+plume.local_set('foo') function foo () end
+\-- End

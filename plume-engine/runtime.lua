@@ -218,7 +218,6 @@ function plume.create_scope (parent)
     -- @param key string The key to set
     -- @param value any The value to set
     function scope.set_local(self, field, key, value)
-        
         if value ~= nil then
             rawset (scope[field], key, value)
         else
@@ -235,7 +234,7 @@ function plume.create_scope (parent)
         -- If no parent or if the variable is already registered
         -- save it in this scope
         -- Otherwise send the value to the parent
-        if not parent or rawget(scope[field], key) ~= nil  then
+        if not parent or rawget(scope[field], key) ~= nil or rawget(scope.nil_local, field.."@"..key)  then
             rawset (scope[field], key, value)
         else
             parent:set (field, key, value)

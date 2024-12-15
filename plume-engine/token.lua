@@ -309,7 +309,6 @@ function plume.tokenlist (x)
             local result = {}
             local i = 0
             local is_expression = true
-            local found_return  = false
             local last_kind = nil
 
             while i < #self do
@@ -335,6 +334,53 @@ function plume.tokenlist (x)
                     is_expression = false
                 elseif token.kind == "lua_statement_alone" then
                     is_expression = false
+                    if token.value == "local" then
+                        if can_return then
+                            local name_pos = i+1
+
+                            -- Capture the name of the variable (or "function" token)
+                            while i <= #self and self[name_pos].kind == "space" do
+                                name_pos = name_pos + 1
+                            end
+
+                            -- Capture next token (can be "=", function name or beginning of the next statement)
+                            local next_pos = name_pos+1
+                            while next_pos <= #self and self[next_pos].kind == "space" do
+                                next_pos = next_pos + 1
+                            end
+
+                            local name = self[name_pos]
+                            local next = self[next_pos]
+                            -- print("<", self[name_pos].kind, ">")
+                            -- print("<", self[next_pos].kind, self[next_pos].value, ">")
+
+                            -- local can be used with variable declaration or affectation
+                            if name.kind == "lua_word" then
+                                table.insert(result, "plume.local_set('" .. name.value .. "')")
+
+                                -- If local declaration without affectation,
+                                -- don't write variable name two times
+                                if not next or next.value:sub(1, 1) ~= "=" then
+                                    i = next_pos-1
+                                end
+
+                            -- Or with function declaration
+                            elseif name.kind == "lua_statement" and name.opening_token.value == "function" then
+                                local fname_pos = 1
+                                while fname_pos <= #name and name[fname_pos].kind ~= "lua_word" do
+                                    fname_pos = fname_pos + 1
+                                end
+
+                                local fname = name[fname_pos]
+
+                                if fname then
+                                    table.insert(result, "plume.local_set('" .. fname.value .. "')")
+                                end
+                            end
+                        else
+                            table.insert(result, "local")
+                        end
+                    end
                 elseif token.kind == "lua_call" then
                     table.insert(result, plume.lua_syntax.call_begin)
                 elseif token.kind == "lua_index" then
@@ -361,15 +407,11 @@ function plume.tokenlist (x)
                     end
                 elseif token.kind == "lua_return" then
                     is_expression = false
-                    if can_alter_return then
-                        table.insert(result, " plume.capture_local () return ")
-                    else
-                        table.insert(result, " return ")
-                    end
+                    table.insert(result, " return ")
                     found_return  = true
                 elseif token.kind == "lua_function" or token.kind == "lua_call" or token.kind == "lua_index" or token.kind == "lua_table" then
                     table.insert(result, token:source_lua(temp, false, false))
-                else
+                elseif token.value ~= "local" then
                     table.insert(result, token:source_lua(temp, false, true))
                 end
 
@@ -387,8 +429,6 @@ function plume.tokenlist (x)
             if can_return then
                 if is_expression then
                     table.insert(result, 1, "return ")
-                elseif not found_return then
-                    table.insert(result, "\nplume.capture_local ()")
                 end
             end
 
