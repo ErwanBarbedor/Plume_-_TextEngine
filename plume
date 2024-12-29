@@ -7,4 +7,4 @@ if [ -z "$LUA_EXEC" ]; then
     export LUA_EXEC=lua
 fi
 
-"$LUA_EXEC" "${SCRIPT_DIR}/cli.lua" -p "$@"
+"$LUA_EXEC" "${SCRIPT_DIR}/cli.lua" "$@"
