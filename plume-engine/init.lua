@@ -20,27 +20,27 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 -- Following Lua best practices, plume should be local.
 -- But given the current organization of the code, this would require a major rewrite.
-plume = {}
+local plume = {}
 plume._VERSION = "Plume - TextEngine 0.13.0"
 
-require "plume-engine.config"
-require "plume-engine.syntax"
-require "plume-engine.render"
-require "plume-engine.token"
-require "plume-engine.tokenize"
-require "plume-engine.tokenize_plume"
-require "plume-engine.tokenize_lua"
-require "plume-engine.parse"
-require "plume-engine.error"
-require "plume-engine.macro"
-require "plume-engine.runtime"
-require "plume-engine.initialization"
-require "plume-engine.api"
-require "plume-engine.debug"
+require "plume-engine.config"          (plume)
+require "plume-engine.syntax"          (plume)
+require "plume-engine.render"          (plume)
+require "plume-engine.token"           (plume)
+require "plume-engine.tokenize"        (plume)
+require "plume-engine.tokenize_plume"  (plume)
+require "plume-engine.tokenize_lua"    (plume)
+require "plume-engine.parse"           (plume)
+require "plume-engine.error"           (plume)
+require "plume-engine.macro"           (plume)
+require "plume-engine.runtime"         (plume)
+require "plume-engine.initialization"  (plume)
+require "plume-engine.api"             (plume)
+require "plume-engine.debug"           (plume)
 
-require "plume-engine.messages.errors"
-require "plume-engine.messages.syntax_errors"
-require "plume-engine.messages.warnings"
+require "plume-engine.messages.errors"         (plume)
+require "plume-engine.messages.syntax_errors"  (plume)
+require "plume-engine.messages.warnings"       (plume)
 
 --- Tokenizes, parses, and renders a string.
 -- @param code string The code to render

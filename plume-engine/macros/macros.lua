@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Define macro-related macros
-return function ()
+return function (plume)
 
     --- Applies an annotation to the value based on the given key.
     -- @param token table The token associated with the annotation process.

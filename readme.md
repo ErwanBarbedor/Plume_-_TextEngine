@@ -131,6 +131,7 @@ Version 1.0 should be released no later than September 2025, likely sooner. I wi
 - Parameters of `plume.register_macro` are no longer rendered before the macro call.
 - Plume will now work seamlessly with Lua local variables. Remove `plume.capture_local`.
 - `plume.get` accept a second argument `annotation`
+- `plume` variable is now local
 
 ### Bugfixes
 - Fix a bug occurring when globally setting a variable defined locally, but with a nil value.

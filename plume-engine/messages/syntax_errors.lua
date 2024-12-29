@@ -12,68 +12,69 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Plume - TextEngine. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-
-function plume.syntax_error_wrong_eval (token, char)
-    local msg = "Syntax error : '" .. plume.syntax.eval .. "' must be followed by an identifier "
-    msg = msg .. "or '" .. plume.syntax.block_begin .. "', "
-    msg = msg .. "not '" .. char .. "'."
-    plume.error (token,  msg)
-end
-
-function plume.syntax_error_wrong_eval_inside_lua (token, char)
-    local msg = "Syntax error : inside a lua bloc, '" .. plume.syntax.eval .. "' must be followed by '" .. plume.syntax.block_begin .. "', "
-    msg = msg .. "not '" .. char .. "'."
-    plume.error (token,  msg)
-end
-
-function plume.syntax_error_brace_close_nothing (token)
-    plume.error(token, "Syntax error : this brace close nothing.")
-end
-
-function plume.syntax_error_wrong_block_end (token, opening)
-    local braces = "%[%]{}"
-
-    local escaped_opening = opening:gsub('([%%%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
-    local escaped_token_source = token:source():gsub('([%%%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
-    if braces:match(escaped_opening) and braces:match(escaped_token_source) then
-        plume.syntax_error_unpaired_braces (token, opening)
-    elseif ("if elseif do for while function"):match(escaped_opening) then
-        plume.syntax_error_lua_missing_end (token, opening)
-    else
-        plume.error(token, "Syntax error : this is an unexpected way to close '"..opening.."'.")
+return function (plume)
+    function plume.syntax_error_wrong_eval (token, char)
+        local msg = "Syntax error : '" .. plume.syntax.eval .. "' must be followed by an identifier "
+        msg = msg .. "or '" .. plume.syntax.block_begin .. "', "
+        msg = msg .. "not '" .. char .. "'."
+        plume.error (token,  msg)
     end
-end
+
+    function plume.syntax_error_wrong_eval_inside_lua (token, char)
+        local msg = "Syntax error : inside a lua bloc, '" .. plume.syntax.eval .. "' must be followed by '" .. plume.syntax.block_begin .. "', "
+        msg = msg .. "not '" .. char .. "'."
+        plume.error (token,  msg)
+    end
+
+    function plume.syntax_error_brace_close_nothing (token)
+        plume.error(token, "Syntax error : this brace close nothing.")
+    end
+
+    function plume.syntax_error_wrong_block_end (token, opening)
+        local braces = "%[%]{}"
+
+        local escaped_opening = opening:gsub('([%%%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
+        local escaped_token_source = token:source():gsub('([%%%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
+        if braces:match(escaped_opening) and braces:match(escaped_token_source) then
+            plume.syntax_error_unpaired_braces (token, opening)
+        elseif ("if elseif do for while function"):match(escaped_opening) then
+            plume.syntax_error_lua_missing_end (token, opening)
+        else
+            plume.error(token, "Syntax error : this is an unexpected way to close '"..opening.."'.")
+        end
+    end
 
 
-function plume.syntax_error_unpaired_braces (token, opening_brace)
-    plume.error(token, "Syntax error : this brace doesn't matching the opening brace, which was '"..opening_brace.."'.")
-end
+    function plume.syntax_error_unpaired_braces (token, opening_brace)
+        plume.error(token, "Syntax error : this brace doesn't matching the opening brace, which was '"..opening_brace.."'.")
+    end
 
-function plume.syntax_error_lua_missing_end (token, opening)
-    plume.error(token, "Syntax error : expecting 'end' to close '"..opening.."'.")
-end
+    function plume.syntax_error_lua_missing_end (token, opening)
+        plume.error(token, "Syntax error : expecting 'end' to close '"..opening.."'.")
+    end
 
 
-function plume.syntax_error_brace_unclosed (token)
-    plume.error(token, "Syntax error : this brace was never closed.")
-end
+    function plume.syntax_error_brace_unclosed (token)
+        plume.error(token, "Syntax error : this brace was never closed.")
+    end
 
-function plume.syntax_error_cannot_use_inside_optionnal_block (token)
-    plume.error(token, "Syntax error : cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
-end
+    function plume.syntax_error_cannot_use_inside_optionnal_block (token)
+        plume.error(token, "Syntax error : cannot use '" .. token.kind .. "' in optionnal parameters declaration. Please place braces around, or use raw text.")
+    end
 
-function plume.syntax_error_expected_parameter_value(token)
-    plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
-end
+    function plume.syntax_error_expected_parameter_value(token)
+        plume.error(token, "Expected parameter value, not '" .. token.value .. "'.")
+    end
 
-function plume.syntax_error_expected_parameter_name(token)
-    plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
-end
+    function plume.syntax_error_expected_parameter_name(token)
+        plume.error(token, "Expected parameter name, not '" .. token.value .. "'.")
+    end
 
-function plume.syntax_error_lua_eof (token)
-    plume.error(token, "Cannot end a lua script with '" .. token.value .. "'.")
-end
+    function plume.syntax_error_lua_eof (token)
+        plume.error(token, "Cannot end a lua script with '" .. token.value .. "'.")
+    end
 
-function plume.error_syntax_invalid_for_iterator (token)
-    plume.error(token, "Non valid syntax for iterator.")
+    function plume.error_syntax_invalid_for_iterator (token)
+        plume.error(token, "Non valid syntax for iterator.")
+    end
 end

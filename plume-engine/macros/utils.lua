@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with Plu
 
 -- Define some useful macro like set, raw, config, ...
 
-return function ()
+return function (plume)
     --- Affect a value to a variable
     local function set(params, calling_token, is_local)
         -- A macro to set variable to a value

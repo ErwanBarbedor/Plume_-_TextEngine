@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Define for, while, if, elseif, else control structures
-return function ()
+return function (plume)
     local function extract_variables_names (token)
         local result = {}
         local pos = 1

@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Define macro related to files
-return function ()
+return function (plume)
     --- Search path and open file
     -- @param token token Token used to throw an error (optionnal)
     -- @param formats table List of path formats to try (e.g., {"?.lua", "?/init.lua"})

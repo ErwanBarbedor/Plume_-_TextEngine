@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Define spaces-related macros
-return function ()
+return function (plume)
     --- \n
     -- Output a newline. 
     -- @option_nokw n=1 Number of newlines to output.

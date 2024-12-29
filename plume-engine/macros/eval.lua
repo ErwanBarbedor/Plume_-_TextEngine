@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along with Plu
 ]]
 
 -- Define script-related macro
-return function ()
+return function (plume)
     local function scientific_notation (x, n, sep)
         local n = n or 0
         local sep = sep or "."
