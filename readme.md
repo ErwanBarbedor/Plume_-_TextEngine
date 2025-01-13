@@ -1,6 +1,6 @@
 <p align="center"><img src="https://app.barbedor.bzh/plume.png" width="600" height="300"></p>
 
-![Version](https://img.shields.io/badge/version-0.13.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Version](https://img.shields.io/badge/version-0.12.0-blue.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Introduction
 
@@ -116,25 +116,41 @@ This doesn't work in Plume because `foo` will be expanded first.
 
 ## Project Status
 
-Plume is currently in development, and I try to release an update every week or every two weeks.
+The project is archived.
+Feather development is not yet complete, but a large number of things to review have led me to start the project from scratch.
 
-I am actively experimenting with features in several projects (non-public), so updates are often non-backward compatible: macros and functions are added/removed very regularly, the internal workings evolve, and even the syntax can change.
+You can find the continuation here: https://github.com/ErwanBarbedor/Plume_-_TextEngine
 
-This is essential for improving Plume, but it currently makes it incompatible with production use, although I try to announce non-backward compatible changes one or two versions in advance. However, feel free to test and report any errors or suggestions! The documentation is already very comprehensive and is regularly updated.
-
-Version 1.0 should be released no later than September 2025, likely sooner. I will then tackle plume-document, a set of Plume macros for generating HTML/PDF documents.
-
-## Last version : 0.13.0
+## Last version : 0.12.0
 
 ### Changes
-- Rename `plume.export` to `plume.register_macro`.
-- Parameters of `plume.register_macro` are no longer rendered before the macro call.
-- Plume will now work seamlessly with Lua local variables. Remove `plume.capture_local`.
-- `plume.get` accept a second argument `annotation`
-- `plume` variable is now local
+- New syntax: conversion annotation. In the macro definition, users can give the name of a function to call on a parameter to convert it: `\macro double [x:number] ${2*x}`
+- Default annotation to all parameters is `auto`, even if old default behavior is `ref`.
+- New `config.default_annotation`.
+- New `plume.set`, `plume.local_set` and `plume.lset`.
+- Rename `plume.lua_get` to `plume.get_lua`
+- Remove `plume.lget`
+- All warnings are now disables by default.
+- New `api.warnings_all()`
+- `token:sourceLua(), tokenlist:sourceLua()` -> `token:source_lua(), tokenlist:source_lua()`
+- Sugar syntax : `\foo[?bar]` is a shortcut for `\foo[{\if $bar bar}]`
 
-### Bugfixes
-- Fix a bug occurring when globally setting a variable defined locally, but with a nil value.
+### Enhancements
+- Betters error message for internals errors.
+
+### Interns changes
+- Code cleaning
+
+### Deprecation
+- `tokenlist:is_empty ()` is deprecated
+- All tokenlist implicit conversions will be removed in the future.
+
+### CLI changes
+- New `-w, --warnings` option
+
+### Bugfixs
+- Fix a bug causing non-provided flags to be `nil` instead of `false`.
+- Preventing a file from including itself with the macro `\include`, or creating an infinite loop.
 
 See the [changelog](doc/changelog.md) for older version
 
