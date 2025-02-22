@@ -24,7 +24,7 @@ To illustrate, consider the task of generating ten files, each containing a mult
 
 ## Quick Start
 
-You can test plume in [your browser](https://app.barbedor.bzh/plume.html). 
+You can test plume in [your browser](https://app.barbedor.bzh/plume-0.11.html). 
 
 Plume requires Lua to run. It has been tested with Lua versions 5.x and LuaJIT. Clone or download the repository.
 
@@ -119,7 +119,7 @@ This doesn't work in Plume because `foo` will be expanded first.
 The project is archived.
 Feather development is not yet complete, but a large number of things to review have led me to start the project from scratch.
 
-You can find the continuation here: https://github.com/ErwanBarbedor/Plume_-_TextEngine
+You can find the continuation here: https://github.com/ErwanBarbedor/PlumeScript
 
 ## Last version : 0.12.0
 
